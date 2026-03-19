@@ -30,7 +30,9 @@ describe('AppSidebar', () => {
                     SidebarFooter: { template: '<div><slot /></div>' },
                     SidebarHeader: { template: '<div><slot /></div>' },
                     SidebarMenu: { template: '<div><slot /></div>' },
-                    SidebarMenuButton: { template: '<button><slot /></button>' },
+                    SidebarMenuButton: {
+                        template: '<button><slot /></button>',
+                    },
                     SidebarMenuItem: { template: '<div><slot /></div>' },
                     NavUser: true,
                     NavFooter: true,
@@ -47,8 +49,9 @@ describe('AppSidebar', () => {
         const complianceItem = wrapper
             .findAll('.nav-item')
             .find(
-                (item) => item.attributes('data-title') === 'Stratos Compliance',
-        );
+                (item) =>
+                    item.attributes('data-title') === 'Stratos Compliance',
+            );
 
         expect(complianceItem).toBeTruthy();
         expect(complianceItem?.attributes('data-href')).toBe(

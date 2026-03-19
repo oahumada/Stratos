@@ -5,7 +5,9 @@
             :slogan="t('landings.control_center.slogan')"
             :icon="PhGear"
         />
-        <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div
+            class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:gap-7 xl:grid-cols-3"
+        >
             <div v-for="mod in modules" :key="mod.title">
                 <ModuleCard
                     :title="mod.title"
@@ -23,15 +25,15 @@
 import GroupHeader from '@/components/Landing/GroupHeader.vue';
 import ModuleCard from '@/components/Landing/ModuleCard.vue';
 import {
-    PhChartLineUp,
+    PhBrain,
     PhCertificate,
+    PhChartLineUp,
     PhGear,
     PhRobot,
     PhRocketLaunch,
+    PhScroll,
     PhShieldCheck,
     PhTarget,
-    PhBrain,
-    PhScroll,
 } from '@phosphor-icons/vue';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';

@@ -621,7 +621,8 @@ export const messages = {
                 modules: {
                     mi_stratos: {
                         title: 'My Stratos',
-                        description: 'Personal dashboard, KPIs, and gamification.',
+                        description:
+                            'Personal dashboard, KPIs, and gamification.',
                     },
                     comando_px: {
                         title: 'PX Command',
@@ -702,6 +703,20 @@ export const messages = {
                         title: 'RAGAS Neural Dash',
                         description: 'LLM output analytics.',
                     },
+                    comando_360: {
+                        title: '360 Command',
+                        description:
+                            'Assessment cycle and policy orchestration.',
+                    },
+                    comando_px: {
+                        title: 'PX Command',
+                        description: 'Burnout and climate dashboard.',
+                    },
+                    cultural_blueprint: {
+                        title: 'Stratos Identity',
+                        description:
+                            'Management of the Organizational Constitution: Mission, Vision, and Values.',
+                    },
                 },
             },
             radar: {
@@ -714,15 +729,18 @@ export const messages = {
                     },
                     executive_dashboard: {
                         title: 'Executive Dashboard',
-                        description: 'CEO-focused strategic oversight and KPI direction.',
+                        description:
+                            'CEO-focused strategic oversight and KPI direction.',
                     },
                     gap_analysis_engine: {
                         title: 'Gap Analysis Engine',
-                        description: 'Contrast between inventory and target state.',
+                        description:
+                            'Contrast between inventory and target state.',
                     },
                     investor_dashboard: {
                         title: 'Investor Dashboard',
-                        description: 'Financial-oriented ROI and value visibility.',
+                        description:
+                            'Financial-oriented ROI and value visibility.',
                     },
                 },
             },
@@ -1344,7 +1362,8 @@ export const messages = {
                     },
                     stratos_map: {
                         title: 'Stratos Map',
-                        description: 'Radiografía de habilidades en tiempo real.',
+                        description:
+                            'Radiografía de habilidades en tiempo real.',
                     },
                 },
             },
@@ -1376,7 +1395,8 @@ export const messages = {
                     },
                     stratos_360: {
                         title: 'Stratos 360',
-                        description: 'Evaluación holística y retroalimentación.',
+                        description:
+                            'Evaluación holística y retroalimentación.',
                     },
                     commander_360: {
                         title: 'Commander 360',
@@ -1434,6 +1454,20 @@ export const messages = {
                     ragas_neural_dash: {
                         title: 'Panel Neural RAGAS',
                         description: 'Analítica de salidas LLM.',
+                    },
+                    comando_360: {
+                        title: 'Comando 360',
+                        description:
+                            'Orquestación de ciclos de evaluación y políticas.',
+                    },
+                    comando_px: {
+                        title: 'Comando PX',
+                        description: 'Tablero de burnout y clima.',
+                    },
+                    cultural_blueprint: {
+                        title: 'Stratos Identity',
+                        description:
+                            'Gestión de la Constitución Organizacional: Misión, Visión y Valores.',
                     },
                 },
             },

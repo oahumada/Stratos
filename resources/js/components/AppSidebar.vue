@@ -30,6 +30,7 @@ import {
     PhPuzzlePiece,
     PhRobot,
     PhRocketLaunch,
+    PhScroll,
     PhShieldCheck,
     PhSquaresFour,
     PhStar,
@@ -38,7 +39,6 @@ import {
     PhUser,
     PhUsers,
     PhUsersFour,
-    PhScroll,
 } from '@phosphor-icons/vue';
 import { computed, defineComponent, h } from 'vue';
 

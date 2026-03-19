@@ -41,7 +41,7 @@ vi.mock('vue-i18n', () => ({
                     'Stratos Identity',
                 'landings.control_center.modules.cultural_blueprint.description':
                     'Gestión de la Constitución Organizacional.',
-            }[key] ?? key),
+            })[key] ?? key,
     }),
 }));
 
@@ -54,7 +54,13 @@ describe('ControlCenter Landing', () => {
                 stubs: {
                     GroupHeader: true,
                     ModuleCard: {
-                        props: ['title', 'description', 'href', 'icon', 'iconColor'],
+                        props: [
+                            'title',
+                            'description',
+                            'href',
+                            'icon',
+                            'iconColor',
+                        ],
                         template:
                             '<div class="module-card" :data-title="title" :data-href="href">{{ title }}</div>',
                     },

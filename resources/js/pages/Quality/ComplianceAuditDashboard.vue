@@ -233,7 +233,7 @@ onMounted(loadDashboard);
 </script>
 
 <template>
-    <div class="space-y-6">
+    <div class="space-y-10" data-testid="compliance-dashboard-root">
         <div
             class="flex flex-col justify-between gap-3 md:flex-row md:items-center"
         >
@@ -252,45 +252,64 @@ onMounted(loadDashboard);
         </div>
 
         <div
-            class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"
+            class="grid grid-cols-1 gap-x-10 gap-y-8 px-12 md:grid-cols-2 xl:grid-cols-4 xl:gap-x-12"
+            data-testid="compliance-summary-grid"
+            style="padding-bottom:12px"
             v-if="summary"
         >
-            <StCardGlass>
-                <p class="text-xs tracking-wider text-white/50 uppercase">
-                    Eventos Totales
-                </p>
-                <p class="mt-2 text-2xl font-bold text-white">
-                    {{ summary.total_events }}
-                </p>
+            <StCardGlass class="overflow-hidden p-0">
+                <div
+                    class="flex min-h-[148px] flex-col justify-between px-8 py-7 md:px-10 md:py-8"
+                    data-testid="summary-card-content"
+                >
+                    <p class="text-xs tracking-wider text-white/50 uppercase">
+                        Eventos Totales
+                    </p>
+                    <p class="mt-4 text-3xl font-bold text-white">
+                        {{ summary.total_events }}
+                    </p>
+                </div>
             </StCardGlass>
-            <StCardGlass>
-                <p class="text-xs tracking-wider text-white/50 uppercase">
-                    Eventos (24h)
-                </p>
-                <p class="mt-2 text-2xl font-bold text-white">
-                    {{ summary.events_last_24h }}
-                </p>
+            <StCardGlass class="overflow-hidden p-0">
+                <div
+                    class="flex min-h-[148px] flex-col justify-between px-8 py-7 md:px-10 md:py-8"
+                >
+                    <p class="text-xs tracking-wider text-white/50 uppercase">
+                        Eventos (24h)
+                    </p>
+                    <p class="mt-4 text-3xl font-bold text-white">
+                        {{ summary.events_last_24h }}
+                    </p>
+                </div>
             </StCardGlass>
-            <StCardGlass>
-                <p class="text-xs tracking-wider text-white/50 uppercase">
-                    Tipos de Evento
-                </p>
-                <p class="mt-2 text-2xl font-bold text-white">
-                    {{ summary.unique_event_names }}
-                </p>
+            <StCardGlass class="overflow-hidden p-0">
+                <div
+                    class="flex min-h-[148px] flex-col justify-between px-8 py-7 md:px-10 md:py-8"
+                >
+                    <p class="text-xs tracking-wider text-white/50 uppercase">
+                        Tipos de Evento
+                    </p>
+                    <p class="mt-4 text-3xl font-bold text-white">
+                        {{ summary.unique_event_names }}
+                    </p>
+                </div>
             </StCardGlass>
-            <StCardGlass>
-                <p class="text-xs tracking-wider text-white/50 uppercase">
-                    Agregados Únicos
-                </p>
-                <p class="mt-2 text-2xl font-bold text-white">
-                    {{ summary.unique_aggregates }}
-                </p>
+            <StCardGlass class="overflow-hidden p-0">
+                <div
+                    class="flex min-h-[148px] flex-col justify-between px-8 py-7 md:px-10 md:py-8"
+                >
+                    <p class="text-xs tracking-wider text-white/50 uppercase">
+                        Agregados Únicos
+                    </p>
+                    <p class="mt-4 text-3xl font-bold text-white">
+                        {{ summary.unique_aggregates }}
+                    </p>
+                </div>
             </StCardGlass>
         </div>
 
-        <StCardGlass>
-            <div class="grid grid-cols-1 gap-3 p-4 md:grid-cols-3">
+        <StCardGlass class="overflow-hidden p-0" >
+            <div class="grid grid-cols-1 gap-4 p-6 md:grid-cols-3" >
                 <v-text-field
                     v-model="eventNameFilter"
                     label="Filtrar por event_name"
@@ -310,17 +329,17 @@ onMounted(loadDashboard);
                 >
             </div>
 
-            <div v-if="loading" class="p-8 text-center text-white/50">
+            <div v-if="loading" class="px-6 py-10 text-center text-white/50">
                 Cargando eventos de auditoría...
             </div>
             <div
                 v-else-if="events.length === 0"
-                class="p-8 text-center text-white/50"
+                class="px-6 py-10 text-center text-white/50"
             >
                 No hay eventos para los filtros seleccionados.
             </div>
 
-            <div v-else class="overflow-x-auto">
+            <div v-else class="overflow-x-auto px-2 pb-2 md:px-4 md:pb-4" >
                 <table class="min-w-full divide-y divide-white/10">
                     <thead>
                         <tr
@@ -362,55 +381,69 @@ onMounted(loadDashboard);
 
         <div
             v-if="iso30414"
-            class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+            class="grid grid-cols-1 gap-x-10 gap-y-8 px-12 md:grid-cols-2 xl:grid-cols-3 xl:gap-x-12" style="padding-top:12px; padding-bottom:12px"
         >
-            <StCardGlass>
-                <p class="text-xs tracking-wider text-white/50 uppercase">
-                    Costo Total de Sustitución
-                </p>
-                <p class="mt-2 text-2xl font-bold text-white">
-                    {{
-                        formatMoney(
-                            iso30414.replacement_cost
-                                .total_estimated_replacement_cost,
-                        )
-                    }}
-                </p>
-                <p class="mt-1 text-xs text-white/50">
-                    Headcount evaluado:
-                    {{ iso30414.replacement_cost.total_headcount }}
-                </p>
+            <StCardGlass class="overflow-hidden p-0">
+                <div
+                    class="flex min-h-[168px] flex-col justify-between px-8 py-7 md:px-10 md:py-8"
+                >
+                    <p class="text-xs tracking-wider text-white/50 uppercase">
+                        Costo Total de Sustitución
+                    </p>
+                    <div class="space-y-2">
+                        <p class="text-3xl font-bold text-white">
+                            {{
+                                formatMoney(
+                                    iso30414.replacement_cost
+                                        .total_estimated_replacement_cost,
+                                )
+                            }}
+                        </p>
+                        <p class="text-xs text-white/50">
+                            Headcount evaluado:
+                            {{ iso30414.replacement_cost.total_headcount }}
+                        </p>
+                    </div>
+                </div>
             </StCardGlass>
-            <StCardGlass>
-                <p class="text-xs tracking-wider text-white/50 uppercase">
-                    Costo Promedio por Persona
-                </p>
-                <p class="mt-2 text-2xl font-bold text-white">
-                    {{
-                        formatMoney(
-                            iso30414.replacement_cost
-                                .average_estimated_replacement_cost,
-                        )
-                    }}
-                </p>
+            <StCardGlass class="overflow-hidden p-0">
+                <div
+                    class="flex min-h-[168px] flex-col justify-between px-8 py-7 md:px-10 md:py-8"
+                >
+                    <p class="text-xs tracking-wider text-white/50 uppercase">
+                        Costo Promedio por Persona
+                    </p>
+                    <p class="mt-4 text-3xl font-bold text-white">
+                        {{
+                            formatMoney(
+                                iso30414.replacement_cost
+                                    .average_estimated_replacement_cost,
+                            )
+                        }}
+                    </p>
+                </div>
             </StCardGlass>
-            <StCardGlass>
-                <p class="text-xs tracking-wider text-white/50 uppercase">
-                    Skills Transversales con Brecha
-                </p>
-                <p class="mt-2 text-2xl font-bold text-white">
-                    {{ iso30414.transversal_capability_gaps.length }}
-                </p>
+            <StCardGlass class="overflow-hidden p-0">
+                <div
+                    class="flex min-h-[168px] flex-col justify-between px-8 py-7 md:px-10 md:py-8"
+                >
+                    <p class="text-xs tracking-wider text-white/50 uppercase">
+                        Skills Transversales con Brecha
+                    </p>
+                    <p class="mt-4 text-3xl font-bold text-white">
+                        {{ iso30414.transversal_capability_gaps.length }}
+                    </p>
+                </div>
             </StCardGlass>
         </div>
 
-        <StCardGlass v-if="iso30414">
-            <div class="border-b border-white/10 p-4">
+        <StCardGlass v-if="iso30414" class="overflow-hidden p-0">
+            <div class="border-b border-white/10 px-6 py-5">
                 <h3 class="text-sm font-bold text-white">
                     Madurez de Talento por Departamento
                 </h3>
             </div>
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto px-2 pb-2 md:px-4 md:pb-4">
                 <table class="min-w-full divide-y divide-white/10">
                     <thead>
                         <tr
@@ -454,13 +487,13 @@ onMounted(loadDashboard);
             </div>
         </StCardGlass>
 
-        <StCardGlass v-if="iso30414">
-            <div class="border-b border-white/10 p-4">
+        <StCardGlass v-if="iso30414" class="overflow-hidden p-0">
+            <div class="border-b border-white/10 px-6 py-5">
                 <h3 class="text-sm font-bold text-white">
                     Top Brechas de Capacidades Transversales
                 </h3>
             </div>
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto px-2 pb-2 md:px-4 md:pb-4">
                 <table class="min-w-full divide-y divide-white/10">
                     <thead>
                         <tr
@@ -500,36 +533,51 @@ onMounted(loadDashboard);
             </div>
         </StCardGlass>
 
-        <div v-if="internalAudit" class="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <StCardGlass>
-                <p class="text-xs tracking-wider text-white/50 uppercase">
-                    Roles Críticos
-                </p>
-                <p class="mt-2 text-2xl font-bold text-white">
-                    {{ internalAudit.summary.total_critical_roles }}
-                </p>
+        <div
+            v-if="internalAudit"
+            class="grid grid-cols-1 gap-x-10 gap-y-8 px-12 md:grid-cols-3 xl:gap-x-12" style="padding-top:12px; padding-bottom:12px"
+        >
+            <StCardGlass class="overflow-hidden p-0">
+                <div
+                    class="flex min-h-[148px] flex-col justify-between px-8 py-7 md:px-10 md:py-8" style="padding-bottom:12px"
+                >
+                    <p class="text-xs tracking-wider text-white/50 uppercase">
+                        Roles Críticos
+                    </p>
+                    <p class="mt-4 text-3xl font-bold text-white">
+                        {{ internalAudit.summary.total_critical_roles }}
+                    </p>
+                </div>
             </StCardGlass>
-            <StCardGlass>
-                <p class="text-xs tracking-wider text-white/50 uppercase">
-                    Roles Cumpliendo
-                </p>
-                <p class="mt-2 text-2xl font-bold text-white">
-                    {{ internalAudit.summary.compliant_roles }}
-                </p>
+            <StCardGlass class="overflow-hidden p-0">
+                <div
+                    class="flex min-h-[148px] flex-col justify-between px-8 py-7 md:px-10 md:py-8"
+                >
+                    <p class="text-xs tracking-wider text-white/50 uppercase">
+                        Roles Cumpliendo
+                    </p>
+                    <p class="mt-4 text-3xl font-bold text-white">
+                        {{ internalAudit.summary.compliant_roles }}
+                    </p>
+                </div>
             </StCardGlass>
-            <StCardGlass>
-                <p class="text-xs tracking-wider text-white/50 uppercase">
-                    Cumplimiento de Firma
-                </p>
-                <p class="mt-2 text-2xl font-bold text-white">
-                    {{ internalAudit.summary.compliance_rate }}%
-                </p>
+            <StCardGlass class="overflow-hidden p-0">
+                <div
+                    class="flex min-h-[148px] flex-col justify-between px-8 py-7 md:px-10 md:py-8"
+                >
+                    <p class="text-xs tracking-wider text-white/50 uppercase">
+                        Cumplimiento de Firma
+                    </p>
+                    <p class="mt-4 text-3xl font-bold text-white">
+                        {{ internalAudit.summary.compliance_rate }}%
+                    </p>
+                </div>
             </StCardGlass>
         </div>
 
-        <StCardGlass v-if="internalAudit">
+        <StCardGlass v-if="internalAudit" class="overflow-hidden p-0">
             <div
-                class="flex flex-col gap-3 border-b border-white/10 p-4 md:flex-row md:items-center md:justify-between"
+                class="flex flex-col gap-3 border-b border-white/10 px-6 py-5 md:flex-row md:items-center md:justify-between"
             >
                 <h3 class="text-sm font-bold text-white">
                     Internal Audit Wizard · Roles Críticos y Firma Vigente
@@ -549,7 +597,7 @@ onMounted(loadDashboard);
                     >
                 </div>
             </div>
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto px-2 pb-2 md:px-4 md:pb-4">
                 <table class="min-w-full divide-y divide-white/10">
                     <thead>
                         <tr
@@ -589,9 +637,9 @@ onMounted(loadDashboard);
             </div>
         </StCardGlass>
 
-        <StCardGlass>
+        <StCardGlass class="overflow-hidden p-0">
             <div
-                class="flex flex-col gap-3 border-b border-white/10 p-4 md:flex-row md:items-center md:justify-between"
+                class="flex flex-col gap-3 border-b border-white/10 px-6 py-5 md:flex-row md:items-center md:justify-between"
             >
                 <h3 class="text-sm font-bold text-white">
                     Exportación Verifiable Credential (VC/JSON-LD)
@@ -622,7 +670,7 @@ onMounted(loadDashboard);
                     </StButtonGlass>
                 </div>
             </div>
-            <div v-if="credentialVerification" class="px-4 pt-4">
+            <div v-if="credentialVerification" class="px-6 pt-5">
                 <StBadgeGlass
                     :variant="
                         credentialVerification.is_valid ? 'primary' : 'glass'
@@ -664,13 +712,13 @@ onMounted(loadDashboard);
                     }}
                 </div>
             </div>
-            <div v-if="roleCredential" class="p-4">
+            <div v-if="roleCredential" class="p-6">
                 <pre
-                    class="overflow-x-auto rounded bg-black/30 p-3 text-xs text-white/80"
+                    class="overflow-x-auto rounded bg-black/30 p-4 text-xs text-white/80"
                     >{{ JSON.stringify(roleCredential, null, 2) }}</pre
                 >
             </div>
-            <div v-else class="p-4 text-sm text-white/50">
+            <div v-else class="p-6 text-sm text-white/50">
                 Ingresa un Role ID para exportar su credencial verificable en
                 formato JSON-LD.
             </div>

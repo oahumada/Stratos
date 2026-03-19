@@ -140,6 +140,9 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - Destino: `GET /quality/compliance-audit`.
 - Objetivo: hacer visible compliance como capacidad de gobernanza independiente del `Quality Hub`.
 - Se agregó también acceso secundario en `resources/js/components/AppSidebar.vue` para roles `admin` y `hr_leader`.
+- Se ajustó la presentación visual del `Control Center` aumentando el `gap` entre tarjetas y el `padding` interno del componente compartido `ModuleCard`.
+- Se restauraron claves i18n faltantes de `control_center` para evitar overflow de textos sin traducir en tarjetas existentes.
+- Se ajustó además el layout de `resources/js/pages/Quality/ComplianceAuditDashboard.vue` con más separación vertical, grids con mayor `gap` y cards/secciones con padding interno más amplio.
 
 ---
 
