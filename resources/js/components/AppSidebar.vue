@@ -252,6 +252,12 @@ const allNavItems: NavItem[] = [
         requiredRole: ['admin', 'hr_leader'],
     },
     {
+        title: 'Stratos Compliance',
+        href: '/quality/compliance-audit',
+        icon: defineComponent(() => () => h(PhScroll, { size: 20 })),
+        requiredRole: ['admin', 'hr_leader'],
+    },
+    {
         title: 'LLM Quality (RAGAS)',
         href: '/quality/ragas-metrics',
         icon: defineComponent(() => () => h(PhChartBar, { size: 20 })),

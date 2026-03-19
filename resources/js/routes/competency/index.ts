@@ -2,7 +2,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approval
 * @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/role/{token}'
+* @route '/approve/competency/{token}'
 */
 export const approval = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: approval.url(args, options),
@@ -11,13 +11,13 @@ export const approval = (args: { token: string | number } | [token: string | num
 
 approval.definition = {
     methods: ["get","head"],
-    url: '/approve/role/{token}',
+    url: '/approve/competency/{token}',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approval
 * @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/role/{token}'
+* @route '/approve/competency/{token}'
 */
 approval.url = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
@@ -44,7 +44,7 @@ approval.url = (args: { token: string | number } | [token: string | number ] | s
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approval
 * @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/role/{token}'
+* @route '/approve/competency/{token}'
 */
 approval.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: approval.url(args, options),
@@ -54,7 +54,7 @@ approval.get = (args: { token: string | number } | [token: string | number ] | s
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approval
 * @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/role/{token}'
+* @route '/approve/competency/{token}'
 */
 approval.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: approval.url(args, options),
@@ -64,7 +64,7 @@ approval.head = (args: { token: string | number } | [token: string | number ] | 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approval
 * @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/role/{token}'
+* @route '/approve/competency/{token}'
 */
 const approvalForm = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: approval.url(args, options),
@@ -74,7 +74,7 @@ const approvalForm = (args: { token: string | number } | [token: string | number
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approval
 * @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/role/{token}'
+* @route '/approve/competency/{token}'
 */
 approvalForm.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: approval.url(args, options),
@@ -84,7 +84,7 @@ approvalForm.get = (args: { token: string | number } | [token: string | number ]
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approval
 * @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/role/{token}'
+* @route '/approve/competency/{token}'
 */
 approvalForm.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: approval.url(args, {
@@ -98,8 +98,8 @@ approvalForm.head = (args: { token: string | number } | [token: string | number 
 
 approval.form = approvalForm
 
-const role = {
+const competency = {
     approval: Object.assign(approval, approval),
 }
 
-export default role
+export default competency

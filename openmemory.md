@@ -133,6 +133,14 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
     - uso de VC, DID document, metadata pública y public verify endpoint para auditores externos
 - Ambas guías quedaron enlazadas desde `docs/INDEX.md` y `docs/quality_compliance_standards.md`.
 
+### Stratos Compliance Navigation Entry (2026-03-19)
+
+- Se agregó acceso directo al módulo `Stratos Compliance` desde `Command Center`.
+- Ubicación UI: `resources/js/pages/ControlCenter/Landing.vue`.
+- Destino: `GET /quality/compliance-audit`.
+- Objetivo: hacer visible compliance como capacidad de gobernanza independiente del `Quality Hub`.
+- Se agregó también acceso secundario en `resources/js/components/AppSidebar.vue` para roles `admin` y `hr_leader`.
+
 ---
 
 ## 🎯 Fase 1 Completada: Importación LLM con Incubación (2026-02-15)

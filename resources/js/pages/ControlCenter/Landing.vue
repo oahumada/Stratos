@@ -24,6 +24,7 @@ import GroupHeader from '@/components/Landing/GroupHeader.vue';
 import ModuleCard from '@/components/Landing/ModuleCard.vue';
 import {
     PhChartLineUp,
+    PhCertificate,
     PhGear,
     PhRobot,
     PhRocketLaunch,
@@ -64,6 +65,15 @@ const modules = computed(() => [
         icon: PhTarget,
         href: '/quality-hub',
         iconColor: 'text-pink-300',
+    },
+    {
+        title: t('landings.control_center.modules.stratos_compliance.title'),
+        description: t(
+            'landings.control_center.modules.stratos_compliance.description',
+        ),
+        icon: PhCertificate,
+        href: '/quality/compliance-audit',
+        iconColor: 'text-emerald-300',
     },
     {
         title: t('landings.control_center.modules.ragas_neural_dash.title'),

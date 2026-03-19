@@ -693,6 +693,11 @@ export const messages = {
                         title: 'Quality Sentinel',
                         description: 'Reliability and RAGAS monitoring.',
                     },
+                    stratos_compliance: {
+                        title: 'Stratos Compliance',
+                        description:
+                            'Auditing, ISO, GDPR, and externally verifiable evidence.',
+                    },
                     ragas_neural_dash: {
                         title: 'RAGAS Neural Dash',
                         description: 'LLM output analytics.',
@@ -1420,6 +1425,11 @@ export const messages = {
                     quality_sentinel: {
                         title: 'Centinela de Calidad',
                         description: 'Monitoreo de fiabilidad y RAGAS.',
+                    },
+                    stratos_compliance: {
+                        title: 'Stratos Compliance',
+                        description:
+                            'Auditoría, ISO, GDPR y evidencia verificable externamente.',
                     },
                     ragas_neural_dash: {
                         title: 'Panel Neural RAGAS',

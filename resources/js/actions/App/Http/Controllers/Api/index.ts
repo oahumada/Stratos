@@ -2,6 +2,7 @@ import CatalogsController from './CatalogsController'
 import AssessmentController from './AssessmentController'
 import RoleDesignerController from './RoleDesignerController'
 import PublicJobController from './PublicJobController'
+import ComplianceAuditController from './ComplianceAuditController'
 import DevelopmentActionController from './DevelopmentActionController'
 import MentorshipSessionController from './MentorshipSessionController'
 import EvidenceController from './EvidenceController'
@@ -64,6 +65,7 @@ const Api = {
     AssessmentController: Object.assign(AssessmentController, AssessmentController),
     RoleDesignerController: Object.assign(RoleDesignerController, RoleDesignerController),
     PublicJobController: Object.assign(PublicJobController, PublicJobController),
+    ComplianceAuditController: Object.assign(ComplianceAuditController, ComplianceAuditController),
     DevelopmentActionController: Object.assign(DevelopmentActionController, DevelopmentActionController),
     MentorshipSessionController: Object.assign(MentorshipSessionController, MentorshipSessionController),
     EvidenceController: Object.assign(EvidenceController, EvidenceController),
