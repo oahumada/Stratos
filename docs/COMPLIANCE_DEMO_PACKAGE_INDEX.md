@@ -3,7 +3,9 @@
 **Tabla de Contenidos | Estructura Completa | Navegación Rápida**
 
 ---
+
 ## 📋 METADATA
+
 - ⏱️ Tiempo de lectura: 10 minutos
 - 🎯 Audiencia: Todos (índice central)
 - 📊 Complejidad: Baja
@@ -12,7 +14,9 @@
 - 🗺️ Función: Punto de entrada único para todo el package
 
 ---
+
 ## 📌 USA ESTE DOCUMENTO CUANDO:
+
 - ✅ No sabes por dónde empezar
 - ✅ Buscas documentación específica
 - ✅ Necesitas navegar rápido entre archivos

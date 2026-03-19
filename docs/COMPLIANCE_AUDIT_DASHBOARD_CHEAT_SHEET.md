@@ -3,7 +3,9 @@
 **Referencia Rápida - 1 Página para Demostración**
 
 ---
+
 ## 📋 METADATA
+
 - ⏱️ Tiempo de lectura: 3 minutos
 - ⏱️ Tiempo de demo: 5 minutos (con esta guía)
 - 🎯 Audiencia: Ejecutivos, Sales, Demo Teams
@@ -12,7 +14,9 @@
 - ✅ Estado: Listo para Producción
 
 ---
+
 ## 🎯 USAR CUANDO:
+
 - ✅ Demo rápida a ejecutivo (5 min)
 - ✅ Presentación a cliente nuevo
 - ✅ Necesitas recordar números clave

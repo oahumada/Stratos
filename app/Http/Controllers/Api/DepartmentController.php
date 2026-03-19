@@ -49,6 +49,61 @@ class DepartmentController extends Controller
     }
 
     /**
+     * Update department parent via PUT (from hierarchy editor modal)
+     */
+    public function updateDepartmentParent(Request $request, Departments $department)
+    {
+        $data = $request->validate([
+            'parent_id' => 'nullable|exists:departments,id|different:id',
+        ]);
+
+        // Evitar ciclos infinitos: check if parent_id is descendant of this department
+        $hasCircularReference = $this->hasDescendant($department->id, $data['parent_id']);
+        if ($hasCircularReference) {
+            return response()->json(
+                ['error' => 'No se puede establecer esta relación: crearía un ciclo circular.'],
+                422
+            );
+        }
+
+        $department->parent_id = $data['parent_id'];
+        $department->save();
+
+        // Retornar el departamento actualizado
+        return response()->json([
+            'message' => 'Jerarquía actualizada exitosamente',
+            'department' => $department->load('manager', 'parent', 'children')
+        ]);
+    }
+
+    /**
+     * Helper: Check if targetId is a descendant of departmentId
+     */
+    private function hasDescendant($departmentId, $targetId): bool
+    {
+        if (!$targetId) return false; // null parent is always valid
+
+        $queue = [$targetId];
+        $visited = [];
+
+        while (!empty($queue)) {
+            $current = array_pop($queue);
+            if ($current == $departmentId) {
+                return true; // Found circular reference
+            }
+            if (in_array($current, $visited)) {
+                continue;
+            }
+            $visited[] = $current;
+
+            $children = Departments::where('parent_id', $current)->pluck('id')->toArray();
+            $queue = array_merge($queue, $children);
+        }
+
+        return false;
+    }
+
+    /**
      * Set a manager to a department
      */
     public function setManager(Request $request, int $id)

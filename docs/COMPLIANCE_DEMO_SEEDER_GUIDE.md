@@ -1,7 +1,9 @@
 # 🌱 Compliance Demo Seeder - Guía de Instalación
 
 ---
+
 ## 📋 METADATA DOCUMENT
+
 - ⏱️ Tiempo total: 15 minutos (lecturaincluida)
 - ⏱️ Tiempo instalación: 3-5 minutos
 - ⏱️ Tiempo verificación: 5 minutos
@@ -12,6 +14,7 @@
 - ✅ Estado: Completo y Testado
 
 ---
+
 ## 📋 Qué Hace Este Seeder
 
 El `ComplianceDemoSeeder` popula tu base de datos con datos realistas para demostrar toda la potencia del **Compliance Audit Dashboard**:
@@ -30,24 +33,27 @@ El `ComplianceDemoSeeder` popula tu base de datos con datos realistas para demos
 | **Verifiable Credentials**    | 5        | VC/JSON-LD exportables para roles firmados → Demuestra auditoría externa        |
 
 ---
+
 ## 💻 REQUISITOS DEL SISTEMA
 
-| Requisito | Versión Mínima | Verificar | Estado |
-|-----------|----------------|-----------|--------|
-| PHP | 8.4+ | `php -v` | ✅ |
-| Laravel | 12+ | `php artisan --version` | ✅ |
-| MySQL | 8.0+ | `mysql --version` | ✅ |
-| Composer | 2.5+ | `composer --version` | ✅ |
-| Node.js | 18+ | `node -v` | Opcional |
-| Disk Space | 500MB+ | `df -h` | ~100MB para BD |
-| Memory | 2GB+ | `free -h` | ~512MB para seeder |
+| Requisito  | Versión Mínima | Verificar               | Estado             |
+| ---------- | -------------- | ----------------------- | ------------------ |
+| PHP        | 8.4+           | `php -v`                | ✅                 |
+| Laravel    | 12+            | `php artisan --version` | ✅                 |
+| MySQL      | 8.0+           | `mysql --version`       | ✅                 |
+| Composer   | 2.5+           | `composer --version`    | ✅                 |
+| Node.js    | 18+            | `node -v`               | Opcional           |
+| Disk Space | 500MB+         | `df -h`                 | ~100MB para BD     |
+| Memory     | 2GB+           | `free -h`               | ~512MB para seeder |
 
 **Verificar todo antes de empezar:**
+
 ```bash
 php -v && mysql --version && php artisan --version
 ```
 
 ---
+
 ## 🚀 INSTALACIÓN
 
 ### Paso 1: Asegurate de estar en `/`
@@ -91,6 +97,7 @@ php artisan db:seed --class=ComplianceDemoSeeder
 **Si ves este output**: ✅ LISTO. Continuá con Verificación.
 
 ---
+
 ## 🎯 VERIFICACIÓN POST-EJECUCIÓN
 
 **⏱️ Tiempo: 3-5 minutos**
@@ -127,16 +134,17 @@ http://localhost:8000/quality/compliance-audit
 
 **Deberías ver (en orden):**
 
-| Bloque | Esperado | Status |
-|--------|----------|--------|
-| **Resumen Audit Trail** | ~200 eventos total, ~140 en 24h | ✅ |
-| **ISO 30414 KPIs** | $48.2M costo, 8 skills gaps | ✅ |
-| **Internal Audit Wizard** | 24 roles, 87.5% cumplimiento | ✅ |
-| **Tabla de Eventos** | Filtrable por type/aggregate | ✅ |
-| **Credencial VC Export** | Roles 1-5 exportables | ✅ |
-| **Graphs/Charts** | Cargan sin error (devtools) | ✅ |
+| Bloque                    | Esperado                        | Status |
+| ------------------------- | ------------------------------- | ------ |
+| **Resumen Audit Trail**   | ~200 eventos total, ~140 en 24h | ✅     |
+| **ISO 30414 KPIs**        | $48.2M costo, 8 skills gaps     | ✅     |
+| **Internal Audit Wizard** | 24 roles, 87.5% cumplimiento    | ✅     |
+| **Tabla de Eventos**      | Filtrable por type/aggregate    | ✅     |
+| **Credencial VC Export**  | Roles 1-5 exportables           | ✅     |
+| **Graphs/Charts**         | Cargan sin error (devtools)     | ✅     |
 
 **Si no ves bloques**:
+
 1. Abre Console (F12) → verifica errores
 2. Verifica que seeder corrió (paso anterior)
 3. Limpia cache: `php artisan cache:clear && npm run build`
@@ -182,22 +190,24 @@ Role ID: 1 (VP Talento)
 ```
 
 ---
+
 ## 📊 ANTES vs DESPUÉS
 
-| Aspecto | Antes del Seeder | Después del Seeder | Cambio |
-|--------|------------------|-------------------|--------|
-| **Eventos** | 0 | 200+ | +200 |
-| **Roles Críticos** | 0 (o pocos) | 24 | +24 |
-| **Personas** | 0 (o pocos) | 89 | +89 |
-| **Departments** | 0 (o pocos) | 6 | +6 |
-| **Skills Asignadas** | 0 | 350+ | +350 |
-| **Riesgo Talento** | N/A | $48.2M | Visible |
-| **Cumplimiento Firmas** | N/A | 87.5% | Medible |
-| **VC Exportables** | 0 | 5 | +5 |
-| **Dashboard Funcional** | ❌ (sin datos) | ✅ (datos reales) | Adecuado |
-| **Demo Posible** | ❌ Imposible | ✅ Fácil | Ready |
+| Aspecto                 | Antes del Seeder | Después del Seeder | Cambio   |
+| ----------------------- | ---------------- | ------------------ | -------- |
+| **Eventos**             | 0                | 200+               | +200     |
+| **Roles Críticos**      | 0 (o pocos)      | 24                 | +24      |
+| **Personas**            | 0 (o pocos)      | 89                 | +89      |
+| **Departments**         | 0 (o pocos)      | 6                  | +6       |
+| **Skills Asignadas**    | 0                | 350+               | +350     |
+| **Riesgo Talento**      | N/A              | $48.2M             | Visible  |
+| **Cumplimiento Firmas** | N/A              | 87.5%              | Medible  |
+| **VC Exportables**      | 0                | 5                  | +5       |
+| **Dashboard Funcional** | ❌ (sin datos)   | ✅ (datos reales)  | Adecuado |
+| **Demo Posible**        | ❌ Imposible     | ✅ Fácil           | Ready    |
 
 ---
+
 ## 🔧 CUSTOMIZACIÓN (Opcional)
 
 ### Si quieres cambiar cantidades:
@@ -245,19 +255,20 @@ Para producción:
 6. ✅ Usar la **Guía de Interpretación** (docs/) para explicar números
 
 ---
+
 ## 📞 TROUBLESHOOTING
 
 ### Problemas Comunes
 
-| Problema | Causa | Solución | Verificar |
-|----------|-------|----------|----------|
-| "Class not found" | Seeder no existe | Verifica: `ls database/seeders/ComplianceDemoSeeder.php` | File existe? |
-| "Foreign key constraint" | Org/User no existe | `php artisan migrate` → luego retry | Migraciones corridas? |
-| "Tabla no existe" | Migraciones incompletas | `php artisan migrate --step` | Schema OK? |
-| "Cero eventos" | Seeder no corrió | Check output, retry con `--force` | Output OK? |
-| "Out of Memory" | PHP memory limit bajo | `php -d memory_limit=512M artisan db:seed --class=ComplianceDemoSeeder` | 512MB OK? |
-| "SQLSTATE error" | Conexión BD falla | Verifica `.env` DATABASE_* | Credenciales OK? |
-| "Seeder ejecutado pero dashboard vacío" | Cache stale | `php artisan cache:clear && npm run build` | Cache cleared? |
+| Problema                                | Causa                   | Solución                                                                | Verificar             |
+| --------------------------------------- | ----------------------- | ----------------------------------------------------------------------- | --------------------- |
+| "Class not found"                       | Seeder no existe        | Verifica: `ls database/seeders/ComplianceDemoSeeder.php`                | File existe?          |
+| "Foreign key constraint"                | Org/User no existe      | `php artisan migrate` → luego retry                                     | Migraciones corridas? |
+| "Tabla no existe"                       | Migraciones incompletas | `php artisan migrate --step`                                            | Schema OK?            |
+| "Cero eventos"                          | Seeder no corrió        | Check output, retry con `--force`                                       | Output OK?            |
+| "Out of Memory"                         | PHP memory limit bajo   | `php -d memory_limit=512M artisan db:seed --class=ComplianceDemoSeeder` | 512MB OK?             |
+| "SQLSTATE error"                        | Conexión BD falla       | Verifica `.env` DATABASE\_\*                                            | Credenciales OK?      |
+| "Seeder ejecutado pero dashboard vacío" | Cache stale             | `php artisan cache:clear && npm run build`                              | Cache cleared?        |
 
 ### Advanced Troubleshooting
 
@@ -265,6 +276,7 @@ Para producción:
 
 **Causa**: Loop de eventos se saltea (early return)  
 **Solución**:
+
 ```bash
 # Verificar cuántos hay realmente
 php artisan tinker
@@ -277,6 +289,7 @@ php artisan tinker
 
 **Causa**: Orden de inserción incorrecta (role sin org)  
 **Solución**:
+
 ```bash
 # Truncate tables en orden inverso
 php artisan tinker
@@ -293,6 +306,7 @@ php artisan tinker
 
 **Causa**: Vista o índice no actualizado  
 **Solución**:
+
 ```bash
 # Refresh materialized views si existen
 php artisan tinker
@@ -305,7 +319,8 @@ php artisan tinker
 #### Issue: "Credenciales VC no son exportables (Role ID 1-5 no muestran JSON)"
 
 **Causa**: Role no tiene signature guardada  
-**Solución**: 
+**Solución**:
+
 ```bash
 # Verificar que VC fue creada
 php artisan tinker
@@ -316,27 +331,30 @@ php artisan db:seed --class=ComplianceDemoSeeder --verbose
 ```
 
 ---
+
 ## 📞 ESCALACIONES
 
 Si el troubleshooting no funcionó:
 
 1. **Verifica logs**:
-   ```bash
-   tail -f storage/logs/laravel.log
-   ```
+
+    ```bash
+    tail -f storage/logs/laravel.log
+    ```
 
 2. **Contactar**:
-   - Equipo Dev: #dev-database Slack
-   - QA Lead: compliance-demo@stratos-internal
-   - Time: Usually responds < 30 min
+    - Equipo Dev: #dev-database Slack
+    - QA Lead: compliance-demo@stratos-internal
+    - Time: Usually responds < 30 min
 
 3. **Información a proporcionar**:
-   - PHP version: `php -v`
-   - Output exacto del error
-   - BD logs (últimas 20 líneas)
-   - Confirmación de `php artisan migrate` exitoso
+    - PHP version: `php -v`
+    - Output exacto del error
+    - BD logs (últimas 20 líneas)
+    - Confirmación de `php artisan migrate` exitoso
 
 ---
+
 ## ✅ CHECKLIST POST-SEEDER
 
 - ✅ Seeder ejecutado sin errores
@@ -350,6 +368,7 @@ Si el troubleshooting no funcionó:
 - ✅ Listo para demostración a cliente/auditor
 
 ---
+
 **Última actualización**: 19 de marzo 2026  
 **Tested on**: Laravel 12.0+, PHP 8.4.16, MySQL 8.0+  
 **Author**: Copilot Agent  

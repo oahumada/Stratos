@@ -216,6 +216,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Organigrama (Departamentos)
     Route::get('/departments/tree', [\App\Http\Controllers\Api\DepartmentController::class, 'tree']);
     Route::post('/departments/hierarchy', [\App\Http\Controllers\Api\DepartmentController::class, 'updateHierarchy']);
+    Route::put('/departments/{department}/hierarchy', [\App\Http\Controllers\Api\DepartmentController::class, 'updateDepartmentParent']);
     Route::post('/departments/{id}/manager', [\App\Http\Controllers\Api\DepartmentController::class, 'setManager']);
     Route::get('/departments/heatmap', [\App\Http\Controllers\Api\DepartmentController::class, 'heatmapData']);
 

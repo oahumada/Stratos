@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Handle, Position, type NodeProps } from '@vue-flow/core';
-import { Users, Briefcase, TrendingUp } from 'lucide-vue-next';
+import { Users, Briefcase, TrendingUp, Edit3 } from 'lucide-vue-next';
 
 interface DepartmentData {
     label: string;
@@ -8,20 +8,40 @@ interface DepartmentData {
     managerName?: string;
     headcount?: number;
     payroll?: string;
+    departmentId?: number;
 }
 
-defineProps<NodeProps<DepartmentData>>();
+const props = defineProps<NodeProps<DepartmentData>>();
+const emit = defineEmits<{
+    editHierarchy: [departmentId: number];
+}>();
+
+const handleEditClick = (e: Event) => {
+    e.stopPropagation();
+    if (props.data.departmentId) {
+        emit('editHierarchy', props.data.departmentId);
+    }
+};
 </script>
 
 <template>
-    <div class="dept-node glass-card">
+    <div class="dept-node glass-card group">
         <Handle type="target" :position="Position.Top" class="handle-top" />
         
-        <div class="node-header">
-            <div class="node-icon">
-                <Briefcase class="h-4 w-4 text-indigo-400" />
+        <div class="flex items-start justify-between gap-2 mb-2">
+            <div class="node-header flex-1">
+                <div class="node-icon">
+                    <Briefcase class="h-4 w-4 text-indigo-400" />
+                </div>
+                <div class="node-title">{{ data.label }}</div>
             </div>
-            <div class="node-title">{{ data.label }}</div>
+            <button
+                @click="handleEditClick"
+                class="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-indigo-500/20 text-indigo-400 hover:text-indigo-300"
+                title="Editar jerarquía"
+            >
+                <Edit3 class="h-4 w-4" />
+            </button>
         </div>
 
         <div v-if="data.description" class="node-desc">

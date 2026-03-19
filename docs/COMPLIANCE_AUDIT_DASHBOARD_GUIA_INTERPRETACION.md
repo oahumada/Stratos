@@ -3,7 +3,9 @@
 **Narrativas Profesionales | Casos Cliente | Explicaciones Técnicas**
 
 ---
+
 ## 📋 METADATA
+
 - ⏱️ Tiempo de lectura: 20 minutos
 - ⏱️ Tiempo para estudiar: 40 minutos
 - 🎯 Audiencia: Sales, Customer Success, Client Managers
@@ -12,7 +14,9 @@
 - ✅ Estado: 6 bloques + 10 narrativas
 
 ---
+
 ## 📋 CUÁNDO USAR:
+
 - ✅ Presentación a cliente prospect
 - ✅ Training interno de equipo sales
 - ✅ Reunión con CFO/Compliance Officer
@@ -20,6 +24,7 @@
 - ✅ Respuesta a preguntas técnicas en llamada
 
 ---
+
 ## 📋 Explicación operativa de cada datos para Demo
 
 ---

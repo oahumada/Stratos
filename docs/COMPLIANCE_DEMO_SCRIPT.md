@@ -1,9 +1,11 @@
 # 🎬 COMPLIANCE DEMO SCRIPT
+
 **Narrativa Palabra por Palabra | Timimg Exacto | Variantes por Audiencia**
 
 ---
 
 ## 📋 METADATA
+
 - ⏱️ Tiempo de lectura: 20 minutos
 - 🎯 Audiencia: Todos (QA, Cliente, Auditor, Dev, PM)
 - 📊 Complejidad: Media-Alta
@@ -16,6 +18,7 @@
 ## 📍 ANTES DE EMPEZAR
 
 ### Checklist Pre-Demo
+
 - ✅ Dashboard cargado (sin errores console)
 - ✅ Seeder ejecutado (89 personas, 2,847 eventos)
 - ✅ Navegador limpio (sin pestañas extra)
@@ -25,6 +28,7 @@
 - ✅ 5 minutos de preparación mental
 
 ### Setup Técnico
+
 ```bash
 # Verificar seeder ejecutado
 php artisan tinker
@@ -38,7 +42,9 @@ php artisan tinker
 ## 🎯 DEMO #1: EJECUTIVO (5 MINUTOS EXACTO)
 
 ### Audiencia: CEO, CFO, Junta Directiva
+
 ### Objetivo: Decision-making en 5 minutos
+
 ### Material: Dashboard + Números clave
 
 ---
@@ -49,8 +55,8 @@ php artisan tinker
 [PANTALLA] Slide título: "Compliance Audit Dashboard"
 [NARRACIÓN]
 
-"Buenos días/tardes. En los próximos 5 minutos, quiero mostrarles 
-cómo controlamos la gobernanza en Stratos. 4 números clave, 
+"Buenos días/tardes. En los próximos 5 minutos, quiero mostrarles
+cómo controlamos la gobernanza en Stratos. 4 números clave,
 4 minutos. Vamos."
 
 [PAUSA 2 segundos]
@@ -66,8 +72,8 @@ cómo controlamos la gobernanza en Stratos. 4 números clave,
 
 [NARRACIÓN]
 
-"Primero: Auditoría. Cada cambio en nuestros roles críticos 
-está registrado. Aquí ven: 2,847 eventos auditados. 
+"Primero: Auditoría. Cada cambio en nuestros roles críticos
+está registrado. Aquí ven: 2,847 eventos auditados.
 Ninguno desaparecer, ninguno es invisible."
 
 [Silencio, deja que asimilen número]
@@ -83,24 +89,24 @@ Ninguno desaparecer, ninguno es invisible."
 [ACCIÓN] Scroll a ISO 30414 KPIs (tarjetas superiores)
 [NARRACIÓN]
 
-"Segundo: Riesgo de talento. Le importa al CFO: 
+"Segundo: Riesgo de talento. Le importa al CFO:
 costo de sustitución."
 
 [Señala tarjeta de costo]
 
-"$48 millones si pierdo a mi gente clave. Reemplazar 
+"$48 millones si pierdo a mi gente clave. Reemplazar
 a 89 personas: eso cuesta. Promedio por persona: $150,000."
 
 [Pausa]
 
-"¿Por qué 150K? Porque estos no son datos entry-level. 
-Estos son roles que toman 18 meses en reemplazar. 
+"¿Por qué 150K? Porque estos no son datos entry-level.
+Estos son roles que toman 18 meses en reemplazar.
 Con faltas de skills."
 
 [Apunta a skill gaps]
 
-"Ven acá: Liderazgo Ágil. 32 de 45 personas con brecha. 
-71%. Data-Driven Decision: 28 de 45. 62%. 
+"Ven acá: Liderazgo Ágil. 32 de 45 personas con brecha.
+71%. Data-Driven Decision: 28 de 45. 62%.
 Eso magnifica el costo del reemplazo."
 ```
 
@@ -113,7 +119,7 @@ Eso magnifica el costo del reemplazo."
 [NARRACIÓN]
 
 "Tercero: Gobernanza. 87.5% cumplimiento de firmas en roles críticos.
-21 de 24. 
+21 de 24.
 
 3 están en riesgo:
 - Uno expiró (hace 30 días).
@@ -122,7 +128,7 @@ Eso magnifica el costo del reemplazo."
 
 [Pausa]
 
-"Estos 3 son nuestros items abiertos. Son conocidos. 
+"Estos 3 son nuestros items abiertos. Son conocidos.
 Se está actuando en ellos."
 ```
 
@@ -134,14 +140,14 @@ Se está actuando en ellos."
 [ACCIÓN] Scroll a Credencial Verificable (si no viste antes)
 [NARRACIÓN]
 
-"Cuarto: Verificabilidad. Un auditor externo puede validar 
-que todo es auténtico. Sin confiar en nosotros. 
+"Cuarto: Verificabilidad. Un auditor externo puede validar
+que todo es auténtico. Sin confiar en nosotros.
 Confía en la criptografía.
 
-Cada firma es un JSON criptograficamente verificable. 
+Cada firma es un JSON criptograficamente verificable.
 Issuer: nosotros. Signature: válida. Role data: correcta.
 
-¿Alguien tampered? Los 4 checks fallan inmediatamente. 
+¿Alguien tampered? Los 4 checks fallan inmediatamente.
 Transparencia radical."
 ```
 
@@ -168,7 +174,9 @@ Preguntas?"
 ## 🎯 DEMO #2: COMPLIANCE OFFICER (15 MINUTOS)
 
 ### Audiencia: Compliance Officer, Internal Auditor, Risk Manager
+
 ### Objetivo: Confianza técnica en trazabilidad + gobernanza
+
 ### Material: Dashboard completo + Exports + Q&A
 
 ---
@@ -179,7 +187,7 @@ Preguntas?"
 [NARRACIÓN]
 
 "Hola. Voy a mostrarles cómo auditamos cambios en gobernanza.
-Tres áreas: 
+Tres áreas:
 1. Auditoría de cambios (Event Sourcing).
 2. Gobernanza de firmas (Internal Audit Wizard).
 3. Credenciales verificables (Verifiable Credentials).
@@ -231,12 +239,12 @@ Estructura de cada evento:
 - Metadata: Contexto adicional (IP, browser, etc.)
 
 Esto es Event Sourcing. Inmutable. Append-only.
-¿Saben Event Sourcing? ¿No? No importa. Idea: 
+¿Saben Event Sourcing? ¿No? No importa. Idea:
 como blockchain, pero para cambios internos."
 
 [Pausa para preguntas técnicas]
 
-"Bonus: Cada evento tiene proof_at_storage. 
+"Bonus: Cada evento tiene proof_at_storage.
 Timestamp con microsegundos. No puedes fingir el tiempo."
 ```
 
@@ -248,7 +256,7 @@ Timestamp con microsegundos. No puedes fingir el tiempo."
 [ACCIÓN] Filtra eventos por aggregate_type = "Role"
 [NARRACIÓN]
 
-"Caso 1: Alguien cambió el Role 'VP Talento'. 
+"Caso 1: Alguien cambió el Role 'VP Talento'.
 ¿Quién? ¿Cuándo? ¿Qué cambió?
 
 Buscamos: event_name = 'role.updated', Role ID = 5"
@@ -260,18 +268,20 @@ Buscamos: event_name = 'role.updated', Role ID = 5"
 - Event: role.updated
 - Actor: admin:omar
 - Timestamp: 2026-03-19T14:31:42.123456Z exacto
-- Payload: 
-  ```
-  {
-    'changes': {
-      'description': {'old': 'VP de Talento', 'new': 'VP Talento Senior'},
-      'required_skills': {'old': ['L1','L2'], 'new': ['L1','L2','L3']},
-      'approval_country': {'old': null, 'new': 'ARG'}
-    }
-  }
-  ```
+- Payload:
+```
 
-Cada línea del payload cuenta una historia: 
+{
+'changes': {
+'description': {'old': 'VP de Talento', 'new': 'VP Talento Senior'},
+'required_skills': {'old': ['L1','L2'], 'new': ['L1','L2','L3']},
+'approval_country': {'old': null, 'new': 'ARG'}
+}
+}
+
+```
+
+Cada línea del payload cuenta una historia:
 qué cambió, de qué a qué, cuándo, quién."
 
 [Apunta a valores específicos]
@@ -293,10 +303,10 @@ Si preguntan 'cuándo exactamente', tenemos microsegundos.
 [ACCIÓN] Scroll a Internal Audit Wizard
 [NARRACIÓN]
 
-"Ahora: Gobernanza. 
+"Ahora: Gobernanza.
 
 Regla: Cada rol crítico necesita firma verificada.
-¿Quién firma? El responsable del rol. 
+¿Quién firma? El responsable del rol.
 ¿Cuánto dura la firma? 365 días (renovable).
 
 Estado actual:
@@ -307,7 +317,7 @@ Estado actual:
 
 21 / 24 = 87.5% cumplimiento.
 
-¿Está bien? Depende de regulación. En ISO 26000, 
+¿Está bien? Depende de regulación. En ISO 26000,
 esperamos 95%+. Entonces: estamos bajo. Action items:"
 
 [Apunta a roles en riesgo]
@@ -323,7 +333,7 @@ esperamos 95%+. Entonces: estamos bajo. Action items:"
 
 [Pausa]
 
-"Este wizard es dinámico. Si cambio 'Vigencia requerida' 
+"Este wizard es dinámico. Si cambio 'Vigencia requerida'
 a 180 días, recalcula y dice: '3 roles vencerán en 180 días'."
 
 [Edita campo, muestra recalculo]
@@ -343,7 +353,7 @@ a 180 días, recalcula y dice: '3 roles vencerán en 180 días'."
 
 W3C standard. JSON-LD. Criptografía.
 
-Un role, cuando se firma, genera una VC. 
+Un role, cuando se firma, genera una VC.
 La VC es auditable sin confiar en nosotros.
 
 Vamos a ver un ejemplo:"
@@ -357,25 +367,27 @@ Vamos a ver un ejemplo:"
 
 "Estructura:
 ```
+
 {
-  '@context': 'https://www.w3.org/2018/credentials/v1',
-  'type': ['VerifiableCredential'],
-  'issuer': 'did:web:stratos.local',
-  'issuanceDate': '2026-03-19T...',
-  'expirationDate': '2027-03-19T...',
-  'credentialSubject': {
-    'id': 'role:5',
-    'name': 'VP Talento',
-    'governanceSignature': '...(firma DER)',
-    'signatureProof': '...(proof that signature matches role)'
-  },
-  'proof': {
-    'type': 'RsaSignature2018',
-    'created': '...',
-    'verificationMethod': 'did:web:stratos.local#key-1',
-    'signatureValue': '...(criptografía RSA-SHA256)'
-  }
+'@context': 'https://www.w3.org/2018/credentials/v1',
+'type': ['VerifiableCredential'],
+'issuer': 'did:web:stratos.local',
+'issuanceDate': '2026-03-19T...',
+'expirationDate': '2027-03-19T...',
+'credentialSubject': {
+'id': 'role:5',
+'name': 'VP Talento',
+'governanceSignature': '...(firma DER)',
+'signatureProof': '...(proof that signature matches role)'
+},
+'proof': {
+'type': 'RsaSignature2018',
+'created': '...',
+'verificationMethod': 'did:web:stratos.local#key-1',
+'signatureValue': '...(criptografía RSA-SHA256)'
 }
+}
+
 ```
 
 4 cosas críticas aquí:
@@ -384,7 +396,7 @@ Vamos a ver un ejemplo:"
 3. Signature: Firma RSA-2048 sobre el contenido.
 4. Verification Method: Dónde verificar (nuestra clave pública).
 
-Auditor toma este JSON y verifica offline. 
+Auditor toma este JSON y verifica offline.
 Sin internet hacia nosotros. Sin confiar en UI."
 
 [Pausa]
@@ -432,7 +444,7 @@ Verifica..."
 [Verifica, checks fallan]
 
 "❌ Check 2: proof_matches_role_signature - FAILED
-   Razón: El proof no coincide con el cambio. 
+   Razón: El proof no coincide con el cambio.
    Alteración detectada.
 
 Auditor ve esto y sabe: alguien trató de falsificar.
@@ -464,7 +476,9 @@ Preguntas sobre técnica, timings, o casos de uso?"
 ## 🎯 DEMO #3: AUDITOR EXTERNO (30+ MINUTOS)
 
 ### Audiencia: Auditor Externo, Certificador, Regulador
+
 ### Objetivo: Confianza completa en trazabilidad + verificabilidad externa
+
 ### Material: Dashboard + Exports + Reporte + Q&A técnico
 
 ---
@@ -474,9 +488,9 @@ Preguntas sobre técnica, timings, o casos de uso?"
 ```
 [NARRACIÓN]
 
-"Bienvenida, [Nombre del Auditor]. 
+"Bienvenida, [Nombre del Auditor].
 
-Hoy voy a mostrar cómo Stratos implementa 
+Hoy voy a mostrar cómo Stratos implementa
 auditoría inmutable de cambios en gobernanza.
 
 Plan:
@@ -532,23 +546,23 @@ Beneficio: Historia completa. Nunca se pierde estado anterior.
 La tabla tiene 2,847 filas. Cada fila es un evento.
 Orden: ID (secuencial) + Timestamp (secuencial).
 
-¿Pueden borrarse? No. ADD ONLY. 
+¿Pueden borrarse? No. ADD ONLY.
 ¿Pueden editarse? No. Inmutable.
 ¿Pueden reordenarse? No. Blockchain-like."
 
 [Scroll por table, muestra eventos]
 
-"Ven: cada evento tiene sequencial incremental (id). 
+"Ven: cada evento tiene sequencial incremental (id).
 Timestamp es descendente (últimos primero).
 
-Tomar cualquier evento random. Tienen acceso completo 
-a payload, actor, timestamp. 
+Tomar cualquier evento random. Tienen acceso completo
+a payload, actor, timestamp.
 ¿Necesitan un CSV de todos los eventos?"
 
 [Muestra Export botón]
 
 "Aquí pueden exportar todos a CSV. Lleva 2-3 segundos.
-Archivo contiene todas las 2,847 filas. 
+Archivo contiene todas las 2,847 filas.
 Auditable offline. Verifiable signature en metadata."
 ```
 
@@ -562,7 +576,7 @@ Auditable offline. Verifiable signature en metadata."
 
 "Gobernanza de firmas en roles críticos.
 
-Estándar: cada rol crítico necesita verificación. 
+Estándar: cada rol crítico necesita verificación.
 Mecanismo: Firma digital del responsable.
 Validez: 365 días. Renovable.
 
@@ -587,7 +601,7 @@ Status: EXPIRED
 ¿Quién puede renovar? El CRO o un admin autorizado.
 ¿Qué pasa si no renueva? Regulador lo ve como non-compliant.
 
-Aquí está el escalation: esto está documentado, 
+Aquí está el escalation: esto está documentado,
 comunicado, y siendo actado. No es sorpresa."
 ```
 
@@ -599,10 +613,10 @@ comunicado, y siendo actado. No es sorpresa."
 [ACCIÓN] Exportar VC de 1 role (ej: VP Talento)
 [NARRACIÓN]
 
-"Parte central para auditoría externa: 
+"Parte central para auditoría externa:
 Verifiable Credentials (W3C standard).
 
-Cuando un role se firma, genera una VC. 
+Cuando un role se firma, genera una VC.
 La VC es:
 - Signed: Criptografía RSA-2048
 - Verifiable: Sin confiar en nosotros
@@ -618,35 +632,41 @@ Exporté la VC de VP Talento. JSON que ven aquí."
 
 PARTE 1: Credential Subject (El role que certificamos)
 ```
+
 'credentialSubject': {
-  'id': 'role:5',
-  'name': 'VP Talento',
-  'department': 'RRHH',
-  'required_skills': ['L1-Liderazgo', 'L2-Comunicación'],
-  'approval_country': 'ARG',
-  'criticality': 'HIGH',
-  'governanceSignature': 'LS0tLS1CRUdJ...(base64 DER)'
+'id': 'role:5',
+'name': 'VP Talento',
+'department': 'RRHH',
+'required_skills': ['L1-Liderazgo', 'L2-Comunicación'],
+'approval_country': 'ARG',
+'criticality': 'HIGH',
+'governanceSignature': 'LS0tLS1CRUdJ...(base64 DER)'
 }
+
 ```
 Esto identifica unívocamente el rol.
 
 PARTE 2: Issuer (Quién emite)
 ```
+
 'issuer': 'did:web:stratos.local'
+
 ```
 DID es una identidad criptográfica descentralizada.
-Pueden verificar quiénes somos yendo a: 
+Pueden verificar quiénes somos yendo a:
 /.well-known/did.json en nuestro dominio.
 
 PARTE 3: Proof (Firma criptográfica)
 ```
+
 'proof': {
-  'type': 'RsaSignature2018',
-  'verificationMethod': 'did:web:stratos.local#key-1',
-  'signatureValue': 'MIIEowIBAA...(firma RSA-SHA256 de 256 bytes)'
+'type': 'RsaSignature2018',
+'verificationMethod': 'did:web:stratos.local#key-1',
+'signatureValue': 'MIIEowIBAA...(firma RSA-SHA256 de 256 bytes)'
 }
+
 ```
-Esta es la firma. Auditor usa nuestra clave pública 
+Esta es la firma. Auditor usa nuestra clave pública
 (del DID document) y verifica que la firma es válida.
 
 ¿Cómo se verifica?"
@@ -687,14 +707,14 @@ Verifica..."
 Check 3: (si cambié issuer) - ❌ FAILED
   Razón: El issuer no es nuestro.
 
-Auditor ve: VC falsificada. Rechazada. 
-Sistema automaticamente lo identifica y rechaza. 
+Auditor ve: VC falsificada. Rechazada.
+Sistema automaticamente lo identifica y rechaza.
 Transparencia + Seguridad."
 
 [Pausa]
 
 "¿Pueden exportar cualquier VC y verificar offline? Sí.
-Archivo JSON que llevarse. Clave pública pública. 
+Archivo JSON que llevarse. Clave pública pública.
 No necesitan volver a nosotros. Verifican independiente."
 ```
 
@@ -741,18 +761,18 @@ Veamos uno:"
 
 Cada cambio documentado. No hay sorpresas.
 ¿Quién lo hizo? Admin Omar.
-¿Cuándo? 14:31:42 exactamente. 
+¿Cuándo? 14:31:42 exactamente.
 ¿Qué cambió? Description y skills.
 ¿Fue autorizado? Sí (admin role puede).
 
 Para auditor: trazabilidad de A-Z.
-Si alguien dice 'nunca cambié descripción', 
+Si alguien dice 'nunca cambié descripción',
 aquí está probado que sí."
 
 [Pausa]
 
 "¿Pueden exportar audit trail completo a CSV? Sí.
-Click aquí, descarga CSV, verifica offline. 
+Click aquí, descarga CSV, verifica offline.
 Cada fila es un evento. Puede ser importado en auditoría software."
 ```
 
@@ -779,7 +799,7 @@ Capacidades de auditor:
 - ✅ Rastrear cambios por role/user/date
 - ✅ Acceso completo al dashboard (sin credenciales si es demo)
 
-Cualquier pregunta técnica, metodológica, o de gobernanza 
+Cualquier pregunta técnica, metodológica, o de gobernanza
 estoy disponible. ¿Preguntas?"
 
 [Esperan q&A, pueden durar 10-15 minutos]
@@ -790,6 +810,7 @@ estoy disponible. ¿Preguntas?"
 ## 📊 VARIANTES RÁPIDAS POR CONTEXTO
 
 ### Variante: AUDITOR VIRTUAL (via Zoom/Teams)
+
 ```
 Cambios:
 - Dashboard: Compartir pantalla, máx 1200x800 resolución
@@ -799,6 +820,7 @@ Cambios:
 ```
 
 ### Variante: DEMO MULTIDIOMA (Spanish/English)
+
 ```
 Dashboard: Multiidioma soportado en config
 Scripts: Preparar 2 versiones (here provided en Spanish)
@@ -806,6 +828,7 @@ Technical Terms: Mantener consistencia (Event Sourcing = Event Sourcing)
 ```
 
 ### Variante: DEMO SIN SEEDER (Datos mínimos)
+
 ```
 Si seeder no execute:
 - Crear manualmente 5-10 eventos
@@ -819,6 +842,7 @@ Si seeder no execute:
 ## 🎯 RESPUESTAS A PREGUNTAS COMUNES
 
 ### "¿Por qué Event Sourcing y no just auditoría tradicional?"
+
 ```
 TRADICIONAL:
 UPDATE role SET description = X WHERE id = 5;
@@ -842,6 +866,7 @@ BENEFICIOS:
 ```
 
 ### "¿Qué pasa si evento se corrompe?"
+
 ```
 RESPUESTA:
 En Event Sourcing, un evento corrupto afecta ese evento solo.
@@ -860,6 +885,7 @@ Mitigación:
 ```
 
 ### "¿Cuánto cuesta guardar 2,847 eventos?"
+
 ```
 RESPUESTA:
 Por evento: ~500 bytes average (ID, timestamp, payload, metadata)
@@ -871,6 +897,7 @@ Costo CPU: Negligible queries (índices en event_name + aggregate_id)
 ```
 
 ### "¿Pueden hacer querying rápido con 2,847 eventos?"
+
 ```
 RESPUESTA:
 Sí. Con índices apropiados: <100ms
@@ -888,6 +915,7 @@ Queries típicas:
 ```
 
 ### "¿Se pueden revocar eventos?"
+
 ```
 RESPUESTA:
 No se revocan (no se borran), pero se pueden anotar.
@@ -906,6 +934,7 @@ Pero el evento original siempre está visible. Transparencia.
 ## 📋 MATERIAL DE APOYO PARA AUDITOR
 
 ### A Enviar Pre-Demo
+
 ```
 1. Esta guía de script (este archivo)
 2. CSV de eventos (export completo)
@@ -916,6 +945,7 @@ Pero el evento original siempre está visible. Transparencia.
 ```
 
 ### A Tener Disponible Durante
+
 ```
 1. Dashboard (live)
 2. DB access (read-only, si es necesario)
@@ -925,6 +955,7 @@ Pero el evento original siempre está visible. Transparencia.
 ```
 
 ### A Enviar Post-Demo
+
 ```
 1. Full audit trail CSV
 2. Full VC export

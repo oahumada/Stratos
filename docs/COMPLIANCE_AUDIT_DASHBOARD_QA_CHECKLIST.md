@@ -3,7 +3,9 @@
 **40+ Test Cases | Manual QA | Operaciones Diarias**
 
 ---
+
 ## 📋 METADATA
+
 - ⏱️ Tiempo de lectura: 15 minutos
 - ⏱️ Tiempo para QA completa: 45 minutos
 - 🎯 Audiencia: QA Engineers, Test Managers, Productores
@@ -13,7 +15,9 @@
 - 🎯 Cobertura: 100% de funcionalidades core
 
 ---
+
 ## 📋 CUÁNDO EJECUTAR:
+
 - ✅ Antes de release a producción
 - ✅ Después de cambios en dashboard
 - ✅ Verificación semanal de regresiones

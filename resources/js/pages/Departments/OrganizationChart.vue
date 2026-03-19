@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import * as apiHelper from '@/apiHelper';
 import DepartmentNodeComponent from '@/components/Organization/OrgChart/DepartmentNode.vue';
+import DepartmentHierarchyEditor from '@/components/Departments/DepartmentHierarchyEditor.vue';
 import { Head } from '@inertiajs/vue3';
 import { Layers, MousePointer2, RefreshCcw } from 'lucide-vue-next';
 import { onMounted, ref } from 'vue';
@@ -34,7 +35,9 @@ const { fitView } = useVueFlow();
 const loading = ref(true);
 const error = ref<string | null>(null);
 const elements = ref<any[]>([]);
-
+const allDepartments = ref<DepartmentNode[]>([]);
+const editingDepartment = ref<DepartmentNode | null>(null);
+const hierarchyEditorOpen = ref(false);
 
 // Custom node type registration
 const nodeTypes: NodeTypesObject = {
@@ -46,6 +49,7 @@ const fetchTree = async () => {
     error.value = null;
     try {
         const response = await apiHelper.get<DepartmentNode[]>('/api/departments/tree');
+        allDepartments.value = response;
         const { nodes, edges } = transformData(response);
         elements.value = layoutNodes(nodes, edges);
     } catch (e: any) {
@@ -53,6 +57,20 @@ const fetchTree = async () => {
     } finally {
         loading.value = false;
     }
+};
+
+const getFlattenedDepartments = (departments: DepartmentNode[]): DepartmentNode[] => {
+    const result: DepartmentNode[] = [];
+    const traverse = (items: DepartmentNode[]) => {
+        items.forEach(item => {
+            result.push(item);
+            if (item.children && item.children.length > 0) {
+                traverse(item.children);
+            }
+        });
+    };
+    traverse(departments);
+    return result;
 };
 
 const transformData = (data: DepartmentNode[]) => {
@@ -67,7 +85,8 @@ const transformData = (data: DepartmentNode[]) => {
                 label: item.name,
                 description: item.description,
                 managerName: item.manager ? `${item.manager.first_name} ${item.manager.last_name}` : null,
-                headcount: item.headcount || 0
+                headcount: item.headcount || 0,
+                departmentId: item.id
             },
             position: { x: 0, y: 0 },
         });
@@ -115,6 +134,20 @@ const layoutNodes = (nodes: any[], edges: any[]) => {
     });
 
     return [...nodes, ...edges];
+};
+
+const handleEditHierarchy = (departmentId: number) => {
+    const flatDepts = getFlattenedDepartments(allDepartments.value);
+    const dept = flatDepts.find(d => d.id === departmentId);
+    if (dept) {
+        editingDepartment.value = dept;
+        hierarchyEditorOpen.value = true;
+    }
+};
+
+const handleHierarchyUpdated = async () => {
+    // Recargar árbol después de actualizar
+    await fetchTree();
 };
 
 onMounted(() => {
@@ -185,7 +218,10 @@ const handlePaneReady = () => {
                     <Controls />
                     
                     <template #node-department="props">
-                        <DepartmentNodeComponent v-bind="props" />
+                        <DepartmentNodeComponent 
+                            v-bind="props" 
+                            @edit-hierarchy="handleEditHierarchy"
+                        />
                     </template>
                 </VueFlow>
 
@@ -203,6 +239,16 @@ const handlePaneReady = () => {
                 </div>
                 <div>Usa el Scroll para Zoom · Arrastra para Navegar</div>
             </footer>
+
+            <!-- Department Hierarchy Editor Modal -->
+            <DepartmentHierarchyEditor
+                v-if="editingDepartment"
+                :open="hierarchyEditorOpen"
+                :department="editingDepartment"
+                :all-departments="getFlattenedDepartments(allDepartments)"
+                @close="hierarchyEditorOpen = false"
+                @updated="handleHierarchyUpdated"
+            />
         </div>
 </template>
 
