@@ -701,6 +701,7 @@ onMounted(() => {
                 <!-- Actions Column -->
                 <template #[`item.actions`]="{ item }">
                     <div class="d-flex gap-2">
+                        <slot name="item-actions-prepend" :item="item"></slot>
                         <v-btn
                             v-if="mergedConfig.permisos?.editar"
                             icon
@@ -905,7 +906,7 @@ onMounted(() => {
                         name="detail-header-actions"
                         :item="detailItem"
                         :refresh="loadItems"
-                        :edit="() => openEditDialog(detailItem)"
+                        :edit="() => detailItem && openEditDialog(detailItem)"
                     ></slot>
                     <v-btn
                         icon

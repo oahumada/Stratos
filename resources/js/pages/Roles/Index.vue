@@ -16,17 +16,16 @@ import {
     PhFileText,
     PhInfo,
     PhLightbulb,
+    PhLightning,
     PhMagicWand,
     PhPencil,
-   // PhPlus,
     PhRobot,
     PhSealCheck,
     PhStar,
-   // PhTrash,
     PhUpload,
     PhUser,
     PhUsers,
-    // PhX,
+    PhPaperPlaneTilt,
 } from '@phosphor-icons/vue';
 import { useNotification } from '@kyvg/vue3-notification';
 import axios from 'axios';
@@ -48,6 +47,7 @@ defineOptions({ layout: AppLayout });
 // Wizard state
 const showCubeWizard = ref(false);
 const selectedRoleId = ref<number | null>(null);
+const selectedRoleData = ref<any>(null);
 const materializing = ref<number | null>(null);
 const requestingApproval = ref(false);
 const showApprovalDialog = ref(false);
@@ -102,8 +102,8 @@ const submitApprovalRequest = async () => {
         
         notify({
             type: 'success',
-            title: 'Solicitud Enviada',
-            text: 'Se ha enviado un link de aprobación al responsable seleccionado.'
+            title: t('role_wizard.approval_sent_title'),
+            text: t('role_wizard.approval_sent_desc')
         });
         showApprovalDialog.value = false;
         selectedApproverId.value = null;
@@ -116,11 +116,10 @@ const submitApprovalRequest = async () => {
 };
 const formSchemaRef = ref<any>(null);
 
-const onRoleCreated = () => {
+const fetchData = () => {
     formSchemaRef.value?.loadItems();
-    showCubeWizard.value = false;
-    selectedRoleId.value = null;
 };
+
 
 // Detail tab state
 const detailTab = ref('info');
@@ -139,13 +138,17 @@ onMounted(async () => {
     }
 });
 
+const selectedSkill = ref<any>(null);
+const showSkillDetail = ref(false);
+
+const openSkillDetail = (skill: any) => {
+    selectedSkill.value = skill;
+    showSkillDetail.value = true;
+};
+
 const designing = ref(false);
 
 // No refresh needed here as Wizard handles its own lifecycle
-
-const designRole = async (id: number, _refresh: () => Promise<void>) => {
-    openWizardForRole(id);
-};
 
 const autoFillWithAI = async (id: number, currentFormData: any) => {
     if (!id) return;
@@ -185,22 +188,103 @@ const autoFillWithAI = async (id: number, currentFormData: any) => {
     }
 };
 
-const openWizardForRole = (id: number) => {
+const openWizardForRole = (id: number, data?: any) => {
     selectedRoleId.value = id;
+    selectedRoleData.value = data || null;
     showCubeWizard.value = true;
 };
 
-// Helpers to map relations safely
-const getRoleSkills = (item: any) => {
-    if (!item?.skills) return [];
+const getStatusVariant = (status: string) => {
+    switch (status) {
+        case 'active':
+        case 'approved':
+        case 'baseline':
+            return 'success';
+        case 'pending':
+            return 'warning';
+        case 'proposed':
+        case 'draft':
+            return 'info';
+        default:
+            return 'glass';
+    }
+};
 
-    return item.skills.map((skill: any) => ({
-        id: skill.id,
-        name: skill.name,
-        category: skill.category,
-        required_level: skill.pivot?.required_level || 0,
-        is_critical: skill.pivot?.is_critical || false,
-    }));
+const getStatusLabel = (status: string) => {
+    switch (status) {
+        case 'active':
+        case 'approved':
+        case 'baseline':
+            return 'Aprobada';
+        case 'pending':
+            return 'Pendiente';
+        case 'proposed':
+        case 'draft':
+            return 'Propuesta';
+        default:
+            return status || 'Desconocido';
+    }
+};
+
+const getRoleCompetencies = (item: any) => {
+    let result = [];
+
+    // 1. Try direct competencies relation
+    if (item?.competencies && item.competencies.length > 0) {
+        result = item.competencies.map((comp: any) => ({
+            id: comp.id,
+            name: comp.name,
+            category: comp.category,
+            description: comp.description || 'Sin descripción disponible',
+            status: comp.status || 'proposed',
+            required_level: comp.pivot?.required_level || 3,
+            criticity: comp.pivot?.criticity || 'medium',
+            is_core: comp.pivot?.is_core || false,
+            rationale: comp.pivot?.rationale,
+        }));
+    } 
+    // 2. Fallback: Extract from skills.competencies
+    else if (item?.skills && item.skills.length > 0) {
+        const compMap = new Map();
+        
+        item.skills.forEach((skill: any) => {
+            if (skill.competencies && skill.competencies.length > 0) {
+                skill.competencies.forEach((comp: any) => {
+                    if (!compMap.has(comp.id)) {
+                        compMap.set(comp.id, {
+                            id: comp.id,
+                            name: comp.name,
+                            category: skill.category, // Use skill's category as fallback
+                            description: comp.description || skill.description,
+                            status: comp.status || 'proposed',
+                            required_level: skill.pivot?.required_level || 3,
+                            criticity: skill.pivot?.is_critical ? 'high' : 'medium',
+                            is_core: skill.pivot?.is_critical || false,
+                            rationale: skill.pivot?.rationale,
+                        });
+                    }
+                });
+            }
+        });
+        
+        result = Array.from(compMap.values());
+    }
+    // 3. Fallback: Check AI suggested competencies in config
+    else if (item?.ai_archetype_config?.core_competencies && item.ai_archetype_config.core_competencies.length > 0) {
+        result = item.ai_archetype_config.core_competencies.map((comp: any, index: number) => ({
+            id: `ai-${index}`,
+            name: comp.name,
+            category: 'IA Suggestion',
+            description: comp.rationale || 'Sugerencia generada por el Diseñador IA',
+            status: 'proposed',
+            required_level: comp.level || 3,
+            criticity: 'medium',
+            is_core: true,
+            rationale: comp.rationale,
+        }));
+    }
+
+    return result;
 };
 
 const getRolePeople = (item: any) => {
@@ -251,6 +335,21 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
             </StButtonGlass>
         </template>
 
+        <template #item-actions-prepend="{ item }">
+            <v-btn
+                v-if="item.status === 'pending_approval' || item.status === 'review'"
+                icon
+                size="small"
+                color="indigo-accent-2"
+                variant="tonal"
+                class="rounded-lg"
+                @click.stop="openApprovalSelector(item)"
+                v-tooltip="t('role_wizard.send_for_approval')"
+            >
+                <component :is="PhPaperPlaneTilt" :size="16" />
+            </v-btn>
+        </template>
+
         <!-- Header Actions in Detail Modal -->
         <template #detail-header-actions="{ item, edit }">
             <StButtonGlass
@@ -279,18 +378,17 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
             </StButtonGlass>
         </template>
 
-        <template #detail="{ item, refresh }">
+        <template #detail="{ item }">
             <v-tabs v-model="detailTab" color="indigo-accent-2" class="mb-4">
                 <v-tab value="info" class="text-none">
                     <component :is="PhInfo" :size="18" class="mr-2" />
                     {{ t('roles_module.tabs.info') }}
                 </v-tab>
                 <v-tab value="skills" class="text-none">
-                    <component :is="PhStar" :size="18" class="mr-2" />
+                    <component :is="PhLightning" :size="18" class="mr-2" />
                     {{
                         t('roles_module.tabs.skills', {
-                            count:
-                                item.skills_count || item.skills?.length || 0,
+                            count: getRoleCompetencies(item).length
                         })
                     }}
                 </v-tab>
@@ -344,8 +442,8 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                     <span class="ml-2 text-slate-100">{{ item.name }}</span>
                                 </v-list-item-title>
                             </v-list-item>
-                            <v-list-item v-if="item.description" class="px-0">
-                                <v-list-item-title class="text-body-2 text-white">
+                            <v-list-item v-if="item.description" class="px-0 d-block">
+                                <div class="text-body-2 text-white mb-2">
                                     <strong class="text-indigo-accent-1"
                                         >{{
                                             t(
@@ -353,13 +451,13 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                             )
                                         }}:</strong
                                     >
-                                    <div class="pa-3 mt-1 rounded-lg border border-white/5 bg-white/3 text-slate-200 text-body-2 leading-relaxed">
-                                        {{ item.description }}
-                                    </div>
-                                </v-list-item-title>
+                                </div>
+                                <div class="pa-3 rounded-lg border border-white/5 bg-white/3 text-slate-200 text-body-2 leading-relaxed">
+                                    {{ item.description }}
+                                </div>
                             </v-list-item>
-                            <v-list-item v-if="item.purpose" class="px-0">
-                                <v-list-item-title class="text-body-2 text-white">
+                            <v-list-item v-if="item.purpose" class="px-0 d-block">
+                                <div class="text-body-2 text-white mb-2">
                                     <strong class="text-indigo-accent-1"
                                         >{{
                                             t(
@@ -367,18 +465,18 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                             )
                                         }}:</strong
                                     >
-                                    <div
-                                        class="pa-3 mt-1 rounded-lg border border-indigo-500/20 bg-indigo-900/10 text-slate-200 italic text-body-2 leading-relaxed"
-                                    >
-                                        {{ item.purpose }}
-                                    </div>
-                                </v-list-item-title>
+                                </div>
+                                <div
+                                    class="pa-3 rounded-lg border border-indigo-500/20 bg-indigo-900/10 text-slate-200 italic text-body-2 leading-relaxed"
+                                >
+                                    {{ item.purpose }}
+                                </div>
                             </v-list-item>
                             <v-list-item
                                 v-if="item.expected_results"
-                                class="px-0"
+                                class="px-0 d-block"
                             >
-                                <v-list-item-title class="text-body-2 text-white">
+                                <div class="text-body-2 text-white mb-2">
                                     <strong class="text-indigo-accent-1"
                                         >{{
                                             t(
@@ -386,12 +484,12 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                             )
                                         }}:</strong
                                     >
-                                    <div
-                                        class="pa-3 mt-1 rounded-lg border border-emerald-500/20 bg-emerald-900/10 text-slate-200 text-body-2 leading-relaxed"
-                                    >
-                                        {{ item.expected_results }}
-                                    </div>
-                                </v-list-item-title>
+                                </div>
+                                <div
+                                    class="pa-3 rounded-lg border border-emerald-500/20 bg-emerald-900/10 text-slate-200 text-body-2 leading-relaxed"
+                                >
+                                    {{ item.expected_results }}
+                                </div>
                             </v-list-item>
                             <v-list-item v-if="item.agent" class="px-0">
                                 <v-list-item-title
@@ -460,18 +558,9 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                                 variant="primary"
                                 size="sm"
                                 :loading="designing"
-                                @click="designRole(item.id, refresh)"
+                                @click="openWizardForRole(item.id, item)"
                             >
-                                {{ t('roles_module.info_section.design_btn') }}
-                            </StButtonGlass>
-
-                            <StButtonGlass
-                                :icon="PhCube"
-                                variant="primary"
-                                size="sm"
-                                @click="openWizardForRole(item.id)"
-                            >
-                                Refinar con Wizard
+                                Perfeccionar Diseño (Modelo Cubo IA)
                             </StButtonGlass>
                         </div>
                     </v-card>
@@ -491,67 +580,82 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                             {{ t('roles_module.skills_section.title') }}
                         </div>
                         <div
-                            v-if="getRoleSkills(item).length === 0"
+                            v-if="getRoleCompetencies(item).length === 0"
                             class="rounded-xl border border-dashed py-8 text-center text-slate-400"
                         >
                             {{ t('roles_module.skills_section.empty') }}
                         </div>
-                        <v-list
+                        <div
                             v-else
-                            density="comfortable"
                             class="pa-0 bg-transparent"
                         >
-                            <v-list-item
-                                v-for="skill in getRoleSkills(item)"
-                                :key="skill.id"
-                                class="glass-card mb-3 rounded-xl border"
+                            <div
+                                v-for="comp in getRoleCompetencies(item)"
+                                :key="comp.id"
+                                class="glass-card mb-4 rounded-xl border pa-4"
                             >
-                                <template #prepend>
-                                    <v-avatar color="indigo/10" size="36">
+                                <div class="d-flex align-start">
+                                    <v-avatar color="indigo/10" size="40" class="mr-4">
                                         <component
                                             :is="PhStar"
-                                            size="20"
+                                            size="24"
                                             class="text-indigo-accent-1"
                                         />
                                     </v-avatar>
-                                </template>
-                                <v-list-item-title
-                                    class="text-body-2 font-weight-bold text-white"
-                                >
-                                    {{ skill.name }}
-                                </v-list-item-title>
-                                <v-list-item-subtitle
-                                    class="text-caption d-flex align-center mt-1"
-                                >
-                                    <span class="mr-1 text-slate-400"
-                                        >{{
-                                            t(
-                                                'roles_module.skills_section.level',
-                                            )
-                                        }}:</span
-                                    >
-                                    <SkillLevelChip
-                                        :level="skill.required_level"
-                                        :skill-levels="skillLevels"
-                                        color="white"
-                                        size="x-small"
-                                    />
-                                    <v-chip
-                                        v-if="skill.is_critical"
-                                        size="x-small"
-                                        color="error"
-                                        variant="flat"
-                                        class="ml-2 rounded-lg"
-                                    >
-                                        {{
-                                            t(
-                                                'roles_module.skills_section.critical',
-                                            )
-                                        }}
-                                    </v-chip>
-                                </v-list-item-subtitle>
-                            </v-list-item>
-                        </v-list>
+                                    <div class="grow">
+                                        <div class="d-flex align-center justify-space-between mb-1">
+                                            <div class="d-flex align-center">
+                                                <div class="text-body-1 font-weight-bold text-white mr-3">
+                                                    {{ comp.name }}
+                                                </div>
+                                                <StBadgeGlass 
+                                                    :variant="getStatusVariant(comp.status)" 
+                                                    size="sm"
+                                                >
+                                                    {{ getStatusLabel(comp.status) }}
+                                                </StBadgeGlass>
+                                            </div>
+                                            <div class="d-flex gap-2 align-center">
+                                                <SkillLevelChip
+                                                    :level="comp.required_level"
+                                                    :skill-levels="skillLevels"
+                                                    color="white"
+                                                    size="small"
+                                                />
+                                                <v-chip
+                                                    v-if="comp.is_core || comp.criticity === 'high'"
+                                                    size="x-small"
+                                                    color="error"
+                                                    variant="flat"
+                                                    class="rounded-lg"
+                                                >
+                                                    {{
+                                                        t(
+                                                            'roles_module.skills_section.critical',
+                                                        )
+                                                    }}
+                                                </v-chip>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="text-body-2 text-slate-400 mb-4 line-clamp-2">
+                                            {{ comp.description }}
+                                        </div>
+
+                                        <div class="d-flex justify-end">
+                                            <StButtonGlass
+                                                variant="ghost"
+                                                size="sm"
+                                                :icon="PhInfo"
+                                                @click="openSkillDetail(comp)"
+                                            >
+                                                Ver detalles
+                                            </StButtonGlass>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </v-card>
                 </v-window-item>
 
@@ -793,12 +897,75 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
         </template>
     </FormSchema>
 
-    <RoleCubeWizard 
-        v-model="showCubeWizard" 
+    <RoleCubeWizard
+        v-if="showCubeWizard"
+        v-model="showCubeWizard"
         :role-id="selectedRoleId"
-        @created="onRoleCreated" 
-        @close="selectedRoleId = null"
+        :initial-data="selectedRoleData"
+        @created="fetchData"
     />
+
+    <!-- Competency Detail Dialog -->
+    <v-dialog v-model="showSkillDetail" max-width="600px">
+        <StCardGlass v-if="selectedSkill" class="pa-6" variant="premium">
+            <div class="d-flex align-center justify-space-between mb-6">
+                <div class="d-flex align-center">
+                    <v-avatar color="indigo/20" size="48" class="mr-4 shadow-indigo">
+                        <PhStar :size="28" class="text-indigo-accent-1" weight="fill" />
+                    </v-avatar>
+                    <div>
+                        <div class="text-h5 font-weight-bold text-white font-premium">
+                            {{ selectedSkill.name }}
+                        </div>
+                        <div class="text-caption text-indigo-accent-1 uppercase tracking-widest font-weight-black">
+                            {{ selectedSkill.category || 'Competencia Institucional' }}
+                        </div>
+                    </div>
+                </div>
+                <v-btn icon="mdi-close" variant="text" color="white" @click="showSkillDetail = false" />
+            </div>
+
+            <v-divider class="mb-6 opacity-10" />
+
+            <div class="mb-6">
+                <div class="text-overline text-indigo-accent-1 mb-2 font-weight-black tracking-widest">
+                    DESCRIPCIÓN
+                </div>
+                <div class="text-body-1 text-slate-200 leading-relaxed">
+                    {{ selectedSkill.description }}
+                </div>
+            </div>
+
+            <div class="d-flex align-center gap-4 mb-6">
+                <div class="grow">
+                    <div class="text-overline text-emerald-accent-1 mb-2 font-weight-black tracking-widest">
+                        NIVEL REQUERIDO
+                    </div>
+                    <div class="d-flex align-center">
+                        <SkillLevelChip
+                            :level="selectedSkill.required_level"
+                            :skill-levels="skillLevels"
+                            size="large"
+                        />
+                    </div>
+                </div>
+                <div v-if="selectedSkill.is_critical">
+                    <div class="text-overline text-error mb-2 font-weight-black tracking-widest">
+                        PRIORIDAD
+                    </div>
+                    <StBadgeGlass variant="error" size="md">
+                        CRÍTICA
+                    </StBadgeGlass>
+                </div>
+            </div>
+
+            <div class="mt-8 d-flex justify-end">
+                <StButtonGlass variant="primary" size="md" @click="showSkillDetail = false">
+                    Entendido
+                </StButtonGlass>
+            </div>
+        </StCardGlass>
+    </v-dialog>
 
     <!-- Approval Dialog -->
     <v-dialog v-model="showApprovalDialog" max-width="500">

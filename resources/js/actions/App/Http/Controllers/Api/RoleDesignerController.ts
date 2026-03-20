@@ -302,7 +302,7 @@ export const showApprovalRequest = {
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approve
-* @see app/Http/Controllers/Api/RoleDesignerController.php:119
+* @see app/Http/Controllers/Api/RoleDesignerController.php:125
 * @route '/api/approvals/{token}/approve'
 */
 export const approve = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -317,7 +317,7 @@ approve.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approve
-* @see app/Http/Controllers/Api/RoleDesignerController.php:119
+* @see app/Http/Controllers/Api/RoleDesignerController.php:125
 * @route '/api/approvals/{token}/approve'
 */
 approve.url = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -344,7 +344,7 @@ approve.url = (args: { token: string | number } | [token: string | number ] | st
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approve
-* @see app/Http/Controllers/Api/RoleDesignerController.php:119
+* @see app/Http/Controllers/Api/RoleDesignerController.php:125
 * @route '/api/approvals/{token}/approve'
 */
 approve.post = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -354,7 +354,7 @@ approve.post = (args: { token: string | number } | [token: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approve
-* @see app/Http/Controllers/Api/RoleDesignerController.php:119
+* @see app/Http/Controllers/Api/RoleDesignerController.php:125
 * @route '/api/approvals/{token}/approve'
 */
 const approveForm = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -364,7 +364,7 @@ const approveForm = (args: { token: string | number } | [token: string | number 
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approve
-* @see app/Http/Controllers/Api/RoleDesignerController.php:119
+* @see app/Http/Controllers/Api/RoleDesignerController.php:125
 * @route '/api/approvals/{token}/approve'
 */
 approveForm.post = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -710,7 +710,7 @@ requestApproval.form = requestApprovalForm
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::requestCompetencyApproval
-* @see app/Http/Controllers/Api/RoleDesignerController.php:105
+* @see app/Http/Controllers/Api/RoleDesignerController.php:111
 * @route '/api/strategic-planning/competencies/{id}/request-approval'
 */
 export const requestCompetencyApproval = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -725,7 +725,7 @@ requestCompetencyApproval.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::requestCompetencyApproval
-* @see app/Http/Controllers/Api/RoleDesignerController.php:105
+* @see app/Http/Controllers/Api/RoleDesignerController.php:111
 * @route '/api/strategic-planning/competencies/{id}/request-approval'
 */
 requestCompetencyApproval.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -752,7 +752,7 @@ requestCompetencyApproval.url = (args: { id: string | number } | [id: string | n
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::requestCompetencyApproval
-* @see app/Http/Controllers/Api/RoleDesignerController.php:105
+* @see app/Http/Controllers/Api/RoleDesignerController.php:111
 * @route '/api/strategic-planning/competencies/{id}/request-approval'
 */
 requestCompetencyApproval.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -762,7 +762,7 @@ requestCompetencyApproval.post = (args: { id: string | number } | [id: string | 
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::requestCompetencyApproval
-* @see app/Http/Controllers/Api/RoleDesignerController.php:105
+* @see app/Http/Controllers/Api/RoleDesignerController.php:111
 * @route '/api/strategic-planning/competencies/{id}/request-approval'
 */
 const requestCompetencyApprovalForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -772,7 +772,7 @@ const requestCompetencyApprovalForm = (args: { id: string | number } | [id: stri
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::requestCompetencyApproval
-* @see app/Http/Controllers/Api/RoleDesignerController.php:105
+* @see app/Http/Controllers/Api/RoleDesignerController.php:111
 * @route '/api/strategic-planning/competencies/{id}/request-approval'
 */
 requestCompetencyApprovalForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

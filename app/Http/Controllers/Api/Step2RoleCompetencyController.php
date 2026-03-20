@@ -10,7 +10,11 @@ use App\Models\Scenario;
 use App\Models\ScenarioRole;
 use App\Models\ScenarioRoleCompetency;
 use App\Models\ScenarioRoleSkill;
+use App\Models\Skill;
+use App\Services\EmbeddingService;
 use App\Services\RoleSkillDerivationService;
+use App\Services\Talent\RoleDesignerService;
+use App\Services\Talent\TalentDesignOrchestratorService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +32,7 @@ class Step2RoleCompetencyController extends Controller
 
     public function __construct(
         private RoleSkillDerivationService $derivationService,
-        private \App\Services\Talent\TalentDesignOrchestratorService $orchestrator
+        private TalentDesignOrchestratorService $orchestrator
     ) {}
 
     /**
@@ -62,14 +66,14 @@ class Step2RoleCompetencyController extends Controller
         // incluidas en este escenario (Paso 1), tal como muestra el diagrama de nodos.
         // También incluimos cualquier competencia que ya tenga un mapping en el escenario
         // (por si fue asignada manualmente o por el agente fuera del blueprint base).
-        $scenarioCompetencyIds = \DB::table('scenario_capabilities')
+        $scenarioCompetencyIds = DB::table('scenario_capabilities')
             ->where('scenario_capabilities.scenario_id', $scenarioId)
             ->join('capability_competencies', 'scenario_capabilities.capability_id', '=', 'capability_competencies.capability_id')
             ->pluck('capability_competencies.competency_id')
             ->unique();
 
         // IDs ya mapeados en este escenario (no perder data existente)
-        $mappedCompetencyIds = \DB::table('scenario_role_competencies')
+        $mappedCompetencyIds = DB::table('scenario_role_competencies')
             ->where('scenario_id', $scenarioId)
             ->whereNotNull('competency_id')
             ->pluck('competency_id');
@@ -80,7 +84,7 @@ class Step2RoleCompetencyController extends Controller
         // del escenario, así cada competencia muestra su pestaña correcta.
         // Las competencias mapeadas por el agente pero sin capability del escenario
         // aparecen bajo 'General'.
-        $scenarioCapabilityIds = \DB::table('scenario_capabilities')
+        $scenarioCapabilityIds = DB::table('scenario_capabilities')
             ->where('scenario_id', $scenarioId)
             ->pluck('capability_id');
 
@@ -89,12 +93,12 @@ class Step2RoleCompetencyController extends Controller
         // las capabilities del escenario — si la competencia pertenece a más
         // de una capability, mostramos la del escenario; si no, cualquier otra.
         // Así se evita el fallback a 'General' cuando sí existe asociación.
-        $competencies = \DB::table('competencies')
+        $competencies = DB::table('competencies')
             ->leftJoin('capability_competencies', 'competencies.id', '=', 'capability_competencies.competency_id')
             ->leftJoin('capabilities', 'capability_competencies.capability_id', '=', 'capabilities.id')
             ->where('competencies.organization_id', auth()->user()->organization_id)
             ->whereIn('competencies.id', $allRelevantIds->isEmpty()
-                ? \DB::table('competencies')
+                ? DB::table('competencies')
                     ->where('organization_id', auth()->user()->organization_id)
                     ->pluck('id')
                 : $allRelevantIds
@@ -102,8 +106,8 @@ class Step2RoleCompetencyController extends Controller
             ->select(
                 'competencies.id',
                 'competencies.name',
-                \DB::raw('MIN(capability_competencies.capability_id) as capability_id'),
-                \DB::raw('COALESCE(MIN(CASE WHEN capability_competencies.capability_id IN ('
+                DB::raw('MIN(capability_competencies.capability_id) as capability_id'),
+                DB::raw('COALESCE(MIN(CASE WHEN capability_competencies.capability_id IN ('
                     .implode(',', $scenarioCapabilityIds->toArray() ?: [0])
                     .") THEN capabilities.name END), MIN(capabilities.name), 'General') as capability_name")
             )
@@ -240,7 +244,7 @@ class Step2RoleCompetencyController extends Controller
 
         // Si no existe role_id, crear uno nuevo en el catálogo (como propuesta)
         if (empty($validated['role_id'])) {
-            $role = \App\Models\Roles::create([
+            $role = Roles::create([
                 'organization_id' => auth()->user()->organization_id,
                 'name' => $validated['role_name'],
                 'description' => $validated['role_description'] ?? null,
@@ -274,7 +278,7 @@ class Step2RoleCompetencyController extends Controller
         if ($request->has('competencies') && is_array($request->competencies)) {
             $orgId = auth()->user()->organization_id;
             $embeddingService = config('features.generate_embeddings', false)
-                ? app(\App\Services\EmbeddingService::class)
+                ? app(EmbeddingService::class)
                 : null;
 
             foreach ($request->competencies as $compData) {
@@ -296,14 +300,14 @@ class Step2RoleCompetencyController extends Controller
 
                         // Umbral del 90%: Si la similitud matemática es alta, reutilizamos la competencia existente
                         if (! empty($similar) && $similar[0]->similarity >= 0.90) {
-                            $competency = \App\Models\Competency::find($similar[0]->id);
+                            $competency = Competency::find($similar[0]->id);
                         }
                     }
                 }
 
                 // 2. Si no hubo match semántico (o si el modelo vector está apagado), fallback a nombre exacto o catalogar como nueva
                 if (! $competency) {
-                    $competency = \App\Models\Competency::firstOrCreate(
+                    $competency = Competency::firstOrCreate(
                         [
                             'name' => $compData['name'],
                             'organization_id' => $orgId,
@@ -318,7 +322,7 @@ class Step2RoleCompetencyController extends Controller
                         $isNew = true;
                         // Persistir el vector en la base de datos si logramos generarlo
                         if ($embeddingVector) {
-                            \Illuminate\Support\Facades\DB::statement(
+                            DB::statement(
                                 'UPDATE competencies SET embedding = ?::vector WHERE id = ?',
                                 [$embeddingVector, $competency->id]
                             );
@@ -372,21 +376,20 @@ class Step2RoleCompetencyController extends Controller
 
         // 1. Obtener las competencias "descubiertas" en este escenario (Paso 1)
         // Ya que el Paso 1 las vinculó tempranamente en scenario_role_competencies
-        $competencyIds = \App\Models\ScenarioRoleCompetency::where('scenario_id', $scenarioId)
+        $competencyIds = ScenarioRoleCompetency::where('scenario_id', $scenarioId)
             ->pluck('competency_id')
             ->unique();
 
-        $scenarioCompetencies = \App\Models\Competency::whereIn('id', $competencyIds)
+        $scenarioCompetencies = Competency::whereIn('id', $competencyIds)
             ->where('organization_id', $orgId)
             ->get();
 
         $embeddingService = config('features.generate_embeddings', false)
-            ? app(\App\Services\EmbeddingService::class)
+            ? app(EmbeddingService::class)
             : null;
 
         $impactedRoles = [];
         $newOrphanCompetencies = [];
-        $candidateRoleNames = [];
 
         // 2. Filtro Vectorial contra el Catálogo Activo (Organigrama Oficial)
         foreach ($scenarioCompetencies as $comp) {
@@ -401,7 +404,7 @@ class Step2RoleCompetencyController extends Controller
 
                     foreach ($similarities as $sim) {
                         if ($sim->id != $comp->id && $sim->similarity >= 0.90) {
-                            $matchedComp = \App\Models\Competency::find($sim->id);
+                            $matchedComp = Competency::find($sim->id);
 
                             // Nos interesan las competencias que ya estén activas en el catálogo real de la empresa
                             if ($matchedComp && $matchedComp->status === 'active') {
@@ -436,13 +439,13 @@ class Step2RoleCompetencyController extends Controller
         $orchestrationPlan = [];
         if (! empty($newOrphanCompetencies)) {
             // Obtenemos una muestra de roles actuales de la organización para darle contexto al Agente
-            $candidateRoles = \App\Models\Roles::where('organization_id', $orgId)
+            $candidateRoles = Roles::where('organization_id', $orgId)
                 ->where('status', 'active')
                 ->limit(20)
                 ->pluck('name')
                 ->toArray();
 
-            $roleDesigner = app(\App\Services\Talent\RoleDesignerService::class);
+            $roleDesigner = app(RoleDesignerService::class);
             $orchestrationPlan = $roleDesigner->bundleNewCapabilities($newOrphanCompetencies, $candidateRoles);
         }
 
@@ -522,7 +525,7 @@ class Step2RoleCompetencyController extends Controller
             });
 
         // Skills requeridos en escenario (vía competencias)
-        $skills = \App\Models\Skill::join('competency_skills', 'skills.id', '=', 'competency_skills.skill_id')
+        $skills = Skill::join('competency_skills', 'skills.id', '=', 'competency_skills.skill_id')
             ->join('scenario_role_competencies', 'competency_skills.competency_id', '=', 'scenario_role_competencies.competency_id')
             ->join('competencies', 'competency_skills.competency_id', '=', 'competencies.id')
             ->where('scenario_role_competencies.scenario_id', $scenarioId)

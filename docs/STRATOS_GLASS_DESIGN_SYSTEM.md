@@ -37,6 +37,7 @@ Stratos focuses on a **premium, dark-mode-first, glassmorphism aesthetic** that 
 - Standard panel shadow: `shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]`
 - **Glow Line (Indicator)**: Use a 1px top or bottom line with a colored glow to indicate active modules or premium sections. 
     - Pattern: `h-px w-full bg-linear-to-r from-transparent via-current to-transparent` + `boxShadow: 0 0 20px [color]`.
+- **Neon Glows (Cybercore)**: For AI-driven features, use intense glows (`shadow-[0_0_35px_rgba(99,102,241,1)]`) and animated pulse effects.
 
 ## 3. Stratos UI Components
 
@@ -66,6 +67,14 @@ Use for all primary and secondary actions.
 Use for statuses, tagging, and small data point indicators.
 
 - _Variants_: `success`, `warning`, `info`, `default`.
+
+### `StGlowDivider.vue` ⚡
+
+The signature "Cybercore" separator for high-tech sections.
+
+- **Purpose**: Replaces standard horizontal rules with an animated "energy line".
+- **Visuals**: Features a scanning pulse (`animate-scan`) and a central glowing "photon".
+- **Customization**: Supports `color`, `intensity`, and `duration` props for different context flavors (e.g., Emerald for success flows).
 
 ## 4. Animation & Transitions
 
@@ -119,6 +128,14 @@ Una vez que el módulo es funcional, entramos en la fase de **Excelencia Refract
 Para asegurar que todas las ventanas emergentes mantengan la estética premium, hemos estandarizado el patrón **Floating Glass**. Este diseño utiliza capas suspendidas con scroll interno y gradientes cinéticos.
 
 Consulte la **[Guía de Implementación de Modales Glass](./MODAL_GLASS_IMPLEMENTATION.md)** para especificaciones técnicas, clases CSS globales y ejemplos de estructura.
+
+## 8. Cybercore & Neon Accents ⚡ (Premium Extension)
+
+Para módulos de alta densidad de inteligencia (como AI Wizards o Motores de Impacto), Stratos permite elevar la estética hacia el **Cybercore**:
+
+- **Energía Cinética**: Uso de `StGlowDivider` para transiciones de sección.
+- **Anillos de Luz**: Uso de `ring-1 ring-indigo-500/40` en elementos seleccionados para simular interfaces táctiles avanzadas.
+- **Micro-escaneo**: Animaciones lineales rápidas que sugieren lectura de datos en tiempo real.
 
 ---
 

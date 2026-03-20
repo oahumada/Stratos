@@ -137,8 +137,98 @@ updateHierarchyForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'p
 updateHierarchy.form = updateHierarchyForm
 
 /**
-* @see \App\Http\Controllers\Api\DepartmentController::setManager
+* @see \App\Http\Controllers\Api\DepartmentController::updateDepartmentParent
 * @see app/Http/Controllers/Api/DepartmentController.php:54
+* @route '/api/departments/{department}/hierarchy'
+*/
+export const updateDepartmentParent = (args: { department: number | { id: number } } | [department: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: updateDepartmentParent.url(args, options),
+    method: 'put',
+})
+
+updateDepartmentParent.definition = {
+    methods: ["put"],
+    url: '/api/departments/{department}/hierarchy',
+} satisfies RouteDefinition<["put"]>
+
+/**
+* @see \App\Http\Controllers\Api\DepartmentController::updateDepartmentParent
+* @see app/Http/Controllers/Api/DepartmentController.php:54
+* @route '/api/departments/{department}/hierarchy'
+*/
+updateDepartmentParent.url = (args: { department: number | { id: number } } | [department: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { department: args }
+    }
+
+    if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+        args = { department: args.id }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            department: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        department: typeof args.department === 'object'
+        ? args.department.id
+        : args.department,
+    }
+
+    return updateDepartmentParent.definition.url
+            .replace('{department}', parsedArgs.department.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\DepartmentController::updateDepartmentParent
+* @see app/Http/Controllers/Api/DepartmentController.php:54
+* @route '/api/departments/{department}/hierarchy'
+*/
+updateDepartmentParent.put = (args: { department: number | { id: number } } | [department: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: updateDepartmentParent.url(args, options),
+    method: 'put',
+})
+
+/**
+* @see \App\Http\Controllers\Api\DepartmentController::updateDepartmentParent
+* @see app/Http/Controllers/Api/DepartmentController.php:54
+* @route '/api/departments/{department}/hierarchy'
+*/
+const updateDepartmentParentForm = (args: { department: number | { id: number } } | [department: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updateDepartmentParent.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\DepartmentController::updateDepartmentParent
+* @see app/Http/Controllers/Api/DepartmentController.php:54
+* @route '/api/departments/{department}/hierarchy'
+*/
+updateDepartmentParentForm.put = (args: { department: number | { id: number } } | [department: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updateDepartmentParent.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+updateDepartmentParent.form = updateDepartmentParentForm
+
+/**
+* @see \App\Http\Controllers\Api\DepartmentController::setManager
+* @see app/Http/Controllers/Api/DepartmentController.php:109
 * @route '/api/departments/{id}/manager'
 */
 export const setManager = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -153,7 +243,7 @@ setManager.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\DepartmentController::setManager
-* @see app/Http/Controllers/Api/DepartmentController.php:54
+* @see app/Http/Controllers/Api/DepartmentController.php:109
 * @route '/api/departments/{id}/manager'
 */
 setManager.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -180,7 +270,7 @@ setManager.url = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\Api\DepartmentController::setManager
-* @see app/Http/Controllers/Api/DepartmentController.php:54
+* @see app/Http/Controllers/Api/DepartmentController.php:109
 * @route '/api/departments/{id}/manager'
 */
 setManager.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -190,7 +280,7 @@ setManager.post = (args: { id: string | number } | [id: string | number ] | stri
 
 /**
 * @see \App\Http\Controllers\Api\DepartmentController::setManager
-* @see app/Http/Controllers/Api/DepartmentController.php:54
+* @see app/Http/Controllers/Api/DepartmentController.php:109
 * @route '/api/departments/{id}/manager'
 */
 const setManagerForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -200,7 +290,7 @@ const setManagerForm = (args: { id: string | number } | [id: string | number ] |
 
 /**
 * @see \App\Http\Controllers\Api\DepartmentController::setManager
-* @see app/Http/Controllers/Api/DepartmentController.php:54
+* @see app/Http/Controllers/Api/DepartmentController.php:109
 * @route '/api/departments/{id}/manager'
 */
 setManagerForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -212,7 +302,7 @@ setManager.form = setManagerForm
 
 /**
 * @see \App\Http\Controllers\Api\DepartmentController::heatmapData
-* @see app/Http/Controllers/Api/DepartmentController.php:71
+* @see app/Http/Controllers/Api/DepartmentController.php:126
 * @route '/api/departments/heatmap'
 */
 export const heatmapData = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -227,7 +317,7 @@ heatmapData.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\DepartmentController::heatmapData
-* @see app/Http/Controllers/Api/DepartmentController.php:71
+* @see app/Http/Controllers/Api/DepartmentController.php:126
 * @route '/api/departments/heatmap'
 */
 heatmapData.url = (options?: RouteQueryOptions) => {
@@ -236,7 +326,7 @@ heatmapData.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\DepartmentController::heatmapData
-* @see app/Http/Controllers/Api/DepartmentController.php:71
+* @see app/Http/Controllers/Api/DepartmentController.php:126
 * @route '/api/departments/heatmap'
 */
 heatmapData.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -246,7 +336,7 @@ heatmapData.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\DepartmentController::heatmapData
-* @see app/Http/Controllers/Api/DepartmentController.php:71
+* @see app/Http/Controllers/Api/DepartmentController.php:126
 * @route '/api/departments/heatmap'
 */
 heatmapData.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -256,7 +346,7 @@ heatmapData.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\DepartmentController::heatmapData
-* @see app/Http/Controllers/Api/DepartmentController.php:71
+* @see app/Http/Controllers/Api/DepartmentController.php:126
 * @route '/api/departments/heatmap'
 */
 const heatmapDataForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -266,7 +356,7 @@ const heatmapDataForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 
 /**
 * @see \App\Http\Controllers\Api\DepartmentController::heatmapData
-* @see app/Http/Controllers/Api/DepartmentController.php:71
+* @see app/Http/Controllers/Api/DepartmentController.php:126
 * @route '/api/departments/heatmap'
 */
 heatmapDataForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -276,7 +366,7 @@ heatmapDataForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> 
 
 /**
 * @see \App\Http\Controllers\Api\DepartmentController::heatmapData
-* @see app/Http/Controllers/Api/DepartmentController.php:71
+* @see app/Http/Controllers/Api/DepartmentController.php:126
 * @route '/api/departments/heatmap'
 */
 heatmapDataForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -291,6 +381,6 @@ heatmapDataForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'>
 
 heatmapData.form = heatmapDataForm
 
-const DepartmentController = { tree, updateHierarchy, setManager, heatmapData }
+const DepartmentController = { tree, updateHierarchy, updateDepartmentParent, setManager, heatmapData }
 
 export default DepartmentController

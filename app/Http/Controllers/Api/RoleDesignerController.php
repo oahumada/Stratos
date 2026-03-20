@@ -91,11 +91,17 @@ class RoleDesignerController extends Controller
             ->where('status', 'pending')
             ->firstOrFail();
 
+        $request->load(['approvable', 'approver']);
+        
+        if ($request->approvable instanceof \App\Models\Roles) {
+            $request->approvable->load(['competencies', 'skills']);
+        }
+
         $approvable = $request->approvable;
         $component = ($approvable instanceof \App\Models\Roles) ? 'Roles/Approval' : 'Competencies/Approval';
             
         return Inertia::render($component, [
-            'approvalRequest' => $request->load('approvable')
+            'approvalRequest' => $request
         ]);
     }
 

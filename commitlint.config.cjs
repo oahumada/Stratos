@@ -22,7 +22,7 @@ module.exports = {
     'subject-empty': [2, 'never'],
     'subject-full-stop': [2, 'never', '.'],
     'subject-case': [0], // Relaxed: allow any case in subject
-    'header-max-length': [2, 'always', 1000],
+    'header-max-length': [2, 'always', 5000],
     'body-max-line-length': [0], // No limit on body line length
     'footer-max-line-length': [0], // No limit on footer line length
   },

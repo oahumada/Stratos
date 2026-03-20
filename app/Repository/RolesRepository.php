@@ -18,6 +18,14 @@ class RolesRepository extends Repository
             ->with(['skills' => function ($query) {
                 $query->select('skills.id', 'skills.name', 'skills.category')
                     ->withPivot('required_level', 'is_critical')
+                    ->with(['competencies' => function ($q) {
+                        $q->select('competencies.id', 'competencies.name', 'competencies.description', 'competencies.status');
+                    }])
+                    ->without('roles'); // Evitar relación circular
+            }])
+            ->with(['competencies' => function ($query) {
+                $query->select('competencies.id', 'competencies.name', 'competencies.description', 'competencies.status')
+                    ->withPivot(['required_level', 'criticity', 'change_type', 'strategy', 'notes'])
                     ->without('roles'); // Evitar relación circular
             }])
             ->with(['people' => function ($query) {

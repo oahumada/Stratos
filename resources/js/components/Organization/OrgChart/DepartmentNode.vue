@@ -56,7 +56,7 @@ defineProps<NodeProps<DepartmentData>>();
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 
+    box-shadow:
         0 8px 32px 0 rgba(0, 0, 0, 0.3),
         inset 0 1px 2px 0 rgba(255, 255, 255, 0.1);
     color: white;
@@ -69,7 +69,13 @@ defineProps<NodeProps<DepartmentData>>();
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 40%, transparent 60%, rgba(255, 255, 255, 0.02));
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.05),
+        transparent 40%,
+        transparent 60%,
+        rgba(255, 255, 255, 0.02)
+    );
     pointer-events: none;
     border-radius: 16px;
 }
@@ -77,7 +83,7 @@ defineProps<NodeProps<DepartmentData>>();
 .dept-node:hover {
     background: rgba(255, 255, 255, 0.12);
     border-color: rgba(99, 102, 241, 0.5);
-    box-shadow: 
+    box-shadow:
         0 12px 40px 0 rgba(99, 102, 241, 0.2),
         inset 0 1px 2px 0 rgba(255, 255, 255, 0.15);
     transform: translateY(-2px);
@@ -91,7 +97,11 @@ defineProps<NodeProps<DepartmentData>>();
 }
 
 .node-icon {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(99, 102, 241, 0.1));
+    background: linear-gradient(
+        135deg,
+        rgba(99, 102, 241, 0.25),
+        rgba(99, 102, 241, 0.1)
+    );
     padding: 6px;
     border-radius: 8px;
     border: 1px solid rgba(99, 102, 241, 0.3);

@@ -47,9 +47,10 @@ Hemos refinado los estados para evitar confusión entre experimentos de IA y def
 | Estado | Significado | Origen Común |
 | :--- | :--- | :--- |
 | **`active`** | **Oficial / Firmada** | Ha pasado por el flujo de sello digital. |
-| **`proposed`** | **Diseño en Progreso** | Viene del AI Role Wizard o Importación de planilla. |
+| **`pending_approval`** | **En Revisión** | Procede del **AI Role Wizard**. Espera ser enviada o firmada. |
+| **`proposed`** | **Sugerido (Draft)** | Importación de planilla o sugerencia inicial de IA. |
 | **`in_incubation`** | **Descubrimiento AI** | Proviene de una **Simulación de Escenarios**. Es un "proto-talento". |
-| **`pending`** | **En Revisión** | Existe una solicitud de aprobación activa para este ítem. |
+| **`pending`** | **En Trámite** | Existe una solicitud de aprobación activa (enlace mágico enviado). |
 
 ---
 

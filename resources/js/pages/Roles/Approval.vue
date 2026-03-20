@@ -10,7 +10,8 @@ import {
     PhBriefcase,
     PhTarget,
     PhListChecks,
-    PhInfo
+    PhInfo,
+    PhStar
 } from '@phosphor-icons/vue';
 import axios from 'axios';
 import StCardGlass from '@/components/StCardGlass.vue';
@@ -29,11 +30,36 @@ const approver = ref<any>(null);
 const submitting = ref(false);
 const success = ref(false);
 
+const selectedSkill = ref<any>(null);
+const showSkillDetail = ref(false);
+
+const openSkillDetail = (skill: any) => {
+    selectedSkill.value = skill;
+    showSkillDetail.value = true;
+};
+
 const form = ref({
     description: '',
     purpose: '',
     expected_results: '',
 });
+
+interface RoleCompetency {
+    id: string | number;
+    name: string;
+    category: string;
+    description: string;
+    status: string;
+    required_level: number;
+    criticity: string;
+    is_core: boolean;
+    rationale?: string;
+    pivot?: {
+        required_level?: number;
+        rationale?: string;
+        [key: string]: any;
+    }
+}
 
 onMounted(async () => {
     try {
@@ -56,6 +82,109 @@ onMounted(async () => {
         loading.value = false;
     }
 });
+
+const getStatusVariant = (status: string) => {
+    switch (status) {
+        case 'active':
+        case 'approved':
+        case 'baseline':
+            return 'success';
+        case 'pending':
+            return 'warning';
+        case 'proposed':
+        case 'draft':
+            return 'info';
+        default:
+            return 'glass';
+    }
+};
+
+const getStatusLabel = (status: string) => {
+    switch (status) {
+        case 'active':
+        case 'approved':
+        case 'baseline':
+            return 'Aprobada';
+        case 'pending':
+            return 'Pendiente';
+        case 'proposed':
+        case 'draft':
+            return 'Propuesta';
+        default:
+            return status || 'Desconocido';
+    }
+};
+
+const getRoleCompetencies = (item: any): RoleCompetency[] => {
+    let result: RoleCompetency[] = [];
+    if (!item) return result;
+
+    // 1. Try direct competencies relation
+    if (item.competencies && item.competencies.length > 0) {
+        result = item.competencies.map((comp: any) => ({
+            id: comp.id,
+            name: comp.name,
+            category: comp.category,
+            description: comp.description || 'Sin descripción disponible',
+            status: comp.status || 'proposed',
+            required_level: comp.pivot?.required_level || 3,
+            criticity: comp.pivot?.criticity || 'medium',
+            is_core: comp.pivot?.is_core || false,
+            rationale: comp.pivot?.rationale,
+            pivot: comp.pivot
+        }));
+    } 
+    // 2. Fallback: Extract from skills.competencies
+    else if (item.skills && item.skills.length > 0) {
+        const compMap = new Map<string | number, RoleCompetency>();
+        
+        item.skills.forEach((skill: any) => {
+            if (skill.competencies && skill.competencies.length > 0) {
+                skill.competencies.forEach((comp: any) => {
+                    if (!compMap.has(comp.id)) {
+                        compMap.set(comp.id, {
+                            id: comp.id,
+                            name: comp.name,
+                            category: skill.category,
+                            description: comp.description || skill.description,
+                            status: comp.status || 'proposed',
+                            required_level: skill.pivot?.required_level || 3,
+                            criticity: skill.pivot?.is_critical ? 'high' : 'medium',
+                            is_core: skill.pivot?.is_critical || false,
+                            rationale: skill.pivot?.rationale || skill.description,
+                            pivot: {
+                                required_level: skill.pivot?.required_level || 3,
+                                rationale: skill.pivot?.rationale || skill.description
+                            }
+                        });
+                    }
+                });
+            }
+        });
+        
+        result = Array.from(compMap.values());
+    }
+    // 3. Fallback: Check AI suggested competencies in config
+    else if (item?.ai_archetype_config?.core_competencies && item.ai_archetype_config.core_competencies.length > 0) {
+        result = item.ai_archetype_config.core_competencies.map((comp: any, index: number) => ({
+            id: `ai-${index}`,
+            name: comp.name,
+            category: 'IA Suggestion',
+            description: comp.rationale || 'Sugerencia generada por el Diseñador IA',
+            status: 'proposed',
+            required_level: comp.level || 3,
+            criticity: 'medium',
+            is_core: true,
+            rationale: comp.rationale,
+            pivot: {
+                required_level: comp.level || 3,
+                rationale: comp.rationale
+            }
+        }));
+    }
+
+    return result;
+};
 
 const handleApprove = async () => {
     submitting.value = true;
@@ -215,21 +344,41 @@ const handleApprove = async () => {
                 <section>
                     <div class="d-flex align-center mb-4">
                         <PhBriefcase :size="24" class="text-sky-400 mr-2" />
-                        <h3 class="text-h5 font-weight-bold">Capacidad & Competencias Propuestas</h3>
+                        <h3 class="text-h5 font-weight-bold">Competencias Propuestas</h3>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <StCardGlass 
-                            v-for="skill in role.skills" 
-                            :key="skill.id"
-                            class="pa-5 hover-glow-indigo transition-all duration-300"
+                            v-for="comp in getRoleCompetencies(role)" 
+                            :key="comp.id"
+                            class="pa-5 hover-glow-indigo transition-all duration-300 d-flex flex-column"
                         >
                             <div class="d-flex justify-space-between align-start mb-2">
-                                <h4 class="text-subtitle-1 font-weight-bold text-white">{{ skill.name }}</h4>
-                                <StBadgeGlass variant="secondary" size="sm">Nivel {{ skill.pivot?.required_level || 3 }}</StBadgeGlass>
+                                <div class="grow mr-2">
+                                    <h4 class="text-subtitle-1 font-weight-bold text-white leading-tight mb-1">{{ comp.name }}</h4>
+                                    <StBadgeGlass 
+                                        :variant="getStatusVariant(comp.status)" 
+                                        size="sm"
+                                    >
+                                        {{ getStatusLabel(comp.status) }}
+                                    </StBadgeGlass>
+                                </div>
+                                <StBadgeGlass variant="secondary" size="sm" class="shrink-0">Nivel {{ comp.pivot?.required_level || 3 }}</StBadgeGlass>
                             </div>
-                            <p class="text-caption text-slate-400 line-clamp-2">{{ skill.description }}</p>
-                            <div v-if="skill.pivot?.rationale" class="mt-3 pa-3 bg-white/5 rounded-lg border-l-2 border-indigo-500/40">
-                                <p class="text-xs text-slate-300 italic">"{{ skill.pivot.rationale }}"</p>
+                            <p class="text-caption text-slate-400 mb-4">{{ comp.description }}</p>
+                            
+                            <div v-if="comp.pivot?.rationale" class="mb-4 pa-3 bg-white/5 rounded-lg border-l-2 border-indigo-500/40">
+                                <p class="text-xs text-slate-300 italic">"{{ comp.pivot.rationale }}"</p>
+                            </div>
+
+                            <div class="mt-auto d-flex justify-end">
+                                <StButtonGlass
+                                    variant="ghost"
+                                    size="sm"
+                                    :icon="PhInfo"
+                                    @click="openSkillDetail(comp)"
+                                >
+                                    Ver detalles
+                                </StButtonGlass>
                             </div>
                         </StCardGlass>
                     </div>
@@ -266,6 +415,65 @@ const handleApprove = async () => {
             </div>
         </div>
     </div>
+
+    <!-- Competency Detail Dialog -->
+    <v-dialog v-model="showSkillDetail" max-width="600px">
+        <StCardGlass v-if="selectedSkill" class="pa-6" variant="premium">
+            <div class="d-flex align-center justify-space-between mb-6">
+                <div class="d-flex align-center">
+                    <v-avatar color="indigo/20" size="48" class="mr-4 shadow-indigo">
+                        <PhStar :size="28" class="text-indigo-accent-1" weight="fill" />
+                    </v-avatar>
+                    <div>
+                        <div class="text-h5 font-weight-bold text-white">
+                            {{ selectedSkill.name }}
+                        </div>
+                        <div class="text-caption text-indigo-accent-1 uppercase tracking-widest font-weight-black">
+                            {{ selectedSkill.category || 'Competencia Institucional' }}
+                        </div>
+                    </div>
+                </div>
+                <v-btn icon="mdi-close" variant="text" color="white" @click="showSkillDetail = false" />
+            </div>
+
+            <v-divider class="mb-6 opacity-10" />
+
+            <div class="mb-6">
+                <div class="text-overline text-indigo-accent-1 mb-2 font-weight-black tracking-widest">
+                    DESCRIPCIÓN
+                </div>
+                <div class="text-body-1 text-slate-200 leading-relaxed">
+                    {{ selectedSkill.description }}
+                </div>
+            </div>
+
+            <div v-if="selectedSkill.pivot?.rationale" class="mb-6 pa-4 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
+                <div class="text-overline text-indigo-accent-1 mb-2 font-weight-black tracking-widest">
+                    RAZÓN DE DISEÑO (IA)
+                </div>
+                <div class="text-body-2 text-slate-300 italic">
+                    "{{ selectedSkill.pivot.rationale }}"
+                </div>
+            </div>
+
+            <div class="d-flex align-center gap-4 mb-6">
+                <div class="grow">
+                    <div class="text-overline text-emerald-accent-1 mb-2 font-weight-black tracking-widest">
+                        NIVEL REQUERIDO
+                    </div>
+                    <div class="d-flex align-center text-h6 font-weight-bold text-white">
+                        Nivel {{ selectedSkill.pivot?.required_level || 3 }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 d-flex justify-end">
+                <StButtonGlass variant="primary" size="md" @click="showSkillDetail = false">
+                    Entendido
+                </StButtonGlass>
+            </div>
+        </StCardGlass>
+    </v-dialog>
 </template>
 
 <style scoped>

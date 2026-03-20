@@ -3268,3 +3268,44 @@ CookieJar serializado → compartido entre VUs via setup()
 - **Gobernanza de IA:** El sistema resuelve el problema de la "Caja Negra" de la IA al forzar el sello humano sobre las sugerencias algorítmicas, garantizando responsabilidad legal y técnica.
 
 ---
+
+## 🎯 Fase: Role Wizard V2 & Detailed Skill Materialization (2026-03-19)
+
+### Resumen Ejecutivo
+
+✅ **ESTRATEGIA DE TALENTO REFINADA** - Se ha rediseñado el **AI Role Wizard** para optimizar el flujo de diseño organizacional, reduciendo la fricción y mejorando la calidad del dato técnico. La actualización centraliza la aprobación y garantiza que cada "pieza" de talento (Competencias y Skills) se guarde con rigor técnico antes de la revisión humana.
+
+### Logros e Implementaciones
+
+1.  **AI Role Wizard V2 (5 Pasos)**:
+    - Se optimizó el wizard eliminando pasos redundantes, culminando en el **Paso 5: Estándares BARS del Rol**.
+    - La etapa de "Skill Blueprint" (antes Paso 6) ahora está integrada como un proceso de generación automática entre el diseño de la Matriz (Paso 4) y la Consolidación (Paso 5).
+    - Botón **"Solicitar Aprobación"** integrado directamente al finalizar, disparando el estado `pending_approval` de forma nativa.
+
+2.  **Jerarquía Técnica Competencia ↔ Skill**:
+    - Se implementó una lógica de guardado multinivel en `RoleController.php`:
+        - **Competencias (Estratégicas):** Actúan como nodos padres (SFIA 8) con su racional de diseño.
+        - **Skills (Operativos):** Unidades de conocimiento atómicas vinculadas a la competencia.
+    - **Materialización de BARS:** Por primera vez, el sistema guarda automáticamente los **5 niveles de dominio** de cada Skill, incluyendo:
+        - **Unidades de Aprendizaje:** Contenidos necesarios para cada nivel.
+        - **Criterios de Desempeño:** Indicadores para medir la maestría del colaborador.
+
+3.  **Integración con el Flujo de Aprobación**:
+    - **Nuevos Accionadores en Index:** Se añadió el icono de envío (`PhPaperPlaneTilt`) en el catálogo de Roles para ítems en estado `pending_approval` o `review`.
+    - **Aislamiento de Seguridad:** Las competencias y skills generadas por la IA se guardan en el catálogo general pero marcadas como `pending_approval`, evitando que afecten las evaluaciones activas hasta ser validadas.
+    - **Tooltips y Notificaciones:** Localización completa (i18n) para el flujo de envío de enlaces mágicos.
+
+4.  **Correcciones Técnicas y UI**:
+    - Mejora en `RoleCubeWizard.vue`: Inicialización reactiva de los BARS globales del rol.
+    - Corrección de literales duplicados en `i18n.ts`.
+    - Estética **rounded-4xl** y glassmorphism aplicada consistentemente en las previsualizaciones de BARS.
+
+### Documentación Actualizada
+
+- `docs/approval_flow_documentation.md`: Actualizado con la nueva distinción entre niveles de Competencia y Skill.
+- `docs/role_design_v2_spec.md` (Nueva): Especificación del guardado de Unidades de Aprendizaje y Criterios.
+
+### Impacto en el Producto
+
+- **Calidad del Onboarding:** Al generar automáticamente las unidades de aprendizaje durante el diseño del rol, Stratos permite que el plan de capacitación del nuevo empleado esté listo incluso antes de que este sea contratado.
+- **Rigor de Auditoría:** Las brechas de talento ahora se miden contra criterios de desempeño concretos, no solo descripciones vagas, elevando el valor de la certificación **ISO 9001**.
