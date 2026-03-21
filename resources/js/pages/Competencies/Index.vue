@@ -23,7 +23,9 @@ import {
     PhArrowCounterClockwise,
     PhChatCircleText,
     PhListBullets,
+    PhSealCheck,
 } from '@phosphor-icons/vue';
+import SkillMaterializationWizard from '@/components/Competencies/SkillMaterializationWizard.vue';
 import { computed, onMounted, reactive, ref } from 'vue';
 
 defineOptions({ layout: AppLayout });
@@ -38,6 +40,11 @@ const expandedCompetencies = ref<Set<number>>(new Set());
 const loadingSkills = ref<Set<number>>(new Set());
 const skillsCache = ref<Record<number, any[]>>({});
 const searchQuery = ref('');
+const activeFilter = ref<string | null>(null);
+
+const countByStatus = (status: string) => {
+    return competencies.value.filter(c => c.status === status).length;
+};
 
 // Detail panel
 const detailOpen = ref(false);
@@ -56,6 +63,10 @@ const compToApprove = ref<any>(null);
 const selectedApproverId = ref<number | null>(null);
 const approvers = ref<any[]>([]);
 
+// Skill Materialization Wizard
+const skillWizardOpen = ref(false);
+const compToMaterialize = ref<any>(null);
+
 // Skill form dialog
 const skillDialogOpen = ref(false);
 const skillEditing = ref<any>(null);
@@ -71,13 +82,24 @@ const skillForm = reactive({
 
 // ─── Computed ─────────────────────────────────────────────────────────────────
 const filteredCompetencies = computed(() => {
-    if (!searchQuery.value.trim()) return competencies.value;
-    const q = searchQuery.value.toLowerCase();
-    return competencies.value.filter(
-        (c) =>
-            c.name?.toLowerCase().includes(q) ||
-            c.description?.toLowerCase().includes(q),
-    );
+    let result = competencies.value;
+    
+    // Status Filter
+    if (activeFilter.value) {
+        result = result.filter(c => c.status === activeFilter.value);
+    }
+    
+    // Search Query
+    if (searchQuery.value.trim()) {
+        const q = searchQuery.value.toLowerCase();
+        result = result.filter(
+            (c) =>
+                c.name?.toLowerCase().includes(q) ||
+                c.description?.toLowerCase().includes(q),
+        );
+    }
+    
+    return result;
 });
 
 // ─── API Calls ────────────────────────────────────────────────────────────────
@@ -227,6 +249,21 @@ const removeSkillFromCompetency = async (competencyId: number, skillId: number) 
     }
 };
 
+const openSkillWizard = (comp: any) => {
+    compToMaterialize.value = comp;
+    skillWizardOpen.value = true;
+};
+
+const onWizardSuccess = async () => {
+    skillWizardOpen.value = false;
+    if (compToMaterialize.value) {
+        delete skillsCache.value[compToMaterialize.value.id];
+        await loadCompetencies();
+        await loadSkillsForCompetency(compToMaterialize.value.id);
+    }
+    compToMaterialize.value = null;
+};
+
 // ─── AI Actions ───────────────────────────────────────────────────────────────
 const curateSkill = async (skillId: number, competencyId: number) => {
     curating.value = skillId;
@@ -326,11 +363,11 @@ const categoryConfig: Record<string, { label: string; variant: 'primary' | 'succ
 
 const statusConfig: Record<string, { label: string; color: string; variant: 'primary' | 'success' | 'warning' | 'error' | 'glass' | 'info' }> = {
     active: { label: 'Activa', color: 'emerald', variant: 'success' },
-    draft: { label: 'Borrador', color: 'amber', variant: 'warning' },
+    draft: { label: 'En Revisión', color: 'indigo', variant: 'info' },
     archived: { label: 'Archivada', color: 'slate', variant: 'glass' },
-    in_incubation: { label: 'En Incubación', color: 'indigo', variant: 'info' },
-    proposed: { label: 'Propuesta', color: 'cyan', variant: 'info' },
-    pending: { label: 'Pendiente', color: 'amber', variant: 'warning' },
+    in_incubation: { label: 'En Incubación', color: 'cyan', variant: 'info' },
+    proposed: { label: 'Requiere Skills', color: 'orange', variant: 'warning' },
+    pending_review: { label: 'Por Validar', color: 'amber', variant: 'warning' },
 };
 
 // ─── Lifecycle ────────────────────────────────────────────────────────────────
@@ -380,6 +417,30 @@ onMounted(loadCompetencies);
                 </template>
             </v-text-field>
         </StCardGlass>
+
+        <!-- Status Filter Chips -->
+        <div class="d-flex align-center gap-2 mb-8 ml-1 overflow-x-auto pb-2 no-scrollbar">
+            <v-chip
+                v-for="(config, status) in statusConfig"
+                :key="status"
+                size="small"
+                :color="activeFilter === status ? config.color : 'slate'"
+                :variant="activeFilter === status ? 'tonal' : 'outlined'"
+                class="px-4 font-weight-medium rounded-pill border-white/10 cursor-pointer hover:bg-white/5 transition-all!"
+                @click="activeFilter = activeFilter === status ? null : status"
+            >
+                <div class="d-flex align-center gap-2">
+                    <div 
+                        v-if="activeFilter === status" 
+                        class="w-1.5 h-1.5 rounded-circle bg-current shadow-[0_0_8px_currentColor]"
+                    ></div>
+                    {{ config.label }}
+                    <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded font-bold ml-1 opacity-70">
+                        {{ countByStatus(String(status)) }}
+                    </span>
+                </div>
+            </v-chip>
+        </div>
 
         <!-- ── Loading ── -->
         <div v-if="loading" class="text-center py-16">
@@ -520,22 +581,39 @@ onMounted(loadCompetencies);
                                 </StButtonGlass>
                             </div>
 
-                            <!-- Empty state -->
                             <div
                                 v-if="!skillsCache[comp.id] || skillsCache[comp.id].length === 0"
-                                class="py-8 text-center rounded-xl border border-dashed border-white/10"
+                                class="py-10 text-center rounded-2xl border-2 border-dashed border-white/5 bg-white/2"
                             >
-                                <component :is="PhStar" :size="36" class="text-white/10 mb-3" />
-                                <div class="text-slate-500 text-body-2">No hay habilidades en esta competencia</div>
-                                <StButtonGlass
-                                    variant="ghost"
-                                    :icon="PhPlus"
-                                    size="sm"
-                                    class="mt-3"
-                                    @click="openCreateSkill(comp.id)"
-                                >
-                                    Agregar primera skill
-                                </StButtonGlass>
+                                <div class="px-12">
+                                    <div class="d-inline-flex pa-4 rounded-circle bg-indigo-500/10 mb-4 border border-indigo-500/10">
+                                        <component :is="PhMagicWand" :size="32" class="text-indigo-400" />
+                                    </div>
+                                    <div class="text-subtitle-1 font-weight-black text-white mb-2 font-premium">Arquitectura Incompleta</div>
+                                    <p class="text-slate-400 text-body-2 mb-6 max-w-sm mx-auto">
+                                        Esta competencia aún no posee habilidades materializadas. <br>
+                                        Use el <strong>Agente Curador</strong> para definir los niveles SFIA/BARS y criterios de éxito.
+                                    </p>
+                                    <div class="d-flex align-center justify-center gap-4">
+                                        <StButtonGlass
+                                            variant="secondary"
+                                            :icon="PhPlus"
+                                            size="sm"
+                                            @click="openCreateSkill(comp.id)"
+                                        >
+                                            Diseño Manual
+                                        </StButtonGlass>
+                                        <StButtonGlass
+                                            variant="primary"
+                                            :icon="PhMagicWand"
+                                            size="sm"
+                                            @click="openSkillWizard(comp)"
+                                            class="glow-indigo-sm"
+                                        >
+                                            Curaduría con IA
+                                        </StButtonGlass>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Skills grid -->
@@ -1035,6 +1113,34 @@ onMounted(loadCompetencies);
                 >
                     Enviar Solicitud
                 </StButtonGlass>
+            </div>
+        </StCardGlass>
+    </v-dialog>
+
+    <!-- ══════════════════════════════════════════════════════════
+         Skill Materialization Wizard Dialog
+    ═══════════════════════════════════════════════════════════ -->
+    <v-dialog v-model="skillWizardOpen" max-width="900" persistent transition="dialog-bottom-transition">
+        <StCardGlass class="pa-0 overflow-hidden" :no-hover="true" style="margin: 2rem;">
+            <div class="d-flex align-center justify-space-between px-6 py-5 border-b border-white/10 bg-indigo-500/5">
+                <div class="d-flex align-center gap-3">
+                    <component :is="PhMagicWand" :size="24" class="text-indigo-accent-1" />
+                    <div class="text-subtitle-1 font-weight-bold text-white font-premium">
+                        Wizard de Materialización de Habilidades
+                    </div>
+                </div>
+                <v-btn icon variant="text" @click="skillWizardOpen = false">
+                    <component :is="PhX" :size="20" />
+                </v-btn>
+            </div>
+            
+            <div class="pa-6">
+                <SkillMaterializationWizard 
+                    v-if="compToMaterialize"
+                    :competency="compToMaterialize"
+                    @close="skillWizardOpen = false"
+                    @success="onWizardSuccess"
+                />
             </div>
         </StCardGlass>
     </v-dialog>

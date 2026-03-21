@@ -302,7 +302,7 @@ class BulkPeopleImportController extends Controller
                     'department_id' => $deptId,
                     'department' => $deptNameStr,
                     'name' => $rMap['suggested_name'],
-                    'status' => 'active'
+                    'status' => 'proposed'
                 ]);
                 
                 $roleMap[$rMap['raw_name']] = $role->id;

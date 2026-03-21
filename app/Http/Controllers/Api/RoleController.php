@@ -228,7 +228,7 @@ class RoleController extends Controller
      */
     public function show($id)
     {
-        $role = Roles::with(['skills', 'agent', 'blueprint'])->findOrFail($id);
+        $role = Roles::with(['skills', 'agent', 'blueprint', 'people'])->findOrFail($id);
 
         return response()->json($role);
     }

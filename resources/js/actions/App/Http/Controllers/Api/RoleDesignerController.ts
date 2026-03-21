@@ -1,25 +1,25 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @see \App\Http\Controllers\Api\RoleDesignerController::getApprovalDetails
+* @see app/Http/Controllers/Api/RoleDesignerController.php:105
 * @route '/api/approvals/{token}'
 */
-const showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233 = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233.url(args, options),
+export const getApprovalDetails = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: getApprovalDetails.url(args, options),
     method: 'get',
 })
 
-showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233.definition = {
+getApprovalDetails.definition = {
     methods: ["get","head"],
     url: '/api/approvals/{token}',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @see \App\Http\Controllers\Api\RoleDesignerController::getApprovalDetails
+* @see app/Http/Controllers/Api/RoleDesignerController.php:105
 * @route '/api/approvals/{token}'
 */
-showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233.url = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions) => {
+getApprovalDetails.url = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { token: args }
     }
@@ -36,58 +36,58 @@ showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233.url = (args: { token: string
         token: args.token,
     }
 
-    return showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233.definition.url
+    return getApprovalDetails.definition.url
             .replace('{token}', parsedArgs.token.toString())
             .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @see \App\Http\Controllers\Api\RoleDesignerController::getApprovalDetails
+* @see app/Http/Controllers/Api/RoleDesignerController.php:105
 * @route '/api/approvals/{token}'
 */
-showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233.url(args, options),
+getApprovalDetails.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: getApprovalDetails.url(args, options),
     method: 'get',
 })
 
 /**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @see \App\Http\Controllers\Api\RoleDesignerController::getApprovalDetails
+* @see app/Http/Controllers/Api/RoleDesignerController.php:105
 * @route '/api/approvals/{token}'
 */
-showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233.url(args, options),
+getApprovalDetails.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: getApprovalDetails.url(args, options),
     method: 'head',
 })
 
 /**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @see \App\Http\Controllers\Api\RoleDesignerController::getApprovalDetails
+* @see app/Http/Controllers/Api/RoleDesignerController.php:105
 * @route '/api/approvals/{token}'
 */
-const showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233Form = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233.url(args, options),
+const getApprovalDetailsForm = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getApprovalDetails.url(args, options),
     method: 'get',
 })
 
 /**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @see \App\Http\Controllers\Api\RoleDesignerController::getApprovalDetails
+* @see app/Http/Controllers/Api/RoleDesignerController.php:105
 * @route '/api/approvals/{token}'
 */
-showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233Form.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233.url(args, options),
+getApprovalDetailsForm.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getApprovalDetails.url(args, options),
     method: 'get',
 })
 
 /**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @see \App\Http\Controllers\Api\RoleDesignerController::getApprovalDetails
+* @see app/Http/Controllers/Api/RoleDesignerController.php:105
 * @route '/api/approvals/{token}'
 */
-showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233Form.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233.url(args, {
+getApprovalDetailsForm.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getApprovalDetails.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -96,213 +96,11 @@ showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233Form.head = (args: { token: s
     method: 'get',
 })
 
-showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233.form = showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233Form
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/role/{token}'
-*/
-const showApprovalRequest254d24a1d75ba575129d55878c80dc74 = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: showApprovalRequest254d24a1d75ba575129d55878c80dc74.url(args, options),
-    method: 'get',
-})
-
-showApprovalRequest254d24a1d75ba575129d55878c80dc74.definition = {
-    methods: ["get","head"],
-    url: '/approve/role/{token}',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/role/{token}'
-*/
-showApprovalRequest254d24a1d75ba575129d55878c80dc74.url = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions) => {
-    if (typeof args === 'string' || typeof args === 'number') {
-        args = { token: args }
-    }
-
-    if (Array.isArray(args)) {
-        args = {
-            token: args[0],
-        }
-    }
-
-    args = applyUrlDefaults(args)
-
-    const parsedArgs = {
-        token: args.token,
-    }
-
-    return showApprovalRequest254d24a1d75ba575129d55878c80dc74.definition.url
-            .replace('{token}', parsedArgs.token.toString())
-            .replace(/\/+$/, '') + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/role/{token}'
-*/
-showApprovalRequest254d24a1d75ba575129d55878c80dc74.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: showApprovalRequest254d24a1d75ba575129d55878c80dc74.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/role/{token}'
-*/
-showApprovalRequest254d24a1d75ba575129d55878c80dc74.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: showApprovalRequest254d24a1d75ba575129d55878c80dc74.url(args, options),
-    method: 'head',
-})
-
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/role/{token}'
-*/
-const showApprovalRequest254d24a1d75ba575129d55878c80dc74Form = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showApprovalRequest254d24a1d75ba575129d55878c80dc74.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/role/{token}'
-*/
-showApprovalRequest254d24a1d75ba575129d55878c80dc74Form.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showApprovalRequest254d24a1d75ba575129d55878c80dc74.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/role/{token}'
-*/
-showApprovalRequest254d24a1d75ba575129d55878c80dc74Form.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showApprovalRequest254d24a1d75ba575129d55878c80dc74.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-showApprovalRequest254d24a1d75ba575129d55878c80dc74.form = showApprovalRequest254d24a1d75ba575129d55878c80dc74Form
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/competency/{token}'
-*/
-const showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4 = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.url(args, options),
-    method: 'get',
-})
-
-showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.definition = {
-    methods: ["get","head"],
-    url: '/approve/competency/{token}',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/competency/{token}'
-*/
-showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.url = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions) => {
-    if (typeof args === 'string' || typeof args === 'number') {
-        args = { token: args }
-    }
-
-    if (Array.isArray(args)) {
-        args = {
-            token: args[0],
-        }
-    }
-
-    args = applyUrlDefaults(args)
-
-    const parsedArgs = {
-        token: args.token,
-    }
-
-    return showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.definition.url
-            .replace('{token}', parsedArgs.token.toString())
-            .replace(/\/+$/, '') + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/competency/{token}'
-*/
-showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/competency/{token}'
-*/
-showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.url(args, options),
-    method: 'head',
-})
-
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/competency/{token}'
-*/
-const showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4Form = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/competency/{token}'
-*/
-showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4Form.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/competency/{token}'
-*/
-showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4Form.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.form = showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4Form
-
-export const showApprovalRequest = {
-    '/api/approvals/{token}': showApprovalRequestd2d4af0c723728e0e72eac8d6cbba233,
-    '/approve/role/{token}': showApprovalRequest254d24a1d75ba575129d55878c80dc74,
-    '/approve/competency/{token}': showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4,
-}
+getApprovalDetails.form = getApprovalDetailsForm
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approve
-* @see app/Http/Controllers/Api/RoleDesignerController.php:125
+* @see app/Http/Controllers/Api/RoleDesignerController.php:143
 * @route '/api/approvals/{token}/approve'
 */
 export const approve = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -317,7 +115,7 @@ approve.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approve
-* @see app/Http/Controllers/Api/RoleDesignerController.php:125
+* @see app/Http/Controllers/Api/RoleDesignerController.php:143
 * @route '/api/approvals/{token}/approve'
 */
 approve.url = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -344,7 +142,7 @@ approve.url = (args: { token: string | number } | [token: string | number ] | st
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approve
-* @see app/Http/Controllers/Api/RoleDesignerController.php:125
+* @see app/Http/Controllers/Api/RoleDesignerController.php:143
 * @route '/api/approvals/{token}/approve'
 */
 approve.post = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -354,7 +152,7 @@ approve.post = (args: { token: string | number } | [token: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approve
-* @see app/Http/Controllers/Api/RoleDesignerController.php:125
+* @see app/Http/Controllers/Api/RoleDesignerController.php:143
 * @route '/api/approvals/{token}/approve'
 */
 const approveForm = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -364,7 +162,7 @@ const approveForm = (args: { token: string | number } | [token: string | number 
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approve
-* @see app/Http/Controllers/Api/RoleDesignerController.php:125
+* @see app/Http/Controllers/Api/RoleDesignerController.php:143
 * @route '/api/approvals/{token}/approve'
 */
 approveForm.post = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -432,7 +230,7 @@ analyzePreview.form = analyzePreviewForm
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::generateSkillBlueprint
-* @see app/Http/Controllers/Api/RoleDesignerController.php:0
+* @see app/Http/Controllers/Api/RoleDesignerController.php:172
 * @route '/api/strategic-planning/roles/generate-skill-blueprint'
 */
 export const generateSkillBlueprint = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -447,7 +245,7 @@ generateSkillBlueprint.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::generateSkillBlueprint
-* @see app/Http/Controllers/Api/RoleDesignerController.php:0
+* @see app/Http/Controllers/Api/RoleDesignerController.php:172
 * @route '/api/strategic-planning/roles/generate-skill-blueprint'
 */
 generateSkillBlueprint.url = (options?: RouteQueryOptions) => {
@@ -456,7 +254,7 @@ generateSkillBlueprint.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::generateSkillBlueprint
-* @see app/Http/Controllers/Api/RoleDesignerController.php:0
+* @see app/Http/Controllers/Api/RoleDesignerController.php:172
 * @route '/api/strategic-planning/roles/generate-skill-blueprint'
 */
 generateSkillBlueprint.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -466,7 +264,7 @@ generateSkillBlueprint.post = (options?: RouteQueryOptions): RouteDefinition<'po
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::generateSkillBlueprint
-* @see app/Http/Controllers/Api/RoleDesignerController.php:0
+* @see app/Http/Controllers/Api/RoleDesignerController.php:172
 * @route '/api/strategic-planning/roles/generate-skill-blueprint'
 */
 const generateSkillBlueprintForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -476,7 +274,7 @@ const generateSkillBlueprintForm = (options?: RouteQueryOptions): RouteFormDefin
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::generateSkillBlueprint
-* @see app/Http/Controllers/Api/RoleDesignerController.php:0
+* @see app/Http/Controllers/Api/RoleDesignerController.php:172
 * @route '/api/strategic-planning/roles/generate-skill-blueprint'
 */
 generateSkillBlueprintForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -710,7 +508,7 @@ requestApproval.form = requestApprovalForm
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::requestCompetencyApproval
-* @see app/Http/Controllers/Api/RoleDesignerController.php:111
+* @see app/Http/Controllers/Api/RoleDesignerController.php:129
 * @route '/api/strategic-planning/competencies/{id}/request-approval'
 */
 export const requestCompetencyApproval = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -725,7 +523,7 @@ requestCompetencyApproval.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::requestCompetencyApproval
-* @see app/Http/Controllers/Api/RoleDesignerController.php:111
+* @see app/Http/Controllers/Api/RoleDesignerController.php:129
 * @route '/api/strategic-planning/competencies/{id}/request-approval'
 */
 requestCompetencyApproval.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -752,7 +550,7 @@ requestCompetencyApproval.url = (args: { id: string | number } | [id: string | n
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::requestCompetencyApproval
-* @see app/Http/Controllers/Api/RoleDesignerController.php:111
+* @see app/Http/Controllers/Api/RoleDesignerController.php:129
 * @route '/api/strategic-planning/competencies/{id}/request-approval'
 */
 requestCompetencyApproval.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -762,7 +560,7 @@ requestCompetencyApproval.post = (args: { id: string | number } | [id: string | 
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::requestCompetencyApproval
-* @see app/Http/Controllers/Api/RoleDesignerController.php:111
+* @see app/Http/Controllers/Api/RoleDesignerController.php:129
 * @route '/api/strategic-planning/competencies/{id}/request-approval'
 */
 const requestCompetencyApprovalForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -772,7 +570,7 @@ const requestCompetencyApprovalForm = (args: { id: string | number } | [id: stri
 
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::requestCompetencyApproval
-* @see app/Http/Controllers/Api/RoleDesignerController.php:111
+* @see app/Http/Controllers/Api/RoleDesignerController.php:129
 * @route '/api/strategic-planning/competencies/{id}/request-approval'
 */
 requestCompetencyApprovalForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -782,6 +580,208 @@ requestCompetencyApprovalForm.post = (args: { id: string | number } | [id: strin
 
 requestCompetencyApproval.form = requestCompetencyApprovalForm
 
-const RoleDesignerController = { showApprovalRequest, approve, analyzePreview, generateSkillBlueprint, design, materializeCompetencies, requestApproval, requestCompetencyApproval }
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
+* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @route '/approve/role/{token}'
+*/
+const showApprovalRequest254d24a1d75ba575129d55878c80dc74 = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: showApprovalRequest254d24a1d75ba575129d55878c80dc74.url(args, options),
+    method: 'get',
+})
+
+showApprovalRequest254d24a1d75ba575129d55878c80dc74.definition = {
+    methods: ["get","head"],
+    url: '/approve/role/{token}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
+* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @route '/approve/role/{token}'
+*/
+showApprovalRequest254d24a1d75ba575129d55878c80dc74.url = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { token: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            token: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        token: args.token,
+    }
+
+    return showApprovalRequest254d24a1d75ba575129d55878c80dc74.definition.url
+            .replace('{token}', parsedArgs.token.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
+* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @route '/approve/role/{token}'
+*/
+showApprovalRequest254d24a1d75ba575129d55878c80dc74.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: showApprovalRequest254d24a1d75ba575129d55878c80dc74.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
+* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @route '/approve/role/{token}'
+*/
+showApprovalRequest254d24a1d75ba575129d55878c80dc74.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: showApprovalRequest254d24a1d75ba575129d55878c80dc74.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
+* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @route '/approve/role/{token}'
+*/
+const showApprovalRequest254d24a1d75ba575129d55878c80dc74Form = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showApprovalRequest254d24a1d75ba575129d55878c80dc74.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
+* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @route '/approve/role/{token}'
+*/
+showApprovalRequest254d24a1d75ba575129d55878c80dc74Form.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showApprovalRequest254d24a1d75ba575129d55878c80dc74.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
+* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @route '/approve/role/{token}'
+*/
+showApprovalRequest254d24a1d75ba575129d55878c80dc74Form.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showApprovalRequest254d24a1d75ba575129d55878c80dc74.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+showApprovalRequest254d24a1d75ba575129d55878c80dc74.form = showApprovalRequest254d24a1d75ba575129d55878c80dc74Form
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
+* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @route '/approve/competency/{token}'
+*/
+const showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4 = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.url(args, options),
+    method: 'get',
+})
+
+showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.definition = {
+    methods: ["get","head"],
+    url: '/approve/competency/{token}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
+* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @route '/approve/competency/{token}'
+*/
+showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.url = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { token: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            token: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        token: args.token,
+    }
+
+    return showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.definition.url
+            .replace('{token}', parsedArgs.token.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
+* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @route '/approve/competency/{token}'
+*/
+showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
+* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @route '/approve/competency/{token}'
+*/
+showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
+* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @route '/approve/competency/{token}'
+*/
+const showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4Form = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
+* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @route '/approve/competency/{token}'
+*/
+showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4Form.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\RoleDesignerController::showApprovalRequest
+* @see app/Http/Controllers/Api/RoleDesignerController.php:88
+* @route '/approve/competency/{token}'
+*/
+showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4Form.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4.form = showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4Form
+
+export const showApprovalRequest = {
+    '/approve/role/{token}': showApprovalRequest254d24a1d75ba575129d55878c80dc74,
+    '/approve/competency/{token}': showApprovalRequestaf6ddcd1ab18a4bf817880b5d807cdf4,
+}
+
+const RoleDesignerController = { getApprovalDetails, approve, analyzePreview, generateSkillBlueprint, design, materializeCompetencies, requestApproval, requestCompetencyApproval, showApprovalRequest }
 
 export default RoleDesignerController

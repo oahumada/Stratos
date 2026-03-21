@@ -44,6 +44,7 @@ import ScenarioSimulationController from './ScenarioSimulationController'
 import ScenarioRoiController from './ScenarioRoiController'
 import ScenarioStrategyController from './ScenarioStrategyController'
 import IncubationController from './IncubationController'
+import CompetencyMaterializerController from './CompetencyMaterializerController'
 import Talento360Controller from './Talento360Controller'
 import CompetencyCuratorController from './CompetencyCuratorController'
 import MobilitySimulationController from './MobilitySimulationController'
@@ -107,6 +108,7 @@ const Api = {
     ScenarioRoiController: Object.assign(ScenarioRoiController, ScenarioRoiController),
     ScenarioStrategyController: Object.assign(ScenarioStrategyController, ScenarioStrategyController),
     IncubationController: Object.assign(IncubationController, IncubationController),
+    CompetencyMaterializerController: Object.assign(CompetencyMaterializerController, CompetencyMaterializerController),
     Talento360Controller: Object.assign(Talento360Controller, Talento360Controller),
     CompetencyCuratorController: Object.assign(CompetencyCuratorController, CompetencyCuratorController),
     MobilitySimulationController: Object.assign(MobilitySimulationController, MobilitySimulationController),

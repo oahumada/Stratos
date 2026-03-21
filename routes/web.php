@@ -70,6 +70,9 @@ Route::get('/assessments/feedback/{token}', [\App\Http\Controllers\Api\Assessmen
 // Approval Magic Links (Public)
 Route::get('/approve/role/{token}', [\App\Http\Controllers\Api\RoleDesignerController::class, 'showApprovalRequest'])->name('role.approval');
 Route::get('/approve/competency/{token}', [\App\Http\Controllers\Api\RoleDesignerController::class, 'showApprovalRequest'])->name('competency.approval');
+// API backends for the views above
+Route::get('/api/approvals/{token}', [\App\Http\Controllers\Api\RoleDesignerController::class, 'getApprovalDetails']);
+Route::post('/api/approvals/{token}/approve', [\App\Http\Controllers\Api\RoleDesignerController::class, 'approve']);
 
 // Public DID document for did:web issuer discovery
 Route::get('/.well-known/did.json', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'didDocument'])

@@ -6,18 +6,13 @@
             "sortable": true
         },
         {
-            "text": "Agent",
-            "value": "agent.name",
+            "text": "Status",
+            "value": "status",
             "sortable": true
         },
         {
-            "text": "Plantilla",
-            "value": "blueprint.name",
-            "sortable": true
-        },
-        {
-            "text": "Skills",
-            "value": "skills_count",
+            "text": "Competencias",
+            "value": "competencies_count",
             "sortable": true
         },
         {
@@ -31,6 +26,7 @@
             "sortable": false
         }
     ],
+
     "options": {
         "dense": false,
         "itemsPerPage": 10,

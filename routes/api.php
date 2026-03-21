@@ -325,6 +325,10 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::post('/roles/{id}/materialize-competencies', [\App\Http\Controllers\Api\RoleDesignerController::class, 'materializeCompetencies']);
                 Route::post('/roles/{id}/request-approval', [\App\Http\Controllers\Api\RoleDesignerController::class, 'requestApproval']);
                 Route::post('/competencies/{id}/request-approval', [\App\Http\Controllers\Api\RoleDesignerController::class, 'requestCompetencyApproval']);
+                
+                // Competency Skill Materializer (Wizard)
+                Route::post('/competencies/{id}/generate-blueprint', [\App\Http\Controllers\Api\CompetencyMaterializerController::class, 'generateBlueprint']);
+                Route::post('/competencies/{id}/materialize', [\App\Http\Controllers\Api\CompetencyMaterializerController::class, 'materialize']);
             });
 
             // Assessments & Psychometrics (Fase 4: Talento 360)

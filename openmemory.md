@@ -3309,3 +3309,49 @@ CookieJar serializado → compartido entre VUs via setup()
 
 - **Calidad del Onboarding:** Al generar automáticamente las unidades de aprendizaje durante el diseño del rol, Stratos permite que el plan de capacitación del nuevo empleado esté listo incluso antes de que este sea contratado.
 - **Rigor de Auditoría:** Las brechas de talento ahora se miden contra criterios de desempeño concretos, no solo descripciones vagas, elevando el valor de la certificación **ISO 9001**.
+---
+
+## 🎯 Fase: Flujo de Aprobación en Dos Etapas (2026-03-20)
+
+### Resumen Ejecutivo
+
+✅ **ESTRATEGIA DE CERTIFICACIÓN DUAL** - Implementada la separación conceptual y técnica entre la **Certificación de Datos (Importación)** y la **Certificación de Diseño (Aprobación Estratégica)**. Este flujo robustece la gobernanza organizacional al distinguir entre la integridad del dato de nómina y la validez del modelo de competencias de un cargo.
+
+### Logros e Implementaciones
+
+1.  **Certificación de Importación (Data Integrity)**:
+    - Los roles creados mediante la importación masiva de planillas (`BulkPeopleImportController.php`) ahora nacen en estado **`proposed`**.
+    - **Nodos Gravitacionales:** Se implementó la creación automática de centros de masa organizacionales para cada departamento detectado, asegurando que los roles orbiten siempre su ancla oficial.
+    - La firma digital del proceso de importación certifica únicamente la integridad de la estructura y la validez de los nodos creados.
+
+2.  **Ciclo de Vida del Rol (State Machine)**:
+    - Se definieron y mapearon cuatro estados críticos de madurez:
+        - **`proposed`**: Recién importado o sugerido (En Proceso). Sujeto a diseño por arquitectura.
+        - **`pending_review`**: Diseño finalizado en el Wizard de 5 Pasos (Por Confirmar). Listo para ser enviado a firma.
+        - **`pending_signature`**: Solicitud de aprobación despachada (En Firma). Bloquea el rol para edición externa.
+        - **`active`**: Sellado digitalmente por el responsable. Estado productivo oficial.
+
+3.  **UI Inteligente en Repositorio de Roles**:
+    - **Iconografía Dinámica**: La tabla de acciones en `Index.vue` ahora muestra iconos contextuales:
+    - **Materialización de Habilidades (Skill Wizard)**:
+        - Implementado el **`SkillMaterializationWizard.vue`** para enriquecer las competencias del catálogo.
+        - Conexión con AI para desglosar competencias en habilidades técnicas (Skills) específicas.
+        - Definición automatizada de **Niveles 1-5 (SFIA/BARS)**, incluyendo **Unidades de Aprendizaje** y **Criterios de Desempeño**.
+        - Automatiza la transición de competencias propuestas a estados productivos (`active`) con arquitectura de datos completa.
+        - `PhPaperPlaneTilt` (Avión): Para enviar roles diseñados a revisión/aprobación.
+        - `PhSealCheck` (Sello): Para roles ya en proceso de firma (permite reenvío de magic links).
+    - **Feedback Visual**: Los badges de estado utilizan la paleta premium de Stratos para dar claridad inmediata sobre la etapa del flujo de aprobación.
+
+4.  **Refuerzo de Auditoría & ISO**:
+    - Se actualizó `docs/approval_flow_documentation.md` para reflejar la tabla de estados refinada.
+    - El sistema ahora soporta la segregación de funciones: quien importa los datos (admin) puede ser distinto de quien aprueba el diseño estratégico del cargo (CHRO/Líder de Área).
+
+### Documentación Actualizada
+
+- `docs/approval_flow_documentation.md`: Tabla de estados y orígenes de datos actualizada.
+- `openmemory.md`: Registro histórico de la evolución hacia el modelo de certificación de dos etapas.
+
+### Impacto en el Producto
+
+- **Cumplimiento ISO 9001**: Mejora drástica en la trazabilidad de la arquitectura institucional, permitiendo auditar quién validó qué y en qué momento preciso.
+- **Claridad Organizacional**: Elimina la confusión sobre si un rol es "oficial" o es solo una "carga técnica" proveniente de sistemas externos.

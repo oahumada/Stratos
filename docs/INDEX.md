@@ -10,9 +10,23 @@
 - **[CHEATSHEET_COMANDOS.md](CHEATSHEET_COMANDOS.md)** - Comandos útiles
 - **[ROADMAP_ESTRATEGICO_2026.md](ROADMAP_ESTRATEGICO_2026.md)** - 🗺️ **VISIÓN LARGO PLAZO Y TALENTO 360**
 - **[ROADMAP_STATUS_2026_02_27.md](ROADMAP_STATUS_2026_02_27.md)** - 📊 Status Report Feb 27
-- **[SESION_2026_03_01_RESUMEN.md](SESION_2026_03_01_RESUMEN.md)** - 📊 Status Report Mar 01 (Glass Refactor)
-- **[INTELIGENCIA_INDEX.md](INTELIGENCIA_INDEX.md)** - 🧠 **AI HUB: DeepSeek, Microservicio Python y Agentes**
+- **[SESION_2026_03_20_RESUMEN.md](SESION_2026_03_20_RESUMEN.md)** - 🧬 **REVOLUCIÓN: TALENTO HÍBRIDO Y SINTÉTICO** (Cubo de Skill & Curaduría IA)
 - **[STRATOS_GLASS_DESIGN_SYSTEM.md](STRATOS_GLASS_DESIGN_SYSTEM.md)** - 🌌 **SISTEMA DE DISEÑO PREMIUM** (Phosphor & Glass)
+
+---
+
+## 🧬 Estrategia de Talento Híbrido (IA + Humano)
+
+- **[synthetic_and_hybrid_talent_model.md](synthetic_and_hybrid_talent_model.md)** - ⭐⭐⭐ **MODELO STRATOS HYBRID DNA**
+- **[hybrid_talent_rollout_plan.md](hybrid_talent_rollout_plan.md)** - 🗺️ **PLAN DE ACCIÓN E IMPLEMENTACIÓN**
+    - Hoja de ruta estratégica (Fase 1-5).
+    - Roadmap de Integración Técnica y Dashboard.
+- **[conceptual_models_deep_dive.md](conceptual_models_deep_dive.md)** - 🧠 **DEEP DIVE: MODELOS CONCEPTUALES (4D, PAI, STARA)**
+- **[wand_ai_integration_walkthrough.md](wand_ai_integration_walkthrough.md)** - 🛠️ **GUÍA TÉCNICA: INTEGRACIÓN CON WAND AI**
+- **[hybrid_talent_use_cases.md](hybrid_talent_use_cases.md)** - 💡 **CASOS DE USO: DEMOS Y PRESENTACIONES**
+    - Escenarios prácticos (Retail, Marketing, RRHH, IT).
+    - Valor de negocio de la Fuerza de Trabajo Sintética.
+- **[competency_skill_materialization.md](competency_skill_materialization.md)** - 🧪 Protocolo de Curaduría y Materialización de Competencias.
 
 ---
 
@@ -126,11 +140,23 @@
     - Diagrama ER (relaciones)
     - Casos de uso con ejemplos SQL
 
-**Script de Verificación:**
-
 ```bash
 ./verify-people-role-skills.sh  # Verifica implementación completa
 ```
+
+---
+
+## 🏗️ Ciclo de Vida y Flujo de Aprobación (NUEVO)
+
+- **[role_lifecycle_and_approval_flow.md](role_lifecycle_and_approval_flow.md)** - ⭐⭐⭐ **GUÍA MAESTRA: Ciclo de Vida del Rol**
+    - Estados del Rol (`proposed`, `pending_review`, `pending_signature`, `active`)
+    - Certificación de Importación vs Aprobación Estratégica
+    - Nodos Gravitacionales (Departamentos como anclas)
+- **[competency_skill_materialization.md](competency_skill_materialization.md)** - 🧠 **Materialización de Habilidades (Skill Wizard)**
+    - Transformación de Competencias Estratégicas en Modelos Ejecutables
+    - Generación AI de Niveles 1-5 (SFIA/BARS)
+    - Unidades de Aprendizaje e Indicadores de Desempeño
+- **[approval_flow_documentation.md](approval_flow_documentation.md)** - Especificaciones técnicas del motor de aprobación
 
 ---
 

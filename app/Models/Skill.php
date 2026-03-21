@@ -33,6 +33,7 @@ class Skill extends Model
         'digital_signature',
         'signed_at',
         'signature_version',
+        'cube_dimensions',
     ];
 
     // Defaults applied when creating via Eloquent to match DB defaults
@@ -47,6 +48,7 @@ class Skill extends Model
         'category' => 'string',
         'is_critical' => 'boolean',
         'llm_id' => 'string',
+        'cube_dimensions' => 'array',
     ];
 
 

@@ -196,10 +196,10 @@ class RoleDesignerService
 
         $prompt = "Actúa como Arquitecto de Diseño Organizacional de Alta Eficiencia en Stratos.
         
-        CONTEXTO: 
+        CONTEXTO:
         El escenario futuro exige incorporar capacidades totalmente nuevas ('Nuevas Competencias') que la empresa hoy no tiene.
         También tienes una lista de 'Roles Actuales' cercanos o afines.
-        
+
         OBJETIVO:
         Debes hacer 'Role Bundling' (Empaquetado de Roles) para minimizar el impacto y evitar fragmentar a la organización en demasiados cargos nuevos innecesarios.
         
@@ -244,7 +244,9 @@ class RoleDesignerService
      */
     public function requestApproval(int $roleId, int $approverId): array
     {
-        Roles::findOrFail($roleId);
+        $role = Roles::findOrFail($roleId);
+        $role->status = 'pending_signature';
+        $role->save();
 
         // Crear la solicitud de aprobación
         $approval = ApprovalRequest::create([
@@ -255,13 +257,14 @@ class RoleDesignerService
             'expires_at' => now()->addDays(7),
         ]);
 
-        // En el futuro, enviar email con magic link aquí.
-        // URL format: /approve/role/{token}
+        // URL format: /approve/{token}
+        $magicLink = config('app.url') . "/approve/" . $approval->token;
         
         return [
             'status' => 'success',
             'message' => 'Solicitud de aprobación enviada exitosamente.',
             'token' => $approval->token,
+            'magic_link' => $magicLink,
         ];
     }
 
@@ -282,7 +285,7 @@ class RoleDesignerService
             return $this->finalizeCompetencyApproval($request, $data);
         }
 
-        throw new \Exception('Unknown approvable type');
+        throw new \LogicException('Unknown approvable type');
     }
 
     protected function finalizeRoleApproval(ApprovalRequest $request, array $data): array
@@ -370,15 +373,19 @@ class RoleDesignerService
 
     public function requestCompetencyApproval($competencyId, $approverId)
     {
-        $competency = \App\Models\Competency::findOrFail($competencyId);
-
-        return ApprovalRequest::create([
+        $approval = ApprovalRequest::create([
             'approvable_type' => \App\Models\Competency::class,
-            'approvable_id' => $competency->id,
+            'approvable_id' => $competencyId,
             'approver_id' => $approverId,
             'status' => 'pending',
             'expires_at' => now()->addDays(7),
         ]);
+
+        return [
+            'status' => 'success',
+            'token' => $approval->token,
+            'magic_link' => config('app.url') . "/approve/" . $approval->token,
+        ];
     }
 
     protected function finalizeCompetencyApproval(ApprovalRequest $request, array $data): array
@@ -452,5 +459,68 @@ class RoleDesignerService
             'message' => 'Competencia aprobada, firmada y materializada exitosamente.',
             'competency' => $competency->name,
         ];
+    }
+
+    /**
+     * Genera un blueprint detallado de Skills para un conjunto de competencias sugeridas.
+     * Se usa en el Wizard de Diseño de Roles (Paso 4).
+     */
+    public function generateSkillBlueprint(array $competencies): array
+    {
+        $competenciesJson = json_encode($competencies, JSON_UNESCAPED_UNICODE);
+
+        $prompt = "Actúa como Arquitecto de Talento Senior de Stratos. He diseñado un rol y la IA ha sugerido las siguientes competencias:
+        {$competenciesJson}
+
+        Tu tarea es generar un 'Skill Blueprint' (Mapa de Habilidades) para cada competencia.
+        
+        Para CADA competencia en la lista:
+        1. Define 5 niveles de maestría para la competencia misma (del 1 al 5).
+        2. Desglosa la competencia en 2-3 habilidades (skills) técnicas u operativas.
+        3. Para cada habilidad, define 5 niveles de maestría (del 1 al 5), incluyendo:
+           - Unidad de Aprendizaje (learning_unit)
+           - Criterio de Desempeño (performance_criterion)
+        
+        CRITERIOS DE CALIDAD:
+        - Los niveles deben ser progresivos (Sincrónicos con SFIA 8 si es posible).
+        - La redacción debe ser profesional y orientada a resultados.
+        - Formato de salida: JSON estricto.
+
+        ESTRUCTURA JSON:
+        {
+          \"competency_blueprint\": [
+            {
+              \"competency_name\": \"...\",
+              \"levels\": [
+                { \"level\": 1, \"level_name\": \"Básico\", \"description\": \"...\" },
+                ...
+              ],
+              \"skills\": [
+                {
+                  \"name\": \"...\",
+                  \"description\": \"...\",
+                  \"levels\": [
+                    { \"level\": 1, \"learning_unit\": \"...\", \"performance_criterion\": \"...\" },
+                    ... (niveles 1 al 5)
+                  ]
+                }
+              ]
+            }
+          ],
+          \"bars\": {
+            \"behavior\": \"...\",
+            \"attitude\": \"...\",
+            \"responsibility\": \"...\",
+            \"skill\": \"...\"
+          }
+        }";
+
+        try {
+            $result = $this->orchestrator->agentThink('Diseñador de Roles', $prompt);
+            return $result['response'];
+        } catch (\Exception $e) {
+            Log::error('Error generando Skill Blueprint: '.$e->getMessage());
+            throw $e;
+        }
     }
 }

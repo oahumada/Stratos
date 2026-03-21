@@ -10,6 +10,8 @@ interface Props {
         | 'error'
         | 'warning'
         | 'success'
+        | 'sky'
+        | 'fuchsia'
         | 'glass';
     size?: 'sm' | 'md';
     as?: 'span' | 'div';
@@ -31,6 +33,8 @@ const variantClasses = {
     warning: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
     success: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
     info: 'bg-indigo-500/20 text-indigo-200 border-indigo-500/30',
+    sky: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
+    fuchsia: 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30',
     glass: 'bg-white/10 text-white border-white/10',
 };
 

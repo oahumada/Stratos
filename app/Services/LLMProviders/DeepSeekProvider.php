@@ -66,6 +66,21 @@ class DeepSeekProvider implements LLMProviderInterface
 
         Log::debug('DeepSeek Raw Response', ['code' => $httpCode, 'body' => $result, 'error' => $error]);
 
+        if ($httpCode === 402) {
+            Log::warning('DeepSeek API Insufficient Balance. Falling back to simulation mode.');
+            return [
+                'response' => array_merge($this->getMockResponseForPrompt($prompt), [
+                    'simulation_metadata' => [
+                        'is_simulated' => true,
+                        'reason' => 'insufficient_balance',
+                        'notice' => 'DeepSeek API: Saldo insuficiente. Generación simulada para fines de prueba estructural.'
+                    ]
+                ]),
+                'confidence' => 0.5,
+                'model_version' => $model.'-simulated-balance-empty',
+            ];
+        }
+
         if ($httpCode >= 400) {
             throw new \RuntimeException('DeepSeek API Error '.$httpCode.': '.$result);
         }
@@ -97,5 +112,47 @@ class DeepSeekProvider implements LLMProviderInterface
             'confidence' => 0.9,
             'model_version' => $model,
         ];
+    }
+
+    protected function getMockResponseForPrompt(string $prompt): array
+    {
+        // Si el prompt pide JSON, devolvemos algo estructurado mínimamente para no romper el front
+        if (str_contains(strtolower($prompt), 'json')) {
+            return [
+                'competency_blueprint' => [
+                    [
+                        'competency_name' => 'Competencia Simulada (API Down)',
+                        'levels' => [
+                            ['level' => 1, 'level_name' => 'Básico', 'description' => 'Descripción simulada'],
+                            ['level' => 2, 'level_name' => 'Inicial', 'description' => 'Descripción simulada'],
+                            ['level' => 3, 'level_name' => 'Intermedio', 'description' => 'Descripción simulada'],
+                            ['level' => 4, 'level_name' => 'Avanzado', 'description' => 'Descripción simulada'],
+                            ['level' => 5, 'level_name' => 'Experto', 'description' => 'Descripción simulada'],
+                        ],
+                        'skills' => [
+                            [
+                                'name' => 'Habilidad Técnica IA',
+                                'description' => 'Capacidad de orquestación de modelos cognitivos.',
+                                'levels' => [
+                                    ['level' => 1, 'learning_unit' => 'Fundamentos', 'performance_criterion' => 'Identifica conceptos básicos'],
+                                    ['level' => 2, 'learning_unit' => 'Aplicación', 'performance_criterion' => 'Aplica técnicas estándar'],
+                                    ['level' => 3, 'learning_unit' => 'Análisis', 'performance_criterion' => 'Analiza resultados'],
+                                    ['level' => 4, 'learning_unit' => 'Evaluación', 'performance_criterion' => 'Evalúa modelos complejos'],
+                                    ['level' => 5, 'learning_unit' => 'Creación', 'performance_criterion' => 'Diseña nuevas arquitecturas'],
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                'bars' => [
+                   'behavior' => 'Simulando comportamiento funcional por falta de saldo en API IA.',
+                   'attitude' => 'Simulando actitud proactiva del sistema.',
+                   'responsibility' => 'Gestión de riesgos tecnológicos.',
+                   'skill' => 'Arquitectura de agentes autónomos.'
+                ]
+            ];
+        }
+
+        return ['raw_text' => 'Simulación de respuesta por falta de saldo en API.'];
     }
 }

@@ -44,13 +44,13 @@ Diseñado para competencias **transversales, corporativas o institucionales** qu
 
 Hemos refinado los estados para evitar confusión entre experimentos de IA y definiciones estructurales:
 
-| Estado | Significado | Origen Común |
-| :--- | :--- | :--- |
-| **`active`** | **Oficial / Firmada** | Ha pasado por el flujo de sello digital. |
-| **`pending_approval`** | **En Revisión** | Procede del **AI Role Wizard**. Espera ser enviada o firmada. |
-| **`proposed`** | **Sugerido (Draft)** | Importación de planilla o sugerencia inicial de IA. |
-| **`in_incubation`** | **Descubrimiento AI** | Proviene de una **Simulación de Escenarios**. Es un "proto-talento". |
-| **`pending`** | **En Trámite** | Existe una solicitud de aprobación activa (enlace mágico enviado). |
+| Estado | Significado | Origen Común | ¿Firma? |
+| :--- | :--- | :--- | :--- |
+| **`active`** | **Oficial / Firmada** | Ha pasado por el flujo de sello digital estratégico. | Certificado |
+| **`pending_review`** | **En Revisión** | Procede del **AI Role Wizard**. Diseño completado por el arquitecto. | No |
+| **`pending_signature`** | **En Firma** | Solicitud de aprobación enviada al responsable (Link Mágico). | Sí |
+| **`proposed`** | **Sugerido (Draft)** | Importación (Nodos Gravitacionales) | Sí (Import) |
+| **`in_incubation`** | **Descubrimiento AI** | Proviene de una **Simulación de Escenarios**. Proto-talento. | No |
 
 ---
 
@@ -84,3 +84,25 @@ Para potenciar el valor de Stratos como herramienta de **Gobernanza Corporativa*
 ---
 > [!TIP]
 > **Práctica Recomendada:** Use la aprobación de roles para puestos específicos y la aprobación de competencias para definir el "DNA" de la organización que será compartido por múltiples departamentos.
+---
+
+## 8. Implementación Técnica del Link Mágico
+
+### Generación y Seguridad
+- **Token UUID:** El sistema utiliza UUIDs de alta entropía para los tokens de acceso, garantizando que el enlace sea impredecible.
+- **Endpoints Públicos Dedicados:**
+    - `GET /api/approvals/{token}`: Recupera de forma segura los datos necesarios para la vista de firma (Roles, Competencias, Skills, Niveles BARS) sin requerir sesión previa del usuario.
+    - `POST /api/approvals/{token}/approve`: Endpoint de firma que valida el token, captura los cambios finales del responsable y ejecuta el sellado HMAC.
+
+### Interfaz de Despacho (Control Room)
+El administrador cuenta con un diálogo de despacho enriquecido:
+- **Selector de Responsable:** Listado dinámico de líderes habilitados para la firma.
+- **Feedback de Éxito:** Al generar la solicitud, se muestra el link resultante con un botón de **"Copiar Enlace"**.
+- **Trazabilidad de Reenvío:** El icono de **Sello (`PhSealCheck`)** en la tabla de roles permite monitorear el estado de firma y regenerar/reenviar el link si es necesario.
+
+### Proceso de Sellado (Digital Seal)
+Al presionar "Aprobar y Firmar":
+1. **Consolidación:** El sistema fusiona los cambios de última hora realizados por el responsable (Misión, Propósito, Resultados).
+2. **Generación de Firma:** Se calcula el hash de integridad vinculando el contenido del rol con el ID del responsable.
+3. **Persistencia Dinámica:** Se activan masivamente todas las habilidades y competencias vinculadas, pasando de un estado inerte (`proposed`) a un estado productivo (`active`).
+4. **Snapshot Histórico:** Se instancia una versión oficial en `role_versions` para registro de auditoría.

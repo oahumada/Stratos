@@ -67,7 +67,7 @@ void user.value;
 void hexToRgb;
 void dialogWarningGradient.value;
 
-const emit = defineEmits(['sync-role']);
+const emit = defineEmits(['sync-role', 'row-click']);
 
 const props = withDefaults(
     defineProps<{
@@ -420,9 +420,10 @@ const resetFilters = () => {
 };
 
 const onRowClick = (_event: any, row: any) => {
+    const raw = (row?.item?.raw ?? row?.item ?? row) as TableItem;
+    emit('row-click', raw);
     if (!detailEnabled.value) return;
-    const raw = row?.item?.raw ?? row?.item ?? row;
-    openDetail(raw as TableItem);
+    openDetail(raw);
 };
 
 const syncWithRole = () => {
@@ -698,8 +699,13 @@ onMounted(() => {
                 mobile-breakpoint="md"
                 @click:row="onRowClick"
             >
+                <template v-for="(_, name) in $slots" #[name]="slotData">
+                    <slot :name="name" v-bind="slotData" />
+                </template>
+
                 <!-- Actions Column -->
                 <template #[`item.actions`]="{ item }">
+
                     <div class="d-flex gap-2">
                         <slot name="item-actions-prepend" :item="item"></slot>
                         <v-btn

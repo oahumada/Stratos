@@ -91,17 +91,35 @@ class RoleDesignerController extends Controller
             ->where('status', 'pending')
             ->firstOrFail();
 
-        $request->load(['approvable', 'approver']);
-        
-        if ($request->approvable instanceof \App\Models\Roles) {
-            $request->approvable->load(['competencies', 'skills']);
-        }
-
         $approvable = $request->approvable;
         $component = ($approvable instanceof \App\Models\Roles) ? 'Roles/Approval' : 'Competencies/Approval';
             
         return Inertia::render($component, [
-            'approvalRequest' => $request
+            'token' => $token
+        ]);
+    }
+
+    /**
+     * API para obtener detalles de la solicitud vía token.
+     */
+    public function getApprovalDetails($token)
+    {
+        $request = ApprovalRequest::where('token', $token)
+            ->where('status', 'pending')
+            ->firstOrFail();
+
+        $request->load(['approver']);
+        
+        $approvable = $request->approvable;
+        if ($approvable instanceof \App\Models\Roles) {
+            $approvable->load(['competencies.skills']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'approval' => $request,
+            'approvable' => $approvable,
+            'approver' => $request->approver
         ]);
     }
 
@@ -146,5 +164,25 @@ class RoleDesignerController extends Controller
         $result = $this->designerService->finalizeApproval($token, $data);
 
         return response()->json($result);
+    }
+
+    /**
+     * Genera un blueprint detallado de habilidades para las competencias sugeridas.
+     */
+    public function generateSkillBlueprint(Request $request)
+    {
+        $request->validate([
+            'competencies' => 'required|array',
+        ]);
+
+        try {
+            $result = $this->designerService->generateSkillBlueprint($request->input('competencies'));
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error generando el blueprint: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

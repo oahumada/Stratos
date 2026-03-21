@@ -11,7 +11,8 @@ import {
     PhTarget,
     PhListChecks,
     PhInfo,
-    PhStar
+    PhStar,
+    PhMagicWand,
 } from '@phosphor-icons/vue';
 import axios from 'axios';
 import StCardGlass from '@/components/StCardGlass.vue';
@@ -201,6 +202,18 @@ const handleApprove = async () => {
         submitting.value = false;
     }
 };
+
+const formatSuggestions = (suggestions: string) => {
+    if (!suggestions) return [];
+    
+    return suggestions.split('\n').filter(line => line.trim().length > 0).map(line => {
+        const cleanLine = line.trim();
+        const isItem = /^[*-]\s|^\d+\.\s/.test(cleanLine);
+        const text = isItem ? cleanLine.replace(/^[*-]\s|^\d+\.\s/, '') : cleanLine;
+        
+        return { text, isItem };
+    });
+};
 </script>
 
 <template>
@@ -382,6 +395,52 @@ const handleApprove = async () => {
                             </div>
                         </StCardGlass>
                     </div>
+                </section>
+
+                <!-- AI Insights -->
+                <section v-if="role.ai_archetype_config">
+                    <div class="d-flex align-center mb-4">
+                        <PhMagicWand :size="24" class="text-amber-400 mr-2" />
+                        <h3 class="text-h5 font-weight-bold">Insights de Diseño IA</h3>
+                    </div>
+                    <StCardGlass class="pa-8 border-amber-500/20 overflow-hidden relative">
+                        <div class="absolute top-0 right-0 p-4 opacity-5">
+                            <PhMagicWand :size="120" weight="duotone" class="text-amber-400" />
+                        </div>
+
+                        <div v-if="role.ai_archetype_config.cube_coordinates?.justification" class="mb-8">
+                            <div class="text-overline text-amber-accent-1 mb-3 font-weight-black tracking-widest uppercase">
+                                Racional del Diseño (Cubo IA)
+                            </div>
+                            <div class="text-body-1 text-slate-300 italic-quote leading-relaxed">
+                                "{{ role.ai_archetype_config.cube_coordinates.justification }}"
+                            </div>
+                        </div>
+
+                        <div v-if="role.ai_archetype_config.organizational_suggestions">
+                            <v-divider class="mb-8 opacity-10" />
+                            <div class="text-overline text-amber-accent-1 mb-4 font-weight-black tracking-widest uppercase">
+                                Nitidez Organizacional & Recomendaciones
+                            </div>
+                            <div class="text-body-1 text-slate-200 leading-relaxed pl-8 border-l-2 border-amber-500/30">
+                                <div 
+                                    v-for="(line, idx) in formatSuggestions(role.ai_archetype_config.organizational_suggestions)" 
+                                    :key="idx" 
+                                    class="mb-3 d-flex align-top"
+                                >
+                                    <PhCheckCircle 
+                                        v-if="line.isItem" 
+                                        :size="18" 
+                                        weight="fill" 
+                                        class="mt-1 mr-3 shrink-0 text-amber-500/60" 
+                                    />
+                                    <div :class="{'opacity-90': !line.isItem}">
+                                        {{ line.text }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </StCardGlass>
                 </section>
 
                 <!-- Final Action -->
