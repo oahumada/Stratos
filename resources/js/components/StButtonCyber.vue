@@ -63,7 +63,7 @@ const sizeClasses = computed(() => {
         <div class="content">
             <template v-if="loading">
                 <v-progress-circular indeterminate size="16" width="2" class="mr-2" />
-                Sincronizando...
+                Sincronizando Neural...
             </template>
             <template v-else>
                 <component :is="icon" v-if="icon" :size="size === 'xl' ? 24 : 18" class="mr-2 icon-glow" />
@@ -102,6 +102,29 @@ const sizeClasses = computed(() => {
     opacity: 0.7;
 }
 
+.st-button-cyber::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    transform: skewX(-25deg);
+    transition: 0.75s cubic-bezier(0.19, 1, 0.22, 1);
+    z-index: 7;
+    pointer-events: none;
+}
+
+.st-button-cyber:hover::after {
+    left: 150%;
+}
+
 .content {
     position: relative;
     z-index: 5;
@@ -134,6 +157,7 @@ const sizeClasses = computed(() => {
     position: absolute;
     background: currentColor;
     opacity: 0.8;
+    pointer-events: none;
 }
 
 .corner-tl { top: 0; left: 0; width: 4px; height: 12px; clip-path: polygon(0 0, 100% 0, 0 100%); }
@@ -204,6 +228,7 @@ const sizeClasses = computed(() => {
     background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.1), transparent);
     z-index: 4;
     animation: scan 2.5s infinite linear;
+    pointer-events: none;
 }
 
 @keyframes scan {

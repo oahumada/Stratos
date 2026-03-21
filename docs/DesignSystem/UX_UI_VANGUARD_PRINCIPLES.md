@@ -68,3 +68,12 @@ En esta etapa, el sistema ya es funcional y robusto. El foco se desplaza de *con
 1. **Eliminación de la "Opacidad Cognitiva"**: Si una sección de la interfaz requiere más de 2 segundos para entenderse, necesita brillo. Simplificar visualmente sin perder densidad de datos.
 2. **Consistencia Obsesiva**: Un solo icono fuera de estilo o un margen inconsistente rompe la ilusión de vanguardia.
 3. **El "Wow" en los Detalles**: Un sutil gradiente en un borde o una animación de entrada coordinada puede ser la diferencia entre una herramienta y una experiencia premium.
+
+## 🤖 Pilar 6: La Metáfora Cyborg (Evolución de Marzo 2026)
+
+La interfaz no es solo una herramienta, es una extensión técnica del usuario. Hemos pasado de un diseño de "herramienta" a uno de "simbiosis".
+
+- **Neural Grain & Digital Dust**: El uso de ruido fractal sutil sobre fondos oscuros elimina la esterilidad digital y añade una textura orgánica ("Hardware con Alma").
+- **Holographic Sweep**: Los componentes interactivos reaccionan con barridos de luz que simulan la activación de una interfaz táctil de alta resolución.
+- **Bit-Stream Connectivity**: La presencia de telemetría constante (IDs de sesión, latencia, versiones del core) en las periferias refuerza la sensación de estar conectado a un sistema operativo vivo.
+- **Micro-copy de Sincronización**: Sustitución de términos operativos por verbos de simbiosis: *Sincronizando Neural*, *Materializando Estructura*, *Sellando ADN*.

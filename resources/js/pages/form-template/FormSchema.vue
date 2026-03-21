@@ -530,22 +530,19 @@ onMounted(() => {
                     </p>
                 </div>
                 <div class="header-actions d-flex gap-3">
-                    <v-btn
+                    <StButtonGlass
                         v-if="mergedConfig.permisos?.crear"
                         @click="openCreateDialog"
-                        color="indigo-accent-2"
-                        rounded="lg"
-                        variant="elevated"
-                        elevation="4"
-                        size="large"
+                        variant="primary"
+                        size="lg"
+                        :icon="PhPlus"
                     >
-                        <component :is="PhPlus" :size="20" class="mr-2" />
                         {{
                             t('form_schema.new_btn', {
                                 title: mergedConfig.titulo.replace(/s$/i, ''),
                             })
                         }}
-                    </v-btn>
+                    </StButtonGlass>
                     <slot name="extra-actions"></slot>
                 </div>
             </div>

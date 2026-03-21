@@ -7,6 +7,8 @@ defineProps<{
     title?: string;
     description?: string;
 }>();
+
+const neuralId = Math.random().toString(36).substring(7).toUpperCase();
 </script>
 
 <template>
@@ -41,8 +43,22 @@ defineProps<{
 
         <!-- Subtle pulsing center light -->
         <div
-            class="pointer-events-none absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full bg-white/2 blur-[150px]"
+            class="pointer-events-none absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 animate-pulse-subtle rounded-full bg-white/2 blur-[150px]"
         ></div>
+
+        <!-- Neural Grain / Digital Dust -->
+        <div class="pointer-events-none absolute inset-0 z-5 bg-noise opacity-[0.03] mix-blend-overlay"></div>
+
+        <!-- Bit-Stream Tracking Elements -->
+        <div class="pointer-events-none absolute top-10 left-10 z-10 hidden flex-col gap-1 md:flex">
+            <span class="text-[7px] font-black tracking-widest text-white/20 uppercase">Core Synchronization: ACTIVE</span>
+            <span class="text-[6px] font-mono text-white/10 uppercase">H_NEURAL_LINK [{{ neuralId }}]</span>
+        </div>
+        
+        <div class="pointer-events-none absolute top-10 right-10 z-10 hidden flex-col items-end gap-1 md:flex">
+            <span class="text-[7px] font-black tracking-widest text-indigo-400/30 uppercase italic-quote">Stratos OS v2.4.12</span>
+            <span class="text-[6px] font-mono text-white/10 uppercase">S_LATENCY_TX: 14MS</span>
+        </div>
 
         <div class="z-10 w-full max-w-[440px]">
             <div class="flex flex-col gap-8 md:gap-10">
@@ -138,6 +154,10 @@ defineProps<{
 
 .animate-pulse-subtle {
     animation: pulse-subtle 8s ease-in-out infinite;
+}
+
+.bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
 :deep(.v-field) {

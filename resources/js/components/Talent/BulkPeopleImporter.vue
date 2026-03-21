@@ -184,23 +184,25 @@ const close = () => {
             </div>
 
             <!-- Wizard Stepper -->
-            <div class="flex items-center justify-center gap-12 bg-white/5 py-6 px-10 border-b border-white/5">
-                <div v-for="(s, i) in steps" :key="i" class="flex items-center gap-3">
-                    <div 
-                        :class="[
-                            'h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold transition-all',
-                            step > i + 1 ? 'bg-emerald-500 text-white' : 
-                            step === i + 1 ? 'bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 
-                            'bg-white/10 text-white/30'
-                        ]"
-                    >
-                        <component v-if="step > i + 1" :is="PhCheckCircle" :size="16" />
-                        <span v-else>{{ i + 1 }}</span>
+            <div class="flex items-center justify-center gap-2 sm:gap-6 bg-white/5 py-6 px-4 border-b border-white/5 overflow-x-auto no-scrollbar">
+                <div v-for="(s, i) in steps" :key="i" class="flex items-center shrink-0">
+                    <div class="flex items-center gap-2">
+                        <div 
+                            :class="[
+                                'h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold transition-all shrink-0',
+                                step > i + 1 ? 'bg-emerald-500 text-white' : 
+                                step === i + 1 ? 'bg-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 
+                                'bg-white/10 text-white/30'
+                            ]"
+                        >
+                            <component v-if="step > i + 1" :is="PhCheckCircle" :size="14" />
+                            <span v-else>{{ i + 1 }}</span>
+                        </div>
+                        <span :class="['text-[10px] sm:text-xs font-black uppercase tracking-wider whitespace-nowrap', step === i + 1 ? 'text-white' : 'text-white/20']">
+                            {{ t(s.title) }}
+                        </span>
                     </div>
-                    <span :class="['text-xs font-black uppercase tracking-widest', step === i + 1 ? 'text-white' : 'text-white/20']">
-                        {{ t(s.title) }}
-                    </span>
-                    <div v-if="i < steps.length - 1" class="h-px w-8 bg-white/10 ml-2" />
+                    <div v-if="i < steps.length - 1" class="h-px w-4 sm:w-10 bg-white/10 mx-2 sm:mx-4" />
                 </div>
             </div>
 

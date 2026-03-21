@@ -1344,6 +1344,19 @@ const saveRole = async (requestApproval = false) => {
                                     }}</StButtonGlass
                                 >
                                 <StButtonCyber
+                                    variant="primary"
+                                    size="lg"
+                                    :loading="saving"
+                                    :icon="PhShieldCheck"
+                                    cyber-id="CERT-ST"
+                                    tag="APPROVE"
+                                    glass
+                                    @click="saveRole(true)"
+                                    class="px-12!"
+                                >
+                                    {{ $t('role_wizard.save_and_approve') }}
+                                </StButtonCyber>
+                                <StButtonCyber
                                     variant="success"
                                     size="lg"
                                     :loading="saving"

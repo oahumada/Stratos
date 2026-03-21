@@ -38,6 +38,8 @@ Stratos focuses on a **premium, dark-mode-first, glassmorphism aesthetic** that 
 - **Glow Line (Indicator)**: Use a 1px top or bottom line with a colored glow to indicate active modules or premium sections. 
     - Pattern: `h-px w-full bg-linear-to-r from-transparent via-current to-transparent` + `boxShadow: 0 0 20px [color]`.
 - **Neon Glows (Cybercore)**: For AI-driven features, use intense glows (`shadow-[0_0_35px_rgba(99,102,241,1)]`) and animated pulse effects.
+- **Holographic Sweep (New)**: A high-speed diagonal light sweep on hover for `StButtonCyber` components to simulate data activation.
+- **Neural Grain Overlay**: A fractal noise layer (`bg-noise`) with low opacity (`opacity-5`) over primary dark layouts to provide an organic, hardware-like texture.
 
 ## 3. Stratos UI Components
 
@@ -136,6 +138,17 @@ Para módulos de alta densidad de inteligencia (como AI Wizards o Motores de Imp
 - **Energía Cinética**: Uso de `StGlowDivider` para transiciones de sección.
 - **Anillos de Luz**: Uso de `ring-1 ring-indigo-500/40` en elementos seleccionados para simular interfaces táctiles avanzadas.
 - **Micro-escaneo**: Animaciones lineales rápidas que sugieren lectura de datos en tiempo real.
+- **Session Telemetry (Bit-Stream)**: Placement of technical metadata (e.g., `H_NEURAL_LINK [ID]`) in page peripheries to enhance the "OS" immersion.
+
+---
+
+## 9. Poetic UX Writing (Cyborg Style) ✒️
+
+Stratos uses a specific tone of voice that humanizes high-tech interactions:
+
+- **Action Labels**: Prefer "Sincronizar Neural" over "Cargar Datos".
+- **Confirmation**: Use "Sellar ADN Digital" for final approvals/signatures.
+- **Creation**: Use "Materializar" for generating new structures (Roles/Skills).
 
 ---
 

@@ -3355,3 +3355,76 @@ CookieJar serializado → compartido entre VUs via setup()
 
 - **Cumplimiento ISO 9001**: Mejora drástica en la trazabilidad de la arquitectura institucional, permitiendo auditar quién validó qué y en qué momento preciso.
 - **Claridad Organizacional**: Elimina la confusión sobre si un rol es "oficial" o es solo una "carga técnica" proveniente de sistemas externos.
+
+---
+
+## 🎯 Fase: Refinamiento de UI y Restauración del Wizard (2026-03-20)
+
+### Resumen Ejecutivo
+
+✅ **USABILIDAD Y RESTAURACIÓN COMPLETADA** - Se ha restaurado la integridad del flujo de diseño en el **Role Designer Wizard** y se han optimizado elementos clave de la interfaz flotante para mejorar la ergonomía visual y la accesibilidad de las herramientas de soporte.
+
+### Logros e Implementaciones
+
+1.  **Restauración del RoleCubeWizard (V1 Core)**:
+    - Se revirtió el componente `RoleCubeWizard.vue` a su flujo original de **5 pasos lineales**.
+    - **Limpieza de Restricciones:** Eliminados los modos de "solo lectura" y de "consulta" que bloqueaban la edición fluida.
+    - **Simplificación Orgánica:** Se eliminó el paso de "Ocupantes" (Occupants) para enfocar el wizard exclusivamente en el diseño arquitectónico del cargo, delegando la gestión de personas a otros módulos.
+    - **Corrección de Tipado:** Se resolvió un error de TypeScript en `FormType` que omitía la propiedad `people`, garantizando estabilidad en la persistencia de datos.
+
+2.  **Optimización de Widgets Flotantes (Global UI)**:
+    - **Stratos Guide Widget (Ayuda):** Se redujo el tamaño del botón flotante (FAB) de `h-14` a `h-11` y el icono de `text-xl` a `text-lg`. El objetivo es reducir la invasividad visual y mejorar la "mancha" de la interfaz en pantallas de menor resolución.
+    - **QA Reporting (Tickets):** Se aumentó la jerarquía visual del botón de reporte de errores/tickets, pasando de `size="sm"` a `size="md"` y el icono `ShieldAlert` de `h-5` a `h-7`.
+    - **Alineación Ergonómica:** Se ajustaron las posiciones relativas (`bottom-22` y `bottom-14`) para mantener un espaciado coherente entre ambos elementos y el nuevo tamaño del widget de guía.
+    - **Modernización de Estilos:** Se migraron las clases de gradientes a la nueva sintaxis de Tailwind CSS (`bg-linear-to-br`).
+
+3.  **Mantenimiento y Estabilidad**:
+    - Verificación de la carga dinámica de módulos en entornos de desarrollo.
+    - Ajuste de paddings y gaps en contenedores de layouts globales para mayor consistencia visual.
+
+### Documentación y Próximos Pasos
+
+- **Pendiente:** Implementar el "Auto-accept / Auto-import" tras la generación de perfiles por IA (marcado como prioridad para la siguiente sesión).
+- **Pendiente:** Revisión de la integración de la "Firma Digital" en el paso final del wizard restaurado.
+
+### Impacto en el Producto
+
+- **Foco Arquitectónico:** Al separar el diseño del cargo de la ocupación, Stratos refuerza su posición como herramienta de **Job Design** estratégico.
+- **Micro-UX Premium:** Los ajustes de tamaño en los widgets demuestran una atención al detalle que eleva la percepción de calidad "Premium Ultra Minimal" del sistema.
+---
+
+## 🎯 Fase: Firma Digital y Estética Cyborg Poética (2026-03-21)
+
+### Resumen Ejecutivo
+
+✅ **GOBERNANZA Y TEXTURA DIGITAL** - Se ha cerrado el círculo de gobernanza del **Role Wizard** mediante la integración de la firma digital y se ha elevado la identidad visual de Stratos a un nivel de **"Cyborg Poético"**. Esta fase combina la rigidez del cumplimiento normativo con una estética técnica de alta resolución que refuerza la metáfora de la plataforma como un sistema operativo de talento.
+
+### Logros e Implementaciones
+
+1.  **Firma Digital y Aprobación (Role Wizard)**:
+    - **Botón "Guardar y Solicitar Aprobación"**: Integrado en el paso 5 del `RoleCubeWizard.vue`. Este disparador activa la función `saveRole(true)`, que transiciona el rol al estado `pending_signature` e inicia el protocolo de firma digital.
+    - **Flujo de Gobernanza**: La integración asegura que ningún rol estratégico sea activado sin la validación de un responsable, cumpliendo con los estándares de trazabilidad establecidos.
+
+2.  **Auto-Importación de Escenarios (Auto-Accept)**:
+    - **Flujo Automatizado**: Implementada la lógica en `GenerateWizard.vue` y `scenarioGenerationStore.ts` para que, si el usuario marca "importar automáticamente", el sistema acepte e importe el escenario sin intervención manual tras finalizar la generación por IA.
+    - **Prevención de Duplicados**: Se añadió el flag `importAutoAccepted` para evitar múltiples activaciones del proceso durante el polling de la respuesta.
+    - **Control UI**: Se desacopló la aceptación automática del servicio de backend para asegurar que la interfaz mantenga siempre la autoridad sobre el momento del impacto en el catálogo.
+
+3.  **Retoques "Cyborg Poéticos" (UI/UX Premium)**:
+    - **Holographic Sweep**: Los botones `StButtonCyber` ahora cuentan con un destello de luz diagonal ultra-rápido en hover, simulando un escaneo holográfico.
+    - **Neural Grain & Digital Dust**: Se inyectó una capa de ruido fractal dinámico en el `AuthVanguardLayout.vue` para dar una textura táctil y analógica a las superficies oscuras, eliminando la esterilidad del color plano.
+    - **Bit-Stream Tracking**: Añadidas coordenadas de telemetría y metadatos técnicos en las esquinas de la interfaz (ID de enlace neural, latencia real, versión del core), reforzando la sensación de "Sistema Operativo".
+    - **Micro-copy de Interfaz**: Se actualizaron las etiquetas de carga genéricas por términos más inmersivos como **"Sincronizando Neural..."** y **"Materializando Estructura..."**.
+    - **Status Dots en Badges**: Los `StBadgeGlass` ahora incluyen un punto pulsante que indica el estado vital/telemetría del dato.
+
+4.  **Ajustes de Integridad Técnica**:
+    - **FormType Fix**: Se corrigió la definición del formulario en el wizard para incluir la propiedad `people`, resolviendo errores de persistencia al interactuar con el inventario de personas.
+    - **Estabilización de Hidratación**: Se refactorizaron los IDs aleatorios del layout de autenticación para evitar discrepancias de renderizado entre servidor y cliente.
+
+### Impacto en el Producto
+
+- **Gobernanza Sin Fricción**: La auto-importación reduce el tiempo de "Time-to-Value" tras una sesión de generación con IA, permitiendo que las ideas se materialicen instantáneamente en el catálogo.
+- **Diferenciación Estética**: Los retoques cyberpunk posicionan a Stratos como una herramienta de vanguardia técnica, alejándose del diseño genérico de los HRIS tradicionales y atrayendo a perfiles de ingeniería y liderazgo tecnológico.
+- **Rigor ISO**: La firma digital integrada es la pieza final para la certificación de procesos bajo normas internacionales de calidad de datos.
+
+---

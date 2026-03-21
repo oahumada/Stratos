@@ -362,23 +362,7 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
                     e,
                 );
             }
-            // Auto-accept/import flow: if generation completed and operator chose importAfterAccept,
-            // trigger accept once (idempotent guard via importAutoAccepted)
-            if (
-                this.generationStatus === 'complete' &&
-                this.importAfterAccept &&
-                !this.importAutoAccepted
-            ) {
-                try {
-                    await this.accept(this.generationId);
-                    this.importAutoAccepted = true;
-                } catch (e) {
-                    // log to console; don't throw to avoid breaking UI polling
-                    // caller (UI) can surface error if needed
 
-                    console.error('Auto-accept failed', e);
-                }
-            }
             return res.data;
         },
         async accept(generationId?: number) {

@@ -774,6 +774,14 @@ export const messages = {
                 },
             },
         },
+        bulk_import: {
+            steps: {
+                upload: 'Upload Data',
+                alignment: 'Node Alignment',
+                resolution: 'Gap Resolution',
+                approval: 'Seal & Sync',
+            },
+        },
     },
     es: {
         scenario_iq: 'Scenario IQ',
@@ -1554,6 +1562,14 @@ export const messages = {
                             'Vista financiera orientada a ROI y creación de valor.',
                     },
                 },
+            },
+        },
+        bulk_import: {
+            steps: {
+                upload: 'Carga de Datos',
+                alignment: 'Alineación de Nodos',
+                resolution: 'Resolución de Gaps',
+                approval: 'Sellado y Sinc',
             },
         },
     },

@@ -1022,6 +1022,11 @@ async function onConfirmGenerate(importAfter = false) {
         // If generation completed, modal is already open, just trigger validation
         if (store.generationStatus === 'complete') {
             await triggerValidation();
+            // Option 2: Auto-accept/import if the user checked the checkbox
+            if (store.importAfterAccept && !store.importAutoAccepted) {
+                console.log('Auto-accept triggered from main flow');
+                await onModalAccept(true);
+            }
         } else {
             // not completed within timeout: notify operator to monitor status
             showError(
@@ -1157,8 +1162,9 @@ function openResponseModal() {
 }
 
 async function onModalAccept(importAfter = false) {
-    if (!store.generationId) return;
+    if (!store.generationId || store.importAutoAccepted) return;
     store.importAfterAccept = !!importAfter;
+    store.importAutoAccepted = true; // Guard against multiple triggers
     // clear previous inline validation errors
     responseValidationErrors.value = null;
     responseValidationTitle.value = '';
@@ -1355,6 +1361,12 @@ async function startResponsePolling() {
                 stopResponsePolling();
                 responseModalOpen.value = true;
                 await triggerValidation();
+
+                // Option 2: Auto-accept/import if the user checked the checkbox
+                if (store.importAfterAccept && !store.importAutoAccepted) {
+                    console.log('Auto-accept triggered from interval polling');
+                    await onModalAccept(true);
+                }
             }
         } catch {
             // ignore intermittent errors

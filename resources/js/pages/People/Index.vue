@@ -102,7 +102,8 @@ const handleRefresh = () => {
     >
         <template #extra-actions>
             <StButtonGlass
-                variant="secondary"
+                variant="glass"
+                size="lg"
                 :icon="PhArrowsClockwise"
                 @click="showImporter = true"
             >

@@ -120,7 +120,7 @@ onMounted(() => {
         <Transition name="guide-panel">
             <div
                 v-if="isOpen"
-                class="absolute right-0 bottom-16 max-h-[70vh] w-[380px] overflow-y-auto rounded-2xl border border-white/10 bg-slate-900/95 shadow-2xl shadow-black/40 backdrop-blur-2xl"
+                class="absolute right-0 bottom-14 max-h-[70vh] w-[380px] overflow-y-auto rounded-2xl border border-white/10 bg-slate-900/95 shadow-2xl shadow-black/40 backdrop-blur-2xl"
             >
                 <!-- Panel Header -->
                 <div
@@ -128,7 +128,7 @@ onMounted(() => {
                 >
                     <div class="flex items-center gap-2">
                         <div
-                            class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-sm"
+                            class="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-indigo-500 to-purple-600 text-sm"
                         >
                             🧭
                         </div>
@@ -306,10 +306,10 @@ onMounted(() => {
         <!-- FAB Button -->
         <button
             @click="toggle"
-            class="relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-2xl shadow-indigo-500/30 transition-all duration-300 hover:scale-110 hover:shadow-indigo-500/50 active:scale-95"
+            class="relative flex h-11 w-11 items-center justify-center rounded-full bg-linear-to-br from-indigo-600 to-purple-600 text-white shadow-2xl shadow-indigo-500/30 transition-all duration-300 hover:scale-110 hover:shadow-indigo-500/50 active:scale-95"
             :class="isOpen ? 'ring-2 ring-indigo-400/40' : ''"
         >
-            <span class="text-xl">{{ isOpen ? '✕' : '🧭' }}</span>
+            <span class="text-lg">{{ isOpen ? '✕' : '🧭' }}</span>
 
             <!-- Pulse ring -->
             <span

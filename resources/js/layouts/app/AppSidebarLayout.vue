@@ -68,15 +68,15 @@ const currentModule = computed(() => {
         </AppContent>
 
         <!-- Global QA Reporting Action -->
-        <div v-if="hasUser" class="fixed right-6 bottom-24 z-50">
+        <div v-if="hasUser" class="fixed right-6 bottom-22 z-50">
             <StButtonGlass
                 variant="glass"
-                size="sm"
+                size="md"
                 class="rounded-full border-white/20 p-3! shadow-xl backdrop-blur-md transition-transform hover:scale-110"
                 @click="showTicketModal = true"
                 title="Reportar Error / Sugerencia"
             >
-                <ShieldAlert class="h-5 w-5 text-amber-400" />
+                <ShieldAlert class="h-7 w-7 text-amber-400" />
             </StButtonGlass>
         </div>
 
