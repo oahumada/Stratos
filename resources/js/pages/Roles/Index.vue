@@ -11,10 +11,12 @@ import {
     PhCopy,
     PhShare,
     PhCube,
+    PhEye,
 } from '@phosphor-icons/vue';
 
 
 import RoleCubeWizard from '@/components/Roles/RoleCubeWizard.vue';
+import RolePerformanceSheet from '@/components/Roles/RolePerformanceSheet.vue';
 import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -35,6 +37,9 @@ defineOptions({ layout: AppLayout });
 const showCubeWizard = ref(false);
 const selectedRoleId = ref<number | null>(null);
 const selectedRoleData = ref<any>(null);
+
+const showPerformanceSheet = ref(false);
+const selectedRoleForSheet = ref<any>(null);
 // Detail tab state
 
 // Skill levels for chips
@@ -59,6 +64,11 @@ const openWizardForRole = (id: number, data?: any) => {
     selectedRoleId.value = id;
     selectedRoleData.value = data || null;
     showCubeWizard.value = true;
+};
+
+const openConsultation = (role: any) => {
+    selectedRoleForSheet.value = role;
+    showPerformanceSheet.value = true;
 };
 const formSchemaRef = ref<any>(null);
 
@@ -247,7 +257,6 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
         :item-form="itemForm"
         :filters="filters"
         :enable-row-detail="false"
-        @row-click="openWizardForRole($event.id, $event)"
     >
         <template #extra-actions>
             <StButtonGlass
@@ -263,16 +272,32 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
 
         <template #[`item.actions`]="{ item }">
             <div class="d-flex gap-2">
-                <!-- Open Wizard (Unified View/Edit) -->
+                <!-- Case 1: Pending Design -> Open Wizard -->
                 <v-btn
+                    v-if="!item.ai_archetype_config || item.status === 'draft' || item.status === 'pending_design'"
                     icon
                     size="small"
                     color="indigo-accent-1"
                     variant="tonal"
                     class="rounded-lg mr-1"
                     @click.stop="openWizardForRole(item.id, item)"
+                    v-tooltip="'Completar Diseño'"
                 >
                     <component :is="PhPencil" :size="16" />
+                </v-btn>
+
+                <!-- Case 2: Finalized/Active -> Open Consultation Sheet -->
+                <v-btn
+                    v-else
+                    icon
+                    size="small"
+                    color="emerald-accent-1"
+                    variant="tonal"
+                    class="rounded-lg mr-1"
+                    @click.stop="openConsultation(item)"
+                    v-tooltip="'Consultar Perfil'"
+                >
+                    <component :is="PhEye" :size="16" />
                 </v-btn>
 
                 <v-btn
@@ -326,6 +351,13 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
         :role-id="selectedRoleId"
         :initial-data="selectedRoleData"
         @created="fetchData"
+    />
+
+    <RolePerformanceSheet
+        v-if="showPerformanceSheet"
+        v-model="showPerformanceSheet"
+        :role="selectedRoleForSheet"
+        @edit="openWizardForRole($event.id, $event)"
     />
 
     <!-- Competency Detail Dialog -->

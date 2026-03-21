@@ -9,6 +9,8 @@ interface Props {
     icon?: any;
     tag?: string; // Small technical tag in the corner
     cyberId?: string; // Small ID shown in the button
+    glass?: boolean; // Enable glassmorphism hybrid mode
+    type?: 'button' | 'submit' | 'reset';
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -17,7 +19,9 @@ const props = withDefaults(defineProps<Props>(), {
     loading: false,
     disabled: false,
     tag: 'AUTH',
-    cyberId: 'ST-26'
+    cyberId: 'ST-26',
+    glass: false,
+    type: 'submit'
 });
 
 const variantClasses = computed(() => {
@@ -42,8 +46,9 @@ const sizeClasses = computed(() => {
 
 <template>
     <button 
+        :type="type"
         class="st-button-cyber"
-        :class="[variantClasses, sizeClasses, { 'is-loading': loading }]"
+        :class="[variantClasses, sizeClasses, { 'is-loading': loading, 'is-glass': glass }]"
         :disabled="disabled || loading"
     >
         <!-- Glitch layers -->
@@ -169,6 +174,24 @@ const sizeClasses = computed(() => {
     background: rgba(244, 63, 94, 0.3);
     box-shadow: 0 0 20px rgba(244, 63, 94, 0.5);
     color: white;
+}
+
+/* --- Glass Hybrid --- */
+.st-button-cyber.is-glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border-left-width: 1px;
+    clip-path: polygon(5% 0%, 100% 0%, 100% 80%, 95% 100%, 0% 100%, 0% 20%); /* Softer angles */
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.02);
+}
+
+.st-button-cyber.is-glass.cyber-primary { border-left-color: rgba(99, 102, 241, 0.5); }
+.st-button-cyber.is-glass.cyber-success { border-left-color: rgba(16, 185, 129, 0.5); }
+.st-button-cyber.is-glass.cyber-danger { border-left-color: rgba(244, 63, 94, 0.5); }
+
+.st-button-cyber.is-glass:hover {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
 }
 
 /* --- Effects --- */

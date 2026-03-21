@@ -5,27 +5,22 @@ import { useI18n } from 'vue-i18n';
 
 import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
+import StButtonCyber from '@/components/StButtonCyber.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
 import {
     PhArrowLeft,
     PhBrain,
     PhCheck,
-    PhCrown,
-    PhCrosshair,
-    PhInfo,
     PhMagicWand,
-    PhNavigationArrow,
     PhPlus,
     PhRobot,
     PhSealCheck,
     PhTrash,
     PhX,
     PhArrowsClockwise,
-    PhCube,
-    PhChartBar,
-    PhAnchor,
-    PhIdentificationCard,
-    PhCheckCircle,
+    PhAnchor, PhChartBar, PhCube,
+    PhIdentificationCard, PhCheckCircle,
+    PhCrown, PhCrosshair, PhNavigationArrow, PhInfo,
     PhFloppyDisk,
     PhWarningCircle,
     PhShieldCheck,
@@ -84,6 +79,7 @@ const simulationNotice = ref<string | null>(null);
 const expandedCompetency = ref<number | null>(null);
 const loadingRole = ref(false);
 const roleLoaded = ref(false);
+
 
 const form = ref<FormType>({
     name: '',
@@ -255,7 +251,6 @@ const steps = computed(() => [
     { title: t('role_wizard.step3_title'), description: t('role_wizard.step3_desc') },
     { title: t('role_wizard.step4_title'), description: t('role_wizard.step4_desc') },
     { title: t('role_wizard.step5_title'), description: t('role_wizard.step5_desc') },
-    { title: 'Ocupantes', description: 'Personas asignadas a este rol' },
 ]);
 
 const formattedSuggestions = computed(() => {
@@ -576,9 +571,9 @@ const saveRole = async (requestApproval = false) => {
                             :class="[
                                 currentStep === i + 1
                                     ? 'border-indigo-500/20 bg-indigo-500/10 shadow-lg border'
-                                    : (i + 1 < currentStep || roleId) ? 'cursor-pointer hover:bg-white/5' : 'pointer-events-none opacity-40 grayscale',
+                                    : (i + 1 < currentStep) ? 'cursor-pointer hover:bg-white/5' : 'pointer-events-none opacity-40 grayscale',
                             ]"
-                            @click="if (i + 1 < currentStep || roleId) currentStep = i + 1"
+                            @click="(i + 1 < currentStep) ? (currentStep = i + 1) : null"
                         >
                             <div
                                 class="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-black"
@@ -663,6 +658,7 @@ const saveRole = async (requestApproval = false) => {
                                         id="role-name-input"
                                         v-model="form.name"
                                         type="text"
+                                        
                                         :placeholder="
                                             $t(
                                                 'role_wizard.architectural_placeholder',
@@ -682,6 +678,7 @@ const saveRole = async (requestApproval = false) => {
                                         id="role-description-input"
                                         v-model="form.description"
                                         rows="4"
+                                        
                                         placeholder="Escribe una breve idea de qué hará este rol..."
                                         class="w-full resize-none rounded-2xl border border-white/20 bg-white/5 backdrop-blur-md px-6 py-4 text-lg text-white placeholder-white/25 transition-all focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400/30"
                                     ></textarea>
@@ -689,7 +686,7 @@ const saveRole = async (requestApproval = false) => {
                             </div>
 
                             <div class="flex justify-end pt-8">
-                                <StButtonGlass
+                                <StButtonCyber
                                     variant="primary"
                                     size="lg"
                                     :disabled="
@@ -699,10 +696,13 @@ const saveRole = async (requestApproval = false) => {
                                     :loading="analyzing"
                                     @click="analyzeRole"
                                     :icon="PhMagicWand"
+                                    cyber-id="CBR-X2"
+                                    tag="AI-SYNTHESIS"
+                                    glass
                                     class="px-12!"
                                 >
                                     {{ $t('role_wizard.initiate_synthesis') }}
-                                </StButtonGlass>
+                                </StButtonCyber>
                             </div>
                         </div>
 
@@ -759,7 +759,10 @@ const saveRole = async (requestApproval = false) => {
                                                     :key="arc"
                                                     @click="form.cube.x_archetype = arc"
                                                     class="flex flex-col items-center gap-3 rounded-2xl border p-5 transition-all duration-500"
-                                                    :class="form.cube.x_archetype === arc ? 'shadow-glow border-indigo-500/50 bg-indigo-500/20 ring-1 ring-indigo-500/40' : 'border-white/5 bg-white/2 hover:bg-white/5'"
+                                                    :class="[
+                                                        form.cube.x_archetype === arc ? 'shadow-glow border-indigo-500/50 bg-indigo-500/20 ring-1 ring-indigo-500/40' : 'border-white/5 bg-white/2 hover:bg-white/5',
+                                                        ''
+                                                    ]"
                                                 >
                                                     <component
                                                         :is="arc === 'Strategic' ? PhCrown : arc === 'Tactical' ? PhCrosshair : PhNavigationArrow"
@@ -793,6 +796,7 @@ const saveRole = async (requestApproval = false) => {
                                                     id="mastery-level-slider"
                                                     v-model="form.cube.y_mastery_level"
                                                     :min="1" :max="5" :step="1"
+                                                    
                                                     show-ticks="always"
                                                     thumb-label="always"
                                                     color="indigo-500"
@@ -812,6 +816,7 @@ const saveRole = async (requestApproval = false) => {
                                                 id="business-process-input"
                                                 v-model="form.cube.z_business_process"
                                                 type="text"
+                                                
                                                 :placeholder="$t('role_wizard.anchor_placeholder')"
                                                 class="w-full rounded-2xl border border-white/5 bg-white/2 px-6 py-5 text-base font-medium text-white placeholder-white/10 transition-all focus:border-indigo-500/50 focus:bg-white/5 focus:outline-none"
                                             />
@@ -926,6 +931,7 @@ const saveRole = async (requestApproval = false) => {
                                         id="role-purpose-textarea"
                                         v-model="form.purpose"
                                         rows="4"
+                                        
                                         class="w-full resize-none rounded-2xl border border-white/5 bg-white/2 px-8 py-6 text-xl leading-relaxed font-medium text-white transition-all focus:border-indigo-500/50 focus:bg-white/5 focus:outline-none placeholder-white/10"
                                         placeholder="Define el propósito general de este nodo..."
                                     ></textarea>
@@ -945,6 +951,7 @@ const saveRole = async (requestApproval = false) => {
                                         id="role-results-textarea"
                                         v-model="form.expected_results"
                                         rows="6"
+                                        
                                         class="w-full resize-none rounded-2xl border border-white/5 bg-white/2 px-8 py-6 text-base leading-loose font-medium text-emerald-100/70 transition-all focus:border-emerald-500/50 focus:bg-white/5 focus:outline-none placeholder-white/10"
                                         placeholder="Enumera los resultados tangibles que este rol debe asegurar..."
                                     ></textarea>
@@ -1053,6 +1060,7 @@ const saveRole = async (requestApproval = false) => {
                                                         <input
                                                             :id="`capacity-input-${idx}`"
                                                             v-model="skill.name"
+                                                            
                                                             class="w-full border-none bg-transparent text-sm font-bold text-white placeholder:text-white/20 transition-colors focus:text-indigo-300 focus:outline-none"
                                                             :placeholder="$t('role_wizard.new_capacity')"
                                                             @click.stop
@@ -1068,6 +1076,7 @@ const saveRole = async (requestApproval = false) => {
                                                         :key="star"
                                                         @click.stop="skill.level = star"
                                                         class="transition-all duration-200 hover:scale-125"
+                                                        :class="{}"
                                                     >
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
@@ -1103,14 +1112,14 @@ const saveRole = async (requestApproval = false) => {
                                                 </TooltipProvider>
                                             </td>
                                                 <td class="px-8 py-5 text-right">
-                                                    <StButtonGlass
-                                                        variant="ghost"
-                                                        circle
-                                                        size="sm"
-                                                        :icon="PhTrash"
-                                                        class="text-rose-500/30! hover:text-rose-500! hover:bg-rose-500/10!"
-                                                        @click.stop="removeSkill(idx)"
-                                                    />
+                                                        <StButtonGlass
+                                                            variant="ghost"
+                                                            circle
+                                                            size="sm"
+                                                            :icon="PhTrash"
+                                                            class="text-rose-500/30! hover:text-rose-500! hover:bg-rose-500/10!"
+                                                            @click.stop="removeSkill(idx)"
+                                                        />
                                                 </td>
                                             </tr>
 
@@ -1222,16 +1231,18 @@ const saveRole = async (requestApproval = false) => {
                                         $t('role_wizard.adjustment_phase')
                                     }}</StButtonGlass
                                 >
-                                <StButtonGlass
+                                <StButtonCyber
                                     variant="primary"
                                     :loading="generatingBlueprint"
                                     :icon="PhMagicWand"
+                                    cyber-id="ST-BARS"
+                                    tag="GENERATE"
+                                    glass
                                     @click="generateBlueprint"
                                     class="px-12!"
-                                    >{{
-                                        $t('role_wizard.generate_bars')
-                                    }}</StButtonGlass
                                 >
+                                    {{ $t('role_wizard.generate_bars') }}
+                                </StButtonCyber>
                             </div>
                         </div>
 
@@ -1288,33 +1299,6 @@ const saveRole = async (requestApproval = false) => {
                                 
                                 </div>
                             </div>
-                            <!-- Purpose and Results Summary -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-10" style="margin:12px; margin-top: 40px">
-                                <StCardGlass variant="glass" class="p-8! border-white/5 hover:bg-white/4 transition-all">
-                                    <div class="flex items-center gap-3 mb-4">
-                                        <div class="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-                                            <PhAnchor :size="16" class="text-indigo-400" weight="duotone" />
-                                        </div>
-                                        <div class="text-[10px] font-black tracking-[0.2em] text-white/30 uppercase">Propósito Estratégico</div>
-                                    </div>
-                                    <p class="text-xs leading-relaxed text-white italic">"{{ form.purpose }}"</p>
-                                </StCardGlass>
-                                
-                                <StCardGlass variant="glass" class="p-8! border-white/5 hover:bg-white/4 transition-all">
-                                    <div class="flex items-center gap-3 mb-4">
-                                        <div class="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-                                            <PhChartBar :size="16" class="text-indigo-400" weight="duotone" />
-                                        </div>
-                                        <div class="text-[10px] font-black tracking-[0.2em] text-white/30 uppercase">Resultados de Valor</div>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <div v-for="(line, idx) in form.expected_results?.split('\n')" :key="idx" class="text-[11px] text-white/70 flex gap-2">
-                                            <span class="text-indigo-500/50">•</span>
-                                            <span>{{ line }}</span>
-                                        </div>
-                                    </div>
-                                </StCardGlass>
-                            </div>
                             <StGlowDivider/>
                             <!-- Competency Summary Table -->
                             <div class="space-y-10">
@@ -1359,70 +1343,19 @@ const saveRole = async (requestApproval = false) => {
                                         $t('role_wizard.step4_title')
                                     }}</StButtonGlass
                                 >
-                                <StButtonGlass
-                                    variant="ghost"
+                                <StButtonCyber
+                                    variant="success"
+                                    size="lg"
                                     :loading="saving"
                                     :icon="PhFloppyDisk"
+                                    cyber-id="ROLE-ST"
+                                    tag="FINALIZE"
+                                    glass
                                     @click="saveRole(false)"
-                                    class="px-8!"
-                                >{{ $t('role_wizard.save_draft') }}</StButtonGlass>
-
-                                <StButtonGlass
-                                    variant="primary"
-                                    :loading="saving"
-                                    :icon="PhNavigationArrow"
-                                    @click="saveRole(true)"
-                                    class="px-8!"
-                                >{{ $t('role_wizard.save_and_approve') }}</StButtonGlass>
-
-                                <StButtonGlass
-                                    v-if="form.people?.length > 0"
-                                    variant="primary"
-                                    :icon="PhArrowsClockwise"
-                                    @click="currentStep = 6"
-                                    class="px-8!"
-                                >Ver Ocupantes</StButtonGlass>
-                            </div>
-                        </div>
-
-                        <!-- Step 6: Occupants -->
-                        <div v-if="currentStep === 6" class="space-y-12">
-                            <div class="max-w-4xl">
-                                <h2 class="text-4xl font-black text-white leading-tight mb-4 tracking-tighter uppercase italic">Ocupantes del Rol</h2>
-                                <p class="text-lg text-slate-400">Visualización de personas asignadas actualmente a esta posición estratégica.</p>
-                            </div>
-
-                            <div v-if="form.people && form.people.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
-                                <div v-for="person in form.people" :key="person.id" class="p-8 rounded-4xl border border-white/5 bg-white/2 hover:bg-white/4 transition-all">
-                                    <div class="flex items-center gap-5">
-                                        <v-avatar color="indigo-accent-1" size="56" class="border border-indigo-500/30">
-                                            <span class="text-lg font-black">{{ person.name.charAt(0) }}</span>
-                                        </v-avatar>
-                                        <div>
-                                            <div class="text-base font-black text-white italic tracking-tight uppercase">{{ person.name }}</div>
-                                            <div class="text-[10px] font-bold text-white/30 uppercase tracking-widest">{{ person.email || 'Sin correo registrado' }}</div>
-                                            <div class="mt-2 text-[9px] font-black text-indigo-400 uppercase bg-indigo-500/10 inline-block px-2 py-0.5 rounded-lg border border-indigo-500/20">Identidad Confirmada</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div v-else class="py-20 text-center rounded-4xl border border-dashed border-white/10">
-                                <PhIdentificationCard :size="64" class="mx-auto text-white/10 mb-6" />
-                                <p class="text-xl font-bold text-white/20 uppercase tracking-widest italic">No hay personas asignadas actualmente</p>
-                            </div>
-
-                            <div class="flex justify-end gap-4 pt-12">
-                                <StButtonGlass
-                                    variant="ghost"
-                                    :icon="PhArrowLeft"
-                                    @click="currentStep = 5"
-                                >{{ $t('role_wizard.step5_title') }}</StButtonGlass>
-                                
-                                <StButtonGlass
-                                    variant="primary"
-                                    :icon="PhCheckCircle"
-                                    @click="close"
-                                >Finalizar Consulta</StButtonGlass>
+                                    class="px-12!"
+                                >
+                                    {{ $t('role_wizard.save_draft') }}
+                                </StButtonCyber>
                             </div>
                         </div>
                     </transition>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
+import StButtonCyber from '@/components/StButtonCyber.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -38,13 +39,12 @@ const submitMagicLink = () => {
 
 <template>
     <AuthBase
-        title="Ingreso"
-        description="Portal de orquestación de Ingeniería de Talento"
+    title="Ingreso"
+    description="Portal de orquestación de Ingeniería de Talento"
     >
-        <template #default>
+    <template #default>
             <div class="px-6 py-10 md:px-12 md:py-14">
                 <Head title="Ingresar" />
-
                 <!-- Notifications -->
                 <div
                     v-if="status || flashStatus"
@@ -136,18 +136,18 @@ const submitMagicLink = () => {
                             </Label>
                         </div>
 
-                        <StButtonGlass
-                            type="submit"
+                        <StButtonCyber
                             variant="primary"
-                            block
-                            size="lg"
-                            class="mt-2"
+                            size="xl"
+                            class="mt-2 w-full"
                             :tabindex="4"
                             :loading="processing"
-                            data-test="login-button"
+                            cyber-id="AUTH-01"
+                            tag="STRATOS-OS"
+                            glass
                         >
                             Iniciar Sesión
-                        </StButtonGlass>
+                        </StButtonCyber>
 
                         <!-- Divisor -->
                         <div class="relative py-4">
@@ -231,15 +231,17 @@ const submitMagicLink = () => {
                             </div>
                         </div>
 
-                        <StButtonGlass
-                            type="submit"
+                        <StButtonCyber
                             variant="primary"
-                            block
-                            size="lg"
+                            size="xl"
+                            class="w-full"
                             :loading="magicForm.processing"
+                            cyber-id="AUTH-MGC"
+                            tag="PROTOCOL-X"
+                            glass
                         >
                             Enviar Protocolo de Acceso
-                        </StButtonGlass>
+                        </StButtonCyber>
 
                         <StButtonGlass
                             type="button"
@@ -253,6 +255,7 @@ const submitMagicLink = () => {
                     </div>
                 </form>
             </div>
+            
         </template>
     </AuthBase>
 </template>
