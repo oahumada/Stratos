@@ -43,6 +43,7 @@ export interface Config {
         eliminar: boolean;
     };
     detail?: boolean;
+    headerActionsAlign?: 'left' | 'right';
 }
 
 export interface TableConfig {

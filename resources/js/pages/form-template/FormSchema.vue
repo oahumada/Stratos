@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { fetchCatalogs, post, put, remove } from '@/apiHelper';
+import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
 import { usePage } from '@inertiajs/vue3';
 import { useNotification } from '@kyvg/vue3-notification';
@@ -17,7 +18,6 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useTheme as useVuetifyTheme } from 'vuetify';
 import FormData from './FormData.vue';
-import StButtonGlass from '@/components/StButtonGlass.vue';
 
 import {
     Config,
@@ -516,11 +516,11 @@ onMounted(() => {
         <!-- Dashboard-style Header -->
         <header class="mb-8">
             <div
-                class="d-flex align-center justify-space-between flex-wrap gap-4"
+                class="d-flex align-center justify-space-between header-container flex-wrap gap-4"
             >
-                <div>
+                <div class="d-flex align-center flex-wrap gap-x-8 gap-y-4">
                     <h1 class="text-h4 font-weight-black mb-1 text-white">
-                        {{ mergedConfig.titulo }}
+                        {{ mergedConfig.titulo }}x
                         <span class="st-badge-live ml-2">{{
                             t('form_schema.active_badge')
                         }}</span>
@@ -529,7 +529,13 @@ onMounted(() => {
                         {{ mergedConfig.descripcion }}
                     </p>
                 </div>
-                <div class="header-actions d-flex gap-3">
+                <v-spacer v-if="mergedConfig.headerActionsAlign !== 'left'" />
+                <div
+                    class="header-actions d-flex gap-3"
+                    :class="
+                        mergedConfig.headerActionsAlign === 'left' ? 'ml-4' : ''
+                    "
+                >
                     <StButtonGlass
                         v-if="mergedConfig.permisos?.crear"
                         @click="openCreateDialog"
@@ -556,7 +562,9 @@ onMounted(() => {
                     class="text-indigo-accent-2"
                     :size="18"
                 />
-                <span class="text-overline font-weight-black tracking-widest text-white/70">
+                <span
+                    class="text-overline font-weight-black tracking-widest text-white/70"
+                >
                     {{ t('form_schema.filters_title') }}
                 </span>
             </div>
@@ -702,7 +710,6 @@ onMounted(() => {
 
                 <!-- Actions Column -->
                 <template #[`item.actions`]="{ item }">
-
                     <div class="d-flex gap-2">
                         <slot name="item-actions-prepend" :item="item"></slot>
                         <v-btn
@@ -813,12 +820,10 @@ onMounted(() => {
 
             <v-divider class="border-white/5" />
 
-            <div class="pa-6 d-flex justify-end gap-3 border-t border-white/5 bg-white/2">
-                <StButtonGlass
-                    variant="ghost"
-                    @click="closeDialog"
-                    size="md"
-                >
+            <div
+                class="pa-6 d-flex justify-end gap-3 border-t border-white/5 bg-white/2"
+            >
+                <StButtonGlass variant="ghost" @click="closeDialog" size="md">
                     {{ t('form_schema.dialog.cancel') }}
                 </StButtonGlass>
                 <slot
@@ -847,7 +852,7 @@ onMounted(() => {
 
     <!-- Delete Confirmation Dialog -->
     <v-dialog v-model="deleteDialogOpen" width="500">
-        <StCardGlass class="pa-0" :no-hover="true" style="margin: 2rem;">
+        <StCardGlass class="pa-0" :no-hover="true" style="margin: 2rem">
             <div class="pa-6">
                 <div class="text-h6 font-premium mb-2 text-white">
                     {{ t('form_schema.dialog.delete_confirm') }}
@@ -891,17 +896,17 @@ onMounted(() => {
     >
         <StCardGlass
             class="pa-8"
-            style="
-                max-height: 85vh;
-                margin: 2rem;
-                overflow-y: auto;
-            "
+            style="max-height: 85vh; margin: 2rem; overflow-y: auto"
             :no-hover="true"
         >
             <div class="d-flex align-center justify-space-between mb-3">
                 <div>
                     <div class="text-h6 font-premium text-white">
-                        {{ detailItem?.name || detailItem?.first_name || t('form_schema.detail_title') }}
+                        {{
+                            detailItem?.name ||
+                            detailItem?.first_name ||
+                            t('form_schema.detail_title')
+                        }}
                     </div>
                 </div>
                 <div class="d-flex align-center gap-2">
@@ -1102,5 +1107,42 @@ onMounted(() => {
 
 .text-slate-600 {
     color: #475569 !important;
+}
+
+/* Limit header width so right-aligned fixed metadata has space */
+.header-container {
+    width: 75%;
+    max-width: 100%;
+    align-items: center;
+}
+
+@media (max-width: 1280px) {
+    .header-container {
+        width: 100%;
+    }
+}
+</style>
+
+<style scoped>
+/* Ensure header actions don't overlap the title and wrap on small screens */
+.header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.header-actions > * {
+    min-width: 0;
+}
+
+@media (max-width: 960px) {
+    .header-actions {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 0.5rem;
+        gap: 0.5rem;
+    }
+    .header-actions > * {
+        flex: 0 0 auto;
+    }
 }
 </style>

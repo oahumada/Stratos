@@ -33,11 +33,11 @@ const props = withDefaults(defineProps<Props>(), {
 
 const variantClasses = {
     primary:
-        'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 border-indigo-400/30',
+        'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 border-white/20 ring-1 ring-white/10 ring-inset',
     secondary:
-        'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 border-emerald-400/30',
+        'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 border-white/20 ring-1 ring-white/10 ring-inset',
     ghost: 'bg-transparent hover:bg-white/5 text-white/70 hover:text-white border-transparent',
-    glass: 'bg-white/5 hover:bg-white/10 backdrop-blur-md border-white/10 hover:border-white/20 text-white shadow-xl',
+    glass: 'bg-white/5 hover:bg-white/10 backdrop-blur-md border-white/20 hover:border-white/30 text-white shadow-lg shadow-indigo-500/10 ring-1 ring-white/10 ring-inset',
 };
 
 const sizeClasses = {
