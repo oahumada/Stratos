@@ -3,9 +3,12 @@
 namespace App\Services;
 
 use App\Services\LLMProviders\LLMProviderInterface;
+use App\Traits\LogsPrompts;
 
 class LLMClient
 {
+    use LogsPrompts;
+
     protected LLMProviderInterface $provider;
 
     public function __construct()
@@ -28,11 +31,30 @@ class LLMClient
 
     /**
      * Generate a response from the configured provider.
+     * Logs are PII-safe using LogsPrompts trait.
      * Returns an array with keys: response (array), confidence (float), model_version (string)
      */
     public function generate(string $prompt): array
     {
-        return $this->provider->generate($prompt);
+        try {
+            $result = $this->provider->generate($prompt);
+
+            // Log with PII protection
+            $this->logPrompt($prompt, $result, [
+                'model' => $this->provider::class,
+                'provider' => config('stratos.llm.default_provider', 'unknown'),
+            ]);
+
+            return $result;
+        } catch (\Throwable $e) {
+            // Log error with PII protection
+            $this->logPromptError($prompt, $e, [
+                'model' => $this->provider::class,
+                'provider' => config('stratos.llm.default_provider', 'unknown'),
+            ]);
+
+            throw $e;
+        }
     }
 
     /**

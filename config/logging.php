@@ -134,6 +134,14 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'llm_prompts' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/llm_prompts.log'),
+            'level' => env('LOG_LEVEL', 'info'),
+            'days' => env('LOG_LLM_PROMPTS_RETENTION', 30),
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

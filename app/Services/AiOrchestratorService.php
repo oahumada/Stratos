@@ -5,12 +5,16 @@ namespace App\Services;
 use App\Models\Agent;
 use App\Services\LLMProviders\DeepSeekProvider;
 use App\Services\LLMProviders\OpenAIProvider;
+use App\Traits\LogsPrompts;
 use Illuminate\Support\Facades\Log;
 
 class AiOrchestratorService
 {
+    use LogsPrompts;
+
     /**
      * Hace que un agente específico "piense" y responda a una tarea.
+     * Logs are PII-safe using LogsPrompts trait.
      */
     public function agentThink(string $agentName, string $taskPrompt, ?string $systemPromptOverride = null): array
     {
@@ -33,7 +37,29 @@ class AiOrchestratorService
             'temperature' => $agent->capabilities_config['temperature'] ?? 0.6,
         ];
 
-        return $provider->generate($taskPrompt, $options);
+        try {
+            $output = $provider->generate($taskPrompt, $options);
+
+            // Log the prompt and output with PII protection
+            $this->logPrompt($taskPrompt, $output, [
+                'agent' => $agent->name,
+                'model' => $agent->model,
+                'provider' => $agent->provider,
+                'organization_id' => $agent->organization_id ?? null,
+            ]);
+
+            return $output;
+        } catch (\Throwable $e) {
+            // Log error maintaining PII safety
+            $this->logPromptError($taskPrompt, $e, [
+                'agent' => $agent->name,
+                'model' => $agent->model,
+                'provider' => $agent->provider,
+                'organization_id' => $agent->organization_id ?? null,
+            ]);
+
+            throw $e;
+        }
     }
 
     protected function getProvider(Agent $agent)
