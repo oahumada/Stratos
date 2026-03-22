@@ -245,6 +245,13 @@ Route::get('/quality/compliance-audit', function () {
     return Inertia::render('Quality/ComplianceAuditDashboard');
 })->middleware(['auth', 'verified'])->name('quality.compliance-audit');
 
+// ── Intelligence Module Routes ──
+Route::prefix('intelligence')->middleware(['auth', 'verified'])->group(function () {
+    Route::get('/quality-dashboard', function () {
+        return Inertia::render('Intelligence/QualityDashboard');
+    })->name('intelligence.quality-dashboard');
+});
+
 Route::prefix('scenarios')->group(function () {
     Route::get('{id}/iq', [ScenarioController::class, 'getIQ']);
     Route::get('{id}/roles/{roleId}/competency-gaps', [ScenarioController::class, 'getCompetencyGaps']);
