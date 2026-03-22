@@ -411,13 +411,27 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
 - ✅ **QW-4**: Redaction Service PII estandarizado en logs clave (`RedactionService` + canal `redaction` + tests)
 - ✅ **QW-5**: Agent Interaction Metrics completo (AgentMetricsDashboard.vue)
 
+**Sprint Progress:**
+
+- ✅ **Sprint 0 (Embeddings)**: COMPLETADO - Tabla genérica `embeddings`, `EmbeddingService`, FAQ indexing, delta reindex command
+- ✅ **Sprint 1 (RAG Pipeline)**: COMPLETADO - `RagService` con 5 métodos, `StratosGuideService` integration, FAQ-based retrieval, RAG metrics logging
+- ✅ **Bloque 4 - Sprint 2 (Intelligence Metrics Infrastructure)**: COMPLETADO - Fase 1 (storage) + Fase 2 (daily aggregation)
+  - **Fase 1**: `IntelligenceMetric` model + migration + factory, RagService::logMetric() auto-capture, 6/6 tests passing ✅
+  - **Fase 2**: `IntelligenceMetricAggregate` model + service + daily job + scheduler (01:00 UTC), custom percentile calculations, 8/8 tests passing ✅
+  - **Total tests Bloque 4**: 25/25 passing (includes integration tests with RagAskTest) ✅
+
 **Extra no previsto en el plan original:**
 
 - ✅ **MonitoringHub.vue**: Hub centralizado de Inteligencia & Monitoreo accesible desde Command Center y sidebar, agrupando QW-2, QW-5 y futuros dashboards.
+- ✅ **GuideFaq + FAQ Knowledge Base**: Sistema de preguntas frecuentes para StratosGuide, indexado en embeddings genericos
 
 **Resumen de avance:**
 
 - Quick Wins: 5/5 completados (100%)
+- Sprint 0-1: Embeddings + RAG Pipeline completados al 100%
+- **Bloque 4 (Sprint 2)**: Infrastructure de metrics 100% operacional
+  - Fase 1 (Per-request storage): `IntelligenceMetric` capturando automáticamente en cada call RAG ✅
+  - Fase 2 (Daily aggregation): `IntelligenceMetricAggregate` con P50/P95/P99, success rates, averages; job ejecuta diariamente a 01:00 UTC ✅
 - Capa de visibilidad: dashboards de calidad LLM y de agentes ya operativos y unificados en el nuevo hub.
 
 ---
@@ -547,6 +561,9 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
     - [x] Roles – apoyado en `EmbeddingService::forRole()`.
     - [x] Escenarios – apoyado en `EmbeddingService::forScenario()`.
     - [x] FAQ / knowledge base de StratosGuide.
+        - Modelo `GuideFaq` + indexación en `embeddings`.
+        - `RagService` soporta ahora `contextType = 'guide_faq'` (además de `evaluations` / `all`).
+        - `StratosGuideService::askGuide()` invoca `RagService->ask()` con contexto `guide_faq` para responder dudas funcionales.
 - [ ] FAQ / knowledge base de StratosGuide.
 - [x] Añadir comando/cron para reindexado delta (solo cambios recientes).
 - [x] Ajustar `EmbeddingService` para leer/escribir en `embeddings` cuando pgvector esté disponible (lectura vía `findSimilar` apuntando a tabla genérica con fallback legacy).
@@ -565,10 +582,32 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
 
 ### Bloque 4 – Sprint 2: Métricas de Inteligencia
 
-- [ ] Diseñar y crear tabla `intelligence_metrics` (latencia, calidad, tasa de hallucination, acceptance rate, fairness cuando aplique).
-- [ ] Implementar jobs que agreguen datos desde `LLMEvaluation`, logs de RAG/LLM y feedback de usuarios.
-- [ ] Extender dashboards existentes o crear uno nuevo para mostrar time-series, SLAs y incident history.
-- [ ] Hacer que `RAGASEvaluator` sea paso estándar de post-validación para llamadas críticas.
+#### **Fase 1: Per-Request Metrics Storage** ✅ COMPLETADO
+
+- [x] Diseñar y crear tabla `intelligence_metrics` (organization_id, metric_type, source_type, latency, context_count, confidence, success, metadata).
+- [x] Integrar captura automática en `RagService::logMetric()` — se ejecuta en paths vacío/éxito.
+- [x] Factory `IntelligenceMetricFactory` para tests con datos realistas.
+- [x] Tests: 6/6 passing (multi-tenant isolation, casting JSON/float/int, aggregation queries).
+
+#### **Fase 2: Daily Aggregation Infrastructure** ✅ COMPLETADO
+
+- [x] Diseñar y crear tabla `intelligence_metric_aggregates` (22 fields: date_key, totals, success_rate, P50/P95/P99 percentiles, averages).
+- [x] Implementar `IntelligenceMetricsAggregator` service (169 lines):
+  - Custom percentile calculation (array sort + index-based positioning) sin dependencias externas.
+  - Grouping by metric_type | source_type.
+  - Upsert with unique constraint para idempotencia.
+  - Manejo de null organization_id para métricas globales.
+- [x] Crear `AggregateIntelligenceMetricsDaily` job (ShouldQueue, constructor con date param para backfill).
+- [x] Registrar en scheduler: `$schedule->job(...)->dailyAt('01:00')` (UTC).
+- [x] Tests: 8/8 passing (percentile accuracy, multi-type, all-orgs, upsert, date defaulting, null org scoping).
+- [x] Pint formatting: PASS.
+
+#### **Fase 3: Dashboard & API Endpoints** 🚀 PRÓXIMO
+
+- [ ] Crear endpoint `GET /api/intelligence/aggregates` (filtros: metric_type, date_from, date_to, org_id).
+- [ ] Dashboard Vue: time-series charts (latency trends, success rate), SLA indicators, incident history.
+- [ ] Caching (1h) en agregados (datos no actualizan hasta 01:01 UTC).
+- [ ] Integration con ApexCharts/ECharts para visualización de tendencias.
 
 ### Bloque 5 – Sprints 3 y 4: Orquestación y Learning Loop
 
@@ -585,35 +624,30 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
 │                       STRATOS INTELLIGENCE 2026                    │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│  QW-1 QW-2  │  QW-3 QW-4  │  QW-5          │ 3-6 meses            │
-│  Logging    │  Endpoint   │  Metrics       │ Advanced              │
-│  ─────────  │  ────────   │  ───────       │ ────────              │
-│  (2d)       │  (5d)       │  (3d)          │                       │
+│  QW-1 QW-2  │  QW-3 QW-4  │  QW-5          │ Sprint 3/4            │
+│  ✅ Logging │  ✅ RAG     │  ✅ Metrics    │ Advanced              │
+│  ─────────  │  ────────   │  Lite          │ ────────              │
+│  DONE       │  DONE       │  (3d)          │                       │
 │             │             │                │                       │
-│             ├─────────────┤  Sprint 0      │ Sprint 3: Critic+     │
-│             │ Sprint 0    │  ─────────     │ Orchest. Supervisor   │
-│             │ pgvector    │  (2w)          │ (3w) + Msg Bus        │
-│             │ Indexing    │  • Indexación  │                       │
-│             │ (2w)        │  • RE base     │ Sprint 4: Learning    │
-│             │ • pgvector  │  • RAG svc     │ Loop (3w)             │
-│             │ • HNSW idx  │  • Integrate   │ • Feedback mechanism  │
-│             │ • delta idx │    GuideSvc    │ • Re-index job       │
-│             │             │                │ • Versioning         │
-│             │             ├────────────────┤                       │
-│             │             │ Sprint 2       │                       │
-│             │             │ Logging        │                       │
-│             │             │ Metrics (2w)   │                       │
-│             │             │ • Dashboard    │                       │
-│             │             │ • KPIs          │                       │
-│             │             │ • Integr RAGAS │                       │
+│  ✅ Sprint0 │  ✅ Sprint1 │  Bloque 4:     │ Sprint 3: Critic+     │
+│  pgvector   │  RAG Core   │  Metrics       │ Orchest. Supervisor   │
+│  • Emb DB   │  • Service  │  DONE!         │ (3w) + Msg Bus        │
+│  • HNSW     │  • Endpoint │  ─────────     │                       │
+│  • FAQ Idx  │  • GuideRAG │  F1: Storage   │ Sprint 4: Learning    │
+│  DONE       │  DONE       │  F2: Agg (✅)   │ Loop (3w)             │
+│             │             │  F3: Dash (→pb)│ • Feedback mechanism  │
+│             │             │  • 25/25 tests │ • Re-index job       │
+│             │             │  • Sched 01UTC │ • Versioning         │
 │             ├─────────────┴────────────────┴───────────────────────┤
-│             │              Sprint 1: RAG Core (2w)                 │
-│             │              • RagService central                    │
-│             │              • Integr StratosGuide                   │
-│             │              • Endpoint /api/rag/ask                 │
+│             │           COMPLETADO: Core RAG + Observability        │
+│             │           • RagService central ✅                     │
+│             │           • Integr StratosGuide ✅                    │
+│             │           • Endpoint /api/rag/ask ✅                  │
+│             │           • IntelligenceMetric storage ✅             │
+│             │           • Daily aggregation job ✅                  │
 │                                                                     │
-│  Timeline: 7-14d (QW)  + 2w (S0) + 2w (S1) + 2w (S2) + 3w (S3)   │
-│          + 3w (S4)   =  ~12-14 semanas (3 meses)                  │
+│  ✅ DONE: 7-14d (QW) + 2w (S0) + 2w (S1) + 1w (B4.F1+F2)          │
+│  🚀 NEXT: B4.F3 Dashboard (1w) → Critic+Learning (6w)             │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```

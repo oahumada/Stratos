@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\GuideFaq;
+use App\Models\IntelligenceMetric;
 use App\Models\LLMEvaluation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -44,6 +46,17 @@ class RagService
         if ($relevantDocs->isEmpty()) {
             $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
 
+            $this->logMetric(
+                $organizationId,
+                'rag',
+                $contextType,
+                0,
+                0.0,
+                $durationMs,
+                false,
+                $question
+            );
+
             Log::info('rag.metrics', [
                 'organization_id' => $organizationId,
                 'context_type' => $contextType,
@@ -79,6 +92,17 @@ class RagService
 
         $contextCount = $relevantDocs->count();
         $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
+
+        $this->logMetric(
+            $organizationId,
+            'rag',
+            $contextType,
+            $contextCount,
+            $confidence,
+            $durationMs,
+            true,
+            $question
+        );
 
         Log::info('rag.metrics', [
             'organization_id' => $organizationId,
@@ -165,6 +189,46 @@ class RagService
                 ->take($maxSources);
 
             $docs = $docs->concat($evaluations);
+        }
+
+        // Search in Stratos Guide FAQs via generic embeddings
+        if (in_array($contextType, ['guide_faq', 'all'], true) && $questionEmbedding) {
+            $organizationIdInt = ctype_digit($organizationId) ? (int) $organizationId : null;
+
+            $similarFaqs = $this->embeddingService->findSimilar(
+                'guide_faq',
+                $questionEmbedding,
+                $maxSources,
+                $organizationIdInt
+            );
+
+            if (! empty($similarFaqs)) {
+                $faqIds = collect($similarFaqs)->pluck('id')->all();
+
+                $faqs = GuideFaq::query()
+                    ->whereIn('id', $faqIds)
+                    ->get()
+                    ->keyBy('id');
+
+                foreach ($similarFaqs as $row) {
+                    $faq = $faqs[$row->id] ?? null;
+
+                    if (! $faq) {
+                        continue;
+                    }
+
+                    $docs->push([
+                        'id' => $faq->id,
+                        'type' => 'guide_faq',
+                        'content' => $faq->answer,
+                        'preview' => substr($faq->answer, 0, 200).'...',
+                        'relevance_score' => (float) ($row->similarity ?? 0.0),
+                        'provider' => null,
+                        'quality_level' => null,
+                        'created_at' => $faq->created_at,
+                    ]);
+                }
+            }
         }
 
         // Return top documents by relevance
@@ -309,5 +373,36 @@ PROMPT;
         $avgRelevance = $relevantDocs->avg('relevance_score');
 
         return min(1.0, round($avgRelevance, 2));
+    }
+
+    /**
+     * Log RAG metrics to intelligence_metrics table
+     */
+    protected function logMetric(
+        string $organizationId,
+        string $metricType,
+        string $sourceType,
+        int $contextCount,
+        float $confidence,
+        int $durationMs,
+        bool $success,
+        string $question
+    ): void {
+        try {
+            IntelligenceMetric::create([
+                'organization_id' => ctype_digit($organizationId) ? (int) $organizationId : null,
+                'metric_type' => $metricType,
+                'source_type' => $sourceType,
+                'context_count' => $contextCount,
+                'confidence' => $confidence,
+                'duration_ms' => $durationMs,
+                'success' => $success,
+                'metadata' => [
+                    'question_hash' => sha1($question),
+                ],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to log RAG metric', ['error' => $e->getMessage()]);
+        }
     }
 }

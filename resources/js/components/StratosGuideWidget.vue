@@ -21,6 +21,25 @@ interface OnboardingStep {
     order: number;
 }
 
+interface GuideAnswerRag {
+    confidence?: number | null;
+    sources?: Array<{
+        id: number | string;
+        type: string;
+        relevance_score?: number;
+        provider?: string | null;
+        quality_level?: string | null;
+    }>;
+}
+
+interface GuideAnswer {
+    answer: string;
+    next_action?: string | null;
+    status?: string;
+    related_module?: string | null;
+    rag?: GuideAnswerRag;
+}
+
 interface GuideData {
     module: string;
     suggestions: Suggestion[];
@@ -38,9 +57,7 @@ const loading = ref(false);
 const loadingAnswer = ref(false);
 const guideData = ref<GuideData | null>(null);
 const question = ref('');
-const answer = ref<{ answer: string; next_action?: string | null } | null>(
-    null,
-);
+const answer = ref<GuideAnswer | null>(null);
 
 const pulseAnimation = ref(true);
 
@@ -285,6 +302,28 @@ onMounted(() => {
                                 v-if="answer"
                                 class="mt-3 rounded-xl border border-white/10 bg-white/5 p-3"
                             >
+                                <div
+                                    v-if="answer.rag"
+                                    class="mb-2 flex items-center justify-between text-[0.6rem] tracking-widest text-indigo-300/80 uppercase"
+                                >
+                                    <span>
+                                        Respuesta basada en documentación
+                                        interna
+                                    </span>
+                                    <span
+                                        v-if="
+                                            typeof answer.rag.confidence ===
+                                            'number'
+                                        "
+                                    >
+                                        Confianza:
+                                        {{
+                                            Math.round(
+                                                answer.rag.confidence * 100,
+                                            )
+                                        }}%
+                                    </span>
+                                </div>
                                 <p
                                     class="text-sm whitespace-pre-line text-white/80"
                                 >

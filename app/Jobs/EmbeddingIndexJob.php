@@ -198,7 +198,7 @@ class EmbeddingIndexJob implements ShouldQueue
 
         $query->chunkById(100, function ($faqChunk) use ($embeddingService) {
             foreach ($faqChunk as $faq) {
-                $text = implode('\n', array_filter([
+                $text = implode("\n", array_filter([
                     $faq->title,
                     $faq->question,
                     $faq->answer,

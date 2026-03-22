@@ -27,6 +27,9 @@ class Kernel extends ConsoleKernel
 
         // Generar reportes de impacto y ROI de forma automática
         $schedule->command('stratos:generate-impact-reports')->weeklyOn(1, '08:00');
+
+        // Aggregate intelligence metrics daily at 01:00 UTC
+        $schedule->job(new \App\Jobs\AggregateIntelligenceMetricsDaily)->dailyAt('01:00');
     }
 
     /**

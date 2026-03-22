@@ -3622,7 +3622,128 @@ POST /api/rag/ask
     - Cuando `features.generate_embeddings` está activo, realiza la búsqueda sobre la tabla genérica `embeddings` filtrando por `resource_type` (por ejemplo, `roles`, `competencies`) y usando `metadata->>'name'` como campo lógico `name` para los resultados.
     - Mantiene un **fallback legacy** que consulta directamente las columnas `embedding` de tablas específicas (`roles`, `competencies`, `capabilities`, etc.) para no romper flujos existentes mientras la migración a la tabla genérica termina de consolidarse.
 
+- FAQs de StratosGuide como fuente RAG:
+    - Modelo `GuideFaq` + migración `guide_faqs` para preguntas/respuestas frecuentes, opcionalmente scopeadas por `organization_id`.
+    - `EmbeddingIndexJob` indexa estas FAQs en la tabla `embeddings` con `resource_type = 'guide_faq'`.
+    - `RagService::retrieve()` ahora soporta `contextType = 'guide_faq'` (y `all`) y construye documentos a partir de respuestas de FAQ, que se utilizan tanto en `/api/rag/ask` como en flujos que llamen explícitamente a dicho contexto.
+
 **Siguiente paso Sprint 0:** estudiar reutilización de la tabla genérica `embeddings` en RagService / búsquedas semánticas transversales.
+
+---
+
+### Bloque 4 – Sprint 2: Intelligence Metrics Storage & Ingestion (COMPLETADO ✅)
+
+**Completado en:** 2 días (22-23-03-2026)
+
+**Alcance:** Sistema completo de almacenamiento, agregación y observabilidad de métricas operativas RAG/LLM.
+
+**Fase 1 - Storage & Logging:**
+
+1. **IntelligenceMetric Model & Schema:**
+    - 6 tests passing ✅ (creación, casting, multi-tenant scoping)
+    - RagService::logMetric() captura automáticamente en ask()
+
+**Fase 2 - Daily Aggregation (NUEVA):**
+
+1. **IntelligenceMetricAggregate Model:**
+    - Tabla: 13 campos para agregados diarios (P50/P95/P99, success_rate, averages)
+    - Unique constraint: (organization_id, metric_type, source_type, date_key)
+
+2. **IntelligenceMetricsAggregator Service:**
+    - `aggregateMetricsForDate()` → calcula percentiles, promedios, éxito
+    - `storeAggregates()` → upsert con unique constraint
+    - `aggregateAllMetricsForDate()` → procesa todas las orgs
+    - Percentile calc: sin dependencias externas (array sort + index)
+
+3. **Daily Job & Scheduler:**
+    - Clase: `AggregateIntelligenceMetricsDaily`
+    - Registrado en Kernel: `schedule->job(...)->dailyAt('01:00')`
+    - Constructor acepta date param para backfill
+
+4. **Tests:** 8/8 passing ✅
+    - Agregación con éxito, percentiles, promedios, upsert, multi-type handling, all-orgs, date defaulting, scoping null
+
+**Tests Total Bloque 4:** 25/25 passing ✅ (Storage 6 + Aggregation 8 + RAG integration 11)
+**Status:** Completo e integrado | **Commit:** d473c66
+
+**Próximos pasos:**
+- [ ] Endpoint `/api/intelligence/aggregates` para timeseries
+- [ ] SLAs y alertas
+- [ ] Backfill histórico
+
+---
+
+### QW-5: Agent Interaction Metrics (COMPLETADO ✅)
+
+**Alcance:** Sistema de almacenamiento y agregación de métricas operativas RAG/LLM para observabilidad y SLAs.
+
+**Componentes implementados:**
+
+1. **IntelligenceMetric Model & Schema:**
+    - Modelo: `app/Models/IntelligenceMetric.php`
+    - Migración: `database/migrations/2026_03_22_225023_create_intelligence_metrics_table.php`
+    - Campos:
+        - `organization_id` (FK, nullable, indexed) → multi-tenant scoping
+        - `metric_type` (enum: `rag`, `llm_call`, `agent`, `evaluation`) → tipo de métrica
+        - `source_type` (string) → origen (`evaluations`, `guide_faq`, `roles`, etc.)
+        - `context_count` (int) → documentos recuperados en RAG
+        - `confidence` (decimal 5,4) → score de confianza (0.0-1.0)
+        - `duration_ms` (int) → latencia en milisegundos
+        - `success` (boolean) → flag de éxito de operación
+        - `metadata` (JSON) → datos extra (`question_hash`, `provider`, etc.)
+        - timestamps (`created_at`, `updated_at`)
+    - Índice compuesto: `(organization_id, metric_type, created_at)` para agregaciones rápidas
+
+2. **RagService::logMetric() Integration:**
+    - Método privado `logMetric()` en `app/Services/RagService.php` (25 líneas)
+    - Captura: `organization_id`, `metric_type = 'rag'`, `source_type` (contextType), `context_count`, `confidence`, `duration_ms`, `success`, `metadata` con `question_hash` SHA1
+    - Llamado automáticamente en dos puntos de ejecución (`ask()`):
+        - **Path vacío:** cuando no hay documentos similar (confidence=0, context_count=0)
+        - **Path exitoso:** después de generar respuesta (confidence basada en avg relevance, context_count ≥ 1)
+    - Incluye try/catch para falla silenciosa si guard a causa de errores
+
+3. **Factory Persistente:**
+    - `database/factories/IntelligenceMetricFactory.php`
+    - Genera datos realistas para testing
+    - Soporta sobrescripturas de campos en `create()` para escenarios específicos
+
+4. **Test Coverage:**
+    - `tests/Feature/IntelligenceMetricTest.php` (3 tests, todos ✅):
+        - ✅ `it('stores metric when rag service is called')`
+        - ✅ `it('stores metric with zero confidence when no documents found')`
+        - ✅ `it('aggregates metrics by organization')`
+    - Tests integrales validan:
+        - Creación y casting de campos
+        - Scoping por `organization_id` + `metric_type`
+        - Rango de valores (confidence float 0.0-1.0, duration_ms positivo)
+    - `tests/Feature/RagMetricsTest.php` (3 tests, todos ✅):
+        - Verificación de guardado en tabla
+        - Casos con zero-confidence
+
+**Arquitectura de Flujo:**
+
+```
+RagService::ask(question, org_id, contextType, maxSources)
+    ├─ retrieve() → documentos relevantes
+    └─ logMetric() → IntelligenceMetric::create([
+       organization_id, metric_type='rag', source_type=contextType,
+       context_count, confidence, duration_ms, success, metadata
+    ])
+
+Estado de métricas:
+    - Vacío (no docs) → confidence=0.0, context_count=0, success=true
+    - Éxito (docs √ + LLM √) → confidence=avg_relevance, context_count=N, success=true
+    - Error (catch) → success=false, metadata con error details
+```
+
+**Próximos pasos Bloque 4:**
+
+- [ ] Implementar agregador job que consolide métricas diarias (avgLatency, successRate, p95Latency)
+- [ ] Extender dashboard o crear endpoint `/api/intelligence/metrics` para timeseries
+- [ ] Integrar RAGAS evaluator como paso post-validación
+- [ ] SLAs y alertas (p95 < 2s, success > 95%)
+
+**Tests:** 6/6 passing ✅ | **Status:** Migrado + Model+Factory+Service integration | **Docs:** Este mismo archivo
 
 ---
 

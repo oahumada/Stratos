@@ -51,13 +51,13 @@ class StratosGuideService
         $context = $this->buildContext($module, $userId);
         $organizationId = $this->resolveOrganizationId($userId);
 
-        // Intento 1: usar RAG sobre la base de conocimiento si hay contexto disponible
+        // Intento 1: usar RAG sobre la base de conocimiento (FAQs de StratosGuide) si hay contexto disponible
         if ($organizationId !== null) {
             try {
                 $ragResult = $this->ragService->ask(
                     $question,
                     (string) $organizationId,
-                    'evaluations',
+                    'guide_faq',
                     5
                 );
 
