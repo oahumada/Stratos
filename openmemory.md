@@ -3567,9 +3567,56 @@ POST /api/rag/ask
 
 ---
 
-### QW-5: Agent Interaction Metrics (PENDIENTE ⏳)
+### QW-5: Agent Interaction Metrics (COMPLETADO ✅)
 
-**Estimado:** 1-2 días
+**Completado en:** 1 día (22-03-2026)
+
+**Alcance:** Sistema completo de observabilidad para interacciones agentes ↔ LLM con métricas en tiempo real.
+
+**Componentes:**
+
+1. **Backend Infrastructure:**
+   - `AgentInteraction` model (40 líneas) con multi-tenant scoping
+   - Migración con 14 campos de tracking + 3 índices compuestos (728ms ejecución)
+   - `AgentInteractionMetricsService` (280 líneas) con 7 métodos públicos:
+     - `getOrganizationMetrics()` → agregación completa con caching 1h
+     - `getTopFailingAgents()` → top N agentes con errores
+     - `getAverageLatencyByAgent()` → latencias (avg, median, max)
+     - `getDailyTrend()` → serie temporal 30 días con zero-fill
+   - `AiOrchestratorService` instrumented (+70 líneas) con auto-recording en cada interacción
+
+2. **API Endpoints (3):**
+   - `GET /api/agent-interactions/metrics/summary` → métricas globales
+   - `GET /api/agent-interactions/metrics/failing-agents` → top fallidos
+   - `GET /api/agent-interactions/metrics/latency-by-agent` → latencias
+
+3. **Frontend Components:**
+   - `useAgentMetrics` composable (180 líneas) con polling automático
+   - `AgentMetricsDashboard` Vue3 component (450+ líneas) con:
+     - 4 KPI cards (interacciones, éxito, latencia, agentes fallidos)
+     - Bar chart: interacciones por agente
+     - Pie chart: distribución por proveedor
+     - Line chart (ECharts): tendencia diaria
+     - Horizontal bar: top 5 errores
+     - Tabla: agentes fallidos
+     - Percentiles: P50, P95, P99
+   - Ruta registrada: `/intelligence/agent-metrics`
+
+4. **Testing (12 tests ✅ passing):**
+   - 9 tests unitarios (metrics calculation, breakdown, isolation)
+   - 3 tests API (authentication, response structure, multi-tenant isolation)
+
+**Bases de Datos:**
+- Tabla: `agent_interactions` con 14 columnas
+- Índices: (org_id, created_at), (agent_name, created_at), (status, created_at), prompt_hash UNIQUE
+- FKs: cascade delete en user_id, organization_id
+
+**Commits:**
+- `feat: QW-5 - Agent Interaction Metrics with observability dashboard` (a7c428af)
+- `docs: Add QW-5 Agent Metrics documentation` (b3ee38aa)
+
+**Archivo de Referencia:**
+- `docs/QW5_AGENT_METRICS_GUIDE.md` - guía completa con ejemplos
 
 ---
 
