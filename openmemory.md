@@ -3309,6 +3309,7 @@ CookieJar serializado → compartido entre VUs via setup()
 
 - **Calidad del Onboarding:** Al generar automáticamente las unidades de aprendizaje durante el diseño del rol, Stratos permite que el plan de capacitación del nuevo empleado esté listo incluso antes de que este sea contratado.
 - **Rigor de Auditoría:** Las brechas de talento ahora se miden contra criterios de desempeño concretos, no solo descripciones vagas, elevando el valor de la certificación **ISO 9001**.
+
 ---
 
 ## 🎯 Fase: Flujo de Aprobación en Dos Etapas (2026-03-20)
@@ -3391,6 +3392,7 @@ CookieJar serializado → compartido entre VUs via setup()
 
 - **Foco Arquitectónico:** Al separar el diseño del cargo de la ocupación, Stratos refuerza su posición como herramienta de **Job Design** estratégico.
 - **Micro-UX Premium:** Los ajustes de tamaño en los widgets demuestran una atención al detalle que eleva la percepción de calidad "Premium Ultra Minimal" del sistema.
+
 ---
 
 ## 🎯 Fase: Firma Digital y Estética Cyborg Poética (2026-03-21)
@@ -3429,7 +3431,6 @@ CookieJar serializado → compartido entre VUs via setup()
 
 ---
 
-
 ## 🚀 Quick Wins Implementation - Estrategia Cognitiva 2026 (INICIADA 2026-03-21)
 
 ### QW-1: PII-Safe Prompt Logging (COMPLETADO ✅)
@@ -3437,6 +3438,7 @@ CookieJar serializado → compartido entre VUs via setup()
 **Descripción:** Sistema de logging de prompts LLM con hashing SHA-256 para auditabilidad sin riesgo de cumplimiento.
 
 **Componentes Creados:**
+
 - `app/Traits/LogsPrompts.php` — Trait reutilizable para servicios LLM
 - `config/logging.php` — Canal `llm_prompts` con rotación diaria + retención 30 días
 - Integración en `AiOrchestratorService.php` + `LLMClient.php`
@@ -3450,12 +3452,14 @@ CookieJar serializado → compartido entre VUs via setup()
 **Descripción:** Dashboard Vue 3 para visualizar métricas RAGAS. Consume `/api/qa/llm-evaluations/metrics/summary`.
 
 **Componentes Creados:**
+
 - `resources/js/types/quality.ts` — TypeScript types
 - `resources/js/composables/useQualityMetrics.ts` — Fetch + polling (30s)
 - `resources/js/pages/Intelligence/QualityDashboard.vue` — Dashboard con Glass UI + ApexCharts
 - `resources/js/composables/__tests__/useQualityMetrics.spec.ts` — 8 tests Vitest
 
 **Características:**
+
 - KPI Cards: evaluaciones totales, score promedio, alucinación, calidad
 - Charts: Distribución (pie), proveedores (bar)
 - Health Status: Semaforo visual
@@ -3467,15 +3471,99 @@ CookieJar serializado → compartido entre VUs via setup()
 
 ---
 
-### QW-3: `/api/rag/ask` Endpoint (PENDIENTE ⏳)
+### QW-3: `/api/rag/ask` Endpoint (COMPLETADO ✅)
 
-**Estimado:** 2-3 días
+**Descripción:** Endpoint REST para RAG (Retrieval Augmented Generation) que consulta evaluaciones LLM, ranking híbrido + generación LLM.
+
+**Componentes Creados:**
+
+- `app/Http/Requests/RagAskRequest.php` — Validación de pregunta, context_type, max_sources, include_metadata
+- `app/Services/RagService.php` (244 líneas) — Orquestación completa RAG
+    - `ask()` — Flujo principal: retrieve → prepare → generate → score confidence
+    - `retrieveRelevantDocuments()` — Búsqueda en LLMEvaluation con scoring híbrido
+    - `calculateKeywordSimilarity()` — TF-IDF simple, peso 60%
+    - `cosineSimilarity()` — Similitud embedding, peso 40%
+    - `prepareContext()` — Formato markdown para LLM
+    - `generateAnswer()` — Llamada a LLMClient con prompt estructurado
+    - `calculateConfidence()` — Score 0-1 basado en relevancia de fuentes
+- `app/Http/Controllers/Api/RagController.php` — Single action endpoint `/api/rag/ask`
+- `tests/Feature/Api/RagAskTest.php` — 10 tests completos
+- `routes/api.php` — Ruta POST `/api/rag/ask` con middleware auth:sanctum
+
+**Algoritmo de Relevancia (Híbrido):**
+
+```
+score_final = (keyword_score * 0.6) + (embedding_score * 0.4)
+```
+
+- Sin pgvector: cálculos en memoria usando EmbeddingService
+- Multi-tenant: automático por `auth()->user()->organization_id`
+- Context types: evaluations|capabilities|competencies|all
+
+**Request:**
+
+```
+POST /api/rag/ask
+{
+  "question": "¿Cuál es la calidad promedio?",
+  "context_type": "evaluations",
+  "max_sources": 5,
+  "include_metadata": true
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "question": "...",
+  "answer": "...",
+  "sources": [{id, type, relevance_score, provider, quality_level}],
+  "confidence": 0.85,
+  "context_count": 2
+}
+```
+
+**Características:**
+
+- Autenticación Sanctum requerida
+- Multi-tenant isolation strict
+- Ranking híbrido keyword + embedding (MVP sin pgvector)
+- Source attribution con metadata
+- Confidence score 0-1
+- Manejo de sin documentos (graceful empty state)
+
+**Tests:** 10/10 passing | **Status:** Git `cbf430cb` | **Docs:** `docs/QW3_RAG_ENDPOINT_GUIDE.md`
 
 ---
 
-### QW-4: Redaction Service Improvements (PENDIENTE ⏳)
+### QW-4: Redaction Service Improvements (COMPLETADO ✅)
 
-**Estimado:** 2-3 días
+**Descripción:** RedactionService refactorizado con 9 patrones PII configurables, audit trail completo, y métricas de cobertura.
+
+**Componentes Creados:**
+
+- `app/Services/RedactionService.php` (280 líneas, mejorado de 51)
+  * 9 patrones: email, phone, SSN, CC, token, API key, bearer, passport, DOB
+  * `setEnabledTypes()` / `getEnabledTypes()` para configuración global
+  * `containsPii()` / `detectPii()` para análisis sin redactar
+  * Auto-logging en canal `redaction` con SHA256 hash original
+- `app/Models/RedactionAuditTrail.php` (30 líneas)
+  * Campos: redaction_types (json), count, original_hash, context, user_id, org_id
+  * Relaciones: belongsTo User y Organization
+  * Índices: (org_id, created_at), original_hash
+- `database/migrations/2026_03_22_015154_create_redaction_audit_trails_table.php`
+  * Tabla: `redaction_audit_trails` con FK constraints cascade
+  * Ejecutada exitosamente (737ms)
+- `app/Services/RedactionMetricsService.php` (240 líneas)
+  * 7 métodos: getOrganizationMetrics, getRedactionsByType/Context, getDailyTrend
+  * getTopRedactingUsers, checkTextForPii, getRedactionCoverageScore
+  * Caché 1h TTL con invalidación manual
+- `tests/Feature/Services/RedactionServiceTest.php` (205 líneas)
+
+**Tests:** 23/23 passing ✅ | **Status:** Git `b98dcf78` | **Docs:** `docs/QW4_REDACTION_SERVICE_GUIDE.md`  
+**Multi-tenant:** Automático en todas las consultas (organization_id scoping)
 
 ---
 
@@ -3491,13 +3579,14 @@ CookieJar serializado → compartido entre VUs via setup()
 
 ---
 
-## 🚀 Quick Wins Implementation - Estrategia Cognitiva 2026 (INICIADA 2026-03-21)
+## 🚀 Quick Wins Implementation - Estrategia Cognitiva 2026 (EN CURSO)
 
 ### QW-1: PII-Safe Prompt Logging (COMPLETADO ✅)
 
 **Descripción:** Sistema de logging de prompts LLM con hashing SHA-256 para auditabilidad sin riesgo de cumplimiento.
 
 **Componentes Creados:**
+
 - `app/Traits/LogsPrompts.php` — Trait reutilizable para servicios LLM
 - `config/logging.php` — Canal `llm_prompts` con rotación diaria + retención 30 días
 - Integración en `AiOrchestratorService.php` + `LLMClient.php`
@@ -3511,12 +3600,14 @@ CookieJar serializado → compartido entre VUs via setup()
 **Descripción:** Dashboard Vue 3 para visualizar métricas RAGAS. Consume `/api/qa/llm-evaluations/metrics/summary`.
 
 **Componentes Creados:**
+
 - `resources/js/types/quality.ts` — TypeScript types
 - `resources/js/composables/useQualityMetrics.ts` — Fetch + polling (30s)
 - `resources/js/pages/Intelligence/QualityDashboard.vue` — Dashboard con Glass UI + ApexCharts
 - `resources/js/composables/__tests__/useQualityMetrics.spec.ts` — 8 tests Vitest
 
 **Características:**
+
 - KPI Cards: evaluaciones totales, score promedio, alucinación, calidad
 - Charts: Distribución (pie), proveedores (bar)
 - Health Status: Semaforo visual
@@ -3528,9 +3619,21 @@ CookieJar serializado → compartido entre VUs via setup()
 
 ---
 
-### QW-3: `/api/rag/ask` Endpoint (PENDIENTE ⏳)
+### QW-3: `/api/rag/ask` Endpoint (COMPLETADO ✅)
 
-**Estimado:** 2-3 días
+**Descripción:** Endpoint REST para RAG con búsqueda híbrida (keyword + embedding) en LLMEvaluation.
+
+**Componentes Creados:**
+
+- `app/Http/Requests/RagAskRequest.php` (40 líneas)
+- `app/Services/RagService.php` (244 líneas)
+- `app/Http/Controllers/Api/RagController.php` (30 líneas)
+- `tests/Feature/Api/RagAskTest.php` (220 líneas, 10 tests)
+- `routes/api.php` — POST `/api/rag/ask`
+
+**Algoritmo:** Scoring híbrido 60% keyword + 40% embedding, multi-tenant, confidence score.
+
+**Tests:** 10/10 passing | **Status:** Git `cbf430cb` | **Docs:** `docs/QW3_RAG_ENDPOINT_GUIDE.md`
 
 ---
 
