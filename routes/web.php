@@ -250,6 +250,10 @@ Route::prefix('intelligence')->middleware(['auth', 'verified'])->group(function 
     Route::get('/quality-dashboard', function () {
         return Inertia::render('Intelligence/QualityDashboard');
     })->name('intelligence.quality-dashboard');
+
+    Route::get('/agent-metrics', function () {
+        return Inertia::render('Intelligence/AgentMetricsDashboard');
+    })->name('intelligence.agent-metrics');
 });
 
 Route::prefix('scenarios')->group(function () {

@@ -325,7 +325,7 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::post('/roles/{id}/materialize-competencies', [\App\Http\Controllers\Api\RoleDesignerController::class, 'materializeCompetencies']);
                 Route::post('/roles/{id}/request-approval', [\App\Http\Controllers\Api\RoleDesignerController::class, 'requestApproval']);
                 Route::post('/competencies/{id}/request-approval', [\App\Http\Controllers\Api\RoleDesignerController::class, 'requestCompetencyApproval']);
-                
+
                 // Competency Skill Materializer (Wizard)
                 Route::post('/competencies/{id}/generate-blueprint', [\App\Http\Controllers\Api\CompetencyMaterializerController::class, 'generateBlueprint']);
                 Route::post('/competencies/{id}/materialize', [\App\Http\Controllers\Api\CompetencyMaterializerController::class, 'materialize']);
@@ -1250,6 +1250,13 @@ Route::middleware('auth:sanctum')->prefix('qa')->group(function () {
 // ── RAG: Retrieval Augmented Generation - Ask Questions ──────────
 Route::middleware('auth:sanctum')->prefix('rag')->group(function () {
     Route::post('/ask', [\App\Http\Controllers\Api\RagController::class, 'ask'])->name('rag.ask');
+});
+
+// ── Agent Interactions: Metrics & Observability ──────────────────
+Route::middleware('auth:sanctum')->prefix('agent-interactions')->group(function () {
+    Route::get('/metrics/summary', [\App\Http\Controllers\Api\AgentInteractionMetricsController::class, 'summary'])->name('agent-interactions.summary');
+    Route::get('/metrics/failing-agents', [\App\Http\Controllers\Api\AgentInteractionMetricsController::class, 'failingAgents'])->name('agent-interactions.failing-agents');
+    Route::get('/metrics/latency-by-agent', [\App\Http\Controllers\Api\AgentInteractionMetricsController::class, 'latencyByAgent'])->name('agent-interactions.latency-by-agent');
 });
 
 // Catálogos dinámicos para selectores
