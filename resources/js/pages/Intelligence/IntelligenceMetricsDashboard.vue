@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 import { useIntelligenceMetrics } from '@/composables/useIntelligenceMetrics';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
 
@@ -25,7 +25,9 @@ const {
 
 // Filters
 const selectedMetricType = ref<string>('');
-const dateFrom = ref<string>(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+const dateFrom = ref<string>(
+    new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+);
 const dateTo = ref<string>(new Date().toISOString().split('T')[0]);
 
 const applyFilters = async () => {
@@ -52,7 +54,9 @@ const kpiCards = computed(() => [
     },
     {
         title: 'Tasa de Éxito',
-        value: summary.value?.success_rate ? (summary.value.success_rate * 100).toFixed(1) : 0,
+        value: summary.value?.success_rate
+            ? (summary.value.success_rate * 100).toFixed(1)
+            : 0,
         icon: 'mdi-check-circle',
         color: 'emerald',
         unit: '%',
@@ -75,7 +79,9 @@ const kpiCards = computed(() => [
     },
     {
         title: 'Confianza Promedio',
-        value: summary.value?.avg_confidence ? (summary.value.avg_confidence * 100).toFixed(1) : 0,
+        value: summary.value?.avg_confidence
+            ? (summary.value.avg_confidence * 100).toFixed(1)
+            : 0,
         icon: 'mdi-head-check',
         color: 'rose',
         unit: '%',
@@ -218,7 +224,7 @@ onBeforeUnmount(() => {
 
     <div class="mx-auto max-w-7xl space-y-8 p-8">
         <!-- Header -->
-        <div class="mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
+        <div class="mb-12 animate-in duration-700 fade-in slide-in-from-top-4">
             <h1 class="text-3xl font-bold tracking-tight text-white">
                 📊 Intelligence Metrics Dashboard
             </h1>
@@ -232,9 +238,13 @@ onBeforeUnmount(() => {
 
         <!-- Filters -->
         <StCardGlass class="mb-8" :no-hover="true">
-            <div class="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+            <div
+                class="flex flex-col justify-between gap-4 md:flex-row md:items-end"
+            >
                 <div class="space-y-2">
-                    <label class="text-sm font-medium text-white/80">Período de análisis</label>
+                    <label class="text-sm font-medium text-white/80"
+                        >Período de análisis</label
+                    >
                     <div class="flex gap-4">
                         <div>
                             <label class="text-xs text-white/50">Desde</label>
@@ -253,7 +263,9 @@ onBeforeUnmount(() => {
                             />
                         </div>
                         <div>
-                            <label class="text-xs text-white/50">Tipo de métrica</label>
+                            <label class="text-xs text-white/50"
+                                >Tipo de métrica</label
+                            >
                             <select
                                 v-model="selectedMetricType"
                                 class="mt-1 rounded bg-white/5 px-3 py-2 text-white"
@@ -279,7 +291,10 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Error State -->
-        <div v-if="error" class="rounded-lg bg-rose-500/10 px-4 py-3 text-rose-300">
+        <div
+            v-if="error"
+            class="rounded-lg bg-rose-500/10 px-4 py-3 text-rose-300"
+        >
             {{ error }}
         </div>
 
@@ -292,11 +307,16 @@ onBeforeUnmount(() => {
             >
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-semibold tracking-widest text-white/50 uppercase">
+                        <p
+                            class="text-xs font-semibold tracking-widest text-white/50 uppercase"
+                        >
                             {{ card.title }}
                         </p>
                         <p class="mt-2 text-3xl font-black text-white">
-                            {{ card.value }}<span class="ml-1 text-sm text-white/50">{{ card.unit }}</span>
+                            {{ card.value
+                            }}<span class="ml-1 text-sm text-white/50">{{
+                                card.unit
+                            }}</span>
                         </p>
                     </div>
                     <div class="text-4xl opacity-20">
@@ -310,7 +330,9 @@ onBeforeUnmount(() => {
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <!-- Success Rate Chart -->
             <StCardGlass class="p-6">
-                <h2 class="mb-4 text-lg font-semibold text-white">Tasa de Éxito (Tendencia)</h2>
+                <h2 class="mb-4 text-lg font-semibold text-white">
+                    Tasa de Éxito (Tendencia)
+                </h2>
                 <div v-if="!isLoading && timeSeriesData.labels.length > 0">
                     <VueApexCharts
                         type="line"
@@ -326,7 +348,9 @@ onBeforeUnmount(() => {
 
             <!-- Latency Chart -->
             <StCardGlass class="p-6">
-                <h2 class="mb-4 text-lg font-semibold text-white">Latencia (Promedio vs P95)</h2>
+                <h2 class="mb-4 text-lg font-semibold text-white">
+                    Latencia (Promedio vs P95)
+                </h2>
                 <div v-if="!isLoading && timeSeriesData.labels.length > 0">
                     <VueApexCharts
                         type="line"
@@ -342,18 +366,49 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Data Table -->
-        <StCardGlass v-if="!isLoading && aggregates.length > 0" class="overflow-hidden p-0">
+        <StCardGlass
+            v-if="!isLoading && aggregates.length > 0"
+            class="overflow-hidden p-0"
+        >
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="border-b border-white/10 bg-white/5">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-white/70">Fecha</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-white/70">Tipo</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-white/70">Fuente</th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-white/70">Llamadas</th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-white/70">Éxito</th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-white/70">Latencia (ms)</th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-white/70">P95 (ms)</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold text-white/70"
+                            >
+                                Fecha
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold text-white/70"
+                            >
+                                Tipo
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold text-white/70"
+                            >
+                                Fuente
+                            </th>
+                            <th
+                                class="px-6 py-3 text-right text-xs font-semibold text-white/70"
+                            >
+                                Llamadas
+                            </th>
+                            <th
+                                class="px-6 py-3 text-right text-xs font-semibold text-white/70"
+                            >
+                                Éxito
+                            </th>
+                            <th
+                                class="px-6 py-3 text-right text-xs font-semibold text-white/70"
+                            >
+                                Latencia (ms)
+                            </th>
+                            <th
+                                class="px-6 py-3 text-right text-xs font-semibold text-white/70"
+                            >
+                                P95 (ms)
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
@@ -362,25 +417,37 @@ onBeforeUnmount(() => {
                             :key="`${agg.date_key}-${agg.metric_type}`"
                             class="hover:bg-white/5"
                         >
-                            <td class="px-6 py-3 text-sm text-white">{{ agg.date_key }}</td>
+                            <td class="px-6 py-3 text-sm text-white">
+                                {{ agg.date_key }}
+                            </td>
                             <td class="px-6 py-3">
-                                <span class="rounded-full bg-indigo-500/20 px-2.5 py-1 text-xs font-semibold text-indigo-300">
+                                <span
+                                    class="rounded-full bg-indigo-500/20 px-2.5 py-1 text-xs font-semibold text-indigo-300"
+                                >
                                     {{ agg.metric_type }}
                                 </span>
                             </td>
                             <td class="px-6 py-3 text-sm text-white/70">
                                 {{ agg.source_type || '—' }}
                             </td>
-                            <td class="px-6 py-3 text-right text-sm font-medium text-white">
+                            <td
+                                class="px-6 py-3 text-right text-sm font-medium text-white"
+                            >
                                 {{ agg.total_count }}
                             </td>
-                            <td class="px-6 py-3 text-right text-sm font-medium text-emerald-400">
+                            <td
+                                class="px-6 py-3 text-right text-sm font-medium text-emerald-400"
+                            >
                                 {{ (agg.success_rate * 100).toFixed(1) }}%
                             </td>
-                            <td class="px-6 py-3 text-right text-sm text-white/70">
+                            <td
+                                class="px-6 py-3 text-right text-sm text-white/70"
+                            >
                                 {{ agg.avg_duration_ms }}
                             </td>
-                            <td class="px-6 py-3 text-right text-sm text-white/70">
+                            <td
+                                class="px-6 py-3 text-right text-sm text-white/70"
+                            >
                                 {{ agg.p95_duration_ms }}
                             </td>
                         </tr>
@@ -390,11 +457,22 @@ onBeforeUnmount(() => {
         </StCardGlass>
 
         <!-- Empty State -->
-        <StCardGlass v-if="!isLoading && aggregates.length === 0" class="text-center p-24">
+        <StCardGlass
+            v-if="!isLoading && aggregates.length === 0"
+            class="p-24 text-center"
+        >
             <div class="flex flex-col items-center justify-center gap-4">
-                <v-icon size="64" icon="mdi-chart-box-outline" class="opacity-20" />
-                <p class="text-2xl font-medium text-white/40">No hay datos disponibles</p>
-                <p class="text-sm text-white/30">Intenta cambiar los filtros de fecha</p>
+                <v-icon
+                    size="64"
+                    icon="mdi-chart-box-outline"
+                    class="opacity-20"
+                />
+                <p class="text-2xl font-medium text-white/40">
+                    No hay datos disponibles
+                </p>
+                <p class="text-sm text-white/30">
+                    Intenta cambiar los filtros de fecha
+                </p>
             </div>
         </StCardGlass>
     </div>

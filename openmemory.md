@@ -3664,7 +3664,79 @@ POST /api/rag/ask
     - Agregación con éxito, percentiles, promedios, upsert, multi-type handling, all-orgs, date defaulting, scoping null
 
 **Tests Total Bloque 4:** 25/25 passing ✅ (Storage 6 + Aggregation 8 + RAG integration 11)
-**Status:** Completo e integrado | **Commit:** d473c66
+**Status:** Fases 1-2 completas | **Commit:** d473c66
+
+---
+
+### Bloque 4 – Sprint 2 Fase 3: Dashboard & API Endpoints (COMPLETADO ✅)
+
+**Completado:** 22-03-2026 (misma sesión que Fase 1-2)
+
+**Alcance:** Capa de visualización y endpoints REST para consumo de agregados.
+
+**Fase 3 - API & Frontend:**
+
+1. **IntelligenceAggregatesController API:**
+    - Ubicación: `app/Http/Controllers/Api/IntelligenceAggregatesController.php`
+    - Métodos:
+        - `index()` → GET `/api/intelligence/aggregates` (filtrado, paginación, caching 1h)
+        - `summary()` → GET `/api/intelligence/aggregates/summary` (estadísticas agregadas)
+    - Filtros: `metric_type`, `source_type`, `date_from`, `date_to`, `per_page`
+    - Multi-tenant: scoping automático por `organization_id` del usuario autenticado
+    - Caché: 1 hora TTL (agregados no van a cambiar hasta próxima ejecución del job a 01:01 UTC)
+    - Tests: 9/9 passing ✅
+
+2. **IntelligenceMetricAggregatePolicy:**
+    - Ubicación: `app/Policies/IntelligenceMetricAggregatePolicy.php`
+    - Métodos:
+        - `viewAny()` → permite cualquier usuario autenticado
+        - `view()` → valida que organization_id coincida
+    - Registrada en: `app/Providers/AuthServiceProvider.php`
+
+3. **Composable TypeScript: useIntelligenceMetrics()**
+    - Ubicación: `resources/js/composables/useIntelligenceMetrics.ts`
+    - Interfaces:
+        - `IntelligenceAggregate` → estructura de agregado individual
+        - `IntelligenceSummary` → estadísticas totales
+        - `AggregatesFilters` → opciones de filtrado
+    - Métodos:
+        - `fetchAggregates()` → obtiene agregados con filtros
+        - `fetchSummary()` → obtiene resumen de estadísticas
+        - `startPolling()` / `stopPolling()` → auto-refresh cada 30s
+    - Computed:
+        - `timeSeriesData` → formatea labels, success rates, latencies para charts
+        - `aggregatesByMetricType` → agrupa por tipo de métrica
+
+4. **Vue Dashboard: IntelligenceMetricsDashboard**
+    - Ubicación: `resources/js/pages/Intelligence/IntelligenceMetricsDashboard.vue`
+    - Componentes:
+        - Header + filtros interactivos (fecha, tipo métrica)
+        - KPI Cards (6): Llamadas Totales, Tasa Éxito%, Latencia Prom, P95, Confianza, Contexto Prom
+        - Line Chart 1: Tasa de éxito (tendencia diaria)
+        - Line Chart 2: Latencia (promedio vs P95) con múltiples series
+        - Data Table: últimas 20 agregados con detalles
+        - Loading/Error/Empty states mejorados
+        - Auto-polling cada 30 segundos
+        - Dark mode optimizado
+
+5. **Rutas:**
+    - API: `GET /api/intelligence/aggregates` (caching, paginación, multi-tenant)
+    - API: `GET /api/intelligence/aggregates/summary` (estadísticas)
+    - Web: `GET /intelligence/aggregates` → dashboard Inertia (ruta: `intelligence.metrics-dashboard`)
+    - Ambas rutas requieren `auth:sanctum`
+
+**Tests Fase 3:** 9/9 passing ✅
+
+- Autenticación requerida
+- Filtrado por metric_type, date_range
+- Scoping multi-tenant con org_id
+- Resumen de estadísticas
+- Paginación (per_page)
+- Manejo de resultados vacíos
+- Caching funcional
+
+**Tests Total Bloque 4:** 34/34 passing ✅ (Storage 6 + Aggregation 8 + API 9 + RAG integration 11)
+**Status:** Bloque 4 COMPLETADO 100% | **Commits:** 998a2c70 (Fase 3)
 
 **Próximos pasos:**
 

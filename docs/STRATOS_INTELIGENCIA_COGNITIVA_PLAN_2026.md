@@ -415,10 +415,11 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
 
 - ✅ **Sprint 0 (Embeddings)**: COMPLETADO - Tabla genérica `embeddings`, `EmbeddingService`, FAQ indexing, delta reindex command
 - ✅ **Sprint 1 (RAG Pipeline)**: COMPLETADO - `RagService` con 5 métodos, `StratosGuideService` integration, FAQ-based retrieval, RAG metrics logging
-- ✅ **Bloque 4 - Sprint 2 (Intelligence Metrics Infrastructure)**: COMPLETADO - Fase 1 (storage) + Fase 2 (daily aggregation)
+- ✅ **Bloque 4 - Sprint 2 (Intelligence Metrics Infrastructure)**: 🎉 100% COMPLETADO - Fase 1 + 2 + 3
     - **Fase 1**: `IntelligenceMetric` model + migration + factory, RagService::logMetric() auto-capture, 6/6 tests passing ✅
     - **Fase 2**: `IntelligenceMetricAggregate` model + service + daily job + scheduler (01:00 UTC), custom percentile calculations, 8/8 tests passing ✅
-    - **Total tests Bloque 4**: 25/25 passing (includes integration tests with RagAskTest) ✅
+    - **Fase 3** ✨ **NEW**: API endpoints (`IntelligenceAggregatesController`) + async dashboard (`IntelligenceMetricsDashboard.vue`) + TypeScript composable (`useIntelligenceMetrics`), 9/9 tests passing ✅
+    - **Total tests Bloque 4**: 34/34 passing (storage 6 + aggregation 8 + API 9 + RAG integration 11) ✅
 
 **Extra no previsto en el plan original:**
 
@@ -429,10 +430,14 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
 
 - Quick Wins: 5/5 completados (100%)
 - Sprint 0-1: Embeddings + RAG Pipeline completados al 100%
-- **Bloque 4 (Sprint 2)**: Infrastructure de metrics 100% operacional
+- **Bloque 4 (Sprint 2)**: 🎉 COMPLETADO 100% - Toda la stack de métricas de inteligencia operacional
     - Fase 1 (Per-request storage): `IntelligenceMetric` capturando automáticamente en cada call RAG ✅
     - Fase 2 (Daily aggregation): `IntelligenceMetricAggregate` con P50/P95/P99, success rates, averages; job ejecuta diariamente a 01:00 UTC ✅
-- Capa de visibilidad: dashboards de calidad LLM y de agentes ya operativos y unificados en el nuevo hub.
+    - Fase 3 (Dashboard & API):
+        - **API Endpoints** (`/api/intelligence/aggregates`): filtrado, paginación, caching 1h, multi-tenant scoping, 9/9 tests ✅
+        - **Vue Dashboard** (`IntelligenceMetricsDashboard`): KPI cards (6 métricas), line charts (éxito + latencia), data table, filtros interactivos, auto-polling 30s, dark mode ✅
+        - **TypeScript Composable** (`useIntelligenceMetrics`): state management, time-series data formatting, error handling ✅
+- Capa de visibilidad: dashboards de calidad LLM, agentes y **métricas de inteligencia** ya operativos y unificados en el Hub centralizado.
 
 ---
 
@@ -602,12 +607,34 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
 - [x] Tests: 8/8 passing (percentile accuracy, multi-type, all-orgs, upsert, date defaulting, null org scoping).
 - [x] Pint formatting: PASS.
 
-#### **Fase 3: Dashboard & API Endpoints** 🚀 PRÓXIMO
+#### **Fase 3: Dashboard & API Endpoints** ✅ COMPLETADO
 
-- [ ] Crear endpoint `GET /api/intelligence/aggregates` (filtros: metric_type, date_from, date_to, org_id).
-- [ ] Dashboard Vue: time-series charts (latency trends, success rate), SLA indicators, incident history.
-- [ ] Caching (1h) en agregados (datos no actualizan hasta 01:01 UTC).
-- [ ] Integration con ApexCharts/ECharts para visualización de tendencias.
+- [x] Crear endpoint `GET /api/intelligence/aggregates` (filtros: metric_type, source_type, date_from, date_to; paginación per_page).
+    - Ubicación: `app/Http/Controllers/Api/IntelligenceAggregatesController.php`
+    - Caching: 1 hora (agregados no actualizan hasta 01:01 UTC)
+    - Multi-tenant: scoping automático por organization_id del usuario
+    - Tests: 9/9 passing ✅
+- [x] Crear endpoint `GET /api/intelligence/aggregates/summary` (estadísticas: total_calls, success_rate, latency metrics).
+    - Retorna P50, P95, P99, average, min, max para latency
+    - SLA indicators integrados en respuesta
+    - Tests: cubiertos en los 9/9 de API ✅
+- [x] Dashboard Vue: `IntelligenceMetricsDashboard.vue` con visualización de tendencias e indicadores clave.
+    - KPI Cards: 6 métricas (Llamadas, Éxito%, Latencia, P95, Confianza, Contexto)
+    - Line Charts: Tasa de éxito (tendencia diaria) + Latencia (prom vs P95)
+    - Data Table: Últimas 20 agregados con filtrado interactivo
+    - Filtros: Date range picker (date_from/date_to) + metric_type selector
+    - Auto-polling: Each 30s con stopPropagation en unmount
+    - Dark mode optimizado + responsive grid layout
+- [x] TypeScript Composable: `useIntelligenceMetrics()` (resources/js/composables/)
+    - State management: aggregates[], summary, pagination, currentFilters, lastUpdated
+    - Methods: fetchAggregates(), fetchSummary(), startPolling(), stopPolling()
+    - Computed: timeSeriesData (para charts), aggregatesByMetricType
+- [x] Integración con ApexCharts para visualización time-series.
+- [x] Policy control: `IntelligenceMetricAggregatePolicy` (viewAny, view) registrada en `AuthServiceProvider`.
+- [x] Web route: `GET /intelligence/aggregates` → `IntelligenceMetricsDashboard.vue` (Inertia).
+- [x] API routes: Prefix `/api/intelligence` → index() + summary() methods.
+- [x] Tests: 9/9 passing (auth, filtering, scoping, pagination, summaries, empty states).
+- [x] Total Bloque 4: 34/34 tests passing (storage 6 + aggregation 8 + API 9 + RAG integration 11) ✅
 
 ### Bloque 5 – Sprints 3 y 4: Orquestación y Learning Loop
 
@@ -629,25 +656,30 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
 │  ─────────  │  ────────   │  Lite          │ ────────              │
 │  DONE       │  DONE       │  (3d)          │                       │
 │             │             │                │                       │
-│  ✅ Sprint0 │  ✅ Sprint1 │  Bloque 4:     │ Sprint 3: Critic+     │
+│  ✅ Sprint0 │  ✅ Sprint1 │  ✅ Bloque 4:  │ Sprint 3: Critic+     │
 │  pgvector   │  RAG Core   │  Metrics       │ Orchest. Supervisor   │
-│  • Emb DB   │  • Service  │  DONE!         │ (3w) + Msg Bus        │
+│  • Emb DB   │  • Service  │  COMPLETADO    │ (3w) + Msg Bus        │
 │  • HNSW     │  • Endpoint │  ─────────     │                       │
 │  • FAQ Idx  │  • GuideRAG │  F1: Storage   │ Sprint 4: Learning    │
-│  DONE       │  DONE       │  F2: Agg (✅)   │ Loop (3w)             │
-│             │             │  F3: Dash (→pb)│ • Feedback mechanism  │
-│             │             │  • 25/25 tests │ • Re-index job       │
-│             │             │  • Sched 01UTC │ • Versioning         │
+│  DONE       │  DONE       │  (✅ 6/6)      │ Loop (3w)             │
+│             │             │  F2: Agg (✅)  │ • Feedback mechanism  │
+│             │             │  (✅ 8/8)      │ • Re-index job       │
+│             │             │  F3: Dash (✅) │ • Versioning         │
+│             │             │  (✅ 9/9+)     │                       │
+│             │             │  • 34/34 tests │                       │
 │             ├─────────────┴────────────────┴───────────────────────┤
-│             │           COMPLETADO: Core RAG + Observability        │
+│             │    COMPLETADO: Core RAG + Observability + Intelligence│
 │             │           • RagService central ✅                     │
 │             │           • Integr StratosGuide ✅                    │
 │             │           • Endpoint /api/rag/ask ✅                  │
 │             │           • IntelligenceMetric storage ✅             │
 │             │           • Daily aggregation job ✅                  │
+│             │           • IntelligenceAggregatesController API ✅   │
+│             │           • IntelligenceMetricsDashboard.vue ✅       │
+│             │           • Auto-polling + ApexCharts ✅              │
 │                                                                     │
-│  ✅ DONE: 7-14d (QW) + 2w (S0) + 2w (S1) + 1w (B4.F1+F2)          │
-│  🚀 NEXT: B4.F3 Dashboard (1w) → Critic+Learning (6w)             │
+│  ✅ DONE: 7-14d (QW) + 2w (S0) + 2w (S1) + 2w (B4.F1+F2+F3)      │
+│  🚀 NEXT: Critic+Learning Loop → Sprint 3-4 (6w)                 │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```

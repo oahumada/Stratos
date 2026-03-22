@@ -1,5 +1,5 @@
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import axios from 'axios';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 export interface IntelligenceAggregate {
     id: number;
@@ -82,7 +82,10 @@ export function useIntelligenceMetrics() {
                 queryParams.append('date_to', mergedFilters.date_to);
             }
             if (mergedFilters.per_page) {
-                queryParams.append('per_page', mergedFilters.per_page.toString());
+                queryParams.append(
+                    'per_page',
+                    mergedFilters.per_page.toString(),
+                );
             }
 
             const response = await axios.get('/api/intelligence/aggregates', {
@@ -94,7 +97,8 @@ export function useIntelligenceMetrics() {
             currentFilters.value = mergedFilters;
             lastUpdated.value = new Date();
         } catch (err) {
-            error.value = err instanceof Error ? err.message : 'Error loading aggregates';
+            error.value =
+                err instanceof Error ? err.message : 'Error loading aggregates';
             console.error('Error fetching intelligence aggregates:', err);
         } finally {
             isLoading.value = false;
@@ -120,9 +124,12 @@ export function useIntelligenceMetrics() {
                 queryParams.append('date_to', mergedFilters.date_to);
             }
 
-            const response = await axios.get('/api/intelligence/aggregates/summary', {
-                params: Object.fromEntries(queryParams),
-            });
+            const response = await axios.get(
+                '/api/intelligence/aggregates/summary',
+                {
+                    params: Object.fromEntries(queryParams),
+                },
+            );
 
             summary.value = response.data.data;
         } catch (err) {
