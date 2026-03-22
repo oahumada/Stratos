@@ -176,7 +176,12 @@ class EmbeddingService
     }
 
     /**
-     * Find similar items using cosine similarity (pgvector <=> operator)
+     * Find similar items using cosine similarity (pgvector <=> operator).
+     *
+     * Cuando `features.generate_embeddings` está activo y existe la tabla genérica
+     * `embeddings`, se usa como fuente primaria usando `resource_type = $table`
+     * y `metadata->>'name'` como nombre lógico. Si algo falla, se hace fallback
+     * a la estrategia legacy basada en columnas `embedding` propias de cada tabla.
      */
     public function findSimilar(string $table, array $embedding, int $limit = 5, ?int $organizationId = null): array
     {
@@ -186,6 +191,45 @@ class EmbeddingService
 
         $embeddingStr = '['.implode(',', $embedding).']';
 
+        // Intento 1: usar tabla genérica embeddings cuando el feature está activo
+        if (config('features.generate_embeddings', false)) {
+            try {
+                $query = '
+                    SELECT 
+                        resource_id AS id,
+                        (metadata->>\'name\') AS name,
+                        1 - (embedding <=> ?) AS similarity
+                    FROM embeddings
+                    WHERE resource_type = ?
+                        AND embedding IS NOT NULL
+                ';
+
+                $params = [$embeddingStr, $table];
+
+                if ($organizationId !== null) {
+                    $query .= ' AND organization_id = ?';
+                    $params[] = $organizationId;
+                }
+
+                $query .= '
+                    ORDER BY embedding <=> ?
+                    LIMIT ?
+                ';
+
+                $params[] = $embeddingStr;
+                $params[] = $limit;
+
+                return DB::select($query, $params);
+            } catch (\Exception $e) {
+                Log::warning('Generic embeddings similarity search failed, falling back to legacy', [
+                    'error' => $e->getMessage(),
+                    'table' => $table,
+                ]);
+                // continúa hacia el fallback legacy
+            }
+        }
+
+        // Fallback legacy: consulta directa sobre la tabla con columna embedding propia
         $query = "
             SELECT 
                 id, 
@@ -213,7 +257,7 @@ class EmbeddingService
         try {
             return DB::select($query, $params);
         } catch (\Exception $e) {
-            Log::error('Similarity search failed: '.$e->getMessage());
+            Log::error('Similarity search failed (legacy)', ['error' => $e->getMessage(), 'table' => $table]);
 
             return [];
         }

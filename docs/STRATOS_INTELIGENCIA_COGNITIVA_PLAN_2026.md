@@ -546,21 +546,22 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
     - [x] Personas (People) – indexación básica con nombre/email/rol.
     - [x] Roles – apoyado en `EmbeddingService::forRole()`.
     - [x] Escenarios – apoyado en `EmbeddingService::forScenario()`.
-    - [ ] FAQ / knowledge base de StratosGuide.
-- [ ] Añadir comando/cron para reindexado delta (solo cambios recientes).
-- [ ] Ajustar `EmbeddingService` para leer/escribir en `embeddings` cuando pgvector esté disponible.
+    - [x] FAQ / knowledge base de StratosGuide.
+- [ ] FAQ / knowledge base de StratosGuide.
+- [x] Añadir comando/cron para reindexado delta (solo cambios recientes).
+- [x] Ajustar `EmbeddingService` para leer/escribir en `embeddings` cuando pgvector esté disponible (lectura vía `findSimilar` apuntando a tabla genérica con fallback legacy).
 
 ### Bloque 3 – Sprint 1: RAG Pipeline "bien hecho"
 
-- [ ] Refactor de `RagService` en métodos explícitos:
-    - [ ] `retrieve(query, org_id, filters)`.
-    - [ ] `rank(documents, query)`.
-    - [ ] `assemblePrompt(query, docs, context)`.
-    - [ ] `generate(query)`.
-    - [ ] `postFilter(result)` (scoping, redacción PII).
-- [ ] Integrar `RagService` en `StratosGuideService` para FAQs de metodología, escenarios y blueprints.
-- [ ] Alinear `/api/rag/ask` con el frontend usando rutas Wayfinder (TS) donde aplique.
-- [ ] Añadir primeras métricas de latencia/éxito de RAG (logs estructurados + counters básicos).
+- [x] Refactor de `RagService` en métodos explícitos:
+    - [x] `retrieve(query, org_id, filters)`.
+    - [x] `rank(documents, query)`.
+    - [x] `assemblePrompt(query, docs, context)`.
+    - [x] `generate(query)`.
+    - [x] `postFilter(result)` (scoping, redacción PII).
+- [x] Integrar `RagService` en `StratosGuideService` para FAQs de metodología, escenarios y blueprints.
+- [x] Alinear `/api/rag/ask` con el frontend usando rutas Wayfinder (TS) donde aplique.
+- [x] Añadir primeras métricas de latencia/éxito de RAG (logs estructurados + counters básicos).
 
 ### Bloque 4 – Sprint 2: Métricas de Inteligencia
 

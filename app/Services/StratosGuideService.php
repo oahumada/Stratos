@@ -21,7 +21,8 @@ class StratosGuideService
 {
     public function __construct(
         protected AiOrchestratorService $orchestrator,
-        protected AuditTrailService $audit
+        protected AuditTrailService $audit,
+        protected RagService $ragService
     ) {}
 
     /**
@@ -48,7 +49,40 @@ class StratosGuideService
     public function askGuide(string $question, string $module, int $userId): array
     {
         $context = $this->buildContext($module, $userId);
+        $organizationId = $this->resolveOrganizationId($userId);
 
+        // Intento 1: usar RAG sobre la base de conocimiento si hay contexto disponible
+        if ($organizationId !== null) {
+            try {
+                $ragResult = $this->ragService->ask(
+                    $question,
+                    (string) $organizationId,
+                    'evaluations',
+                    5
+                );
+
+                if (! empty($ragResult['context_count']) && $ragResult['context_count'] > 0) {
+                    return [
+                        'status' => 'success',
+                        'answer' => $ragResult['answer'] ?? 'Consulta procesada.',
+                        'next_action' => 'review_related_documents',
+                        'related_module' => $module,
+                        'rag' => [
+                            'confidence' => $ragResult['confidence'] ?? null,
+                            'sources' => $ragResult['sources'] ?? [],
+                        ],
+                    ];
+                }
+            } catch (\Exception $e) {
+                Log::warning('Stratos Guide RAG fallback', [
+                    'error' => $e->getMessage(),
+                    'module' => $module,
+                    'user_id' => $userId,
+                ]);
+            }
+        }
+
+        // Fallback: comportamiento actual basado en orquestador de agentes
         $prompt = "Actúa como Stratos Guide, el asistente contextual de la plataforma Stratos.
         
         El usuario está en el módulo: {$module}
@@ -219,6 +253,23 @@ class StratosGuideService
         }
 
         return null; // Todo completado
+    }
+
+    protected function resolveOrganizationId(int $userId): ?int
+    {
+        $personPeople = People::where('user_id', $userId)->first();
+
+        if ($personPeople) {
+            return $personPeople->organization_id;
+        }
+
+        $user = auth()->user();
+
+        if ($user && $user->organization_id) {
+            return $user->organization_id;
+        }
+
+        return null;
     }
 
     protected function buildContext(string $module, int $userId): string

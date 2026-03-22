@@ -2,6 +2,7 @@
 
 use App\Jobs\EmbeddingIndexJob;
 use App\Models\Embedding;
+use App\Models\GuideFaq;
 use App\Services\EmbeddingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -28,4 +29,23 @@ it('indexes roles into embeddings table', function () {
 
     expect($record)->not->toBeNull();
     expect($record->organization_id)->toEqual($role->organization_id ?? null);
+});
+
+it('indexes guide faqs into embeddings table', function () {
+    $mock = \Mockery::mock(EmbeddingService::class);
+    $mock->shouldReceive('generate')
+        ->andReturn(array_fill(0, 8, 0.2));
+    app()->instance(EmbeddingService::class, $mock);
+
+    $faq = GuideFaq::factory()->create();
+
+    $job = new EmbeddingIndexJob('guide_faq', $faq->organization_id ?? null);
+    $job->handle();
+
+    $record = Embedding::where('resource_type', 'guide_faq')
+        ->where('resource_id', $faq->id)
+        ->first();
+
+    expect($record)->not->toBeNull();
+    expect($record->organization_id)->toEqual($faq->organization_id ?? null);
 });

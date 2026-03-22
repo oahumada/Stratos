@@ -133,6 +133,31 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
     - uso de VC, DID document, metadata pública y public verify endpoint para auditores externos
 - Ambas guías quedaron enlazadas desde `docs/INDEX.md` y `docs/quality_compliance_standards.md`.
 
+### Sprint 1 – RAG + Stratos Guide (2026-03-22) ✅ (PARCIAL)
+
+- **RagService** refactorizado a pipeline explícito con métodos públicos reutilizables:
+    - `retrieve(question, organizationId, contextType, maxSources)` → encapsula la obtención de documentos relevantes (actualmente sobre `LLMEvaluation`).
+    - `rank(documents, question)` → normaliza el orden por `relevance_score`.
+    - `assemblePrompt(question, docs)` → construye el contexto para el LLM.
+    - `generate(question, context)` → delega en `LLMClient` y maneja respuestas string/array.
+    - `postFilter(answer)` → aplica `RedactionService::redactText()` para sanitizar PII en la respuesta final.
+- **Integración con Stratos Guide**:
+    - `StratosGuideService::askGuide()` ahora intenta primero responder usando `RagService->ask()` cuando puede resolver `organization_id` del usuario (vía `People` o `User`).
+    - Si RAG devuelve contexto (`context_count > 0`), la respuesta del endpoint `/api/guide/ask` incluye:
+        - `answer` (texto final proveniente de RAG, ya filtrado de PII).
+        - `rag.confidence` y `rag.sources` con las fuentes de conocimiento usadas.
+        - `next_action = 'review_related_documents'` y `related_module = <módulo actual>` como acción sugerida.
+    - Si RAG falla o no encuentra contexto, el flujo hace **fallback** al comportamiento existente de `AiOrchestratorService::agentThink('Stratos Guide', ...)` usando el prompt contextual previo.
+- **Cobertura de pruebas**:
+    - Nuevo test de feature `[tests/Feature/Api/GuideAskRagIntegrationTest.php]` que:
+        - Mockea `RagService` para retornar una respuesta con `context_count = 1`.
+        - Verifica que `/api/guide/ask` responda con `data.answer = 'Respuesta desde RAG'` y estructura `data.rag.confidence` / `data.rag.sources`.
+        - Asegura que `AiOrchestratorService::agentThink()` **no** se invoque cuando RAG tiene contexto disponible.
+- **Estado**:
+    - Integración básica RAG ↔ Stratos Guide completada sobre el contexto de `LLMEvaluation`.
+    - Pendiente para siguientes iteraciones: extender `contextType` hacia embeddings genéricos (`embeddings` table) para FAQs de metodología y blueprints.
+    - Se añadieron métricas básicas de RAG (latencia y éxito) mediante logging estructurado en `RagService::ask()`, registrando `organization_id`, `context_type`, `context_count`, `confidence`, `duration_ms`, `has_answer` y un `question_hash` (sin almacenar texto crudo de la pregunta).
+
 ### Stratos Compliance Navigation Entry (2026-03-19)
 
 - Se agregó acceso directo al módulo `Stratos Compliance` desde `Command Center`.
@@ -3567,16 +3592,35 @@ POST /api/rag/ask
 
 ---
 
-### Sprint 0: Vector DB + Indexación (PARCIALMENTE COMPLETADO ✅)
+### Sprint 0: Vector DB + Indexación (COMPLETADO ✅)
 
-- Tabla genérica `embeddings` creada: `database/migrations/2026_03_22_161851_create_embeddings_table.php`  
-    - Campos: `organization_id`, `resource_type`, `resource_id`, `metadata`, `embedding` (vector(1536) o JSON fallback).  
-- Modelo `Embedding`: `app/Models/Embedding.php` con casts para `metadata` y `embedding`.  
-- Job `EmbeddingIndexJob`: `app/Jobs/EmbeddingIndexJob.php`  
+- Tabla genérica `embeddings` creada: `database/migrations/2026_03_22_161851_create_embeddings_table.php`
+    - Campos: `organization_id`, `resource_type`, `resource_id`, `metadata`, `embedding` (vector(1536) o JSON fallback).
+- Modelo `Embedding`: `app/Models/Embedding.php` con casts para `metadata` y `embedding`.
+- Job `EmbeddingIndexJob`: `app/Jobs/EmbeddingIndexJob.php`
     - Recorre People, Roles y Scenarios por chunks `chunkById(100)`
-    - Usa `EmbeddingService` para generar el vector y hace `Embedding::updateOrCreate(...)` en la tabla genérica.  
-- Test `EmbeddingIndexJobTest`: `tests/Unit/EmbeddingIndexJobTest.php`  
-    - Mockea `EmbeddingService` y valida que se persiste al menos un registro para roles.  
+    - Usa `EmbeddingService` para generar el vector y hace `Embedding::updateOrCreate(...)` en la tabla genérica.
+- Test `EmbeddingIndexJobTest`: `tests/Unit/EmbeddingIndexJobTest.php`
+    - Mockea `EmbeddingService` y valida que se persiste al menos un registro para roles.
+
+- Modelo `GuideFaq`: `app/Models/GuideFaq.php` y migración `database/migrations/2026_03_22_211939_create_guide_faqs_table.php`
+    - Actúa como FAQ / knowledge base de StratosGuide.
+    - Campos clave: `organization_id` (opcional para multi-tenant), `slug`, `category`, `title`, `question`, `answer`, `tags` (JSON), `is_active`.
+- Indexación de FAQs en embeddings:
+    - `EmbeddingIndexJob` también recorre `GuideFaq` activos (`is_active = true`) y genera embeddings a partir de `title + question + answer + tags`.
+    - Guarda en la tabla `embeddings` con `resource_type = 'guide_faq'` y metadatos (`name` = título, `category`, `slug`).
+
+- Comando de reindexado delta:
+    - `stratos:embeddings:reindex` (`app/Console/Commands/ReindexEmbeddings.php`).
+    - Opciones:
+        - `resourceType` opcional (`people|role|scenario`) para limitar el tipo.
+        - `--org=` para scopear por `organization_id`.
+        - `--delta` para modo **delta**, que solo reindexa registros actualizados en las últimas 24h (usa el flag `$onlyRecent` de `EmbeddingIndexJob`).
+    - Test de consola: `tests/Feature/Console/ReindexEmbeddingsCommandTest.php` asegura que el comando se ejecuta con exit code 0 para full y delta.
+
+- `EmbeddingService::findSimilar()` ahora:
+    - Cuando `features.generate_embeddings` está activo, realiza la búsqueda sobre la tabla genérica `embeddings` filtrando por `resource_type` (por ejemplo, `roles`, `competencies`) y usando `metadata->>'name'` como campo lógico `name` para los resultados.
+    - Mantiene un **fallback legacy** que consulta directamente las columnas `embedding` de tablas específicas (`roles`, `competencies`, `capabilities`, etc.) para no romper flujos existentes mientras la migración a la tabla genérica termina de consolidarse.
 
 **Siguiente paso Sprint 0:** estudiar reutilización de la tabla genérica `embeddings` en RagService / búsquedas semánticas transversales.
 

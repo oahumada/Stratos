@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\LLMEvaluation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
-use App\Services\RedactionService;
 
 class RagService
 {
@@ -29,6 +28,8 @@ class RagService
         string $contextType = 'evaluations',
         int $maxSources = 5
     ): array {
+        $startedAt = microtime(true);
+
         // Step 1: Retrieve relevant documents from context
         $relevantDocs = $this->retrieve(
             $question,
@@ -41,6 +42,18 @@ class RagService
         $relevantDocs = $this->rank($relevantDocs, $question);
 
         if ($relevantDocs->isEmpty()) {
+            $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
+
+            Log::info('rag.metrics', [
+                'organization_id' => $organizationId,
+                'context_type' => $contextType,
+                'context_count' => 0,
+                'confidence' => 0.0,
+                'duration_ms' => $durationMs,
+                'has_answer' => false,
+                'question_hash' => sha1($question),
+            ]);
+
             return [
                 'success' => true,
                 'question' => $question,
@@ -64,6 +77,19 @@ class RagService
         // Step 6: Score confidence based on relevance
         $confidence = $this->calculateConfidence($relevantDocs);
 
+        $contextCount = $relevantDocs->count();
+        $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
+
+        Log::info('rag.metrics', [
+            'organization_id' => $organizationId,
+            'context_type' => $contextType,
+            'context_count' => $contextCount,
+            'confidence' => $confidence,
+            'duration_ms' => $durationMs,
+            'has_answer' => true,
+            'question_hash' => sha1($question),
+        ]);
+
         return [
             'success' => true,
             'question' => $question,
@@ -76,7 +102,7 @@ class RagService
                 'quality_level' => $doc['quality_level'] ?? null,
             ])->values()->toArray(),
             'confidence' => $confidence,
-            'context_count' => $relevantDocs->count(),
+            'context_count' => $contextCount,
         ];
     }
 
@@ -128,7 +154,7 @@ class RagService
                         'id' => $eval->id,
                         'type' => 'evaluation',
                         'content' => $eval->context_content ?? $eval->output_content ?? '',
-                        'preview' => substr($eval->output_content ?? '', 0, 200) . '...',
+                        'preview' => substr($eval->output_content ?? '', 0, 200).'...',
                         'relevance_score' => ($textRelevance * 0.6) + ($embeddingRelevance * 0.4),
                         'provider' => $eval->llm_provider,
                         'quality_level' => $eval->quality_level,
@@ -213,14 +239,14 @@ class RagService
         $contextParts = [
             '## Contexto Relevante',
             '',
-            'Pregunta: ' . $question,
+            'Pregunta: '.$question,
             '',
             '### Documentos Base de Conocimiento:',
             '',
         ];
 
         foreach ($relevantDocs as $doc) {
-            $contextParts[] = "**Documento [{$doc['type']}]** (Relevancia: " . round($doc['relevance_score'] * 100, 0) . '%)';
+            $contextParts[] = "**Documento [{$doc['type']}]** (Relevancia: ".round($doc['relevance_score'] * 100, 0).'%)';
             $contextParts[] = $doc['content'] ?? $doc['preview'];
             $contextParts[] = '';
         }
@@ -245,20 +271,20 @@ Responde de manera concisa y profesional, citando específicamente los documento
 PROMPT;
 
             $result = $this->llmClient->generate($prompt);
-            
+
             // Handle response which can be string or array
             $responseContent = $result['response'] ?? 'No se pudo generar una respuesta.';
-            
+
             // If response is array, convert to JSON string
             if (is_array($responseContent)) {
                 $responseContent = json_encode($responseContent, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
             }
-            
+
             return (string) $responseContent;
         } catch (\Exception $e) {
             Log::error('RAG answer generation failed', ['error' => $e->getMessage()]);
 
-            return 'Error generando respuesta: ' . $e->getMessage();
+            return 'Error generando respuesta: '.$e->getMessage();
         }
     }
 
