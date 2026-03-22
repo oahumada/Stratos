@@ -1259,6 +1259,12 @@ Route::middleware('auth:sanctum')->prefix('agent-interactions')->group(function 
     Route::get('/metrics/latency-by-agent', [\App\Http\Controllers\Api\AgentInteractionMetricsController::class, 'latencyByAgent'])->name('agent-interactions.latency-by-agent');
 });
 
+// ── Intelligence: Aggregated Metrics & Analytics ──────────────────
+Route::middleware('auth:sanctum')->prefix('intelligence')->group(function () {
+    Route::get('/aggregates', [\App\Http\Controllers\Api\IntelligenceAggregatesController::class, 'index'])->name('intelligence.aggregates');
+    Route::get('/aggregates/summary', [\App\Http\Controllers\Api\IntelligenceAggregatesController::class, 'summary'])->name('intelligence.aggregates.summary');
+});
+
 // Catálogos dinámicos para selectores
 require __DIR__.'/form-schema-complete.php';
 

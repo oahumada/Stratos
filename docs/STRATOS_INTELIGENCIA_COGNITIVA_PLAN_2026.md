@@ -416,9 +416,9 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
 - ✅ **Sprint 0 (Embeddings)**: COMPLETADO - Tabla genérica `embeddings`, `EmbeddingService`, FAQ indexing, delta reindex command
 - ✅ **Sprint 1 (RAG Pipeline)**: COMPLETADO - `RagService` con 5 métodos, `StratosGuideService` integration, FAQ-based retrieval, RAG metrics logging
 - ✅ **Bloque 4 - Sprint 2 (Intelligence Metrics Infrastructure)**: COMPLETADO - Fase 1 (storage) + Fase 2 (daily aggregation)
-  - **Fase 1**: `IntelligenceMetric` model + migration + factory, RagService::logMetric() auto-capture, 6/6 tests passing ✅
-  - **Fase 2**: `IntelligenceMetricAggregate` model + service + daily job + scheduler (01:00 UTC), custom percentile calculations, 8/8 tests passing ✅
-  - **Total tests Bloque 4**: 25/25 passing (includes integration tests with RagAskTest) ✅
+    - **Fase 1**: `IntelligenceMetric` model + migration + factory, RagService::logMetric() auto-capture, 6/6 tests passing ✅
+    - **Fase 2**: `IntelligenceMetricAggregate` model + service + daily job + scheduler (01:00 UTC), custom percentile calculations, 8/8 tests passing ✅
+    - **Total tests Bloque 4**: 25/25 passing (includes integration tests with RagAskTest) ✅
 
 **Extra no previsto en el plan original:**
 
@@ -430,8 +430,8 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
 - Quick Wins: 5/5 completados (100%)
 - Sprint 0-1: Embeddings + RAG Pipeline completados al 100%
 - **Bloque 4 (Sprint 2)**: Infrastructure de metrics 100% operacional
-  - Fase 1 (Per-request storage): `IntelligenceMetric` capturando automáticamente en cada call RAG ✅
-  - Fase 2 (Daily aggregation): `IntelligenceMetricAggregate` con P50/P95/P99, success rates, averages; job ejecuta diariamente a 01:00 UTC ✅
+    - Fase 1 (Per-request storage): `IntelligenceMetric` capturando automáticamente en cada call RAG ✅
+    - Fase 2 (Daily aggregation): `IntelligenceMetricAggregate` con P50/P95/P99, success rates, averages; job ejecuta diariamente a 01:00 UTC ✅
 - Capa de visibilidad: dashboards de calidad LLM y de agentes ya operativos y unificados en el nuevo hub.
 
 ---
@@ -593,10 +593,10 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
 
 - [x] Diseñar y crear tabla `intelligence_metric_aggregates` (22 fields: date_key, totals, success_rate, P50/P95/P99 percentiles, averages).
 - [x] Implementar `IntelligenceMetricsAggregator` service (169 lines):
-  - Custom percentile calculation (array sort + index-based positioning) sin dependencias externas.
-  - Grouping by metric_type | source_type.
-  - Upsert with unique constraint para idempotencia.
-  - Manejo de null organization_id para métricas globales.
+    - Custom percentile calculation (array sort + index-based positioning) sin dependencias externas.
+    - Grouping by metric_type | source_type.
+    - Upsert with unique constraint para idempotencia.
+    - Manejo de null organization_id para métricas globales.
 - [x] Crear `AggregateIntelligenceMetricsDaily` job (ShouldQueue, constructor con date param para backfill).
 - [x] Registrar en scheduler: `$schedule->job(...)->dailyAt('01:00')` (UTC).
 - [x] Tests: 8/8 passing (percentile accuracy, multi-type, all-orgs, upsert, date defaulting, null org scoping).

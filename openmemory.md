@@ -3667,6 +3667,7 @@ POST /api/rag/ask
 **Status:** Completo e integrado | **Commit:** d473c66
 
 **Próximos pasos:**
+
 - [ ] Endpoint `/api/intelligence/aggregates` para timeseries
 - [ ] SLAs y alertas
 - [ ] Backfill histórico

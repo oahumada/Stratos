@@ -258,6 +258,10 @@ Route::prefix('intelligence')->middleware(['auth', 'verified'])->group(function 
     Route::get('/agent-metrics', function () {
         return Inertia::render('Intelligence/AgentMetricsDashboard');
     })->name('intelligence.agent-metrics');
+
+    Route::get('/aggregates', function () {
+        return Inertia::render('Intelligence/IntelligenceMetricsDashboard');
+    })->name('intelligence.metrics-dashboard');
 });
 
 Route::prefix('scenarios')->group(function () {

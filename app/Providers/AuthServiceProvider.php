@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\ChangeSet;
 use App\Models\CompetencyVersion;
+use App\Models\IntelligenceMetricAggregate;
 use App\Models\LLMEvaluation;
 use App\Models\PromptInstruction;
 use App\Models\Scenario;
@@ -12,6 +13,7 @@ use App\Models\User;
 use App\Models\WorkforcePlan;
 use App\Policies\ChangeSetPolicy;
 use App\Policies\CompetencyVersionPolicy;
+use App\Policies\IntelligenceMetricAggregatePolicy;
 use App\Policies\LLMEvaluationPolicy;
 use App\Policies\PromptInstructionPolicy;
 use App\Policies\ScenarioGenerationPolicy;
@@ -30,6 +32,7 @@ class AuthServiceProvider extends ServiceProvider
         PromptInstruction::class => PromptInstructionPolicy::class,
         Scenario::class => ScenarioPolicy::class,
         LLMEvaluation::class => LLMEvaluationPolicy::class,
+        IntelligenceMetricAggregate::class => IntelligenceMetricAggregatePolicy::class,
     ];
 
     public function boot(): void
