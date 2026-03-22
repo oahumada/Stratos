@@ -8,7 +8,7 @@ import axios from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('axios');
-const mockedAxios = vi.mocked(axios);
+const mockedAxios = vi.mocked(axios, true);
 
 describe('useQualityMetrics composable', () => {
     beforeEach(() => {
@@ -56,7 +56,7 @@ describe('useQualityMetrics composable', () => {
             last_evaluation_at: new Date().toISOString(),
         };
 
-        mockedAxios.get.mockResolvedValue({
+        vi.mocked(mockedAxios.get).mockResolvedValue({
             data: {
                 success: true,
                 data: mockData,
@@ -77,7 +77,7 @@ describe('useQualityMetrics composable', () => {
 
     it('should handle fetch errors gracefully', async () => {
         const errorMessage = 'Network error';
-        mockedAxios.get.mockRejectedValue(new Error(errorMessage));
+        vi.mocked(mockedAxios.get).mockRejectedValue(new Error(errorMessage));
 
         const { error, fetchMetrics } = useQualityMetrics();
 
@@ -103,7 +103,7 @@ describe('useQualityMetrics composable', () => {
             last_evaluation_at: null,
         };
 
-        mockedAxios.get.mockResolvedValue({
+        vi.mocked(mockedAxios.get).mockResolvedValue({
             data: { success: true, data: mockData },
         });
 
@@ -135,7 +135,7 @@ describe('useQualityMetrics composable', () => {
             last_evaluation_at: null,
         };
 
-        mockedAxios.get.mockResolvedValue({
+        vi.mocked(mockedAxios.get).mockResolvedValue({
             data: { success: true, data: mockData },
         });
 
@@ -166,7 +166,7 @@ describe('useQualityMetrics composable', () => {
             last_evaluation_at: null,
         };
 
-        mockedAxios.get.mockResolvedValue({
+        vi.mocked(mockedAxios.get).mockResolvedValue({
             data: { success: true, data: mockData },
         });
 
@@ -200,7 +200,7 @@ describe('useQualityMetrics composable', () => {
             last_evaluation_at: null,
         };
 
-        mockedAxios.get.mockResolvedValue({
+        vi.mocked(mockedAxios.get).mockResolvedValue({
             data: { success: true, data: mockData },
         });
 

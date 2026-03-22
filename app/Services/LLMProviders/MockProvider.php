@@ -2,6 +2,7 @@
 
 namespace App\Services\LLMProviders;
 
+use App\Services\RedactionService;
 use Illuminate\Support\Arr;
 
 class MockProvider implements LLMProviderInterface
@@ -23,8 +24,11 @@ class MockProvider implements LLMProviderInterface
             throw new \App\Services\LLMProviders\Exceptions\LLMRateLimitException('Simulated rate limit', $retry);
         }
 
-        // Loosen detection and add logging
-        \Log::info('MockProvider generating for prompt: '.substr($prompt, 0, 100));
+        // Loosen detection and add logging (with PII-safe redaction)
+        $preview = substr($prompt, 0, 100);
+        $preview = RedactionService::redactText($preview);
+
+        \Log::info('MockProvider generating for prompt: '.$preview);
 
         // Smart Mock for "Crecimiento Agresivo" / "Aggressive Growth"
         if (stripos($prompt, 'Crecimiento') !== false || stripos($prompt, 'Aggressive') !== false || stripos($prompt, 'expansi') !== false) {

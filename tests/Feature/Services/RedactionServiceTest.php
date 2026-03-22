@@ -130,6 +130,30 @@ describe('RedactionService', function () {
         expect($types)->toContain('email');
         expect($types)->toContain('phone');
     });
+
+    it('redacts using the generic redact helper for strings', function () {
+        $text = 'Email: john@example.com';
+
+        $redacted = RedactionService::redact($text);
+
+        expect($redacted)->toBeString();
+        expect($redacted)->toContain('[REDACTED_EMAIL]');
+        expect($redacted)->not->toContain('john@example.com');
+    });
+
+    it('redacts using the generic redact helper for arrays', function () {
+        $data = [
+            'user' => 'john@example.com',
+            'nested' => [
+                'phone' => '555-123-4567',
+            ],
+        ];
+
+        $redacted = RedactionService::redact($data);
+
+        expect($redacted['user'])->toContain('[REDACTED_EMAIL]');
+        expect($redacted['nested']['phone'])->toContain('[REDACTED_PHONE]');
+    });
 });
 
 describe('RedactionAuditTrail Models', function () {

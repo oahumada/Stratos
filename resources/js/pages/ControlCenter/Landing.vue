@@ -28,6 +28,7 @@ import {
     PhBrain,
     PhCertificate,
     PhChartLineUp,
+    PhEye,
     PhGear,
     PhRobot,
     PhRocketLaunch,
@@ -67,6 +68,17 @@ const modules = computed(() => [
         icon: PhTarget,
         href: '/quality-hub',
         iconColor: 'text-pink-300',
+    },
+    {
+        title: t(
+            'landings.control_center.modules.intelligence_monitoring_hub.title',
+        ),
+        description: t(
+            'landings.control_center.modules.intelligence_monitoring_hub.description',
+        ),
+        icon: PhEye,
+        href: '/intelligence/monitoring-hub',
+        iconColor: 'text-cyan-300',
     },
     {
         title: t('landings.control_center.modules.stratos_compliance.title'),

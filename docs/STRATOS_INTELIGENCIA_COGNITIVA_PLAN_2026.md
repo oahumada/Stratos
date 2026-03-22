@@ -51,18 +51,18 @@ Stratos **ya tiene cimientos sólidos** en IA/ML:
 
 ### 1.2 Infraestructura Soportada
 
-| Componente                  | Implementado                  | Nota                                            |
-| --------------------------- | ----------------------------- | ----------------------------------------------- |
-| **LLM Providers**           | OpenAI, DeepSeek, ABACUS      | Agnóstico; agregar modelos locales (Ollama)     |
-| **Embeddings**              | OpenAI, ABACUS, mock          | Necesita fallback más robusto                   |
-| **Vector Storage**          | ❌ No (esperado: pgvector)    | **CRÍTICO para RAG**                            |
-| **Knowledge Graph**         | ❌ No                         | Arquitectura + schema definido, no implementado |
-| **Memory (short-term)**     | App context + session storage | Funcional pero básico                           |
-| **Memory (episodic)**       | LLMEvaluation records (logs)  | Funcional; puede mejorar indexación             |
-| **Memory (semantic)**       | ❌ No (será vector DB)        | **CRÍTICO**                                     |
-| **Orchestrator Supervisor** | Básico (Agent model)          | Necesita Planner + Verifier + Arbiter           |
-| **Audit & Logging**         | ✅ Muy completo               | AuditTrailService + ComplianceAudit             |
-| **Multi-tenant Scoping**    | ✅ Nativo                     | organization_id en todo lugar                   |
+| Componente                  | Implementado                   | Nota                                                                       |
+| --------------------------- | ------------------------------ | -------------------------------------------------------------------------- |
+| **LLM Providers**           | OpenAI, DeepSeek, ABACUS       | Agnóstico; agregar modelos locales (Ollama)                                |
+| **Embeddings**              | OpenAI, ABACUS, mock           | Necesita fallback más robusto                                              |
+| **Vector Storage**          | 🔄 Parcial (pgvector opcional) | Migraciones de extensión + columnas embedding; falta tabla genérica + jobs |
+| **Knowledge Graph**         | ❌ No                          | Arquitectura + schema definido, no implementado                            |
+| **Memory (short-term)**     | App context + session storage  | Funcional pero básico                                                      |
+| **Memory (episodic)**       | LLMEvaluation records (logs)   | Funcional; puede mejorar indexación                                        |
+| **Memory (semantic)**       | 🔄 En diseño (hacia vector DB) | Depende de despliegue completo de pgvector/RAG                             |
+| **Orchestrator Supervisor** | Básico (Agent model)           | Necesita Planner + Verifier + Arbiter                                      |
+| **Audit & Logging**         | ✅ Muy completo                | AuditTrailService + ComplianceAudit                                        |
+| **Multi-tenant Scoping**    | ✅ Nativo                      | organization_id en todo lugar                                              |
 
 ### 1.3 Modelos y Tablas de Soporte
 
@@ -161,6 +161,11 @@ Señales (feedback, métricas) → Análisis (paterns, drifts) → Mejora (re-in
 
 **Métrica de Éxito**: Indexación de 10K+ documentos < 5 min; query tiempo < 100ms
 
+**Estado actual (marzo 2026)**:
+
+- 🔄 Parcial: existe soporte pgvector (migraciones de extensión y columnas de embeddings en tablas core/escenarios/capabilities/blueprints) y `EmbeddingService` con lógica de similitud.
+- ⏳ Pendiente: tabla genérica `embeddings`, `EmbeddingIndexJob`, cron de reindexado y queries optimizadas sobre pgvector.
+
 ---
 
 ### **Sprint 1: RAG Pipeline Básico (Semana 3-4)**
@@ -195,6 +200,12 @@ Señales (feedback, métricas) → Análisis (paterns, drifts) → Mejora (re-in
 - Latencia P95: < 2s
 - Relevancia percibida (manual test): > 80%
 - Hallucination rate: < 5%
+
+**Estado actual (marzo 2026)**:
+
+- ✅ `RagService` implementado (MVP sobre `LLMEvaluation` + embeddings) y `RagController` exponiendo `POST /api/rag/ask`.
+- ✅ Wayfinder generado para `/api/rag/ask` (routes TS en `resources/js/routes/rag`).
+- 🔄 Pendiente: integración profunda en `StratosGuideService`, funciones separadas de ranking/assembly/post-filter y dashboard específico de calidad RAG.
 
 ---
 
@@ -232,6 +243,12 @@ Señales (feedback, métricas) → Análisis (paterns, drifts) → Mejora (re-in
 - 100% de LLM calls evaluados (RAGAS)
 - Dashboard actualizado cada 1h
 - Ningún prompt sensible almacenado en texto plano
+
+**Estado actual (marzo 2026)**:
+
+- ✅ Logging PII-safe de prompts vía `LogsPrompts` trait (`LLMClient`, `AiOrchestratorService` + tests unitarios).
+- ✅ Dashboards operativos: `QualityDashboard.vue` (QW-2) e `AgentMetricsDashboard.vue` (QW-5), ahora centralizados en `MonitoringHub.vue`.
+- 🔄 Pendiente: tabla `intelligence_metrics`, jobs de agregación/alerting y time-series completas de KPIs.
 
 ---
 
@@ -311,13 +328,17 @@ Señales (feedback, métricas) → Análisis (paterns, drifts) → Mejora (re-in
 - User acceptance rate ↑ 10%
 - Knowledge base re-indexado sin downtime
 
+**Estado actual (marzo 2026)**:
+
+- ⏳ No iniciado: tabla de feedback, jobs de señal y reindexado y versionado aún pendientes.
+
 ---
 
 ## 4️⃣ QUICK WINS (Implementables en Días)
 
 Antes de empezar Sprint 0, estos pueden dar valor inmediato:
 
-### **QW-1: Mejorar Logging de Prompts (1-2 días)**
+### **QW-1: Mejorar Logging de Prompts (1-2 días)** ✅ IMPLEMENTADO
 
 ```php
 // app/Traits/LogsPrompts.php
@@ -329,16 +350,16 @@ public static function logPrompt(string $prompt, string $output, ?array $metadat
 
 **Beneficio**: Trazabilidad sin riesgos de cumplimiento.
 
-### **QW-2: Dashboard de Salud RAGASEvaluator (1-2 días)**
+### **QW-2: Dashboard de Salud RAGASEvaluator (1-2 días)** ✅ IMPLEMENTADO
 
-Crear Blade con gráficos de `llm_evaluations`:
+Crear Blade/Vue con gráficos de `llm_evaluations`:
 
-- Faithfulness trend
-- Hallucination detection rate
-- Provider comparison
-  **Beneficio**: Visibilidad de calidad LLM en tiempo real.
+- Faithfulness trend ✅ (tendencias de calidad en `QualityDashboard.vue`)
+- Hallucination detection rate ✅ (KPI de **Tasa de Alucinación**)
+- Provider comparison ✅ (gráfico "Evaluaciones por Proveedor")
+- **Beneficio**: Visibilidad de calidad LLM en tiempo real. ✅ LOGRADO
 
-### **QW-3: Endpoint Interno `/api/rag/ask` (2-3 días)**
+### **QW-3: Endpoint Interno `/api/rag/ask` (2-3 días)** ✅ IMPLEMENTADO
 
 Usar `EmbeddingService` + existing LLM providers para un Q&A básico.
 
@@ -357,7 +378,7 @@ POST /api/rag/ask
 
 **Beneficio**: PoC de RAG antes de infra completa.
 
-### **QW-4: Redaction Service para PII (2-3 días)**
+### **QW-4: Redaction Service para PII (2-3 días)** ✅ IMPLEMENTADO
 
 Polir `RedactionService` existente y usarlo en todos los logs.
 
@@ -367,16 +388,37 @@ $redacted = RedactionService::redact($prompt, ['email', 'phone', 'ssn']);
 
 **Beneficio**: GDPR-ready logging sin riesgos.
 
-### **QW-5: Agent Interaction Metrics (1-2 días)**
+### **QW-5: Agent Interaction Metrics (1-2 días)** ✅ IMPLEMENTADO
 
 Query `agent_interactions` + `llm_evaluations` para dashboard:
 
-- Call count por agent
-- Success rate (evaluación RAGAS)
-- Avg latency
-  **Beneficio**: KPIs de agentes sin código nuevo.
+- Call count por agent ✅ (`AgentMetricsDashboard.vue` – gráfico "Interacciones por Agente")
+- Success rate (evaluación RAGAS) ✅ (KPI **Tasa de Éxito %**)
+- Avg latency ✅ (KPI **Latencia Promedio** + bloque de percentiles P50/P95/P99)
+- **Beneficio**: KPIs de agentes sin código nuevo. ✅ LOGRADO
 
 **Total Quick Wins**: 7-14 días; valor inmediato + contexto para Sprint 0.
+
+---
+
+### 📊 ESTADO DE IMPLEMENTACIÓN (22 de marzo de 2026)
+
+**Estado Quick Wins:**
+
+- ✅ **QW-1**: Logging de prompts implementado (`LogsPrompts` + canal `llm_prompts` + tests)
+- ✅ **QW-2**: Dashboard de Salud RAGASEvaluator completo (QualityDashboard.vue)
+- ✅ **QW-3**: Endpoint interno `/api/rag/ask` operativo (RagService + RagController)
+- ✅ **QW-4**: Redaction Service PII estandarizado en logs clave (`RedactionService` + canal `redaction` + tests)
+- ✅ **QW-5**: Agent Interaction Metrics completo (AgentMetricsDashboard.vue)
+
+**Extra no previsto en el plan original:**
+
+- ✅ **MonitoringHub.vue**: Hub centralizado de Inteligencia & Monitoreo accesible desde Command Center y sidebar, agrupando QW-2, QW-5 y futuros dashboards.
+
+**Resumen de avance:**
+
+- Quick Wins: 5/5 completados (100%)
+- Capa de visibilidad: dashboards de calidad LLM y de agentes ya operativos y unificados en el nuevo hub.
 
 ---
 
@@ -485,6 +527,53 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
 **Palanca**: 1 engineer 50% + soporte ad-hoc.
 
 **Recomendación**: **Opción A** — el costo de complejidad futura (mantenimiento de múltiples patrones) supera la inversión ahora. Además, el valor de negocio (reducción de hallucinations, recomendaciones precisas) justifica la prioridad.
+
+---
+
+## 9️⃣ Backlog de Implementación Detallado
+
+### Bloque 1 – Quick Win pendiente
+
+- [x] **QW-4 – Redaction Service PII**
+    - [x] Revisar todos los puntos donde se loguean prompts/outputs (LLMClient, AiOrchestratorService, servicios de agentes).
+    - [x] Estandarizar uso de `RedactionService::redact()` antes de escribir en `llm_prompts` y otros canales.
+    - [x] Añadir tests que validen que emails/teléfonos/IDs sensibles nunca aparecen en logs.
+
+### Bloque 2 – Sprint 0: Vector DB + Indexación
+
+- [x] Diseñar y crear tabla genérica `embeddings` (organization_id, resource_type, resource_id, metadata, embedding).
+- [x] Implementar `EmbeddingIndexJob` para indexar:
+    - [x] Personas (People) – indexación básica con nombre/email/rol.
+    - [x] Roles – apoyado en `EmbeddingService::forRole()`.
+    - [x] Escenarios – apoyado en `EmbeddingService::forScenario()`.
+    - [ ] FAQ / knowledge base de StratosGuide.
+- [ ] Añadir comando/cron para reindexado delta (solo cambios recientes).
+- [ ] Ajustar `EmbeddingService` para leer/escribir en `embeddings` cuando pgvector esté disponible.
+
+### Bloque 3 – Sprint 1: RAG Pipeline "bien hecho"
+
+- [ ] Refactor de `RagService` en métodos explícitos:
+    - [ ] `retrieve(query, org_id, filters)`.
+    - [ ] `rank(documents, query)`.
+    - [ ] `assemblePrompt(query, docs, context)`.
+    - [ ] `generate(query)`.
+    - [ ] `postFilter(result)` (scoping, redacción PII).
+- [ ] Integrar `RagService` en `StratosGuideService` para FAQs de metodología, escenarios y blueprints.
+- [ ] Alinear `/api/rag/ask` con el frontend usando rutas Wayfinder (TS) donde aplique.
+- [ ] Añadir primeras métricas de latencia/éxito de RAG (logs estructurados + counters básicos).
+
+### Bloque 4 – Sprint 2: Métricas de Inteligencia
+
+- [ ] Diseñar y crear tabla `intelligence_metrics` (latencia, calidad, tasa de hallucination, acceptance rate, fairness cuando aplique).
+- [ ] Implementar jobs que agreguen datos desde `LLMEvaluation`, logs de RAG/LLM y feedback de usuarios.
+- [ ] Extender dashboards existentes o crear uno nuevo para mostrar time-series, SLAs y incident history.
+- [ ] Hacer que `RAGASEvaluator` sea paso estándar de post-validación para llamadas críticas.
+
+### Bloque 5 – Sprints 3 y 4: Orquestación y Learning Loop
+
+- [ ] Definir contratos e interfaces para `PlannerAgent`, `VerifierAgent` y `ArbiterAgent` (inputs/outputs, errores, timeouts).
+- [ ] Diseñar modelo/tablas `improvement_feedback` y taxonomía de tags (hallucination, irrelevant, incomplete, excellent).
+- [ ] Especificar comportamiento de jobs `ProcessImprovementSignals` y `ReindexKnowledge` (sin implementarlos aún).
 
 ---
 

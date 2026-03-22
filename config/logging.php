@@ -142,6 +142,14 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'redaction' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/redaction.log'),
+            'level' => env('LOG_LEVEL', 'info'),
+            'days' => env('LOG_REDACTION_RETENTION', 90),
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];

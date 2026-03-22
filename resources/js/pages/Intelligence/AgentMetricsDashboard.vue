@@ -2,16 +2,9 @@
 import { useAgentMetrics } from '@/composables/useAgentMetrics';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { KpiCard } from '@/types/quality';
-import {
-    PhChartLine,
-    PhWarning,
-    PhCheckCircle,
-    PhClock,
-} from '@phosphor-icons/vue';
 import { computed, onBeforeUnmount, onMounted } from 'vue';
-import ApexChart from 'apexcharts';
-import { VChart } from 'vue-echarts';
-import * as echarts from 'echarts';
+import VChart from 'vue-echarts';
+import VueApexCharts from 'vue3-apexcharts';
 
 defineOptions({
     layout: AppLayout,
@@ -56,7 +49,7 @@ const kpiCards = computed<KpiCard[]>(() => [
         title: 'Latencia Promedio',
         value: avgLatency.value,
         icon: 'mdi-clock',
-        color: 'blue',
+        color: 'cyan',
         unit: 'ms',
     },
     {
@@ -73,7 +66,7 @@ const agentInteractionsChart = computed(() => ({
     options: {
         chart: {
             id: 'agent-interactions',
-            type: 'bar',
+            type: 'bar' as const,
             toolbar: { show: false },
             fontFamily: 'inherit',
         },
@@ -95,7 +88,7 @@ const agentInteractionsChart = computed(() => ({
         },
         colors: ['#6366f1', '#10b981'],
         legend: {
-            position: 'top',
+            position: 'top' as const,
             labels: {
                 colors: 'rgba(255,255,255,0.7)',
             },
@@ -106,14 +99,10 @@ const agentInteractionsChart = computed(() => ({
         grid: {
             borderColor: 'rgba(255,255,255,0.1)',
         },
-        plotOptions: {
-            bar: {
-                dataLabels: {
-                    enabled: false,
-                },
-            },
+        dataLabels: {
+            enabled: false,
         },
-    },
+    } as any,
     series: [
         {
             name: 'Interacciones',
@@ -135,13 +124,13 @@ const providerDistributionChart = computed(() => {
         options: {
             chart: {
                 id: 'provider-distribution',
-                type: 'pie',
+                type: 'pie' as const,
                 toolbar: { show: false },
             },
             labels: providers,
             colors: ['#6366f1', '#10b981', '#f59e0b', '#f97316', '#ef4444'],
             legend: {
-                position: 'bottom',
+                position: 'bottom' as const,
                 labels: {
                     colors: 'rgba(255,255,255,0.7)',
                 },
@@ -149,15 +138,11 @@ const providerDistributionChart = computed(() => {
             theme: {
                 mode: 'dark',
             },
-            plotOptions: {
-                pie: {
-                    dataLabels: {
-                        enabled: true,
-                        formatter: (val: number) => val.toFixed(0) + '%',
-                    },
-                },
+            dataLabels: {
+                enabled: true,
+                formatter: (val: number) => val.toFixed(0) + '%',
             },
-        },
+        } as any,
         series: counts,
     };
 });
@@ -242,7 +227,7 @@ const errorDistributionChart = computed(() => {
         options: {
             chart: {
                 id: 'error-distribution',
-                type: 'barH',
+                type: 'barH' as const,
                 toolbar: { show: false },
             },
             xaxis: {
@@ -264,6 +249,7 @@ const errorDistributionChart = computed(() => {
             colors: ['#ef4444'],
             legend: {
                 show: false,
+                position: 'bottom' as const,
             },
             theme: {
                 mode: 'dark',
@@ -271,7 +257,10 @@ const errorDistributionChart = computed(() => {
             grid: {
                 borderColor: 'rgba(255,255,255,0.1)',
             },
-        },
+            dataLabels: {
+                enabled: false,
+            },
+        } as any,
         series: [
             {
                 name: 'Error Count',
@@ -294,7 +283,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="w-full min-h-screen bg-slate-950">
+    <div class="min-h-screen w-full bg-slate-950">
         <!-- Header -->
         <div class="border-b border-slate-800 bg-slate-900 px-6 py-8">
             <div class="flex items-center justify-between">
@@ -307,10 +296,8 @@ onBeforeUnmount(() => {
                     </p>
                 </div>
                 <div class="text-right">
-                    <p class="text-sm text-slate-500">
-                        Última actualización:
-                    </p>
-                    <p class="text-lg font-mono text-slate-300">
+                    <p class="text-sm text-slate-500">Última actualización:</p>
+                    <p class="font-mono text-lg text-slate-300">
                         {{
                             lastUpdated
                                 ? lastUpdated.toLocaleTimeString()
@@ -324,24 +311,32 @@ onBeforeUnmount(() => {
         <!-- Content -->
         <div class="space-y-6 p-6">
             <!-- Loading State -->
-            <div v-if="isLoading" class="text-center py-12">
+            <div v-if="isLoading" class="py-12 text-center">
                 <div class="inline-flex items-center space-x-2">
-                    <div class="h-4 w-4 animate-spin rounded-full border-2 border-slate-600 border-t-indigo-500"></div>
+                    <div
+                        class="h-4 w-4 animate-spin rounded-full border-2 border-slate-600 border-t-indigo-500"
+                    ></div>
                     <span class="text-slate-400">Cargando métricas...</span>
                 </div>
             </div>
 
             <!-- Error State -->
-            <div v-else-if="error" class="rounded-lg bg-rose-950 p-4 text-rose-200">
+            <div
+                v-else-if="error"
+                class="rounded-lg bg-rose-950 p-4 text-rose-200"
+            >
                 {{ error }}
             </div>
 
             <!-- KPI Cards -->
-            <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div
+                v-else
+                class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
+            >
                 <div
                     v-for="card in kpiCards"
                     :key="card.title"
-                    class="rounded-lg border border-slate-700 bg-slate-900 p-6 hover:border-slate-600 transition"
+                    class="rounded-lg border border-slate-700 bg-slate-900 p-6 transition hover:border-slate-600"
                 >
                     <div class="flex items-start justify-between">
                         <div>
@@ -350,7 +345,7 @@ onBeforeUnmount(() => {
                             </p>
                             <p class="mt-2 text-2xl font-bold text-white">
                                 {{ card.value
-                                }}<span class="text-sm text-slate-400 ml-1">{{
+                                }}<span class="ml-1 text-sm text-slate-400">{{
                                     card.unit
                                 }}</span>
                             </p>
@@ -365,13 +360,18 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- Charts Grid -->
-            <div v-if="!isLoading && !error" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div
+                v-if="!isLoading && !error"
+                class="grid grid-cols-1 gap-6 lg:grid-cols-2"
+            >
                 <!-- Agent Interactions Chart -->
-                <div class="rounded-lg border border-slate-700 bg-slate-900 p-6">
+                <div
+                    class="rounded-lg border border-slate-700 bg-slate-900 p-6"
+                >
                     <h2 class="mb-4 text-lg font-semibold text-white">
                         Interacciones por Agente
                     </h2>
-                    <apexchart
+                    <VueApexCharts
                         type="bar"
                         :options="agentInteractionsChart.options"
                         :series="agentInteractionsChart.series"
@@ -380,11 +380,13 @@ onBeforeUnmount(() => {
                 </div>
 
                 <!-- Provider Distribution Chart -->
-                <div class="rounded-lg border border-slate-700 bg-slate-900 p-6">
+                <div
+                    class="rounded-lg border border-slate-700 bg-slate-900 p-6"
+                >
                     <h2 class="mb-4 text-lg font-semibold text-white">
                         Distribución por Proveedor
                     </h2>
-                    <apexchart
+                    <VueApexCharts
                         type="pie"
                         :options="providerDistributionChart.options"
                         :series="providerDistributionChart.series"
@@ -393,20 +395,28 @@ onBeforeUnmount(() => {
                 </div>
 
                 <!-- Daily Trend Chart -->
-                <div class="col-span-1 lg:col-span-2 rounded-lg border border-slate-700 bg-slate-900 p-6">
+                <div
+                    class="col-span-1 rounded-lg border border-slate-700 bg-slate-900 p-6 lg:col-span-2"
+                >
                     <h2 class="mb-4 text-lg font-semibold text-white">
                         Tendencia Diaria
                     </h2>
-                    <v-chart :option="dailyTrendOption" autoresize style="height: 300px" />
+                    <v-chart
+                        :option="dailyTrendOption"
+                        autoresize
+                        style="height: 300px"
+                    />
                 </div>
 
                 <!-- Error Distribution Chart -->
-                <div class="col-span-1 lg:col-span-1 rounded-lg border border-slate-700 bg-slate-900 p-6">
+                <div
+                    class="col-span-1 rounded-lg border border-slate-700 bg-slate-900 p-6 lg:col-span-1"
+                >
                     <h2 class="mb-4 text-lg font-semibold text-white">
                         Top Errores
                     </h2>
-                    <apexchart
-                        type="barH"
+                    <VueApexCharts
+                        type="bar"
                         :options="errorDistributionChart.options"
                         :series="errorDistributionChart.series"
                         height="250"
@@ -414,7 +424,9 @@ onBeforeUnmount(() => {
                 </div>
 
                 <!-- Failing Agents Table -->
-                <div class="rounded-lg border border-slate-700 bg-slate-900 p-6">
+                <div
+                    class="rounded-lg border border-slate-700 bg-slate-900 p-6"
+                >
                     <h2 class="mb-4 text-lg font-semibold text-white">
                         Agentes Fallidos
                     </h2>
@@ -430,8 +442,12 @@ onBeforeUnmount(() => {
                             :key="agent.agent_name"
                             class="flex items-center justify-between rounded border border-slate-700 bg-slate-800 p-3"
                         >
-                            <span class="text-sm text-slate-200">{{ agent.agent_name }}</span>
-                            <span class="inline-flex items-center rounded-full bg-rose-950 px-2.5 py-0.5 text-xs font-medium text-rose-200">
+                            <span class="text-sm text-slate-200">{{
+                                agent.agent_name
+                            }}</span>
+                            <span
+                                class="inline-flex items-center rounded-full bg-rose-950 px-2.5 py-0.5 text-xs font-medium text-rose-200"
+                            >
                                 {{ agent.error_count }} errores
                             </span>
                         </div>
@@ -440,24 +456,33 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- Latency Percentiles -->
-            <div v-if="!isLoading && !error" class="rounded-lg border border-slate-700 bg-slate-900 p-6">
+            <div
+                v-if="!isLoading && !error"
+                class="rounded-lg border border-slate-700 bg-slate-900 p-6"
+            >
                 <h2 class="mb-4 text-lg font-semibold text-white">
                     Percentiles de Latencia
                 </h2>
                 <div class="grid grid-cols-3 gap-4">
-                    <div class="rounded border border-slate-700 bg-slate-800 p-4">
+                    <div
+                        class="rounded border border-slate-700 bg-slate-800 p-4"
+                    >
                         <p class="text-sm text-slate-400">P50 (Mediana)</p>
                         <p class="mt-2 text-2xl font-bold text-indigo-400">
                             {{ metrics.latency_percentiles.p50 }} ms
                         </p>
                     </div>
-                    <div class="rounded border border-slate-700 bg-slate-800 p-4">
+                    <div
+                        class="rounded border border-slate-700 bg-slate-800 p-4"
+                    >
                         <p class="text-sm text-slate-400">P95</p>
                         <p class="mt-2 text-2xl font-bold text-yellow-400">
                             {{ metrics.latency_percentiles.p95 }} ms
                         </p>
                     </div>
-                    <div class="rounded border border-slate-700 bg-slate-800 p-4">
+                    <div
+                        class="rounded border border-slate-700 bg-slate-800 p-4"
+                    >
                         <p class="text-sm text-slate-400">P99</p>
                         <p class="mt-2 text-2xl font-bold text-rose-400">
                             {{ metrics.latency_percentiles.p99 }} ms

@@ -80,7 +80,8 @@ export const messages = {
             step4_title: 'Competencies',
             step4_desc: 'SFIA Alignment',
             step5_title: 'Role BARS Standards',
-            step5_desc: 'Define Conduct, Mindset, Responsibility and Knowledge standards.',
+            step5_desc:
+                'Define Conduct, Mindset, Responsibility and Knowledge standards.',
             define_node: 'Define the Execution Node',
             define_node_desc:
                 'Describe the primary mission and critical priorities. AI will synthesize the multi-dimensional coordinates.',
@@ -133,13 +134,15 @@ export const messages = {
             send_for_approval: 'Send for Approval',
             resend_for_signature: 'Resend for Signature',
             approval_sent_title: 'Request Sent',
-            approval_sent_desc: 'An approval link has been sent to the selected responsible person.',
+            approval_sent_desc:
+                'An approval link has been sent to the selected responsible person.',
             new_capacity: 'New Capacity',
             manual_rationale: 'Manually defined by architect.',
             ops: 'Ops',
             add_manual: 'Add Definition Manually',
             bars_title: 'Role BARS (Behavior, Attitude, Responsibility, Skill)',
-            bars_subtitle: 'Transversal behavior definition for the architectural node',
+            bars_subtitle:
+                'Transversal behavior definition for the architectural node',
             competency_summary: 'Competency Summary & SFIA Levels',
             alignment_ok: 'Strategic Alignment OK',
             required_level: 'Required Level',
@@ -723,6 +726,11 @@ export const messages = {
                         title: 'Quality Sentinel',
                         description: 'Reliability and RAGAS monitoring.',
                     },
+                    intelligence_monitoring_hub: {
+                        title: 'Intelligence & Monitoring Hub',
+                        description:
+                            'LLM quality, agent metrics, and compliance observability.',
+                    },
                     stratos_compliance: {
                         title: 'Stratos Compliance',
                         description:
@@ -865,7 +873,8 @@ export const messages = {
             step4_title: 'Competencias',
             step4_desc: 'Alineación SFIA',
             step5_title: 'Estándares BARS del Rol',
-            step5_desc: 'Define Conducta, Actitud, Responsabilidad y Conocimiento.',
+            step5_desc:
+                'Define Conducta, Actitud, Responsabilidad y Conocimiento.',
             step6_title: 'Blueprint de Skills',
             step6_desc: 'Detalle de Aprendizaje',
             define_node: 'Definir el Nodo de Ejecución',
@@ -907,7 +916,8 @@ export const messages = {
             view_skill_blueprint: 'Ver Blueprint de Habilidades',
             review_bars: 'Revisar BARS',
             bars_definition: 'Definición BARS',
-            bars_desc: 'Estándares de Comportamiento, Actitud, Responsabilidad y Habilidad.',
+            bars_desc:
+                'Estándares de Comportamiento, Actitud, Responsabilidad y Habilidad.',
             bars_behavior: 'Behavior (Conducta)',
             bars_attitude: 'Attitude (Actitud)',
             bars_responsibility: 'Responsibility (Responsabilidad)',
@@ -922,11 +932,14 @@ export const messages = {
             send_for_approval: 'Enviar a Aprobación',
             resend_for_signature: 'Reenviar para Firma',
             approval_sent_title: 'Solicitud Enviada',
-            approval_sent_desc: 'Se ha enviado un link de aprobación al responsable seleccionado.',
+            approval_sent_desc:
+                'Se ha enviado un link de aprobación al responsable seleccionado.',
             new_capacity: 'Nueva Capacidad',
             manual_rationale: 'Definición manual por el arquitecto.',
-            bars_title: 'BARS del Rol (Behavior, Attitude, Responsibility, Skill)',
-            bars_subtitle: 'Definición de comportamiento transversal para el nodo arquitectónico',
+            bars_title:
+                'BARS del Rol (Behavior, Attitude, Responsibility, Skill)',
+            bars_subtitle:
+                'Definición de comportamiento transversal para el nodo arquitectónico',
             competency_summary: 'Resumen de Competencias & Niveles SFIA',
             alignment_ok: 'Alineación Estratégica OK',
             required_level: 'Nivel Requerido',
@@ -1513,6 +1526,11 @@ export const messages = {
                     quality_sentinel: {
                         title: 'Centinela de Calidad',
                         description: 'Monitoreo de fiabilidad y RAGAS.',
+                    },
+                    intelligence_monitoring_hub: {
+                        title: 'Hub de Inteligencia y Monitoreo',
+                        description:
+                            'Calidad LLM, métricas de agentes y observabilidad de cumplimiento.',
                     },
                     stratos_compliance: {
                         title: 'Stratos Compliance',

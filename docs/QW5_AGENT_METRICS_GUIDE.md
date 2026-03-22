@@ -9,6 +9,7 @@ QW-5 implementa un sistema completo de observabilidad para las interacciones ent
 ### Componentes Backend
 
 #### 1. **AgentInteraction Model**
+
 Modelo Eloquent que almacena cada interacción entre un agente y un LLM.
 
 ```php
@@ -29,6 +30,7 @@ Modelo Eloquent que almacena cada interacción entre un agente y un LLM.
 ```
 
 #### 2. **AgentInteractionMetricsService**
+
 Servicio que agrega y calcula métricas desde la base de datos.
 
 **Métodos públicos:**
@@ -55,11 +57,13 @@ getDailyTrend(?DateTimeInterface $since = null): array
 ```
 
 **Características:**
+
 - Cache de 1 hora TTL con key pattern: `agent_metrics:{org_id}:{date}`
 - Multi-tenant scoping automático
 - Manejo elegante de datasets vacíos
 
 #### 3. **AiOrchestratorService Instrumentation**
+
 El servicio central de orquestación de agentes ha sido actualizado para registrar automáticamente cada interacción.
 
 ```php
@@ -77,6 +81,7 @@ $this->recordInteraction($agentName, $promptHash, $latencyMs, 0, 'error', $excep
 ```
 
 **Integración:**
+
 - Todas las llamadas a `AiOrchestratorService::agentThink()` son auto-registradas
 - Soporta múltiples proveedores LLM (OpenAI, Anthropic, etc.)
 - Valida aislamiento multi-tenant automáticamente
@@ -84,6 +89,7 @@ $this->recordInteraction($agentName, $promptHash, $latencyMs, 0, 'error', $excep
 ### Componentes Frontend
 
 #### 1. **useAgentMetrics Composable**
+
 ```typescript
 // resources/js/composables/useAgentMetrics.ts
 const {
@@ -93,14 +99,14 @@ const {
     isLoading,
     error,
     lastUpdated,
-    
+
     // KPIs derivados
     successRate,             // Tasa de éxito
     totalInteractions,       // Total de interacciones
     avgLatency,              // Latencia promedio en ms
     topFailingAgent,         // Agente con más errores
     topSlowAgent,            // Agente más lento
-    
+
     // Métodos
     fetchAllMetrics(since?: string),
     startPolling(intervalMs: number),
@@ -109,11 +115,13 @@ const {
 ```
 
 #### 2. **AgentMetricsDashboard Vue Component**
+
 ```vue
 <!-- resources/js/pages/Intelligence/AgentMetricsDashboard.vue -->
 ```
 
 **Visualizaciones:**
+
 - **KPI Cards**: Interacciones totales, tasa éxito, latencia promedio, agentes fallidos
 - **Bar Chart**: Interacciones y tasa éxito por agente
 - **Pie Chart**: Distribución por proveedor LLM
@@ -123,6 +131,7 @@ const {
 - **Percentiles Card**: P50, P95, P99 de latencia
 
 **Features:**
+
 - Auto-polling cada 30 segundos
 - Responsive design (móvil, tablet, desktop)
 - Dark mode (tema por defecto)
@@ -134,91 +143,97 @@ const {
 ### 1. GET `/api/agent-interactions/metrics/summary`
 
 **Query Parameters:**
+
 - `since` (optional): Fecha ISO 8601 (default: últimos 30 días)
 
 **Response:**
+
 ```json
 {
-  "success": true,
-  "data": {
-    "summary": {
-      "total_interactions": 1250,
-      "total_succeeded": 1187,
-      "total_failed": 63,
-      "success_rate": 0.9496,
-      "avg_latency_ms": 1234.5,
-      "avg_tokens": 456
-    },
-    "by_agent": [
-      {
-        "agent_name": "TurnoverPredictor",
-        "count": 350,
-        "success_rate": 0.9857
-      }
-    ],
-    "by_provider": {
-      "openai": 700,
-      "anthropic": 550
-    },
-    "daily_trend": [
-      {
-        "date": "2025-03-22",
-        "total": 45,
-        "success": 43,
-        "error": 2
-      }
-    ],
-    "error_distribution": [
-      {
-        "error": "rate_limit_exceeded",
-        "count": 25
-      }
-    ],
-    "latency_percentiles": {
-      "p50": 892,
-      "p95": 3456,
-      "p99": 5234
+    "success": true,
+    "data": {
+        "summary": {
+            "total_interactions": 1250,
+            "total_succeeded": 1187,
+            "total_failed": 63,
+            "success_rate": 0.9496,
+            "avg_latency_ms": 1234.5,
+            "avg_tokens": 456
+        },
+        "by_agent": [
+            {
+                "agent_name": "TurnoverPredictor",
+                "count": 350,
+                "success_rate": 0.9857
+            }
+        ],
+        "by_provider": {
+            "openai": 700,
+            "anthropic": 550
+        },
+        "daily_trend": [
+            {
+                "date": "2025-03-22",
+                "total": 45,
+                "success": 43,
+                "error": 2
+            }
+        ],
+        "error_distribution": [
+            {
+                "error": "rate_limit_exceeded",
+                "count": 25
+            }
+        ],
+        "latency_percentiles": {
+            "p50": 892,
+            "p95": 3456,
+            "p99": 5234
+        }
     }
-  }
 }
 ```
 
 ### 2. GET `/api/agent-interactions/metrics/failing-agents`
 
 **Query Parameters:**
+
 - `limit` (optional): Número de agentes (default: 10)
 - `since` (optional): Fecha ISO 8601
 
 **Response:**
+
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "agent_name": "CompetencyAssessment",
-      "error_count": 12
-    }
-  ]
+    "success": true,
+    "data": [
+        {
+            "agent_name": "CompetencyAssessment",
+            "error_count": 12
+        }
+    ]
 }
 ```
 
 ### 3. GET `/api/agent-interactions/metrics/latency-by-agent`
 
 **Query Parameters:**
+
 - `since` (optional): Fecha ISO 8601
 
 **Response:**
+
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "agent_name": "ImpactEngine",
-      "avg_latency_ms": 2345,
-      "median_latency_ms": 1987,
-      "max_latency_ms": 8765
-    }
-  ]
+    "success": true,
+    "data": [
+        {
+            "agent_name": "ImpactEngine",
+            "avg_latency_ms": 2345,
+            "median_latency_ms": 1987,
+            "max_latency_ms": 8765
+        }
+    ]
 }
 ```
 
@@ -226,8 +241,8 @@ const {
 
 ## Rutas Web
 
-| URL | Route Name | Descripción |
-|-----|-----------|-------------|
+| URL                           | Route Name                   | Descripción                    |
+| ----------------------------- | ---------------------------- | ------------------------------ |
 | `/intelligence/agent-metrics` | `intelligence.agent-metrics` | Dashboard completo de métricas |
 
 ## Uso del Dashboard
@@ -248,21 +263,17 @@ import { intelligence_agent_metrics } from '@/routes';
 ```typescript
 import { useAgentMetrics } from '@/composables/useAgentMetrics';
 
-const {
-  metrics,
-  fetchAllMetrics,
-  startPolling,
-} = useAgentMetrics();
+const { metrics, fetchAllMetrics, startPolling } = useAgentMetrics();
 
 onMounted(() => {
-  // Cargar métricas con filtro de últimos 7 días
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  
-  fetchAllMetrics(sevenDaysAgo.toISOString().split('T')[0]);
-  
-  // Auto-actualizar cada 60 segundos
-  startPolling(60000);
+    // Cargar métricas con filtro de últimos 7 días
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    fetchAllMetrics(sevenDaysAgo.toISOString().split('T')[0]);
+
+    // Auto-actualizar cada 60 segundos
+    startPolling(60000);
 });
 ```
 
@@ -288,13 +299,13 @@ CREATE TABLE agent_interactions (
   context TEXT,
   created_at TIMESTAMP,
   updated_at TIMESTAMP,
-  
+
   -- Indexes
   INDEX idx_org_date (organization_id, created_at),
   INDEX idx_agent_date (agent_name, created_at),
   INDEX idx_status_date (status, created_at),
   UNIQUE KEY idx_prompt_hash (prompt_hash),
-  
+
   -- Foreign Keys
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
@@ -330,17 +341,20 @@ php artisan test --filter=AgentInteractionMetrics
 ### No se ven métricas en el dashboard
 
 1. Verifica que hay interacciones registradas:
+
 ```bash
 php artisan tinker
 >>> App\Models\AgentInteraction::count()
 ```
 
 2. Verifica que la ruta está registrada:
+
 ```bash
 php artisan route:list | grep agent-metrics
 ```
 
 3. Verifica logs de la app:
+
 ```bash
 tail -f storage/logs/laravel.log
 ```
@@ -355,6 +369,7 @@ tail -f storage/logs/laravel.log
 
 1. Verifica que Node.js/npm están actualizado
 2. Ejecuta:
+
 ```bash
 npm run build
 # o
@@ -362,6 +377,7 @@ npm run dev
 ```
 
 3. Limpia caché:
+
 ```bash
 php artisan config:clear
 php artisan cache:clear
@@ -376,27 +392,33 @@ import { useAgentMetrics } from '@/composables/useAgentMetrics';
 import { computed, onMounted, onBeforeUnmount } from 'vue';
 
 export default {
-  setup() {
-    const { metrics, failingAgents, startPolling, stopPolling, fetchAllMetrics } = useAgentMetrics();
-    
-    const successRatePercentage = computed(() => 
-      (metrics.value.success_rate * 100).toFixed(1)
-    );
-    
-    onMounted(() => {
-      fetchAllMetrics();
-      // Actualizar cada 15 segundos
-      startPolling(15000);
-    });
-    
-    onBeforeUnmount(() => stopPolling());
-    
-    return {
-      metrics,
-      failingAgents,
-      successRatePercentage,
-    };
-  }
+    setup() {
+        const {
+            metrics,
+            failingAgents,
+            startPolling,
+            stopPolling,
+            fetchAllMetrics,
+        } = useAgentMetrics();
+
+        const successRatePercentage = computed(() =>
+            (metrics.value.success_rate * 100).toFixed(1),
+        );
+
+        onMounted(() => {
+            fetchAllMetrics();
+            // Actualizar cada 15 segundos
+            startPolling(15000);
+        });
+
+        onBeforeUnmount(() => stopPolling());
+
+        return {
+            metrics,
+            failingAgents,
+            successRatePercentage,
+        };
+    },
 };
 ```
 
@@ -404,12 +426,15 @@ export default {
 
 ```typescript
 watch(
-  () => metrics.value.success_rate,
-  (newRate) => {
-    if (newRate < 0.9) {  // Menos del 90%
-      notification.warn(`⚠️ Tasa de éxito baja: ${(newRate * 100).toFixed(1)}%`);
-    }
-  }
+    () => metrics.value.success_rate,
+    (newRate) => {
+        if (newRate < 0.9) {
+            // Menos del 90%
+            notification.warn(
+                `⚠️ Tasa de éxito baja: ${(newRate * 100).toFixed(1)}%`,
+            );
+        }
+    },
 );
 ```
 
@@ -431,18 +456,18 @@ watch(
 
 ## Archivos Creados/Modificados
 
-| Archivo | Tipo | Líneas | Descripción |
-|---------|------|--------|-------------|
-| `app/Models/AgentInteraction.php` | NEW | 40 | Modelo Eloquent |
-| `database/migrations/2026_03_22_...` | NEW | 45 | Migración de DB |
-| `app/Services/AgentInteractionMetricsService.php` | NEW | 280 | Servicio de métricas |
-| `app/Services/AiOrchestratorService.php` | UPDATED | +70 | Instrumentación |
-| `app/Http/Controllers/Api/AgentInteractionMetricsController.php` | NEW | 67 | Controlador API |
-| `resources/js/composables/useAgentMetrics.ts` | NEW | 180 | Composable Vue |
-| `resources/js/pages/Intelligence/AgentMetricsDashboard.vue` | NEW | 450+ | Componente dashboard |
-| `routes/web.php` | UPDATED | +4 | Ruta del dashboard |
-| `routes/api.php` | UPDATED | +6 | Rutas API (3 endpoints) |
-| `tests/Feature/AgentInteractionMetricsTest.php` | NEW | 149 | Tests unitarios |
-| `tests/Feature/AgentInteractionMetricsApiTest.php` | NEW | 76 | Tests API |
+| Archivo                                                          | Tipo    | Líneas | Descripción             |
+| ---------------------------------------------------------------- | ------- | ------ | ----------------------- |
+| `app/Models/AgentInteraction.php`                                | NEW     | 40     | Modelo Eloquent         |
+| `database/migrations/2026_03_22_...`                             | NEW     | 45     | Migración de DB         |
+| `app/Services/AgentInteractionMetricsService.php`                | NEW     | 280    | Servicio de métricas    |
+| `app/Services/AiOrchestratorService.php`                         | UPDATED | +70    | Instrumentación         |
+| `app/Http/Controllers/Api/AgentInteractionMetricsController.php` | NEW     | 67     | Controlador API         |
+| `resources/js/composables/useAgentMetrics.ts`                    | NEW     | 180    | Composable Vue          |
+| `resources/js/pages/Intelligence/AgentMetricsDashboard.vue`      | NEW     | 450+   | Componente dashboard    |
+| `routes/web.php`                                                 | UPDATED | +4     | Ruta del dashboard      |
+| `routes/api.php`                                                 | UPDATED | +6     | Rutas API (3 endpoints) |
+| `tests/Feature/AgentInteractionMetricsTest.php`                  | NEW     | 149    | Tests unitarios         |
+| `tests/Feature/AgentInteractionMetricsApiTest.php`               | NEW     | 76     | Tests API               |
 
 **Total: 11 archivos, 12 tests ✅ (todos passing)**

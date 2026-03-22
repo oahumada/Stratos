@@ -3545,25 +3545,40 @@ POST /api/rag/ask
 **Componentes Creados:**
 
 - `app/Services/RedactionService.php` (280 líneas, mejorado de 51)
-  * 9 patrones: email, phone, SSN, CC, token, API key, bearer, passport, DOB
-  * `setEnabledTypes()` / `getEnabledTypes()` para configuración global
-  * `containsPii()` / `detectPii()` para análisis sin redactar
-  * Auto-logging en canal `redaction` con SHA256 hash original
+    - 9 patrones: email, phone, SSN, CC, token, API key, bearer, passport, DOB
+    - `setEnabledTypes()` / `getEnabledTypes()` para configuración global
+    - `containsPii()` / `detectPii()` para análisis sin redactar
+    - Auto-logging en canal `redaction` con SHA256 hash original
 - `app/Models/RedactionAuditTrail.php` (30 líneas)
-  * Campos: redaction_types (json), count, original_hash, context, user_id, org_id
-  * Relaciones: belongsTo User y Organization
-  * Índices: (org_id, created_at), original_hash
+    - Campos: redaction_types (json), count, original_hash, context, user_id, org_id
+    - Relaciones: belongsTo User y Organization
+    - Índices: (org_id, created_at), original_hash
 - `database/migrations/2026_03_22_015154_create_redaction_audit_trails_table.php`
-  * Tabla: `redaction_audit_trails` con FK constraints cascade
-  * Ejecutada exitosamente (737ms)
+    - Tabla: `redaction_audit_trails` con FK constraints cascade
+    - Ejecutada exitosamente (737ms)
 - `app/Services/RedactionMetricsService.php` (240 líneas)
-  * 7 métodos: getOrganizationMetrics, getRedactionsByType/Context, getDailyTrend
-  * getTopRedactingUsers, checkTextForPii, getRedactionCoverageScore
-  * Caché 1h TTL con invalidación manual
+    - 7 métodos: getOrganizationMetrics, getRedactionsByType/Context, getDailyTrend
+    - getTopRedactingUsers, checkTextForPii, getRedactionCoverageScore
+    - Caché 1h TTL con invalidación manual
 - `tests/Feature/Services/RedactionServiceTest.php` (205 líneas)
 
 **Tests:** 23/23 passing ✅ | **Status:** Git `b98dcf78` | **Docs:** `docs/QW4_REDACTION_SERVICE_GUIDE.md`  
 **Multi-tenant:** Automático en todas las consultas (organization_id scoping)
+
+---
+
+### Sprint 0: Vector DB + Indexación (PARCIALMENTE COMPLETADO ✅)
+
+- Tabla genérica `embeddings` creada: `database/migrations/2026_03_22_161851_create_embeddings_table.php`  
+    - Campos: `organization_id`, `resource_type`, `resource_id`, `metadata`, `embedding` (vector(1536) o JSON fallback).  
+- Modelo `Embedding`: `app/Models/Embedding.php` con casts para `metadata` y `embedding`.  
+- Job `EmbeddingIndexJob`: `app/Jobs/EmbeddingIndexJob.php`  
+    - Recorre People, Roles y Scenarios por chunks `chunkById(100)`
+    - Usa `EmbeddingService` para generar el vector y hace `Embedding::updateOrCreate(...)` en la tabla genérica.  
+- Test `EmbeddingIndexJobTest`: `tests/Unit/EmbeddingIndexJobTest.php`  
+    - Mockea `EmbeddingService` y valida que se persiste al menos un registro para roles.  
+
+**Siguiente paso Sprint 0:** estudiar reutilización de la tabla genérica `embeddings` en RagService / búsquedas semánticas transversales.
 
 ---
 
@@ -3576,46 +3591,49 @@ POST /api/rag/ask
 **Componentes:**
 
 1. **Backend Infrastructure:**
-   - `AgentInteraction` model (40 líneas) con multi-tenant scoping
-   - Migración con 14 campos de tracking + 3 índices compuestos (728ms ejecución)
-   - `AgentInteractionMetricsService` (280 líneas) con 7 métodos públicos:
-     - `getOrganizationMetrics()` → agregación completa con caching 1h
-     - `getTopFailingAgents()` → top N agentes con errores
-     - `getAverageLatencyByAgent()` → latencias (avg, median, max)
-     - `getDailyTrend()` → serie temporal 30 días con zero-fill
-   - `AiOrchestratorService` instrumented (+70 líneas) con auto-recording en cada interacción
+    - `AgentInteraction` model (40 líneas) con multi-tenant scoping
+    - Migración con 14 campos de tracking + 3 índices compuestos (728ms ejecución)
+    - `AgentInteractionMetricsService` (280 líneas) con 7 métodos públicos:
+        - `getOrganizationMetrics()` → agregación completa con caching 1h
+        - `getTopFailingAgents()` → top N agentes con errores
+        - `getAverageLatencyByAgent()` → latencias (avg, median, max)
+        - `getDailyTrend()` → serie temporal 30 días con zero-fill
+    - `AiOrchestratorService` instrumented (+70 líneas) con auto-recording en cada interacción
 
 2. **API Endpoints (3):**
-   - `GET /api/agent-interactions/metrics/summary` → métricas globales
-   - `GET /api/agent-interactions/metrics/failing-agents` → top fallidos
-   - `GET /api/agent-interactions/metrics/latency-by-agent` → latencias
+    - `GET /api/agent-interactions/metrics/summary` → métricas globales
+    - `GET /api/agent-interactions/metrics/failing-agents` → top fallidos
+    - `GET /api/agent-interactions/metrics/latency-by-agent` → latencias
 
 3. **Frontend Components:**
-   - `useAgentMetrics` composable (180 líneas) con polling automático
-   - `AgentMetricsDashboard` Vue3 component (450+ líneas) con:
-     - 4 KPI cards (interacciones, éxito, latencia, agentes fallidos)
-     - Bar chart: interacciones por agente
-     - Pie chart: distribución por proveedor
-     - Line chart (ECharts): tendencia diaria
-     - Horizontal bar: top 5 errores
-     - Tabla: agentes fallidos
-     - Percentiles: P50, P95, P99
-   - Ruta registrada: `/intelligence/agent-metrics`
+    - `useAgentMetrics` composable (180 líneas) con polling automático
+    - `AgentMetricsDashboard` Vue3 component (450+ líneas) con:
+        - 4 KPI cards (interacciones, éxito, latencia, agentes fallidos)
+        - Bar chart: interacciones por agente
+        - Pie chart: distribución por proveedor
+        - Line chart (ECharts): tendencia diaria
+        - Horizontal bar: top 5 errores
+        - Tabla: agentes fallidos
+        - Percentiles: P50, P95, P99
+    - Ruta registrada: `/intelligence/agent-metrics`
 
 4. **Testing (12 tests ✅ passing):**
-   - 9 tests unitarios (metrics calculation, breakdown, isolation)
-   - 3 tests API (authentication, response structure, multi-tenant isolation)
+    - 9 tests unitarios (metrics calculation, breakdown, isolation)
+    - 3 tests API (authentication, response structure, multi-tenant isolation)
 
 **Bases de Datos:**
+
 - Tabla: `agent_interactions` con 14 columnas
 - Índices: (org_id, created_at), (agent_name, created_at), (status, created_at), prompt_hash UNIQUE
 - FKs: cascade delete en user_id, organization_id
 
 **Commits:**
+
 - `feat: QW-5 - Agent Interaction Metrics with observability dashboard` (a7c428af)
 - `docs: Add QW-5 Agent Metrics documentation` (b3ee38aa)
 
 **Archivo de Referencia:**
+
 - `docs/QW5_AGENT_METRICS_GUIDE.md` - guía completa con ejemplos
 
 ---

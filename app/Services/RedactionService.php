@@ -119,6 +119,21 @@ class RedactionService
     }
 
     /**
+     * Convenience helper that redacts either strings or arrays.
+     *
+     * This matches the simpler API used in the architecture docs while
+     * delegating to redactText / redactArray under the hood.
+     */
+    public static function redact(string|array $value, ?array $types = null): string|array
+    {
+        if (is_string($value)) {
+            return self::redactText($value, $types);
+        }
+
+        return self::redactArray($value, $types);
+    }
+
+    /**
      * Log redaction event for audit trail
      */
     protected static function logRedaction(string $redactedText, string $originalText, int $count, array $types): void

@@ -247,6 +247,10 @@ Route::get('/quality/compliance-audit', function () {
 
 // ── Intelligence Module Routes ──
 Route::prefix('intelligence')->middleware(['auth', 'verified'])->group(function () {
+    Route::get('/monitoring-hub', function () {
+        return Inertia::render('Intelligence/MonitoringHub');
+    })->name('intelligence.monitoring-hub');
+
     Route::get('/quality-dashboard', function () {
         return Inertia::render('Intelligence/QualityDashboard');
     })->name('intelligence.quality-dashboard');

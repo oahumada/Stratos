@@ -26,9 +26,12 @@ class AiOrchestratorService
             throw new \InvalidArgumentException("Agente '{$agentName}' no encontrado.");
         }
 
+        $taskPreview = substr($taskPrompt, 0, 100).'...';
+        $taskPreview = RedactionService::redactText($taskPreview);
+
         Log::info('Iniciando razonamiento de Agente', [
             'agent' => $agent->name,
-            'task' => substr($taskPrompt, 0, 100).'...',
+            'task' => $taskPreview,
         ]);
 
         $provider = $this->getProvider($agent);

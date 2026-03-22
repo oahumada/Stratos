@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\LLMEvaluation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use App\Services\RedactionService;
 
 class RagService
 {
@@ -29,12 +30,15 @@ class RagService
         int $maxSources = 5
     ): array {
         // Step 1: Retrieve relevant documents from context
-        $relevantDocs = $this->retrieveRelevantDocuments(
+        $relevantDocs = $this->retrieve(
             $question,
             $organizationId,
             $contextType,
             $maxSources
         );
+
+        // Step 2: Rank documents (actualmente ya vienen con relevance_score calculado)
+        $relevantDocs = $this->rank($relevantDocs, $question);
 
         if ($relevantDocs->isEmpty()) {
             return [
@@ -48,13 +52,16 @@ class RagService
             ];
         }
 
-        // Step 2: Prepare context for LLM
-        $context = $this->prepareContext($relevantDocs, $question);
+        // Step 3: Prepare context for LLM
+        $context = $this->assemblePrompt($question, $relevantDocs);
 
-        // Step 3: Generate answer using LLM
-        $answer = $this->generateAnswer($question, $context);
+        // Step 4: Generate answer using LLM
+        $answer = $this->generate($question, $context);
 
-        // Step 4: Score confidence based on relevance
+        // Step 5: Post-filter result (scoping, redacción PII, etc.)
+        $answer = $this->postFilter($answer);
+
+        // Step 6: Score confidence based on relevance
         $confidence = $this->calculateConfidence($relevantDocs);
 
         return [
@@ -71,6 +78,18 @@ class RagService
             'confidence' => $confidence,
             'context_count' => $relevantDocs->count(),
         ];
+    }
+
+    /**
+     * Retrieve: obtener documentos relevantes según la pregunta.
+     */
+    public function retrieve(
+        string $question,
+        string $organizationId,
+        string $contextType,
+        int $maxSources
+    ): Collection {
+        return $this->retrieveRelevantDocuments($question, $organizationId, $contextType, $maxSources);
     }
 
     /**
@@ -127,6 +146,15 @@ class RagService
     }
 
     /**
+     * Rank: reordenar documentos por relevancia (extensible a futuros criterios).
+     */
+    public function rank(Collection $documents, string $question): Collection
+    {
+        // Actualmente la relevancia ya está calculada; simplemente normalizamos el orden
+        return $documents->sortByDesc('relevance_score')->values();
+    }
+
+    /**
      * Calculate simple keyword similarity (TF-IDF-like approach)
      */
     protected function calculateKeywordSimilarity(string $query, string $text): float
@@ -178,9 +206,9 @@ class RagService
     }
 
     /**
-     * Prepare context for LLM prompt
+     * AssemblePrompt: construir el contexto/prompt completo para el LLM.
      */
-    protected function prepareContext(Collection $relevantDocs, string $question): string
+    public function assemblePrompt(string $question, Collection $relevantDocs): string
     {
         $contextParts = [
             '## Contexto Relevante',
@@ -203,9 +231,9 @@ class RagService
     }
 
     /**
-     * Generate answer using LLM
+     * Generate: obtener respuesta del LLM dado el contexto.
      */
-    protected function generateAnswer(string $question, string $context): string
+    public function generate(string $question, string $context): string
     {
         try {
             $prompt = <<<PROMPT
@@ -232,6 +260,15 @@ PROMPT;
 
             return 'Error generando respuesta: ' . $e->getMessage();
         }
+    }
+
+    /**
+     * PostFilter: aplicar filtros finales a la respuesta (scoping, redacción PII, etc.).
+     */
+    public function postFilter(string $answer): string
+    {
+        // Por ahora, utilizamos el RedactionService para eliminar PII potencial del texto de salida.
+        return RedactionService::redactText($answer);
     }
 
     /**

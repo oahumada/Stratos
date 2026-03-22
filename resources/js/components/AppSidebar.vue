@@ -22,6 +22,7 @@ import {
     PhChartBar,
     PhChartLineUp,
     PhChartPieSlice,
+    PhEye,
     PhGraph,
     PhHouse,
     PhLockKey,
@@ -249,6 +250,12 @@ const allNavItems: NavItem[] = [
         title: 'Quality Hub',
         href: '/quality-hub',
         icon: defineComponent(() => () => h(PhShieldCheck, { size: 20 })),
+        requiredRole: ['admin', 'hr_leader'],
+    },
+    {
+        title: 'Intelligence Hub',
+        href: '/intelligence/monitoring-hub',
+        icon: defineComponent(() => () => h(PhEye, { size: 20 })),
         requiredRole: ['admin', 'hr_leader'],
     },
     {

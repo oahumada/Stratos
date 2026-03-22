@@ -178,456 +178,504 @@ const getHealthBg = (score: number) => {
 <template>
     <Head title="LLM Quality Dashboard" />
 
-    <template #header>
-        <div class="flex items-center justify-between">
-            <div>
-                <h1
-                    class="text-3xl font-black tracking-tight text-white drop-shadow-md"
-                >
-                    <span class="mr-3">🎯</span> LLM Quality Dashboard
-                </h1>
-                <p class="mt-2 text-sm text-white/50">
-                    Evaluación de calidad RAGAS · Monitoreo de alucinaciones ·
-                    Salud de LLM
-                </p>
-            </div>
-            <div class="text-right text-xs text-white/40">
-                <p>{{ formatLastUpdated(lastUpdated) }}</p>
-                <p v-if="isLoading" class="animate-pulse">Actualizando...</p>
-            </div>
-        </div>
-    </template>
-
-    <div class="mt-6 space-y-6">
-        <!-- Loading State -->
-        <div v-if="isLoading && !metrics.total_evaluations" class="space-y-4">
-            <StCardGlass
-                v-for="i in 4"
-                :key="`skeleton-${i}`"
-                class="h-32 animate-pulse bg-white/5"
-            />
-        </div>
-
-        <!-- Error State -->
-        <StCardGlass
-            v-else-if="error"
-            class="border-rose-500/30 bg-rose-500/10 p-6"
-        >
-            <div class="flex items-center gap-4">
-                <PhWarning class="text-rose-400" :size="28" weight="duotone" />
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="border-b border-white/10 bg-white/5 px-6 py-8">
+            <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="font-bold text-rose-300">
-                        Error cargando métricas
-                    </h3>
-                    <p class="text-sm text-rose-400/70">{{ error }}</p>
+                    <h1
+                        class="text-3xl font-black tracking-tight text-white drop-shadow-md"
+                    >
+                        <span class="mr-3">🎯</span> LLM Quality Dashboard
+                    </h1>
+                    <p class="mt-2 text-sm text-white/50">
+                        Evaluación de calidad RAGAS · Monitoreo de alucinaciones
+                        · Salud de LLM
+                    </p>
+                </div>
+                <div class="text-right text-xs text-white/40">
+                    <p>{{ formatLastUpdated(lastUpdated) }}</p>
+                    <p v-if="isLoading" class="animate-pulse">
+                        Actualizando...
+                    </p>
                 </div>
             </div>
-        </StCardGlass>
+        </div>
 
         <!-- Content -->
-        <div
-            v-else-if="!isLoading || metrics.total_evaluations > 0"
-            class="space-y-6"
-        >
-            <!-- KPI Cards Grid -->
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="space-y-6 px-6">
+            <!-- Loading State -->
+            <div
+                v-if="isLoading && !metrics.total_evaluations"
+                class="space-y-4"
+            >
                 <StCardGlass
-                    v-for="card in kpiCards"
-                    :key="card.title"
-                    :indicator="card.color"
-                    class="group relative overflow-hidden p-6 transition-all hover:border-white/20"
-                    :class="
-                        card.color === 'indigo'
-                            ? 'border-indigo-500/20'
-                            : card.color === 'emerald'
-                              ? 'border-emerald-500/20'
-                              : card.color === 'rose'
-                                ? 'border-rose-500/20'
-                                : 'border-white/10'
-                    "
-                >
-                    <!-- Background Icon -->
-                    <div
-                        class="absolute -right-6 -bottom-6 opacity-5 transition-opacity group-hover:opacity-10"
-                        :class="
-                            card.color === 'indigo'
-                                ? 'text-indigo-500'
-                                : card.color === 'emerald'
-                                  ? 'text-emerald-500'
-                                  : card.color === 'rose'
-                                    ? 'text-rose-500'
-                                    : 'text-cyan-500'
-                        "
-                    >
-                        <PhStackPlus :size="100" weight="duotone" />
-                    </div>
-
-                    <!-- Content -->
-                    <div>
-                        <p
-                            class="mb-3 text-xs font-bold tracking-widest text-white/50 uppercase"
-                        >
-                            {{ card.title }}
-                        </p>
-                        <div class="flex items-baseline gap-2">
-                            <span
-                                class="text-3xl font-black tracking-tighter text-white"
-                                :class="
-                                    getHealthColor(
-                                        parseFloat(String(card.value)) /
-                                            (card.unit === '%' ? 100 : 1),
-                                    )
-                                "
-                            >
-                                {{ card.value }}
-                            </span>
-                            <span
-                                v-if="card.unit"
-                                class="text-xs font-semibold text-white/40"
-                            >
-                                {{ card.unit }}
-                            </span>
-                        </div>
-                    </div>
-                </StCardGlass>
+                    v-for="i in 4"
+                    :key="`skeleton-${i}`"
+                    class="h-32 animate-pulse bg-white/5"
+                />
             </div>
 
-            <!-- Charts Row -->
-            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <!-- Quality Distribution Pie -->
+            <!-- Error State -->
+            <StCardGlass
+                v-else-if="error"
+                class="border-rose-500/30 bg-rose-500/10 p-6"
+            >
+                <div class="flex items-center gap-4">
+                    <PhWarning
+                        class="text-rose-400"
+                        :size="28"
+                        weight="duotone"
+                    />
+                    <div>
+                        <h3 class="font-bold text-rose-300">
+                            Error cargando métricas
+                        </h3>
+                        <p class="text-sm text-rose-400/70">{{ error }}</p>
+                    </div>
+                </div>
+            </StCardGlass>
+
+            <!-- Content -->
+            <div
+                v-else-if="!isLoading || metrics.total_evaluations > 0"
+                class="space-y-6"
+            >
+                <!-- KPI Cards Grid -->
+                <div
+                    class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+                >
+                    <StCardGlass
+                        v-for="card in kpiCards"
+                        :key="card.title"
+                        :indicator="card.color"
+                        class="group relative overflow-hidden p-6 transition-all hover:border-white/20"
+                        :class="
+                            card.color === 'indigo'
+                                ? 'border-indigo-500/20'
+                                : card.color === 'emerald'
+                                  ? 'border-emerald-500/20'
+                                  : card.color === 'rose'
+                                    ? 'border-rose-500/20'
+                                    : 'border-white/10'
+                        "
+                    >
+                        <!-- Background Icon -->
+                        <div
+                            class="absolute -right-6 -bottom-6 opacity-5 transition-opacity group-hover:opacity-10"
+                            :class="
+                                card.color === 'indigo'
+                                    ? 'text-indigo-500'
+                                    : card.color === 'emerald'
+                                      ? 'text-emerald-500'
+                                      : card.color === 'rose'
+                                        ? 'text-rose-500'
+                                        : 'text-cyan-500'
+                            "
+                        >
+                            <PhStackPlus :size="100" weight="duotone" />
+                        </div>
+
+                        <!-- Content -->
+                        <div>
+                            <p
+                                class="mb-3 text-xs font-bold tracking-widest text-white/50 uppercase"
+                            >
+                                {{ card.title }}
+                            </p>
+                            <div class="flex items-baseline gap-2">
+                                <span
+                                    class="text-3xl font-black tracking-tighter text-white"
+                                    :class="
+                                        getHealthColor(
+                                            parseFloat(String(card.value)) /
+                                                (card.unit === '%' ? 100 : 1),
+                                        )
+                                    "
+                                >
+                                    {{ card.value }}
+                                </span>
+                                <span
+                                    v-if="card.unit"
+                                    class="text-xs font-semibold text-white/40"
+                                >
+                                    {{ card.unit }}
+                                </span>
+                            </div>
+                        </div>
+                    </StCardGlass>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <!-- Quality Distribution Pie -->
+                    <StCardGlass class="border-white/10 p-0" :no-hover="true">
+                        <div
+                            class="flex items-center gap-3 border-b border-white/10 bg-white/5 px-6 py-4"
+                        >
+                            <PhZap
+                                class="text-indigo-400"
+                                :size="20"
+                                weight="duotone"
+                            />
+                            <h3 class="font-bold text-white">
+                                Distribución de Calidad
+                            </h3>
+                        </div>
+                        <div class="p-6">
+                            <VueApexCharts
+                                v-if="
+                                    qualityDistributionChart.series.some(
+                                        (v: number) => v > 0,
+                                    )
+                                "
+                                :options="qualityDistributionChart.options"
+                                :series="qualityDistributionChart.series"
+                                type="pie"
+                                height="300"
+                            />
+                            <div
+                                v-else
+                                class="flex h-64 items-center justify-center text-white/40"
+                            >
+                                <p>Sin datos de evaluaciones</p>
+                            </div>
+                        </div>
+                    </StCardGlass>
+
+                    <!-- Provider Distribution Bar -->
+                    <StCardGlass class="border-white/10 p-0" :no-hover="true">
+                        <div
+                            class="flex items-center gap-3 border-b border-white/10 bg-white/5 px-6 py-4"
+                        >
+                            <PhActivity
+                                class="text-emerald-400"
+                                :size="20"
+                                weight="duotone"
+                            />
+                            <h3 class="font-bold text-white">
+                                Evaluaciones por Proveedor
+                            </h3>
+                        </div>
+                        <div class="p-6">
+                            <VueApexCharts
+                                v-if="
+                                    Object.keys(metrics.provider_distribution)
+                                        .length > 0
+                                "
+                                :options="providerDistributionChart.options"
+                                :series="providerDistributionChart.series"
+                                type="bar"
+                                height="300"
+                            />
+                            <div
+                                v-else
+                                class="flex h-64 items-center justify-center text-white/40"
+                            >
+                                <p>Sin datos por proveedor</p>
+                            </div>
+                        </div>
+                    </StCardGlass>
+                </div>
+
+                <!-- Detailed Stats -->
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <!-- Health Status -->
+                    <StCardGlass
+                        :class="getHealthBg(metrics.avg_composite_score)"
+                        class="border p-6"
+                    >
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p
+                                    class="mb-2 text-xs font-bold tracking-widest text-white/50 uppercase"
+                                >
+                                    Estado de Salud
+                                </p>
+                                <p
+                                    class="text-2xl font-black"
+                                    :class="
+                                        getHealthColor(
+                                            metrics.avg_composite_score,
+                                        )
+                                    "
+                                >
+                                    {{
+                                        metrics.avg_composite_score >= 0.85
+                                            ? 'Excelente'
+                                            : metrics.avg_composite_score >= 0.7
+                                              ? 'Bueno'
+                                              : 'Requiere Atención'
+                                    }}
+                                </p>
+                            </div>
+                            <PhCheckCircle
+                                :size="32"
+                                weight="duotone"
+                                :class="
+                                    getHealthColor(metrics.avg_composite_score)
+                                "
+                            />
+                        </div>
+                    </StCardGlass>
+
+                    <!-- Last Evaluation -->
+                    <StCardGlass class="border-cyan-500/20 bg-cyan-500/10 p-6">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p
+                                    class="mb-2 text-xs font-bold tracking-widest text-white/50 uppercase"
+                                >
+                                    Última Evaluación
+                                </p>
+                                <p class="text-sm text-cyan-300">
+                                    {{
+                                        metrics.last_evaluation_at
+                                            ? new Date(
+                                                  metrics.last_evaluation_at,
+                                              ).toLocaleDateString('es-ES', {
+                                                  month: 'short',
+                                                  day: 'numeric',
+                                                  hour: '2-digit',
+                                                  minute: '2-digit',
+                                              })
+                                            : 'N/A'
+                                    }}
+                                </p>
+                            </div>
+                            <PhClock
+                                :size="32"
+                                weight="duotone"
+                                class="text-cyan-400"
+                            />
+                        </div>
+                    </StCardGlass>
+
+                    <!-- Top Provider Info -->
+                    <StCardGlass
+                        class="border-amber-500/20 bg-amber-500/10 p-6"
+                    >
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p
+                                    class="mb-2 text-xs font-bold tracking-widest text-white/50 uppercase"
+                                >
+                                    Proveedor Dominante
+                                </p>
+                                <p
+                                    class="text-lg font-bold text-amber-300 uppercase"
+                                >
+                                    {{ topProvider }}
+                                </p>
+                            </div>
+                            <PhFire
+                                :size="32"
+                                weight="duotone"
+                                class="text-amber-400"
+                            />
+                        </div>
+                    </StCardGlass>
+                </div>
+
+                <!-- Quality Distribution Table -->
                 <StCardGlass class="border-white/10 p-0" :no-hover="true">
                     <div
                         class="flex items-center gap-3 border-b border-white/10 bg-white/5 px-6 py-4"
                     >
-                        <PhZap
+                        <PhGauge
                             class="text-indigo-400"
                             :size="20"
                             weight="duotone"
                         />
                         <h3 class="font-bold text-white">
-                            Distribución de Calidad
+                            Desglose de Calidad
                         </h3>
                     </div>
-                    <div class="p-6">
-                        <VueApexCharts
-                            v-if="
-                                qualityDistributionChart.series.some(
-                                    (v: number) => v > 0,
-                                )
-                            "
-                            :options="qualityDistributionChart.options"
-                            :series="qualityDistributionChart.series"
-                            type="pie"
-                            height="300"
-                        />
-                        <div
-                            v-else
-                            class="flex h-64 items-center justify-center text-white/40"
-                        >
-                            <p>Sin datos de evaluaciones</p>
-                        </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-white/10">
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold tracking-widest text-white/50 uppercase"
+                                    >
+                                        Nivel
+                                    </th>
+                                    <th
+                                        class="px-6 py-4 text-right text-xs font-bold tracking-widest text-white/50 uppercase"
+                                    >
+                                        Cantidad
+                                    </th>
+                                    <th
+                                        class="px-6 py-4 text-right text-xs font-bold tracking-widest text-white/50 uppercase"
+                                    >
+                                        % del Total
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    class="border-t border-white/5 transition-colors hover:bg-white/5"
+                                >
+                                    <td
+                                        class="px-6 py-4 font-semibold text-emerald-400"
+                                    >
+                                        Excelente
+                                    </td>
+                                    <td class="px-6 py-4 text-right text-white">
+                                        {{
+                                            metrics.quality_distribution
+                                                .excellent
+                                        }}
+                                    </td>
+                                    <td
+                                        class="px-6 py-4 text-right text-white/60"
+                                    >
+                                        {{
+                                            metrics.total_evaluations > 0
+                                                ? (
+                                                      (metrics
+                                                          .quality_distribution
+                                                          .excellent /
+                                                          metrics.total_evaluations) *
+                                                      100
+                                                  ).toFixed(1)
+                                                : 0
+                                        }}%
+                                    </td>
+                                </tr>
+                                <tr
+                                    class="border-t border-white/5 transition-colors hover:bg-white/5"
+                                >
+                                    <td
+                                        class="px-6 py-4 font-semibold text-cyan-400"
+                                    >
+                                        Bueno
+                                    </td>
+                                    <td class="px-6 py-4 text-right text-white">
+                                        {{ metrics.quality_distribution.good }}
+                                    </td>
+                                    <td
+                                        class="px-6 py-4 text-right text-white/60"
+                                    >
+                                        {{
+                                            metrics.total_evaluations > 0
+                                                ? (
+                                                      (metrics
+                                                          .quality_distribution
+                                                          .good /
+                                                          metrics.total_evaluations) *
+                                                      100
+                                                  ).toFixed(1)
+                                                : 0
+                                        }}%
+                                    </td>
+                                </tr>
+                                <tr
+                                    class="border-t border-white/5 transition-colors hover:bg-white/5"
+                                >
+                                    <td
+                                        class="px-6 py-4 font-semibold text-amber-400"
+                                    >
+                                        Aceptable
+                                    </td>
+                                    <td class="px-6 py-4 text-right text-white">
+                                        {{
+                                            metrics.quality_distribution
+                                                .acceptable
+                                        }}
+                                    </td>
+                                    <td
+                                        class="px-6 py-4 text-right text-white/60"
+                                    >
+                                        {{
+                                            metrics.total_evaluations > 0
+                                                ? (
+                                                      (metrics
+                                                          .quality_distribution
+                                                          .acceptable /
+                                                          metrics.total_evaluations) *
+                                                      100
+                                                  ).toFixed(1)
+                                                : 0
+                                        }}%
+                                    </td>
+                                </tr>
+                                <tr
+                                    class="border-t border-white/5 transition-colors hover:bg-white/5"
+                                >
+                                    <td
+                                        class="px-6 py-4 font-semibold text-orange-400"
+                                    >
+                                        Pobre
+                                    </td>
+                                    <td class="px-6 py-4 text-right text-white">
+                                        {{ metrics.quality_distribution.poor }}
+                                    </td>
+                                    <td
+                                        class="px-6 py-4 text-right text-white/60"
+                                    >
+                                        {{
+                                            metrics.total_evaluations > 0
+                                                ? (
+                                                      (metrics
+                                                          .quality_distribution
+                                                          .poor /
+                                                          metrics.total_evaluations) *
+                                                      100
+                                                  ).toFixed(1)
+                                                : 0
+                                        }}%
+                                    </td>
+                                </tr>
+                                <tr
+                                    class="border-t border-white/5 transition-colors hover:bg-white/5"
+                                >
+                                    <td
+                                        class="px-6 py-4 font-semibold text-rose-400"
+                                    >
+                                        Crítico
+                                    </td>
+                                    <td class="px-6 py-4 text-right text-white">
+                                        {{
+                                            metrics.quality_distribution
+                                                .critical
+                                        }}
+                                    </td>
+                                    <td
+                                        class="px-6 py-4 text-right text-white/60"
+                                    >
+                                        {{
+                                            metrics.total_evaluations > 0
+                                                ? (
+                                                      (metrics
+                                                          .quality_distribution
+                                                          .critical /
+                                                          metrics.total_evaluations) *
+                                                      100
+                                                  ).toFixed(1)
+                                                : 0
+                                        }}%
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </StCardGlass>
 
-                <!-- Provider Distribution Bar -->
-                <StCardGlass class="border-white/10 p-0" :no-hover="true">
-                    <div
-                        class="flex items-center gap-3 border-b border-white/10 bg-white/5 px-6 py-4"
-                    >
-                        <PhActivity
-                            class="text-emerald-400"
-                            :size="20"
-                            weight="duotone"
-                        />
-                        <h3 class="font-bold text-white">
-                            Evaluaciones por Proveedor
-                        </h3>
-                    </div>
-                    <div class="p-6">
-                        <VueApexCharts
-                            v-if="
-                                Object.keys(metrics.provider_distribution)
-                                    .length > 0
-                            "
-                            :options="providerDistributionChart.options"
-                            :series="providerDistributionChart.series"
-                            type="bar"
-                            height="300"
-                        />
-                        <div
-                            v-else
-                            class="flex h-64 items-center justify-center text-white/40"
-                        >
-                            <p>Sin datos por proveedor</p>
-                        </div>
-                    </div>
-                </StCardGlass>
-            </div>
-
-            <!-- Detailed Stats -->
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <!-- Health Status -->
-                <StCardGlass
-                    :class="getHealthBg(metrics.avg_composite_score)"
-                    class="border p-6"
-                >
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p
-                                class="mb-2 text-xs font-bold tracking-widest text-white/50 uppercase"
-                            >
-                                Estado de Salud
-                            </p>
-                            <p
-                                class="text-2xl font-black"
-                                :class="
-                                    getHealthColor(metrics.avg_composite_score)
-                                "
-                            >
-                                {{
-                                    metrics.avg_composite_score >= 0.85
-                                        ? 'Excelente'
-                                        : metrics.avg_composite_score >= 0.7
-                                          ? 'Bueno'
-                                          : 'Requiere Atención'
-                                }}
-                            </p>
-                        </div>
-                        <PhCheckCircle
-                            :size="32"
-                            weight="duotone"
-                            :class="getHealthColor(metrics.avg_composite_score)"
-                        />
-                    </div>
-                </StCardGlass>
-
-                <!-- Last Evaluation -->
-                <StCardGlass class="border-cyan-500/20 bg-cyan-500/10 p-6">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p
-                                class="mb-2 text-xs font-bold tracking-widest text-white/50 uppercase"
-                            >
-                                Última Evaluación
-                            </p>
-                            <p class="text-sm text-cyan-300">
-                                {{
-                                    metrics.last_evaluation_at
-                                        ? new Date(
-                                              metrics.last_evaluation_at,
-                                          ).toLocaleDateString('es-ES', {
-                                              month: 'short',
-                                              day: 'numeric',
-                                              hour: '2-digit',
-                                              minute: '2-digit',
-                                          })
-                                        : 'N/A'
-                                }}
-                            </p>
-                        </div>
-                        <PhClock
-                            :size="32"
-                            weight="duotone"
-                            class="text-cyan-400"
-                        />
-                    </div>
-                </StCardGlass>
-
-                <!-- Top Provider Info -->
-                <StCardGlass class="border-amber-500/20 bg-amber-500/10 p-6">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <p
-                                class="mb-2 text-xs font-bold tracking-widest text-white/50 uppercase"
-                            >
-                                Proveedor Dominante
-                            </p>
-                            <p
-                                class="text-lg font-bold text-amber-300 uppercase"
-                            >
-                                {{ topProvider }}
-                            </p>
-                        </div>
-                        <PhFire
-                            :size="32"
-                            weight="duotone"
-                            class="text-amber-400"
-                        />
-                    </div>
-                </StCardGlass>
-            </div>
-
-            <!-- Quality Distribution Table -->
-            <StCardGlass class="border-white/10 p-0" :no-hover="true">
+                <!-- Empty State -->
                 <div
-                    class="flex items-center gap-3 border-b border-white/10 bg-white/5 px-6 py-4"
+                    v-if="metrics.total_evaluations === 0"
+                    class="py-12 text-center"
                 >
-                    <PhGauge
-                        class="text-indigo-400"
-                        :size="20"
-                        weight="duotone"
-                    />
-                    <h3 class="font-bold text-white">Desglose de Calidad</h3>
+                    <PhActivity :size="48" class="mx-auto mb-4 text-white/20" />
+                    <p class="text-white/50">
+                        No hay evaluaciones registradas aún
+                    </p>
+                    <p class="mt-2 text-xs text-white/30">
+                        Inicia evaluaciones de LLM usando
+                        /api/qa/llm-evaluations
+                    </p>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="border-b border-white/10">
-                                <th
-                                    class="px-6 py-4 text-left text-xs font-bold tracking-widest text-white/50 uppercase"
-                                >
-                                    Nivel
-                                </th>
-                                <th
-                                    class="px-6 py-4 text-right text-xs font-bold tracking-widest text-white/50 uppercase"
-                                >
-                                    Cantidad
-                                </th>
-                                <th
-                                    class="px-6 py-4 text-right text-xs font-bold tracking-widest text-white/50 uppercase"
-                                >
-                                    % del Total
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr
-                                class="border-t border-white/5 transition-colors hover:bg-white/5"
-                            >
-                                <td
-                                    class="px-6 py-4 font-semibold text-emerald-400"
-                                >
-                                    Excelente
-                                </td>
-                                <td class="px-6 py-4 text-right text-white">
-                                    {{ metrics.quality_distribution.excellent }}
-                                </td>
-                                <td class="px-6 py-4 text-right text-white/60">
-                                    {{
-                                        metrics.total_evaluations > 0
-                                            ? (
-                                                  (metrics.quality_distribution
-                                                      .excellent /
-                                                      metrics.total_evaluations) *
-                                                  100
-                                              ).toFixed(1)
-                                            : 0
-                                    }}%
-                                </td>
-                            </tr>
-                            <tr
-                                class="border-t border-white/5 transition-colors hover:bg-white/5"
-                            >
-                                <td
-                                    class="px-6 py-4 font-semibold text-cyan-400"
-                                >
-                                    Bueno
-                                </td>
-                                <td class="px-6 py-4 text-right text-white">
-                                    {{ metrics.quality_distribution.good }}
-                                </td>
-                                <td class="px-6 py-4 text-right text-white/60">
-                                    {{
-                                        metrics.total_evaluations > 0
-                                            ? (
-                                                  (metrics.quality_distribution
-                                                      .good /
-                                                      metrics.total_evaluations) *
-                                                  100
-                                              ).toFixed(1)
-                                            : 0
-                                    }}%
-                                </td>
-                            </tr>
-                            <tr
-                                class="border-t border-white/5 transition-colors hover:bg-white/5"
-                            >
-                                <td
-                                    class="px-6 py-4 font-semibold text-amber-400"
-                                >
-                                    Aceptable
-                                </td>
-                                <td class="px-6 py-4 text-right text-white">
-                                    {{
-                                        metrics.quality_distribution.acceptable
-                                    }}
-                                </td>
-                                <td class="px-6 py-4 text-right text-white/60">
-                                    {{
-                                        metrics.total_evaluations > 0
-                                            ? (
-                                                  (metrics.quality_distribution
-                                                      .acceptable /
-                                                      metrics.total_evaluations) *
-                                                  100
-                                              ).toFixed(1)
-                                            : 0
-                                    }}%
-                                </td>
-                            </tr>
-                            <tr
-                                class="border-t border-white/5 transition-colors hover:bg-white/5"
-                            >
-                                <td
-                                    class="px-6 py-4 font-semibold text-orange-400"
-                                >
-                                    Pobre
-                                </td>
-                                <td class="px-6 py-4 text-right text-white">
-                                    {{ metrics.quality_distribution.poor }}
-                                </td>
-                                <td class="px-6 py-4 text-right text-white/60">
-                                    {{
-                                        metrics.total_evaluations > 0
-                                            ? (
-                                                  (metrics.quality_distribution
-                                                      .poor /
-                                                      metrics.total_evaluations) *
-                                                  100
-                                              ).toFixed(1)
-                                            : 0
-                                    }}%
-                                </td>
-                            </tr>
-                            <tr
-                                class="border-t border-white/5 transition-colors hover:bg-white/5"
-                            >
-                                <td
-                                    class="px-6 py-4 font-semibold text-rose-400"
-                                >
-                                    Crítico
-                                </td>
-                                <td class="px-6 py-4 text-right text-white">
-                                    {{ metrics.quality_distribution.critical }}
-                                </td>
-                                <td class="px-6 py-4 text-right text-white/60">
-                                    {{
-                                        metrics.total_evaluations > 0
-                                            ? (
-                                                  (metrics.quality_distribution
-                                                      .critical /
-                                                      metrics.total_evaluations) *
-                                                  100
-                                              ).toFixed(1)
-                                            : 0
-                                    }}%
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </StCardGlass>
-
-            <!-- Empty State -->
-            <div
-                v-if="metrics.total_evaluations === 0"
-                class="py-12 text-center"
-            >
-                <PhActivity :size="48" class="mx-auto mb-4 text-white/20" />
-                <p class="text-white/50">No hay evaluaciones registradas aún</p>
-                <p class="mt-2 text-xs text-white/30">
-                    Inicia evaluaciones de LLM usando /api/qa/llm-evaluations
-                </p>
             </div>
         </div>
     </div>
