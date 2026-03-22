@@ -2,8 +2,8 @@
  * Tests para useQualityMetrics composable
  */
 
-import type { QualityMetrics } from '@/types/quality';
 import { useQualityMetrics } from '@/composables/useQualityMetrics';
+import type { QualityMetrics } from '@/types/quality';
 import axios from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -121,7 +121,7 @@ describe('useQualityMetrics composable', () => {
             total_evaluations: 60,
             avg_composite_score: 0.88,
             max_composite_score: 0.95,
-            min_composite_score: 0.70,
+            min_composite_score: 0.7,
             quality_distribution: {
                 excellent: 40,
                 good: 15,

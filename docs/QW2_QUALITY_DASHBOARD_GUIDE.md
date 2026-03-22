@@ -25,7 +25,7 @@ QW-2 implementa un dashboard Vue 3 interactivo para visualizar y monitorear la c
 ✅ i18n ready para multiidioma  
 ✅ Tipos TypeScript completos (`quality.ts`)  
 ✅ Tests unitarios Vitest para composable  
-✅ Ruta registrada en `routes/web.php`  
+✅ Ruta registrada en `routes/web.php`
 
 ---
 
@@ -63,31 +63,31 @@ routes/
 import { useQualityMetrics } from '@/composables/useQualityMetrics';
 
 const MyComponent = {
-  setup() {
-    const { 
-      metrics, 
-      isLoading, 
-      error,
-      hallucination,
-      qualityPassed,
-      qualityFailed,
-      topProvider,
-      fetchMetrics,
-      startPolling,
-      stopPolling
-    } = useQualityMetrics();
+    setup() {
+        const {
+            metrics,
+            isLoading,
+            error,
+            hallucination,
+            qualityPassed,
+            qualityFailed,
+            topProvider,
+            fetchMetrics,
+            startPolling,
+            stopPolling,
+        } = useQualityMetrics();
 
-    // Fetch una sola vez
-    await fetchMetrics();
-    
-    // O con polling automático
-    startPolling(30000); // cada 30 segundos
-    
-    // Filtrar por proveedor
-    await fetchMetrics('deepseek');
-    
-    return { metrics, isLoading };
-  }
+        // Fetch una sola vez
+        await fetchMetrics();
+
+        // O con polling automático
+        startPolling(30000); // cada 30 segundos
+
+        // Filtrar por proveedor
+        await fetchMetrics('deepseek');
+
+        return { metrics, isLoading };
+    },
 };
 ```
 
@@ -132,6 +132,7 @@ Response:
 Por defecto: **30 segundos**
 
 Para cambiar, modificar en `QualityDashboard.vue`:
+
 ```typescript
 startPolling(60000); // 60 segundos
 ```
@@ -139,6 +140,7 @@ startPolling(60000); // 60 segundos
 ### Quality Thresholds (HTML hardcoded)
 
 Modificar en `QualityDashboard.vue`:
+
 - **Excelente**: score >= 0.85
 - **Bueno**: 0.70 <= score < 0.85
 - **Requiere Atención**: score < 0.70
@@ -159,21 +161,21 @@ Se definieron en `resources/js/types/quality.ts`:
 
 ```typescript
 export interface QualityMetrics {
-  total_evaluations: number;
-  avg_composite_score: number;
-  max_composite_score: number;
-  min_composite_score: number;
-  quality_distribution: QualityDistribution;
-  provider_distribution: ProviderMetrics;
-  last_evaluation_at: string | null;
+    total_evaluations: number;
+    avg_composite_score: number;
+    max_composite_score: number;
+    min_composite_score: number;
+    quality_distribution: QualityDistribution;
+    provider_distribution: ProviderMetrics;
+    last_evaluation_at: string | null;
 }
 
 export interface QualityDistribution {
-  excellent: number;
-  good: number;
-  acceptable: number;
-  poor: number;
-  critical: number;
+    excellent: number;
+    good: number;
+    acceptable: number;
+    poor: number;
+    critical: number;
 }
 ```
 
@@ -186,15 +188,17 @@ export interface QualityDistribution {
 Ubicación: `resources/js/composables/__tests__/useQualityMetrics.spec.ts`
 
 Cobertura:
+
 - ✅ Inicialización con métricas por defecto
 - ✅ Fetch exitoso de datos
-- ✅ Manejo de errores  
+- ✅ Manejo de errores
 - ✅ Cálculo de porcentaje de alucinación
 - ✅ Filtrado por proveedor
 - ✅ Conteos de calidad (passed/failed)
 - ✅ Identificación de proveedor dominante
 
 Ejecutar:
+
 ```bash
 npm run test:unit:single -- useQualityMetrics.spec.ts
 ```
@@ -204,10 +208,12 @@ npm run test:unit:single -- useQualityMetrics.spec.ts
 ## 🎨 Componentes Utilizados
 
 ### Glass UI Components
+
 - `StCardGlass`: Tarjetas con efecto glass (indicadores, KPIs, tablas)
 - `StButtonGlass`: Botones (si se necesitan interacciones futuras)
 
 ### Icons (Phosphor)
+
 - `PhStackPlus`: KPI generic icon
 - `PhZap`: Quality distribution
 - `PhActivity`: Provider metrics
@@ -218,6 +224,7 @@ npm run test:unit:single -- useQualityMetrics.spec.ts
 - `PhWarning`: Error states
 
 ### Charts
+
 - `VueApexCharts`: Pie chart (distribución) y Bar chart (proveedores)
 
 ---
@@ -277,6 +284,7 @@ $metrics = $this->evaluator->getOrganizationMetrics(
 ### Logs
 
 Si los metrics no cargan:
+
 1. Abrir DevTools → Console tab
 2. Buscar errores de red (Network tab)
 3. Verificar que `/api/qa/llm-evaluations/metrics/summary` retorna 200
@@ -284,11 +292,12 @@ Si los metrics no cargan:
 ### Mock Data
 
 Para desarrollo sin evaluaciones reales:
+
 ```typescript
 // En useQualityMetrics.ts, modificar fetchMetrics():
 if (import.meta.env.DEV) {
-  metrics.value = mockData; // Definir mockData
-  return;
+    metrics.value = mockData; // Definir mockData
+    return;
 }
 ```
 
@@ -299,22 +308,25 @@ if (import.meta.env.DEV) {
 **QW-3**: `/api/rag/ask` endpoint (RAG básico sin pgvector)  
 **QW-4**: Mejoras a Redaction Service  
 **QW-5**: Agent Interaction Metrics  
-**Sprint 0**: Implementar pgvector + knowledge base indexing  
+**Sprint 0**: Implementar pgvector + knowledge base indexing
 
 ---
 
 ## 📝 Cambios Realizados
 
 ### Archivos Creados
+
 - ✅ `resources/js/types/quality.ts`
 - ✅ `resources/js/composables/useQualityMetrics.ts`
 - ✅ `resources/js/composables/__tests__/useQualityMetrics.spec.ts`
 - ✅ `resources/js/pages/Intelligence/QualityDashboard.vue`
 
 ### Archivos Modificados
+
 - ✅ `routes/web.php` - Agregada ruta `/intelligence/quality-dashboard`
 
 ### Dependencias Usadas (ya presentes)
+
 - ✅ `axios` - HTTP client
 - ✅ `@inertiajs/vue3` - Framework
 - ✅ `@phosphor-icons/vue` - Iconografía

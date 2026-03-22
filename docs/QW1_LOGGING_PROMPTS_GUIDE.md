@@ -13,22 +13,22 @@ Esta feature implementa **logging PII-safe** de prompts LLM y outputs usando has
 ### Componentes Agregados:
 
 1. **Trait `LogsPrompts`** (`app/Traits/LogsPrompts.php`)
-   - `logPrompt()` — loguea prompt + output con hashing
-   - `logPromptError()` — loguea errores de LLM calls
-   - `correlatePromptFeedback()` — vincula feedback con prompts históricos
+    - `logPrompt()` — loguea prompt + output con hashing
+    - `logPromptError()` — loguea errores de LLM calls
+    - `correlatePromptFeedback()` — vincula feedback con prompts históricos
 
 2. **Canal de Logging `llm_prompts`** (`config/logging.php`)
-   - Archivo dedicado: `storage/logs/llm_prompts.log`
-   - Rotation diaria, retención configurable (default 30 días)
+    - Archivo dedicado: `storage/logs/llm_prompts.log`
+    - Rotation diaria, retención configurable (default 30 días)
 
 3. **Integración en Servicios**:
-   - `AiOrchestratorService` — loguea cada `agentThink()` call
-   - `LLMClient` — loguea cada `generate()` call
+    - `AiOrchestratorService` — loguea cada `agentThink()` call
+    - `LLMClient` — loguea cada `generate()` call
 
 4. **Tests** (`tests/Unit/Traits/LogsPromptsTest.php`)
-   - Validación de hashing
-   - Verificación de no-plaintext-storage
-   - Correlación de feedback
+    - Validación de hashing
+    - Verificación de no-plaintext-storage
+    - Correlación de feedback
 
 ---
 
@@ -78,13 +78,13 @@ Esta feature implementa **logging PII-safe** de prompts LLM y outputs usando has
 
 ### Seguridad: Sin Plaintext Sensible
 
-| Dato | Almacenado | Cómo |
-|------|-----------|------|
-| **Prompt original** | ❌ No | Reemplazado con SHA-256 hash |
-| **Output original** | ❌ No | Reemplazado con SHA-256 hash |
-| **Email, SSN, etc.** | ❌ No | Nunca salen del prompt hash |
-| **Metadata (agent, org)** | ✅ Sí | Información no-sensible para auditoría |
-| **User ID** | ✅ Sí | Si autenticado; para audit trail |
+| Dato                      | Almacenado | Cómo                                   |
+| ------------------------- | ---------- | -------------------------------------- |
+| **Prompt original**       | ❌ No      | Reemplazado con SHA-256 hash           |
+| **Output original**       | ❌ No      | Reemplazado con SHA-256 hash           |
+| **Email, SSN, etc.**      | ❌ No      | Nunca salen del prompt hash            |
+| **Metadata (agent, org)** | ✅ Sí      | Información no-sensible para auditoría |
+| **User ID**               | ✅ Sí      | Si autenticado; para audit trail       |
 
 ---
 
@@ -156,7 +156,7 @@ try {
 ### Ejemplo 4: Correlacionar Feedback (Learning Loop Intro)
 
 ```php
-// Usuario da feedback en UI: "This answer is wrong" 
+// Usuario da feedback en UI: "This answer is wrong"
 
 $promptHash = 'abc123...'; // Returned from logPrompt()
 $feedbackService->recordFeedback(
@@ -180,6 +180,7 @@ LogsPrompts::correlatePromptFeedback($promptHash, 'hallucination', [
 ## 📊 Archivo de Logs
 
 ### Ubicación
+
 ```
 storage/logs/llm_prompts.log          -- hoy
 storage/logs/llm_prompts-2026-03-20.log
@@ -286,10 +287,10 @@ LOG_LEVEL=info
 
 1. **Hashes No Reversibles**: SHA-256 no puede convertirse de vuelta a plaintext. Es una vía de 1 sentido. ✅
 2. **Archivo de Logs Protegido**: Asegurar permisos en `storage/logs/`:
-   ```bash
-   chmod 750 storage/logs/
-   chmod 640 storage/logs/llm_prompts.log*
-   ```
+    ```bash
+    chmod 750 storage/logs/
+    chmod 640 storage/logs/llm_prompts.log*
+    ```
 3. **Acceso a Logs**: Só admin/ops pueden leer directamente.
 4. **Cumplimiento GDPR**: Logs se rotan cada 30 días (configurable). Old logs pueden ser archivados/borrados.
 5. **Multi-tenant**: `organization_id` siempre se loguea; queries pueden filtrar por org.
@@ -298,11 +299,11 @@ LOG_LEVEL=info
 
 ## 📚 Referencia Rápida
 
-| Método | Parámetros | Retorno | Cuándo Usar |
-|--------|-----------|---------|------------|
-| `logPrompt()` | (prompt, output, metadata?) | string (hash) | Después de LLM call exitoso |
-| `logPromptError()` | (prompt, exception, metadata?) | string (hash) | En catch block de LLM error |
-| `correlatePromptFeedback()` | (hash, type, feedbackData?) | void | Cuando usuario da ratings |
+| Método                      | Parámetros                     | Retorno       | Cuándo Usar                 |
+| --------------------------- | ------------------------------ | ------------- | --------------------------- |
+| `logPrompt()`               | (prompt, output, metadata?)    | string (hash) | Después de LLM call exitoso |
+| `logPromptError()`          | (prompt, exception, metadata?) | string (hash) | En catch block de LLM error |
+| `correlatePromptFeedback()` | (hash, type, feedbackData?)    | void          | Cuando usuario da ratings   |
 
 ---
 

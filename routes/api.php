@@ -1247,6 +1247,11 @@ Route::middleware('auth:sanctum')->prefix('qa')->group(function () {
     Route::get('/llm-evaluations/metrics/summary', [\App\Http\Controllers\Api\RAGASEvaluationController::class, 'summary']);
 });
 
+// ── RAG: Retrieval Augmented Generation - Ask Questions ──────────
+Route::middleware('auth:sanctum')->prefix('rag')->group(function () {
+    Route::post('/ask', [\App\Http\Controllers\Api\RagController::class, 'ask'])->name('rag.ask');
+});
+
 // Catálogos dinámicos para selectores
 require __DIR__.'/form-schema-complete.php';
 

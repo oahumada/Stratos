@@ -102,10 +102,7 @@ export function useQualityMetrics() {
     // Polling automático (opcional)
     let pollInterval: ReturnType<typeof setInterval> | null = null;
 
-    const startPolling = (
-        intervalMs: number = 30000,
-        provider?: string,
-    ) => {
+    const startPolling = (intervalMs: number = 30000, provider?: string) => {
         if (pollInterval) clearInterval(pollInterval);
         fetchMetrics(provider); // Fetch inicial
         pollInterval = setInterval(() => fetchMetrics(provider), intervalMs);

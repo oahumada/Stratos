@@ -1,28 +1,27 @@
 <script setup lang="ts">
-import StCardGlass from '@/components/StCardGlass.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 import { useQualityMetrics } from '@/composables/useQualityMetrics';
+import AppLayout from '@/layouts/AppLayout.vue';
 import type { KpiCard } from '@/types/quality';
-import { Head } from '@inertiajs/vue3';
-import {
-    PhActivity,
-    PhCheckCircle,
-    PhClock,
-    PhFire,
-    PhGauge,
-    PhStackPlus,
-    PhWarning,
-    PhZap,
-} from '@phosphor-icons/vue';
 import { computed, onBeforeUnmount, onMounted } from 'vue';
-import VueApexCharts from 'vue3-apexcharts';
 
 defineOptions({
     layout: AppLayout,
 });
 
 // Data
-const { metrics, isLoading, error, lastUpdated, hallucination, qualityPassed, qualityFailed, topProvider, fetchMetrics, startPolling, stopPolling } = useQualityMetrics();
+const {
+    metrics,
+    isLoading,
+    error,
+    lastUpdated,
+    hallucination,
+    qualityPassed,
+    qualityFailed,
+    topProvider,
+    fetchMetrics,
+    startPolling,
+    stopPolling,
+} = useQualityMetrics();
 
 // KPI Cards
 const kpiCards = computed<KpiCard[]>(() => [
@@ -182,7 +181,9 @@ const getHealthBg = (score: number) => {
     <template #header>
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-black tracking-tight text-white drop-shadow-md">
+                <h1
+                    class="text-3xl font-black tracking-tight text-white drop-shadow-md"
+                >
                     <span class="mr-3">🎯</span> LLM Quality Dashboard
                 </h1>
                 <p class="mt-2 text-sm text-white/50">
@@ -203,7 +204,7 @@ const getHealthBg = (score: number) => {
             <StCardGlass
                 v-for="i in 4"
                 :key="`skeleton-${i}`"
-                class="animate-pulse h-32 bg-white/5"
+                class="h-32 animate-pulse bg-white/5"
             />
         </div>
 
@@ -215,36 +216,47 @@ const getHealthBg = (score: number) => {
             <div class="flex items-center gap-4">
                 <PhWarning class="text-rose-400" :size="28" weight="duotone" />
                 <div>
-                    <h3 class="font-bold text-rose-300">Error cargando métricas</h3>
+                    <h3 class="font-bold text-rose-300">
+                        Error cargando métricas
+                    </h3>
                     <p class="text-sm text-rose-400/70">{{ error }}</p>
                 </div>
             </div>
         </StCardGlass>
 
         <!-- Content -->
-        <div v-else-if="!isLoading || metrics.total_evaluations > 0" class="space-y-6">
+        <div
+            v-else-if="!isLoading || metrics.total_evaluations > 0"
+            class="space-y-6"
+        >
             <!-- KPI Cards Grid -->
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StCardGlass
                     v-for="card in kpiCards"
                     :key="card.title"
                     :indicator="card.color"
-                    class="group relative overflow-hidden p-6 hover:border-white/20 transition-all"
+                    class="group relative overflow-hidden p-6 transition-all hover:border-white/20"
                     :class="
-                        card.color === 'indigo' ? 'border-indigo-500/20' :
-                        card.color === 'emerald' ? 'border-emerald-500/20' :
-                        card.color === 'rose' ? 'border-rose-500/20' :
-                        'border-white/10'
+                        card.color === 'indigo'
+                            ? 'border-indigo-500/20'
+                            : card.color === 'emerald'
+                              ? 'border-emerald-500/20'
+                              : card.color === 'rose'
+                                ? 'border-rose-500/20'
+                                : 'border-white/10'
                     "
                 >
                     <!-- Background Icon -->
                     <div
-                        class="absolute -right-6 -bottom-6 opacity-5 group-hover:opacity-10 transition-opacity"
+                        class="absolute -right-6 -bottom-6 opacity-5 transition-opacity group-hover:opacity-10"
                         :class="
-                            card.color === 'indigo' ? 'text-indigo-500' :
-                            card.color === 'emerald' ? 'text-emerald-500' :
-                            card.color === 'rose' ? 'text-rose-500' :
-                            'text-cyan-500'
+                            card.color === 'indigo'
+                                ? 'text-indigo-500'
+                                : card.color === 'emerald'
+                                  ? 'text-emerald-500'
+                                  : card.color === 'rose'
+                                    ? 'text-rose-500'
+                                    : 'text-cyan-500'
                         "
                     >
                         <PhStackPlus :size="100" weight="duotone" />
@@ -252,13 +264,20 @@ const getHealthBg = (score: number) => {
 
                     <!-- Content -->
                     <div>
-                        <p class="text-xs font-bold tracking-widest text-white/50 uppercase mb-3">
+                        <p
+                            class="mb-3 text-xs font-bold tracking-widest text-white/50 uppercase"
+                        >
                             {{ card.title }}
                         </p>
                         <div class="flex items-baseline gap-2">
                             <span
                                 class="text-3xl font-black tracking-tighter text-white"
-                                :class="getHealthColor(parseFloat(String(card.value)) / (card.unit === '%' ? 100 : 1))"
+                                :class="
+                                    getHealthColor(
+                                        parseFloat(String(card.value)) /
+                                            (card.unit === '%' ? 100 : 1),
+                                    )
+                                "
                             >
                                 {{ card.value }}
                             </span>
@@ -276,46 +295,69 @@ const getHealthBg = (score: number) => {
             <!-- Charts Row -->
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <!-- Quality Distribution Pie -->
-                <StCardGlass
-                    class="border-white/10 p-0"
-                    :no-hover="true"
-                >
-                    <div class="flex items-center gap-3 border-b border-white/10 bg-white/5 px-6 py-4">
-                        <PhZap class="text-indigo-400" :size="20" weight="duotone" />
-                        <h3 class="font-bold text-white">Distribución de Calidad</h3>
+                <StCardGlass class="border-white/10 p-0" :no-hover="true">
+                    <div
+                        class="flex items-center gap-3 border-b border-white/10 bg-white/5 px-6 py-4"
+                    >
+                        <PhZap
+                            class="text-indigo-400"
+                            :size="20"
+                            weight="duotone"
+                        />
+                        <h3 class="font-bold text-white">
+                            Distribución de Calidad
+                        </h3>
                     </div>
                     <div class="p-6">
                         <VueApexCharts
-                            v-if="qualityDistributionChart.series.some((v: number) => v > 0)"
+                            v-if="
+                                qualityDistributionChart.series.some(
+                                    (v: number) => v > 0,
+                                )
+                            "
                             :options="qualityDistributionChart.options"
                             :series="qualityDistributionChart.series"
                             type="pie"
                             height="300"
                         />
-                        <div v-else class="h-64 flex items-center justify-center text-white/40">
+                        <div
+                            v-else
+                            class="flex h-64 items-center justify-center text-white/40"
+                        >
                             <p>Sin datos de evaluaciones</p>
                         </div>
                     </div>
                 </StCardGlass>
 
                 <!-- Provider Distribution Bar -->
-                <StCardGlass
-                    class="border-white/10 p-0"
-                    :no-hover="true"
-                >
-                    <div class="flex items-center gap-3 border-b border-white/10 bg-white/5 px-6 py-4">
-                        <PhActivity class="text-emerald-400" :size="20" weight="duotone" />
-                        <h3 class="font-bold text-white">Evaluaciones por Proveedor</h3>
+                <StCardGlass class="border-white/10 p-0" :no-hover="true">
+                    <div
+                        class="flex items-center gap-3 border-b border-white/10 bg-white/5 px-6 py-4"
+                    >
+                        <PhActivity
+                            class="text-emerald-400"
+                            :size="20"
+                            weight="duotone"
+                        />
+                        <h3 class="font-bold text-white">
+                            Evaluaciones por Proveedor
+                        </h3>
                     </div>
                     <div class="p-6">
                         <VueApexCharts
-                            v-if="Object.keys(metrics.provider_distribution).length > 0"
+                            v-if="
+                                Object.keys(metrics.provider_distribution)
+                                    .length > 0
+                            "
                             :options="providerDistributionChart.options"
                             :series="providerDistributionChart.series"
                             type="bar"
                             height="300"
                         />
-                        <div v-else class="h-64 flex items-center justify-center text-white/40">
+                        <div
+                            v-else
+                            class="flex h-64 items-center justify-center text-white/40"
+                        >
                             <p>Sin datos por proveedor</p>
                         </div>
                     </div>
@@ -331,12 +373,16 @@ const getHealthBg = (score: number) => {
                 >
                     <div class="flex items-start justify-between">
                         <div>
-                            <p class="text-xs font-bold tracking-widest text-white/50 uppercase mb-2">
+                            <p
+                                class="mb-2 text-xs font-bold tracking-widest text-white/50 uppercase"
+                            >
                                 Estado de Salud
                             </p>
                             <p
                                 class="text-2xl font-black"
-                                :class="getHealthColor(metrics.avg_composite_score)"
+                                :class="
+                                    getHealthColor(metrics.avg_composite_score)
+                                "
                             >
                                 {{
                                     metrics.avg_composite_score >= 0.85
@@ -359,13 +405,17 @@ const getHealthBg = (score: number) => {
                 <StCardGlass class="border-cyan-500/20 bg-cyan-500/10 p-6">
                     <div class="flex items-start justify-between">
                         <div>
-                            <p class="text-xs font-bold tracking-widest text-white/50 uppercase mb-2">
+                            <p
+                                class="mb-2 text-xs font-bold tracking-widest text-white/50 uppercase"
+                            >
                                 Última Evaluación
                             </p>
                             <p class="text-sm text-cyan-300">
                                 {{
                                     metrics.last_evaluation_at
-                                        ? new Date(metrics.last_evaluation_at).toLocaleDateString('es-ES', {
+                                        ? new Date(
+                                              metrics.last_evaluation_at,
+                                          ).toLocaleDateString('es-ES', {
                                               month: 'short',
                                               day: 'numeric',
                                               hour: '2-digit',
@@ -387,42 +437,68 @@ const getHealthBg = (score: number) => {
                 <StCardGlass class="border-amber-500/20 bg-amber-500/10 p-6">
                     <div class="flex items-start justify-between">
                         <div>
-                            <p class="text-xs font-bold tracking-widest text-white/50 uppercase mb-2">
+                            <p
+                                class="mb-2 text-xs font-bold tracking-widest text-white/50 uppercase"
+                            >
                                 Proveedor Dominante
                             </p>
-                            <p class="text-lg font-bold text-amber-300 uppercase">
+                            <p
+                                class="text-lg font-bold text-amber-300 uppercase"
+                            >
                                 {{ topProvider }}
                             </p>
                         </div>
-                        <PhFire :size="32" weight="duotone" class="text-amber-400" />
+                        <PhFire
+                            :size="32"
+                            weight="duotone"
+                            class="text-amber-400"
+                        />
                     </div>
                 </StCardGlass>
             </div>
 
             <!-- Quality Distribution Table -->
             <StCardGlass class="border-white/10 p-0" :no-hover="true">
-                <div class="flex items-center gap-3 border-b border-white/10 bg-white/5 px-6 py-4">
-                    <PhGauge class="text-indigo-400" :size="20" weight="duotone" />
+                <div
+                    class="flex items-center gap-3 border-b border-white/10 bg-white/5 px-6 py-4"
+                >
+                    <PhGauge
+                        class="text-indigo-400"
+                        :size="20"
+                        weight="duotone"
+                    />
                     <h3 class="font-bold text-white">Desglose de Calidad</h3>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b border-white/10">
-                                <th class="px-6 py-4 text-left text-xs font-bold tracking-widest text-white/50 uppercase">
+                                <th
+                                    class="px-6 py-4 text-left text-xs font-bold tracking-widest text-white/50 uppercase"
+                                >
                                     Nivel
                                 </th>
-                                <th class="px-6 py-4 text-right text-xs font-bold tracking-widest text-white/50 uppercase">
+                                <th
+                                    class="px-6 py-4 text-right text-xs font-bold tracking-widest text-white/50 uppercase"
+                                >
                                     Cantidad
                                 </th>
-                                <th class="px-6 py-4 text-right text-xs font-bold tracking-widest text-white/50 uppercase">
+                                <th
+                                    class="px-6 py-4 text-right text-xs font-bold tracking-widest text-white/50 uppercase"
+                                >
                                     % del Total
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="border-t border-white/5 hover:bg-white/5 transition-colors">
-                                <td class="px-6 py-4 text-emerald-400 font-semibold">Excelente</td>
+                            <tr
+                                class="border-t border-white/5 transition-colors hover:bg-white/5"
+                            >
+                                <td
+                                    class="px-6 py-4 font-semibold text-emerald-400"
+                                >
+                                    Excelente
+                                </td>
                                 <td class="px-6 py-4 text-right text-white">
                                     {{ metrics.quality_distribution.excellent }}
                                 </td>
@@ -430,16 +506,23 @@ const getHealthBg = (score: number) => {
                                     {{
                                         metrics.total_evaluations > 0
                                             ? (
-                                                (metrics.quality_distribution.excellent /
-                                                    metrics.total_evaluations) *
-                                                100
-                                            ).toFixed(1)
+                                                  (metrics.quality_distribution
+                                                      .excellent /
+                                                      metrics.total_evaluations) *
+                                                  100
+                                              ).toFixed(1)
                                             : 0
                                     }}%
                                 </td>
                             </tr>
-                            <tr class="border-t border-white/5 hover:bg-white/5 transition-colors">
-                                <td class="px-6 py-4 text-cyan-400 font-semibold">Bueno</td>
+                            <tr
+                                class="border-t border-white/5 transition-colors hover:bg-white/5"
+                            >
+                                <td
+                                    class="px-6 py-4 font-semibold text-cyan-400"
+                                >
+                                    Bueno
+                                </td>
                                 <td class="px-6 py-4 text-right text-white">
                                     {{ metrics.quality_distribution.good }}
                                 </td>
@@ -447,33 +530,49 @@ const getHealthBg = (score: number) => {
                                     {{
                                         metrics.total_evaluations > 0
                                             ? (
-                                                (metrics.quality_distribution.good /
-                                                    metrics.total_evaluations) *
-                                                100
-                                            ).toFixed(1)
+                                                  (metrics.quality_distribution
+                                                      .good /
+                                                      metrics.total_evaluations) *
+                                                  100
+                                              ).toFixed(1)
                                             : 0
                                     }}%
                                 </td>
                             </tr>
-                            <tr class="border-t border-white/5 hover:bg-white/5 transition-colors">
-                                <td class="px-6 py-4 text-amber-400 font-semibold">Aceptable</td>
+                            <tr
+                                class="border-t border-white/5 transition-colors hover:bg-white/5"
+                            >
+                                <td
+                                    class="px-6 py-4 font-semibold text-amber-400"
+                                >
+                                    Aceptable
+                                </td>
                                 <td class="px-6 py-4 text-right text-white">
-                                    {{ metrics.quality_distribution.acceptable }}
+                                    {{
+                                        metrics.quality_distribution.acceptable
+                                    }}
                                 </td>
                                 <td class="px-6 py-4 text-right text-white/60">
                                     {{
                                         metrics.total_evaluations > 0
                                             ? (
-                                                (metrics.quality_distribution.acceptable /
-                                                    metrics.total_evaluations) *
-                                                100
-                                            ).toFixed(1)
+                                                  (metrics.quality_distribution
+                                                      .acceptable /
+                                                      metrics.total_evaluations) *
+                                                  100
+                                              ).toFixed(1)
                                             : 0
                                     }}%
                                 </td>
                             </tr>
-                            <tr class="border-t border-white/5 hover:bg-white/5 transition-colors">
-                                <td class="px-6 py-4 text-orange-400 font-semibold">Pobre</td>
+                            <tr
+                                class="border-t border-white/5 transition-colors hover:bg-white/5"
+                            >
+                                <td
+                                    class="px-6 py-4 font-semibold text-orange-400"
+                                >
+                                    Pobre
+                                </td>
                                 <td class="px-6 py-4 text-right text-white">
                                     {{ metrics.quality_distribution.poor }}
                                 </td>
@@ -481,16 +580,23 @@ const getHealthBg = (score: number) => {
                                     {{
                                         metrics.total_evaluations > 0
                                             ? (
-                                                (metrics.quality_distribution.poor /
-                                                    metrics.total_evaluations) *
-                                                100
-                                            ).toFixed(1)
+                                                  (metrics.quality_distribution
+                                                      .poor /
+                                                      metrics.total_evaluations) *
+                                                  100
+                                              ).toFixed(1)
                                             : 0
                                     }}%
                                 </td>
                             </tr>
-                            <tr class="border-t border-white/5 hover:bg-white/5 transition-colors">
-                                <td class="px-6 py-4 text-rose-400 font-semibold">Crítico</td>
+                            <tr
+                                class="border-t border-white/5 transition-colors hover:bg-white/5"
+                            >
+                                <td
+                                    class="px-6 py-4 font-semibold text-rose-400"
+                                >
+                                    Crítico
+                                </td>
                                 <td class="px-6 py-4 text-right text-white">
                                     {{ metrics.quality_distribution.critical }}
                                 </td>
@@ -498,10 +604,11 @@ const getHealthBg = (score: number) => {
                                     {{
                                         metrics.total_evaluations > 0
                                             ? (
-                                                (metrics.quality_distribution.critical /
-                                                    metrics.total_evaluations) *
-                                                100
-                                            ).toFixed(1)
+                                                  (metrics.quality_distribution
+                                                      .critical /
+                                                      metrics.total_evaluations) *
+                                                  100
+                                              ).toFixed(1)
                                             : 0
                                     }}%
                                 </td>
@@ -512,10 +619,13 @@ const getHealthBg = (score: number) => {
             </StCardGlass>
 
             <!-- Empty State -->
-            <div v-if="metrics.total_evaluations === 0" class="text-center py-12">
+            <div
+                v-if="metrics.total_evaluations === 0"
+                class="py-12 text-center"
+            >
                 <PhActivity :size="48" class="mx-auto mb-4 text-white/20" />
                 <p class="text-white/50">No hay evaluaciones registradas aún</p>
-                <p class="text-xs text-white/30 mt-2">
+                <p class="mt-2 text-xs text-white/30">
                     Inicia evaluaciones de LLM usando /api/qa/llm-evaluations
                 </p>
             </div>
