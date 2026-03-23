@@ -746,9 +746,10 @@ Stratos ha evolucionado desde una plataforma de gestión de talento convencional
 
 **Antes**: Los departamentos de RRHH tomaban decisiones basadas en intuición, históricos limitados o datos incompletos. Esto generaba sesgo inconsciente, promociones injustas y rotación innecesaria.
 
-**Ahora**: Stratos analiza miles de datos de personas (competencias, historia profesional, cultural fit, potencial de crecimiento) en segundos. Cuando un gerente pregunta *"¿Quién es el mejor candidato para liderar este proyecto?"*, Stratos no solo da un nombre—explica por qué, qué riesgos hay, y qué necesita esa persona para triunfar.
+**Ahora**: Stratos analiza miles de datos de personas (competencias, historia profesional, cultural fit, potencial de crecimiento) en segundos. Cuando un gerente pregunta _"¿Quién es el mejor candidato para liderar este proyecto?"_, Stratos no solo da un nombre—explica por qué, qué riesgos hay, y qué necesita esa persona para triunfar.
 
 **Impacto Real:**
+
 - ✅ Reducción de rotación: candidatos mejor emparejados = menos personas que se van
 - ✅ Promociones justas: evaluación sin sesgos, basada en toda la información
 - ✅ Retención de talento crítico: identificar antes de que alguien se vaya por frustración
@@ -762,6 +763,7 @@ Stratos ha evolucionado desde una plataforma de gestión de talento convencional
 **Ahora**: Con nuestro motor RAG (Retrieval-Augmented Generation), si necesitas "un líder de transformación digital con 8+ años en manufacturing", Stratos busca **globalmente** en tu base de talento, busca externamente en LLMs (bases de datos públicas), y te presenta los top-3 candidatos con score de match en **menos de 5 segundos**. Incluye análisis de cultural fit, brechas de competencia, y un plan personalizado para integrarlos.
 
 **Impacto Real:**
+
 - ✅ Velocidad de contratación: de días a minutos
 - ✅ Costo reducido: menos rechazos porque los matches son precisos
 - ✅ Probabilidad de éxito: 40% más alto cuando el fit es bueno
@@ -773,6 +775,7 @@ Stratos ha evolucionado desde una plataforma de gestión de talento convencional
 **Antes**: "En esta empresa hacemos capacitación genérica para todos": todos ven el mismo video, todos hacen el mismo quiz, y la mayoría se aburre o se queda atrás.
 
 **Ahora**: Stratos crea un **blueprint de crecimiento único para cada persona**:
+
 - Analiza qué competencias necesita para el próximo rol
 - Identifica brechas específicas (no genéricas)
 - Genera un camino de aprendizaje que combina: cursos online, mentoría, proyectos de estiramiento, y coaching
@@ -780,6 +783,7 @@ Stratos ha evolucionado desde una plataforma de gestión de talento convencional
 - Aprende si la capacitación funciona: si alguien no progresa, Stratos detecta por qué y ajusta
 
 **Impacto Real:**
+
 - ✅ Engagement: la gente se siente apoyada en su crecimiento
 - ✅ Retención: "esta empresa invierte en mí" es un diferenciador enorme
 - ✅ Productividad: personas más competentes = mejores resultados
@@ -792,6 +796,7 @@ Stratos ha evolucionado desde una plataforma de gestión de talento convencional
 **Antes**: Si un sistema de IA recomendaba algo, asumías que funcionaba. Nadie chequeaba si la recomendación era correcta, sesgada, o alucinaba (inventaba datos).
 
 **Ahora**: El **VerifierAgent** actúa como un crítico interno:
+
 - Antes de que una recomendación llegue a una persona, Stratos la valida contra políticas, datos, y lógica de negocio
 - Detecta si hay "alucinaciones" (cuando la IA inventa datos que no existen)
 - Identifica contradicciones: "espera, dijiste que está en Buenos Aires pero antes dijiste que está en Mendoza"
@@ -799,6 +804,7 @@ Stratos ha evolucionado desde una plataforma de gestión de talento convencional
 - Mantiene una auditoría completa: qué se validó, qué falló, por qué
 
 **Impacto Real:**
+
 - ✅ Seguridad: recomendaciones confiables
 - ✅ Conformidad legal: auditoría completa de decisiones
 - ✅ Reducción de riesgos: evitar decisiones de RRHH que terminen en conflictos legales
@@ -811,12 +817,14 @@ Stratos ha evolucionado desde una plataforma de gestión de talento convencional
 **Antes**: Si Stratos cometía un error en una recomendación, lo volvía a hacer porque no "memorizaba" los errores. Era como un amnésico laboral.
 
 **Ahora**: Hay un **loop de aprendizaje continuo**:
+
 - Cuando un usuario rechaza una recomendación, Stratos pregunta por qué
 - Si detecta un patrón ("Stratos siempre me sugiere ingenieros que no saben hablar español"), lo nota y lo corrige
 - Re-indexa su memoria con ejemplos exitosos y evita los patrones de error
 - En 2 semanas empiezas a notar que las recomendaciones mejoran
 
 **Impacto Real:**
+
 - ✅ Sistema que mejora mes a mes (no queda estancado)
 - ✅ Personalización que evoluciona: "Stratos me conoce cada vez mejor"
 - ✅ Menor overhead manual: menos "tuning" de la plataforma
@@ -828,6 +836,7 @@ Stratos ha evolucionado desde una plataforma de gestión de talento convencional
 **Antes**: Los sistemas de RRHH eran cajas negras. Sabías el output pero no por qué. ¿Por qué Stratos rechazó este candidato? Nadie sabe.
 
 **Ahora**: Hay un **dashboard de inteligencia** que muestra:
+
 - Cuántas recomendaciones hizo el sistema hoy (y cuán confiables fueron)
 - Métricas de hallucination: ¿Qué % de recomendaciones pueden tener problemas?
 - Tendencias de cultural fit por área
@@ -836,6 +845,7 @@ Stratos ha evolucionado desde una plataforma de gestión de talento convencional
 - Equidad: ¿Se recomienda a hombres y mujeres equitativamente?
 
 **Impacto Real:**
+
 - ✅ Transparencia: puedes explicar decisiones a gerentes y a personas
 - ✅ Governance: datos para auditoría, conformidad, reportes regulatorios
 - ✅ Insights estratégicos: entiende dónde están los gaps de talento
@@ -848,11 +858,13 @@ Stratos ha evolucionado desde una plataforma de gestión de talento convencional
 **Antes**: A medida que la empresa crecía, el equipo de RRHH crecía proporcionalmente. Más personas = más costo y aún no daban abasto en decisiones críticas.
 
 **Ahora**: Stratos maneja la **escala cognitiva**:
+
 - 100 personas = procesa datos de todos en segundos
 - 10.000 personas = sigue siendo segundos
 - Tu equipo se enfoca en estrategia y relaciones, no en buscar en hojas de cálculo
 
 **Impacto Real:**
+
 - ✅ Costo de RRHH por empleado baja
 - ✅ Equipo menos estresado = decisiones mejor pensadas
 - ✅ Capacidad de manejar crisisde talento sin pánico
@@ -864,6 +876,7 @@ Stratos ha evolucionado desde una plataforma de gestión de talento convencional
 **Antes**: Contrataban a alguien porque parecía calificado en el CV o porque "cayó bien en la entrevista". 6 meses después descubrías que no rendía, o peor: se iba. Nunca sabías qué predictor real de éxito hubiera funcionado.
 
 **Ahora**: Stratos analiza **patrones históricos de éxito** en tu organización:
+
 - Estudia: qué personas han sido las más productivas, las que han crecido más rápido, las que se han quedado y han sido felices
 - Extrae factores comunes: "en nuestro case, los ingenieros que triunfan en proyectos digitales tienen: mentalidad de aprendizaje, experience en metodologías ágiles, network de mentores, y necesidad de autonomía"
 - Crea un "perfil predictivo de éxito" específico para cada tipo de rol en TU empresa (no genérico)
@@ -871,6 +884,7 @@ Stratos ha evolucionado desde una plataforma de gestión de talento convencional
 - Valida después: cuando la persona lleva un año, Stratos compara su performance real con la predicción. ¿Era correcta? Si no, actualiza el modelo
 
 **Ejemplo Real:**
+
 ```
 Rol: Líder de Innovación (Manufacturing)
 
@@ -881,7 +895,7 @@ Histórico de éxito en tu empresa:
 
 Nuevo Candidato (Ahmed):
 Predicción: 91% de probabilidad de alto rendimiento
-Explicación: 
+Explicación:
   • Como Juan → mentalidad de experimentación
   • Como María → comunicación clara (crítica en manufacturing)
   • Evita patrón Carlos → no tiene red interna (pero Stratos puede mitigarlo con mentoring)
@@ -890,11 +904,13 @@ Recomendación: "Contratar, pero asignar mentor para primeros 3 meses"
 ```
 
 **¿Por qué es diferente?**
+
 - Otros sistemas te dan un score (ej: "Candidate Score: 7.5/10")
 - Stratos te da **un score basado en TUS datos**, **explicado**, **y mejora continuamente**
 - No es "mejor en el papel" sino "mejor en tu contexto específico"
 
 **Impacto Real:**
+
 - ✅ Menos bad hires: Stratos filtra candidatos que parecen buenos pero no lo van a ser en tu contexto
 - ✅ Retención mejorada: si Stratos predice bien, las personas contratadas tienden a quedarse más tiempo
 - ✅ Time-to-productivity: personas que encajan bien producen valor en semanas, no meses
@@ -902,6 +918,7 @@ Recomendación: "Contratar, pero asignar mentor para primeros 3 meses"
 - ✅ Data-driven decisioning: "Hire this person" no es intuición, es análisis de 5 años de tus propios datos
 
 **El Ciclo Predictivo:**
+
 1. **Análisis histórico**: ¿Qué hace que alguien triunfe aquí?
 2. **Predicción**: Nuevo candidato = score de probabilidad de éxito
 3. **Contratación**: Decides basado en datos + juicio
@@ -920,30 +937,27 @@ Recomendación: "Contratar, pero asignar mentor para primeros 3 meses"
 **¿Qué monitorea Stratos?**
 
 1. **Clima Laboral & Engagement**
-   - Análisis de encuestas de pulso (satisfaction, belongingness, purpose)
-   - Tendencias mes a mes: ¿mejoró o empeoró el clima?
-   - Segmentación: ¿Qué áreas tienen buen clima? ¿Cuáles tienen problemas?
-   
+    - Análisis de encuestas de pulso (satisfaction, belongingness, purpose)
+    - Tendencias mes a mes: ¿mejoró o empeoró el clima?
+    - Segmentación: ¿Qué áreas tienen buen clima? ¿Cuáles tienen problemas?
 2. **Señales de Liderazgo**
-   - Feedback directo: "¿Cómo es trabajar con tu gerente?" (encuestas de 360 grados)
-   - Detecta patrones: gerentes con altos reportados que se van, que reportan ansiedad, falta de dirección
-   - Identifica líderes excepcionales: los que retienen talento, generan innovación, mantienen equipos motivados
-   
+    - Feedback directo: "¿Cómo es trabajar con tu gerente?" (encuestas de 360 grados)
+    - Detecta patrones: gerentes con altos reportados que se van, que reportan ansiedad, falta de dirección
+    - Identifica líderes excepcionales: los que retienen talento, generan innovación, mantienen equipos motivados
 3. **Conflictos Tempranos**
-   - Análisis de comunicación interna (emails, chats, tickets): ¿Hay tensión?
-   - Detecta conflictos interpersonales antes de que exploten: "hay fricción entre Juan y el equipo de ventas"
-   - Identifica tensiones estructurales: "el equipo X se siente dejado de lado por la dirección"
-   - Señal de bullying/acoso: anomalías en comunicación, aislamiento de una persona
-   
+    - Análisis de comunicación interna (emails, chats, tickets): ¿Hay tensión?
+    - Detecta conflictos interpersonales antes de que exploten: "hay fricción entre Juan y el equipo de ventas"
+    - Identifica tensiones estructurales: "el equipo X se siente dejado de lado por la dirección"
+    - Señal de bullying/acoso: anomalías en comunicación, aislamiento de una persona
 4. **Retención & Burnout**
-   - Predicción de renuncias: Stratos nota patrones en gente que se va ("siempre se van después de 2 proyectos rechazados")
-   - Detección de burnout: personas trabajando excesivas horas, disminución en interacción social, comentarios pesimistas
-   - Riesgos de desenganche: alguien que antes era vocal y social se vuelve silencioso = potencial problema
+    - Predicción de renuncias: Stratos nota patrones en gente que se va ("siempre se van después de 2 proyectos rechazados")
+    - Detección de burnout: personas trabajando excesivas horas, disminución en interacción social, comentarios pesimistas
+    - Riesgos de desenganche: alguien que antes era vocal y social se vuelve silencioso = potencial problema
 
 5. **Productividad vs. Bienestar**
-   - Correlación: ¿Qué equipos que tienen buen clima son productivos? ¿Cuáles están estresadas pero productivas (insostenible)?
-   - Análisis: "El equipo X trabajo 60 horas/semana pero su satisfacción bajó 30%. Esto no es sostenible."
-   - Identifica equipos en riesgo: alta productividad + bajo bienestar = burnout inminente
+    - Correlación: ¿Qué equipos que tienen buen clima son productivos? ¿Cuáles están estresadas pero productivas (insostenible)?
+    - Análisis: "El equipo X trabajo 60 horas/semana pero su satisfacción bajó 30%. Esto no es sostenible."
+    - Identifica equipos en riesgo: alta productividad + bajo bienestar = burnout inminente
 
 **El Ciclo de Mejora de Ambiente:**
 
@@ -952,14 +966,14 @@ Recomendación: "Contratar, pero asignar mentor para primeros 3 meses"
    ↓
    Stratos detecta: "Climate score bajó 15% en Q1"
    Causa detectada: "Cambio de gerente en Área X hace 3 meses"
-   
+
 2. DIAGNOSE (Profundo)
    ↓
    Stratos analiza:
    • Encuestas: ¿Qué específicamente cambió? (confianza, dirección, equidad, reconocimiento)
    • Comunicación: ¿Hay menos interacción o más conflictiva?
    • Rotación: ¿Se fueron personas clave? ¿Quién es el riesgo siguiente?
-   
+
 3. RECOMMEND (Actionable)
    ↓
    Stratos sugiere:
@@ -967,11 +981,11 @@ Recomendación: "Contratar, pero asignar mentor para primeros 3 meses"
    • "Reunión de alineamiento con el equipo: clarificar dirección"
    • "Reconocer públicamente 3 logros del equipo que se sienten invisibles"
    • "Ajustar car de compensación: perciben desigualdad vs. otras áreas"
-   
+
 4. IMPLEMENT (Tu equipo actúa)
    ↓
    HR/Leadership ejecuta recomendaciones
-   
+
 5. MONITOR (Seguimiento)
    ↓
    Stratos rastrea:
@@ -979,7 +993,7 @@ Recomendación: "Contratar, pero asignar mentor para primeros 3 meses"
    • ¿Mejoró el clima? (medición en 2, 4, 8 semanas)
    • ¿Bajó la rotación? ¿Mejoró el engagement?
    • ¿Qué funcionó? ¿Qué no?
-   
+
 6. LEARN (Evolución)
    ↓
    Stratos documenta: "En problemas de clima X, la solución que funciona es Y"
@@ -1042,19 +1056,249 @@ Stratos integra: encuestas + comunicación + rotación + productividad + feedbac
 
 ### 📊 **En Resumen: La Transformación**
 
-| Aspecto | Antes | Después |
-|---------|-------|---------|
-| **Velocidad de decisión** | Días | Minutos |
-| **Precisión de emparejamiento** | 65% acierto | 90%+ acierto |
-| **Capacidad predictiva** | Ninguna (adivinar) | Basada en datos históricos (>85% precisión) |
-| **Monitoreo de clima** | Anual (encuesta una vez/año) | Continuo (señales diarias) |
-| **Detección de problemas** | Cuando explotan | Semanas antes (predictivo) |
-| **Sesgo en decisiones** | Alto | Bajo (auditado) |
-| **Confianza en datos** | Media (~70%) | Alta (~95%) |
-| **Capacidad de escala** | Limitada | Ilimitada |
-| **Aprendizaje del sistema** | Ninguno | Continuo (mejora mensual) |
-| **Transparencia** | Baja (caja negra) | Alta (auditable) |
-| **ROI educativo** | Bajo (L&D genérica) | Alto (L&D personalizada) |
+| Aspecto                         | Antes                        | Después                                     |
+| ------------------------------- | ---------------------------- | ------------------------------------------- |
+| **Velocidad de decisión**       | Días                         | Minutos                                     |
+| **Precisión de emparejamiento** | 65% acierto                  | 90%+ acierto                                |
+| **Capacidad predictiva**        | Ninguna (adivinar)           | Basada en datos históricos (>85% precisión) |
+| **Monitoreo de clima**          | Anual (encuesta una vez/año) | Continuo (señales diarias)                  |
+| **Detección de problemas**      | Cuando explotan              | Semanas antes (predictivo)                  |
+| **Sesgo en decisiones**         | Alto                         | Bajo (auditado)                             |
+| **Confianza en datos**          | Media (~70%)                 | Alta (~95%)                                 |
+| **Capacidad de escala**         | Limitada                     | Ilimitada                                   |
+| **Aprendizaje del sistema**     | Ninguno                      | Continuo (mejora mensual)                   |
+| **Transparencia**               | Baja (caja negra)            | Alta (auditable)                            |
+| **ROI educativo**               | Bajo (L&D genérica)          | Alto (L&D personalizada)                    |
+
+---
+
+### 🔟 **Cultura Declarada vs. Real: La Brecha Que Hace Fracasar Estrategias**
+
+**Antes**: Tu empresa dice ser "innovadora, ágil, inclusiva, data-driven". Pero cuando cambias estrategia o introduces cambios, la gente se resiste. ¿Por qué? Porque la cultura real—lo que la gente **realmente** vive día a día—es diferente de la que proclamas. Esto se llamaba "brecha cultural" y los ejecutivos la descubrían **demasiado tarde**, cuando la iniciativa ya había fracasado.
+
+**Ahora**: Stratos mide **ambas culturas** continuamente:
+
+**1. Cultura Declarada** (Lo que la empresa dice ser):
+- Misión, valores, visión publicados en la web y en documentos internos
+- Comportamientos esperados según el código de conducta
+- Promesas de marca: "Somos un equipo inclusivo" o "Premios a innovación"
+
+**2. Cultura Real** (Lo que la gente realmente vive):
+- Cómo se toman decisiones (¿Consulta real o es solo teatro?)
+- Quién tiene poder de verdad (¿Es meritocrático o político?)
+- Cómo se tratan los errores (¿Aprendizaje o castigo?)
+- Inclusión real: ¿Se escuchan todas las voces o solo las "cómodas"?
+- Velocidad: ¿Se mueven rápido o hay burocracia oculta?
+- Si eres diferente (edad, género, origen, neurodiverso), ¿Eres aceptado o marginalizado?
+
+**El Análisis de Fricción (Único de Stratos):**
+
+```
+EJEMPLO: Empresa Tech que quiere transformarse en "Data-Driven"
+
+Cultura Declarada:
+"Somos data-driven, ágiles, experimentos rápidos"
+
+Cultura Real (detectada por Stratos):
+• 60% de las personas dicen "las decisiones se toman por opinión del executive" 
+• Cuando presentas data que contradice al jefe, hay silencio incómodo
+• Los errores experimentales resultan en castigos (menos oportunidades después)
+• "Data-driven" significa "data que confirme lo que ya decidimos"
+
+FRICCIÓN DETECTADA: 85% de employees perciben contradicción
+
+Cuando anuntias la estrategia "Data-Driven 2026":
+SIN STRATOS:
+• Equipo aparentemente acepta ("ok, vamos a usar más data")
+• En realidad confúnden "data-driven" con "decisiones del jefe confirmadas con datos"
+• Resistencia silenciosa: toman más tiempo, no aceptan recomendaciones
+• Initiative fracasa: después de 6 meses, vuelven a "hablemos con el jefe"
+• Ejecutivo frustrado: "¿Por qué no adoptan esta cultura?"
+
+CON STRATOS:
+• Anticipa el problema: "Hay una enorme fricción entre la cultura que quieres y la que existe"
+• Recomienda: Antes de cambiar estrategia, alinea la cultura
+  - "Necesitas mostrar que los experimentos fallidos NO son castigos"
+  - "Necesitas tomar 3 decisiones importantes basadas únicamente en data, públicamente"
+  - "Necesitas que X ejecutivo (quien tiene poder real) lo lidere"
+• Ejecuta: Cambios de estructura + decisiones visible + comunicación clara
+• Valida: 2 meses después, fricción baja a 20%
+• Then: Cuando lanzas "Data-Driven 2026", adoptación real es 90% (vs. 30% sin preparación)
+```
+
+**¿Por Qué Esto Importa para Cambios Estratégicos?**
+
+Toda estrategia requiere que la gente: 
+- Cambie comportamientos 
+- Adopte nuevas mentalidades 
+- Tome decisiones diferente
+
+Si la cultura real no alinea con la nueva estrategia, dos cosas pasan:
+
+1. **La gente se adapta superficialmente** (dice que lo hace, pero no lo hace)
+2. **El cambio fracasa** (costo: millones en iniciativas que caen)
+
+Stratos detecta la fricción **antes** de que gastes dinero e identifica qué exactamente necesita cambiar en la cultura para que la estrategia funcione.
+
+**Ejemplo Real de Uso:**
+
+**Situación**: CEO quiere "transformación digital" pero la cultura es "confiamos en procesos manuales de siempre"
+
+**Stratos analiza**:
+- Fricción: 78% (muy alta)
+- Causa: Gente tiene miedo a lo digital (falta de capacitación), desconfía de "habilidades computacionales"
+- Patrón: Personas mayores = más resistencia (correlación clara)
+
+**Recomendación**: No es tecnología, es cultura + capacitación + inclusión
+
+**Plan Stratos**:
+1. L&D dirigida: Capacitación digital para 40+ años (sin juzgar)
+2. Históricos de éxito: Muestra personas grandes que adoptaron exitosamente
+3. Change management: Líderes moderan "¿Cómo imaginamos transformación en 3 años?"
+4. Monitoreo: Fricción debería bajar mes a mes
+
+**Resultado**: Después de 8 semanas, fricción baja a 35% (manejable), y cuando lanzas iniciativa digital, adopción es real.
+
+**Impacto Real:**
+- ✅ Cambios estratégicos que funcionan de verdad (no solo en papel)
+- ✅ Evitas millones desperdiciados en iniciativas que fracasan
+- ✅ Gente entiende "por qué" el cambio (alineación claridad)
+- ✅ Menos resistencia = menos malestar, menos rotación
+- ✅ Velocidad: cambio capturado en semanas, no en años de fricción
+
+---
+
+### 1️⃣1️⃣ **Psicometría & Evaluaciones de Potencial: De Predictores Estáticos a Dinámicos**
+
+**Antes**: Las evaluaciones psicométricas eran snap-shots: hiciste test en la entrevista, te clasificaron (ej: "Eres de tipo MBTI INTJ, liderazgo 7/10, potencial medio") y eso era tu "predictor" para siempre. Pero las personas no son estáticas; crecen, cambian contexto, desarrollan nuevas habilidades.
+
+**Ahora**: Stratos integra psicometría con **datos de comportamiento real** para crear evaluaciones dinámicas:
+
+**1. Psicometría Mejorada (Baseline + Context)**
+
+Tradicional:
+```
+Test psicométrico → "Extraversión: 6/10" → Fin
+```
+
+Con Stratos:
+```
+Test psicométrico → "Extraversión: 6/10"
+       ↓
+Observación en contexto histórico:
+• En proyectos creativos: participación = 8/10 (muy extrovertida)
+• En reuniones 1-a-1: comunicación = 5/10 (introvertida)
+• Cuando hay conflicto: se retrae (4/10)
+       ↓
+Análisis: "No es introvertida. Es selectiva con sus espacios.
+En contexto adecuado, es altamente comunicativa.
+Necesita: ambientes de confianza + tiempo de procesamiento"
+       ↓
+Recomendación de rol: Investigación + facilitar small groups, no grandes presentaciones (a menos que el grupo sea de confianza)
+```
+
+**2. Evaluaciones de Potencial que Evolucionan**
+
+Tradicional:
+```
+Performance actual 7/10 + Test potencial → "Potencial: Alto/Bajo"
+(Y eso es lo que asumen para siempre)
+```
+
+Con Stratos:
+```
+Performance actual 7/10 + Test potencial + Histórico de crecimiento
+       ↓
+Stratos analiza:
+• Velocidad de aprendizaje (¿Cómo rápido adoptó nuevas skills?)
+• Receptividad a feedback (¿Escucha? ¿Ajusta?)
+• Resiliencia ante fallos (¿Se reinventa o se desmorona?)
+• Impacto en otros (¿Levanta a su equipo o los agota?)
+       ↓
+Resultado: No es un número estático. Es una evaluación dinámica:
+"Potencial ALTO para roles técnicos en 2-3 años. Potencial MEDIO para liderazgo
+de equipos grandes hoy, pero se proyecta ALTO si trabaja en 360-feedback y EI.
+Necesita: mentorship, proyectos de estiramiento, coaching en comunicación"
+       ↓
+Seguimiento: Cada 6 meses, Stratos valida:
+¿Se está moviendo hacia el potencial? ¿Qué falta?
+```
+
+**3. Diferencias de Personalidad en Contexto (El Cambio Transformacional)**
+
+Stratos entiende:
+- Una persona "perfeccionista" es FORTALEZA en QA/auditoría, PROBLEMA en startups (demasiado lenta)
+- Una persona "impulsiva" es DEBILIDAD en planning, FORTALEZA en crisis (actúa rápido)
+- Una persona "conflictiva" es PROBLEMA en equipos tímidos, VALOR en equipos disfuncionales (dice verdades incomodas)
+
+**Antes**: La evaluaba como "problemas de personalidad: baja tolerancia, impulsiva"
+
+**Ahora**: 
+```
+"Tiene tolerancia baja para ineficiencia → Fortaleza en QA / 
+Debilidad en ambientes políticos (donde la inefficiency es política).
+Recomendación: Rol donde pueda impactar efficiency sin frustración política"
+```
+
+**4. Potencial de Liderazgo: Multidimensional (No Solo "Es Líder o No")**
+
+Tradicional:
+```
+Evaluación liderazgo → Score → "Apto / No apto para liderazgo"
+(Ignora: ¿Cuántas personas? ¿Qué contexto? ¿Qué tipo?)
+```
+
+Con Stratos:
+```
+Multidimensional Assessment:
+• Liderazgo técnico: 9/10 (personas confían en su expertise, la siguen)
+• Liderazgo emocional: 5/10 (no procesa bien emociones de otros)
+• Liderazgo político: 3/10 (terrible navegando dinámicas de poder)
+• Liderazgo de visión: 8/10 (inspira con dirección clara)
+
+Recomendación:
+"CTO o Tech Lead IDEAL. Director general RIESGOSO (necesitaría Co-líder o coaching).
+Plan: Coaching de inteligencia emocional. En 18 meses podría estar listo para Director"
+
+En lugar de: "Potencial de liderazgo: SÍ / NO"
+```
+
+**5. Detalles Finos Que Predicen Éxito**
+
+Stratos identifica:
+- Gente que trabaja bien bajo presión vs. gente que se quiebra
+- Quien es creativa en ambientes estructurados (oxymoron para muchos: son POCAS)
+- Quien es buena en equipos remotos vs. híbridos vs. presenciales
+- Quien se motiva con dinero, con reconocimiento, con propósito, con autonomía
+- Quien aprende haciendo, leyendo, conversando, enseñando a otro
+
+**El Beneficio Psicométrico:**
+
+De:
+```
+Evaluación psicométrica estática → 
+"Este candidato es INTJ, liderazgo 6, potencial bajo" 
+(Y eso te sigue toda la vida en la empresa)
+```
+
+A:
+```
+Evaluación psicométrica + comportamiento continuo →
+"Este candidato tiene X fortalezas en Y contextos. En Z entorno podría brillar.
+Necesita este desarrollo. En 18 meses podría estar listo para X rol.
+Recomendación: Asignar mentor Z, proyecto de estiramiento en Q2, coaching de EI"
+(Dinámico, accionable, esperanzador)
+```
+
+**Impacto Real:**
+
+- ✅ Evaluaciones justas: consideras contexto, no solo personality type
+- ✅ Talento no se pierde: "Introvertida" no significaba "mala para liderazgo", solo "necesita contexto diferente"
+- ✅ Planes de desarrollo específicos: basados en fortalezas + debilidades reales, no etiquetas
+- ✅ Predicción mejorada de éxito: combinas psicometría + datos reales
+- ✅ Potencial que crece: personas ven que "Potencial MEDIO hoy, ALTO en 2 años" (esperanza = motivación)
+- ✅ Toma de decisiones: "¿Promover a X?" No es intuición + CV. Es datos psicométricos + performance + evaluación potencial dinámica
+- ✅ Menos burnout: asignas roles donde alguien puede cómodamente ser eficiente (no poniéndola en contexto donde sufre)
 
 ---
 
@@ -1064,19 +1308,22 @@ Stratos integra: encuestas + comunicación + rotación + productividad + feedbac
 - Menos tiempo en decisiones de talento, más en liderazgo estratégico
 - Recomendaciones que puedes confiar = decisiones más veloces
 - Visibilidad clara: quién necesita qué para crecer
+- Entiende diferencias: "Esta introvertida no es mala para liderazgo, solo necesita equipo de confianza"
 
 **Si eres una persona con talento:**
 - Tu oportunidad de crecimiento es identificada **antes** de que la puestos
-
 - Tu plan de desarrollo es hecho **solo para ti**, no genérico
 - Tu progreso es monitoreado y Stratos ajusta el plan si no funciona
 - Eres evaluado sin sesgos
+- Tu personalidad no te etiqueta para siempre: "Introvertida hoy, pero con mentor X puedes crecer a liderazgo"
 
 **Si eres un ejecutivo:**
 - Menos riesgos legales (auditoría completa de decisiones)
 - Estrategia de talento basada en datos, no en gut-feel
 - ROI educativo medible: puedes demostrar que el aprendizaje funciona
 - Escalabilidad: crece sin que los costos de RRHH explotan
+- Cambios estratégicos que realmente prendén (porque alineas la cultura primero)
+- Ves evolución clara: promociones basadas en potencial demostrado + plan de acción realista
 
 ---
 
