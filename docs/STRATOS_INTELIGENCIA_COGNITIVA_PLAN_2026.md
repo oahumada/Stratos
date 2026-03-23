@@ -859,12 +859,65 @@ Stratos ha evolucionado desde una plataforma de gestión de talento convencional
 
 ---
 
+### 8️⃣ **Predicción de Rendimiento Futuro (El Factor Diferenciador)**
+
+**Antes**: Contrataban a alguien porque parecía calificado en el CV o porque "cayó bien en la entrevista". 6 meses después descubrías que no rendía, o peor: se iba. Nunca sabías qué predictor real de éxito hubiera funcionado.
+
+**Ahora**: Stratos analiza **patrones históricos de éxito** en tu organización:
+- Estudia: qué personas han sido las más productivas, las que han crecido más rápido, las que se han quedado y han sido felices
+- Extrae factores comunes: "en nuestro case, los ingenieros que triunfan en proyectos digitales tienen: mentalidad de aprendizaje, experience en metodologías ágiles, network de mentores, y necesidad de autonomía"
+- Crea un "perfil predictivo de éxito" específico para cada tipo de rol en TU empresa (no genérico)
+- Al recomendar un nuevo candidato, Stratos compara: "este candidato encaja el 92% con el perfil de quienes han triunfado aqui"
+- Valida después: cuando la persona lleva un año, Stratos compara su performance real con la predicción. ¿Era correcta? Si no, actualiza el modelo
+
+**Ejemplo Real:**
+```
+Rol: Líder de Innovación (Manufacturing)
+
+Histórico de éxito en tu empresa:
+✅ Juan (2020): Predic=89% → Performance real=92% → ✅ Acertó
+✅ María (2021): Predic=85% → Performance real=88% → ✅ Acertó
+❌ Carlos (2021): Predic=72% → Performance real=45% → Bajo (validación útil)
+
+Nuevo Candidato (Ahmed):
+Predicción: 91% de probabilidad de alto rendimiento
+Explicación: 
+  • Como Juan → mentalidad de experimentación
+  • Como María → comunicación clara (crítica en manufacturing)
+  • Evita patrón Carlos → no tiene red interna (pero Stratos puede mitigarlo con mentoring)
+
+Recomendación: "Contratar, pero asignar mentor para primeros 3 meses"
+```
+
+**¿Por qué es diferente?**
+- Otros sistemas te dan un score (ej: "Candidate Score: 7.5/10")
+- Stratos te da **un score basado en TUS datos**, **explicado**, **y mejora continuamente**
+- No es "mejor en el papel" sino "mejor en tu contexto específico"
+
+**Impacto Real:**
+- ✅ Menos bad hires: Stratos filtra candidatos que parecen buenos pero no lo van a ser en tu contexto
+- ✅ Retención mejorada: si Stratos predice bien, las personas contratadas tienden a quedarse más tiempo
+- ✅ Time-to-productivity: personas que encajan bien producen valor en semanas, no meses
+- ✅ ROI de contratación: menos inverso en training para gente que se va
+- ✅ Data-driven decisioning: "Hire this person" no es intuición, es análisis de 5 años de tus propios datos
+
+**El Ciclo Predictivo:**
+1. **Análisis histórico**: ¿Qué hace que alguien triunfe aquí?
+2. **Predicción**: Nuevo candidato = score de probabilidad de éxito
+3. **Contratación**: Decides basado en datos + juicio
+4. **Onboarding inteligente**: Stratos asigna mentores/recursos basado en dónde puede fallar
+5. **Validación**: Después de 6-12 meses, Stratos verifica si la predicción fue correcta
+6. **Mejora del modelo**: Si falló, ¿por qué? Stratos aprende y próxima vez será más preciso
+
+---
+
 ### 📊 **En Resumen: La Transformación**
 
 | Aspecto | Antes | Después |
 |---------|-------|---------|
 | **Velocidad de decisión** | Días | Minutos |
 | **Precisión de emparejamiento** | 65% acierto | 90%+ acierto |
+| **Capacidad predictiva** | Ninguna (adivinar) | Basada en datos históricos (>85% precisión) |
 | **Sesgo en decisiones** | Alto | Bajo (auditado) |
 | **Confianza en datos** | Media (~70%) | Alta (~95%) |
 | **Capacidad de escala** | Limitada | Ilimitada |
