@@ -1079,11 +1079,13 @@ Stratos integra: encuestas + comunicación + rotación + productividad + feedbac
 **Ahora**: Stratos mide **ambas culturas** continuamente:
 
 **1. Cultura Declarada** (Lo que la empresa dice ser):
+
 - Misión, valores, visión publicados en la web y en documentos internos
 - Comportamientos esperados según el código de conducta
 - Promesas de marca: "Somos un equipo inclusivo" o "Premios a innovación"
 
 **2. Cultura Real** (Lo que la gente realmente vive):
+
 - Cómo se toman decisiones (¿Consulta real o es solo teatro?)
 - Quién tiene poder de verdad (¿Es meritocrático o político?)
 - Cómo se tratan los errores (¿Aprendizaje o castigo?)
@@ -1100,7 +1102,7 @@ Cultura Declarada:
 "Somos data-driven, ágiles, experimentos rápidos"
 
 Cultura Real (detectada por Stratos):
-• 60% de las personas dicen "las decisiones se toman por opinión del executive" 
+• 60% de las personas dicen "las decisiones se toman por opinión del executive"
 • Cuando presentas data que contradice al jefe, hay silencio incómodo
 • Los errores experimentales resultan en castigos (menos oportunidades después)
 • "Data-driven" significa "data que confirme lo que ya decidimos"
@@ -1128,9 +1130,10 @@ CON STRATOS:
 
 **¿Por Qué Esto Importa para Cambios Estratégicos?**
 
-Toda estrategia requiere que la gente: 
-- Cambie comportamientos 
-- Adopte nuevas mentalidades 
+Toda estrategia requiere que la gente:
+
+- Cambie comportamientos
+- Adopte nuevas mentalidades
 - Tome decisiones diferente
 
 Si la cultura real no alinea con la nueva estrategia, dos cosas pasan:
@@ -1145,6 +1148,7 @@ Stratos detecta la fricción **antes** de que gastes dinero e identifica qué ex
 **Situación**: CEO quiere "transformación digital" pero la cultura es "confiamos en procesos manuales de siempre"
 
 **Stratos analiza**:
+
 - Fricción: 78% (muy alta)
 - Causa: Gente tiene miedo a lo digital (falta de capacitación), desconfía de "habilidades computacionales"
 - Patrón: Personas mayores = más resistencia (correlación clara)
@@ -1152,6 +1156,7 @@ Stratos detecta la fricción **antes** de que gastes dinero e identifica qué ex
 **Recomendación**: No es tecnología, es cultura + capacitación + inclusión
 
 **Plan Stratos**:
+
 1. L&D dirigida: Capacitación digital para 40+ años (sin juzgar)
 2. Históricos de éxito: Muestra personas grandes que adoptaron exitosamente
 3. Change management: Líderes moderan "¿Cómo imaginamos transformación en 3 años?"
@@ -1160,6 +1165,7 @@ Stratos detecta la fricción **antes** de que gastes dinero e identifica qué ex
 **Resultado**: Después de 8 semanas, fricción baja a 35% (manejable), y cuando lanzas iniciativa digital, adopción es real.
 
 **Impacto Real:**
+
 - ✅ Cambios estratégicos que funcionan de verdad (no solo en papel)
 - ✅ Evitas millones desperdiciados en iniciativas que fracasan
 - ✅ Gente entiende "por qué" el cambio (alineación claridad)
@@ -1177,11 +1183,13 @@ Stratos detecta la fricción **antes** de que gastes dinero e identifica qué ex
 **1. Psicometría Mejorada (Baseline + Context)**
 
 Tradicional:
+
 ```
 Test psicométrico → "Extraversión: 6/10" → Fin
 ```
 
 Con Stratos:
+
 ```
 Test psicométrico → "Extraversión: 6/10"
        ↓
@@ -1200,12 +1208,14 @@ Recomendación de rol: Investigación + facilitar small groups, no grandes prese
 **2. Evaluaciones de Potencial que Evolucionan**
 
 Tradicional:
+
 ```
 Performance actual 7/10 + Test potencial → "Potencial: Alto/Bajo"
 (Y eso es lo que asumen para siempre)
 ```
 
 Con Stratos:
+
 ```
 Performance actual 7/10 + Test potencial + Histórico de crecimiento
        ↓
@@ -1227,15 +1237,17 @@ Seguimiento: Cada 6 meses, Stratos valida:
 **3. Diferencias de Personalidad en Contexto (El Cambio Transformacional)**
 
 Stratos entiende:
+
 - Una persona "perfeccionista" es FORTALEZA en QA/auditoría, PROBLEMA en startups (demasiado lenta)
 - Una persona "impulsiva" es DEBILIDAD en planning, FORTALEZA en crisis (actúa rápido)
 - Una persona "conflictiva" es PROBLEMA en equipos tímidos, VALOR en equipos disfuncionales (dice verdades incomodas)
 
 **Antes**: La evaluaba como "problemas de personalidad: baja tolerancia, impulsiva"
 
-**Ahora**: 
+**Ahora**:
+
 ```
-"Tiene tolerancia baja para ineficiencia → Fortaleza en QA / 
+"Tiene tolerancia baja para ineficiencia → Fortaleza en QA /
 Debilidad en ambientes políticos (donde la inefficiency es política).
 Recomendación: Rol donde pueda impactar efficiency sin frustración política"
 ```
@@ -1243,12 +1255,14 @@ Recomendación: Rol donde pueda impactar efficiency sin frustración política"
 **4. Potencial de Liderazgo: Multidimensional (No Solo "Es Líder o No")**
 
 Tradicional:
+
 ```
 Evaluación liderazgo → Score → "Apto / No apto para liderazgo"
 (Ignora: ¿Cuántas personas? ¿Qué contexto? ¿Qué tipo?)
 ```
 
 Con Stratos:
+
 ```
 Multidimensional Assessment:
 • Liderazgo técnico: 9/10 (personas confían en su expertise, la siguen)
@@ -1266,6 +1280,7 @@ En lugar de: "Potencial de liderazgo: SÍ / NO"
 **5. Detalles Finos Que Predicen Éxito**
 
 Stratos identifica:
+
 - Gente que trabaja bien bajo presión vs. gente que se quiebra
 - Quien es creativa en ambientes estructurados (oxymoron para muchos: son POCAS)
 - Quien es buena en equipos remotos vs. híbridos vs. presenciales
@@ -1275,13 +1290,15 @@ Stratos identifica:
 **El Beneficio Psicométrico:**
 
 De:
+
 ```
-Evaluación psicométrica estática → 
-"Este candidato es INTJ, liderazgo 6, potencial bajo" 
+Evaluación psicométrica estática →
+"Este candidato es INTJ, liderazgo 6, potencial bajo"
 (Y eso te sigue toda la vida en la empresa)
 ```
 
 A:
+
 ```
 Evaluación psicométrica + comportamiento continuo →
 "Este candidato tiene X fortalezas en Y contextos. En Z entorno podría brillar.
@@ -1302,28 +1319,217 @@ Recomendación: Asignar mentor Z, proyecto de estiramiento en Q2, coaching de EI
 
 ---
 
+### 1️⃣2️⃣ **Evaluaciones 360° Sin Sesgo: La Triangulación de la Verdad**
+
+**Antes**: Las evaluaciones 360° tradicionales eran un desastre de subjetividad. Tu jefe te daba buena calificación porque "te cae bien" (o mala porque tuvo un mal día). Tus compañeros opinaban influidos por "quién es simpático en los almuerzos" en lugar de quién realmente entrega. El resultado: promociones políticas, gente talentosa ignorada, decisiones injustas.
+
+**Ahora**: Stratos ha revolucionado las evaluaciones 360° mediante **triangulación de cuatro fuentes independientes**:
+
+**1. Evidencia Verificable (Datos Duros de Terceros)**
+
+Stratos conecta con sistemas de terceros (ERP, sistemas de facturación, repos de código, etc.) para extraer datos duros que no pueden ser opiniones:
+
+- **Entregas cumplidas**: ¿Cuántos proyectos terminaron a tiempo? ¿Dentro de presupuesto?
+- **Calidad**: Defectos encontrados (en código, en procesos). Tasa de error. Re-trabajo.
+- **Productividad**: Líneas de código, documentos generados, transacciones procesadas
+- **Cumplimiento financiero**: Presupuestos respetados, gastos no autorizados, austeridad
+- **Conformidad**: Auditorías aprobadas, compliance issues, violaciones de políticas
+
+**Ejemplo:**
+
+```
+Persona A:
+- Mi jefe dice: "Excelente desempeño" (opinión)
+- Datos ERP muestran: 2 proyectos retrasados, 1 sobre presupuesto (evidencia)
+
+Persona B:
+- Mi jefe dice: "Desempeño medio" (opinión)
+- Datos ERP muestran: 5 proyectos on-time, presupuesto 3% bajo (evidencia)
+
+Conclusión: La opinión del jefe es sesgada. Los datos hablan claro.
+```
+
+**2. KPIs Cuantitativos (Métricas Objetivas)**
+
+Stratos calcula KPIs específicos del rol (no genéricos) que miden:
+
+- **Eficiencia**: Ej: tokens entregados por hora, clientes servidos por día, tickets resueltos por semana
+- **Calidad**: % de trabajo que pasó QA a la primera, satisfacción de cliente, NPS
+- **Fiabilidad**: % de attendance, cumplimiento de deadlines, on-time delivery
+- **Impacto**: Dinero ahorrado, ingresos generados, riesgos mitigados
+- **Innovación**: Ideas implementadas, mejoras de proceso, patentes
+
+**Lo clave**: Estos KPIs se comparan **contra el estándar histórico de excelencia de tu empresa**, no contra el promedio.
+
+```
+Vendedor A: "Vendió $500k"
+vs.
+Vendedor B: "Vendió $400k"
+
+Contexto Stratos:
+- Vendedor A: territorio es premium ($1M potencial), capturó 50%
+- Vendedor B: territorio es difícil ($300k potencial), capturó 133%
+
+KPI ajustado por contexto:
+- Vendedor A: 50% eficiencia
+- Vendedor B: 133% eficiencia (MEJOR)
+
+Conclusión: Sin contexto, A parecía mejor. Con datos, B es superior.
+```
+
+**3. Consenso Social (Mapa Cerebro)**
+
+Stratos recolecta feedback de pares usando el "Mapa Cerebro" — una red social interna donde:
+
+- Compañeros responden: "¿Esta persona colabora?" "¿Levanta el nivel?" "¿Es confiable?"
+- Las respuestas se procesan con inteligencia: identifica **quién opina** (¿Tiene credibilidad? ¿Trabalaja cerca?) y **qué opinan**
+- Filtra ruido: opiniones de personas que no trabajan juntas, opiniones extremas, tendencias políticas
+
+**Lo diferente de Stratos**:
+
+```
+Tradicional:
+"¿Qué tal tu compañero? 1-5 estrellas"
+→ Resultado: Persona popular = calificación alta (sesgo de simpatía)
+
+Stratos:
+"¿Qué tal tu compañero en ESTOS contextos específicos?
+  - Cuando la gente necesita ayuda, ¿responde?
+  - Cuando hay conflicto, ¿ayuda a resolver o lo agrava?
+  - ¿Admite cuando se equivoca?
+  - ¿Si tuvieras que confiarle un proyecto crítico, lo harías?"
+→ Resultado: Datos sobre comportamiento real, no simpatía
+```
+
+**4. Motor Vanguard (Análisis Contextual & Correlación)**
+
+El Motor Vanguard de Stratos es donde ocurre toda la magia: toma las 3 fuentes anteriores y:
+
+- **Cruza correlaciones**: Si la evidencia y KPIs dicen "excelente" pero el Mapa Cerebro dice "poco colaborador", Stratos lo detecta y pregunta "¿por qué?"
+- **Ajusta por contexto**: "Trabajo bajo presión" vs. "Ambiente relajado". "Equipo experado" vs. "Equipo junior". El mismo comportamiento se evalúa diferente según contexto
+- **Identifica patrones ocultos**: "Esta persona tiene buen KPI pero el Mapa Cerebro la describe como 'difícil'. Probablemente genera resultado a costa de relaciones" (insostenible a largo plazo)
+- **Genera recomendaciones**: "Persona A: 360 Score Alto Y Confiable. Recomendado para promover. Persona B: 360 Score Alto PERO potencialmente insostenible. Recomendado coaching en colaboración antes de promover."
+
+**El Triángulo de la Verdad:**
+
+```
+         EVIDENCIA VERIFICABLE
+                ▲
+               / \
+              /   \
+             /     \
+            /       \
+           /         \
+          /           \
+         /             \
+        /               \
+       /                 \
+      /                   \
+     /                     \
+    /                       \
+   /                         \
+  /                           \
+ /                             \
+/                               \
+──────────────────────────────────
+          KPIs           CONSENSO
+                         SOCIAL
+
+Si los tres puntos se alinean →  EVALUACIÓN CONFIABLE
+Si hay triángulos contradictorios → ANOMALÍA A INVESTIGAR
+```
+
+**Ejemplos de Triangulaciones:**
+
+```
+CASO 1: Persona asciende justificadamente
+Evidence: ✅ Proyectos on-time, presupuesto controlado
+KPIs: ✅ Eficiencia 95%, calidad 99%
+Mapa: ✅ Compañeros dicen "excelente, confiable, levanta nivel"
+→ RESULTADO: Promoción segura. Será exitosa.
+
+CASO 2: Persona que parecía buena pero necesita coaching
+Evidence: ✅ Entregas completas
+KPIs: ✅ Alta productividad (145% vs. promedio)
+Mapa: ⚠️ Compañeros dicen "difícil", "poco receptivo a feedback"
+→ RESULTADO: "Persona talentosa pero con debilidades de liderazgo.
+Requiere coaching en EI y colaboración. En 12 meses, potencial de promover."
+
+CASO 3: Persona con baja evaluación previa que merece segunda chance
+Evidence: ⚠️ 1 proyecto retrasado hace 2 años (bajo antiguo jefe)
+KPIs: ✅ Últimos 18 meses: on-time, calidad alta
+Mapa: ✅ Nuevo equipo dice "confiable, mejora constante"
+→ RESULTADO: "Persona fue mal clasificada años atrás por jefe tóxico.
+Datos actuales muestran mejora sostenible. Potencial subestimado."
+
+CASO 4: Alerta de riesgo - Personas sobre-evaluadas
+Evidence: ✅ Entregas (pero fecha límites siempre justas, margen 0)
+KPIs: ✅ Productividad (pero solo en actividades que elige)
+Mapa: ❌ Compañeros dicen "no colabora", "invisible cuando hay crisis", "difícil de contactar"
+→ RESULTADO: "RIESGO: Persona con resultados individuales altos pero débil
+en crisis y colaboración. NO recomendado para liderazgo. Riesgo de rotación."
+```
+
+**¿Por Qué Esto Cambia Todo?**
+
+**Antes (Sin Triangulación):**
+
+- Jefe subjetivo: "Te doy 4/5 porque me cae bien"
+- Resultado: Promoción injusta, conflicto con compañeros, person se quiebra en nuevo rol
+
+**Ahora (Con Triangulación):**
+
+- Datos objetivos + contexto + relaciones = visión 360° real
+- Resultado: Promoción justificada, persona preparada, baja rotación, confianza
+
+**Impacto Real:**
+
+- ✅ Fin del amiguismo: promociones basadas en evidencia, no en política
+- ✅ Talento invisible descubierto: gente talentosa que era mal evaluada por jefes sesgados
+- ✅ Evaluaciones justas: cualquier persona entiende "por qué" se evaluó así
+- ✅ Aprendizaje sostenible: si hay brecha ("bueno en proyecto pero débil en team"), recomendaciones claras para mejorar
+- ✅ Confianza en resultados: puedes usar estas evaluaciones para promociones, bonos, asignaciones sin temor a demandas legales
+- ✅ Reducción de rotación: gente se queda cuando se siente evaluada justamente
+- ✅ Cultura de transparencia: todos ven que el sistema es justo, no misterioso
+
+**Resultado Final: Evaluaciones que Cumplen su Rol**
+
+Las evaluaciones 360 dejan de ser "opiniones compiladas" para convertirse en:
+
+- **Herramienta de aprendizaje**: "Aquí es donde creces"
+- **Herramienta de justicia**: "Aquí es por qué la decisión fue X"
+- **Herramienta de mejora sostenible**: "Aquí es cómo llegamos a tu siguiente nivel"
+
+---
+
 ### 🎬 **¿Cómo Esto Afecta A Mi Día A Día?**
 
 **Si eres un gerente:**
+
 - Menos tiempo en decisiones de talento, más en liderazgo estratégico
 - Recomendaciones que puedes confiar = decisiones más veloces
 - Visibilidad clara: quién necesita qué para crecer
 - Entiende diferencias: "Esta introvertida no es mala para liderazgo, solo necesita equipo de confianza"
+- Evaluaciones que puedes defender: "No es mi opinión, es triangulación de datos + feedback"
 
 **Si eres una persona con talento:**
+
 - Tu oportunidad de crecimiento es identificada **antes** de que la puestos
 - Tu plan de desarrollo es hecho **solo para ti**, no genérico
 - Tu progreso es monitoreado y Stratos ajusta el plan si no funciona
 - Eres evaluado sin sesgos
 - Tu personalidad no te etiqueta para siempre: "Introvertida hoy, pero con mentor X puedes crecer a liderazgo"
+- Confías en tu evaluación: "No es opinión del jefe, es datos + consenso"
 
 **Si eres un ejecutivo:**
+
 - Menos riesgos legales (auditoría completa de decisiones)
 - Estrategia de talento basada en datos, no en gut-feel
 - ROI educativo medible: puedes demostrar que el aprendizaje funciona
 - Escalabilidad: crece sin que los costos de RRHH explotan
 - Cambios estratégicos que realmente prendén (porque alineas la cultura primero)
 - Ves evolución clara: promociones basadas en potencial demostrado + plan de acción realista
+- Confianza en evaluaciones: sistema auditable, transparente, inmune a sesgo de jefe individual
 
 ---
 
