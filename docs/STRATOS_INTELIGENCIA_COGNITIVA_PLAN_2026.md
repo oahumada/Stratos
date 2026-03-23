@@ -638,9 +638,57 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
 
 ### Bloque 5 – Sprints 3 y 4: Orquestación y Learning Loop
 
-- [ ] Definir contratos e interfaces para `PlannerAgent`, `VerifierAgent` y `ArbiterAgent` (inputs/outputs, errores, timeouts).
+#### **Sprint 3.1: VerifierAgent (The Critic) - Tarea 1 COMPLETADA ✅**
+
+**Fecha**: 22 de marzo de 2026  
+**Status**: ✅ Tarea 1 IMPLEMENTADA Y TESTEADA
+
+**Entregables Tarea 1:**
+
+- [x] `app/Data/VerificationViolation.php` (41 líneas) — DTO Value Object para violaciones individuales
+- [x] `app/Data/VerificationResult.php` (220 líneas) — DTO Value Object contenedor con auto-recalcular score
+- [x] `config/verification_rules.php` (180 líneas) — Configuración centralizada (global + 9 agentes)
+- [x] `tests/Unit/Data/VerificationResultTest.php` (261 líneas, 15/15 tests PASSING ✅)
+- [x] Código formateado con Pint (compliant)
+- [x] Git commit `7dc627ac` (712 insertions)
+
+**Detalles Implementados:**
+
+- VerificationViolation: rule, severity, message, field, received, expected → serialización JSON bidireccional
+- VerificationResult: score (0-1), recommendation (accept|reject|review), reasoning + fluent API
+- Score auto-recalculation: 1.0 (0 issues) → 0.75 (1) → 0.5 (2-3) → 0.2 (4+)
+- Factory methods: `passed()`, `failed()`, `review()`
+- Per-agent rules: Estratega, Orquestador 360, Matchmaker, Coach, Diseñador, Navegador, Curador, Arquitecto, Sentinel
+- Global rules: max_response_length (50k), multi_tenant validation, hallucination detection, cache TTL (24h)
+
+**Próximas Tareas Sprint 3.1:**
+
+- [ ] Tarea 2: TalentVerificationService core (8h) — 5 validators (schema, rules, hallucinations, contradictions, multi-tenant)
+- [ ] Tarea 3: Business Rules Engine (6h) — Per-agent validators (9 clases)
+- [ ] Tarea 4: Testing suite (6h) — 12-15 Feature + Unit tests
+- [ ] Tarea 5: Integration & Docs (4h) — OpenAPI, AiOrchestratorService integration, openmemory update
+
+**Métrica de Éxito Sprint 3.1**:
+
+- Tarea 1: ✅ 15/15 tests passing, Pint compliant
+- Tarea 2-5: Verifier accuracy > 90%, latencia verify() < 500ms
+
+---
+
+#### **Sprint 3.2-3.3: PlannerAgent + ArbiterAgent + Message Bus (Pendiente)**
+
+- [ ] Definir contratos e interfaces para `PlannerAgent`, `ArbiterAgent` (inputs/outputs, errores, timeouts).
+- [ ] Message bus (Redis Streams o Database Queue).
+- [ ] Implementar PlannerAgent (sub-task decomposition).
+- [ ] Implementar ArbiterAgent (orchestration, retries).
+
+---
+
+#### **Sprint 4: Learning Loop + Feedback Mechanism (Pendiente)**
+
 - [ ] Diseñar modelo/tablas `improvement_feedback` y taxonomía de tags (hallucination, irrelevant, incomplete, excellent).
-- [ ] Especificar comportamiento de jobs `ProcessImprovementSignals` y `ReindexKnowledge` (sin implementarlos aún).
+- [ ] Especificar comportamiento de jobs `ProcessImprovementSignals` y `ReindexKnowledge`.
+- [ ] Versioning system para embeddings + prompts snapshots.
 
 ---
 
@@ -656,16 +704,16 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
 │  ─────────  │  ────────   │  Lite          │ ────────              │
 │  DONE       │  DONE       │  (3d)          │                       │
 │             │             │                │                       │
-│  ✅ Sprint0 │  ✅ Sprint1 │  ✅ Bloque 4:  │ Sprint 3: Critic+     │
-│  pgvector   │  RAG Core   │  Metrics       │ Orchest. Supervisor   │
-│  • Emb DB   │  • Service  │  COMPLETADO    │ (3w) + Msg Bus        │
-│  • HNSW     │  • Endpoint │  ─────────     │                       │
-│  • FAQ Idx  │  • GuideRAG │  F1: Storage   │ Sprint 4: Learning    │
-│  DONE       │  DONE       │  (✅ 6/6)      │ Loop (3w)             │
-│             │             │  F2: Agg (✅)  │ • Feedback mechanism  │
-│             │             │  (✅ 8/8)      │ • Re-index job       │
-│             │             │  F3: Dash (✅) │ • Versioning         │
-│             │             │  (✅ 9/9+)     │                       │
+│  ✅ Sprint0 │  ✅ Sprint1 │  ✅ Bloque 4:  │ 🔄 Sprint 3.1:       │
+│  pgvector   │  RAG Core   │  Metrics       │ VerifierAgent (Critic)│
+│  • Emb DB   │  • Service  │  COMPLETADO    │ T1: ✅ DTO+Config    │
+│  • HNSW     │  • Endpoint │  ─────────     │ (✅ 15/15 tests)     │
+│  • FAQ Idx  │  • GuideRAG │  F1: Storage   │ T2-T5: 🔄 En curso   │
+│  DONE       │  DONE       │  (✅ 6/6)      │ Sprint 4: Learning    │
+│             │             │  F2: Agg (✅)  │ Loop (3w) PENDIENTE   │
+│             │             │  (✅ 8/8)      │ • Feedback mechanism  │
+│             │             │  F3: Dash (✅) │ • Re-index job       │
+│             │             │  (✅ 9/9+)     │ • Versioning         │
 │             │             │  • 34/34 tests │                       │
 │             ├─────────────┴────────────────┴───────────────────────┤
 │             │    COMPLETADO: Core RAG + Observability + Intelligence│
@@ -679,7 +727,7 @@ Query `agent_interactions` + `llm_evaluations` para dashboard:
 │             │           • Auto-polling + ApexCharts ✅              │
 │                                                                     │
 │  ✅ DONE: 7-14d (QW) + 2w (S0) + 2w (S1) + 2w (B4.F1+F2+F3)      │
-│  🚀 NEXT: Critic+Learning Loop → Sprint 3-4 (6w)                 │
+│  � IN PROGRESS: Sprint 3.1 T1 ✅ | T2-T5 🔄 | Sprint 3.2-4 ⏳ │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
