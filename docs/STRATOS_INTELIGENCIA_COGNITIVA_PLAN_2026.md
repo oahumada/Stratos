@@ -911,6 +911,135 @@ Recomendación: "Contratar, pero asignar mentor para primeros 3 meses"
 
 ---
 
+### 9️⃣ **Monitoreo del Ambiente Laboral (Stratos Experience)**
+
+**Antes**: El ejecutivo o gerente general se enteraba de problemas en el clima laboral cuando era demasiado tarde: renuncias en cascada, baja productividad, o conflictos públicos. "Nadie me contar qué estaba pasando" era la queja común.
+
+**Ahora**: Stratos continuamente monitorea el "pulso cultural" y la salud del ambiente a través de múltiples señales:
+
+**¿Qué monitorea Stratos?**
+
+1. **Clima Laboral & Engagement**
+   - Análisis de encuestas de pulso (satisfaction, belongingness, purpose)
+   - Tendencias mes a mes: ¿mejoró o empeoró el clima?
+   - Segmentación: ¿Qué áreas tienen buen clima? ¿Cuáles tienen problemas?
+   
+2. **Señales de Liderazgo**
+   - Feedback directo: "¿Cómo es trabajar con tu gerente?" (encuestas de 360 grados)
+   - Detecta patrones: gerentes con altos reportados que se van, que reportan ansiedad, falta de dirección
+   - Identifica líderes excepcionales: los que retienen talento, generan innovación, mantienen equipos motivados
+   
+3. **Conflictos Tempranos**
+   - Análisis de comunicación interna (emails, chats, tickets): ¿Hay tensión?
+   - Detecta conflictos interpersonales antes de que exploten: "hay fricción entre Juan y el equipo de ventas"
+   - Identifica tensiones estructurales: "el equipo X se siente dejado de lado por la dirección"
+   - Señal de bullying/acoso: anomalías en comunicación, aislamiento de una persona
+   
+4. **Retención & Burnout**
+   - Predicción de renuncias: Stratos nota patrones en gente que se va ("siempre se van después de 2 proyectos rechazados")
+   - Detección de burnout: personas trabajando excesivas horas, disminución en interacción social, comentarios pesimistas
+   - Riesgos de desenganche: alguien que antes era vocal y social se vuelve silencioso = potencial problema
+
+5. **Productividad vs. Bienestar**
+   - Correlación: ¿Qué equipos que tienen buen clima son productivos? ¿Cuáles están estresadas pero productivas (insostenible)?
+   - Análisis: "El equipo X trabajo 60 horas/semana pero su satisfacción bajó 30%. Esto no es sostenible."
+   - Identifica equipos en riesgo: alta productividad + bajo bienestar = burnout inminente
+
+**El Ciclo de Mejora de Ambiente:**
+
+```
+1. DETECT (Continuo)
+   ↓
+   Stratos detecta: "Climate score bajó 15% en Q1"
+   Causa detectada: "Cambio de gerente en Área X hace 3 meses"
+   
+2. DIAGNOSE (Profundo)
+   ↓
+   Stratos analiza:
+   • Encuestas: ¿Qué específicamente cambió? (confianza, dirección, equidad, reconocimiento)
+   • Comunicación: ¿Hay menos interacción o más conflictiva?
+   • Rotación: ¿Se fueron personas clave? ¿Quién es el riesgo siguiente?
+   
+3. RECOMMEND (Actionable)
+   ↓
+   Stratos sugiere:
+   • "Gerente necesita coaching en comunicación" (específico, no genérico)
+   • "Reunión de alineamiento con el equipo: clarificar dirección"
+   • "Reconocer públicamente 3 logros del equipo que se sienten invisibles"
+   • "Ajustar car de compensación: perciben desigualdad vs. otras áreas"
+   
+4. IMPLEMENT (Tu equipo actúa)
+   ↓
+   HR/Leadership ejecuta recomendaciones
+   
+5. MONITOR (Seguimiento)
+   ↓
+   Stratos rastrea:
+   • ¿Se implementó realmente?
+   • ¿Mejoró el clima? (medición en 2, 4, 8 semanas)
+   • ¿Bajó la rotación? ¿Mejoró el engagement?
+   • ¿Qué funcionó? ¿Qué no?
+   
+6. LEARN (Evolución)
+   ↓
+   Stratos documenta: "En problemas de clima X, la solución que funciona es Y"
+   Próxima vez, sabrá cómo actuar más rápido
+```
+
+**Ejemplo Real: Crisis de Liderazgo Evitada**
+
+```
+SEMANA 1: Detección
+• Stratos nota: clima score en Área de Tecnología -22% vs. mes anterior
+• Patrón: 3 senior engineers muy productivos están siendo silenciosos en meetings
+• Red flags: 1 solicitó traslado interno, 1 está entrevistándose afuera (por chats)
+
+SEMANA 2: Diagnóstico
+• Encuesta rápida: equipo dice "No sabemos para dónde vamos", "No se escuchan nuestras ideas"
+• Análisis de comunicación: Nuevo gerente centraliza decisiones, no consulta
+• Comparación: Otros equipos bajo su gerencia tienen clima similar
+
+RESULTADO SIN STRATOS:
+• En 3 meses, 2 senior engineers se van (costo: 6-9 meses de búsqueda + training)
+• Equipo pierde productividad: nuevos proyectos se retrasan
+• Reputación: Tecnología se considera "lugar donde no es buen trabajar"
+
+RESULTADO CON STRATOS:
+SEMANA 2: Recomendaciones
+• "Gerente necesita coaching en liderazgo participativo" (asignado)
+• "Llevar a cabo retrospectiva con el equipo" (facilitado por HR)
+• "Comunicar roadmap y cómo cada persona contribuye" (específico)
+
+SEMANA 4: Validación
+• Climate score: +12% (no completamente recuperado, pero en buen camino)
+• Engineers hablando de nuevo en meetings
+• Engineer que pedía traslado: "Siento que me escuchan ahora", cancela solicitud
+
+SEMANA 12: Resultado Final
+• Climate score vuelve a baseline histórico
+• Equipo de Tecnología es ahora ejemplo de "liderazgo efectivo"
+• Rotación: 0 (comparado vs. 2-3 esperados sin intervención)
+• Costo ahorrado: ~$500k (2 senior engineers que se hubieran ido)
+```
+
+**Impacto Real:**
+
+- ✅ Problemas de clima detectados **en semanas**, no en meses o después de que alguien se vaya
+- ✅ Gerentes problemáticos identificados y desarrollados (o reubicados si no cambian)
+- ✅ Líderes excepcionales reconocidos y promocionados
+- ✅ Prevención de burnout: identificas gente en riesgo antes de que se queme
+- ✅ Retención mejorada: trabajar en un ambiente sano es la razón #1 para quedarse
+- ✅ Productividad sostenible: no trabajas 60 horas/semana insosteniblemente, trabajas 40-45 con mejor resultado
+- ✅ Conflictos resueltos rápido: intervención temprana evita toxicidad
+- ✅ Data para decisiones: "¿Por qué promover a X como líder?" porque sus equipos tienen los mejores climas y resultados
+
+**El Diferenciador: No es solo "satisfacción"**
+
+Otros sistemas preguntan: "¿Qué tal tu trabajo? 1-5 estrellas"  
+Stratos integra: encuestas + comunicación + rotación + productividad + feedback de pares = **panorama completo**
+
+---
+
 ### 📊 **En Resumen: La Transformación**
 
 | Aspecto | Antes | Después |
@@ -918,6 +1047,8 @@ Recomendación: "Contratar, pero asignar mentor para primeros 3 meses"
 | **Velocidad de decisión** | Días | Minutos |
 | **Precisión de emparejamiento** | 65% acierto | 90%+ acierto |
 | **Capacidad predictiva** | Ninguna (adivinar) | Basada en datos históricos (>85% precisión) |
+| **Monitoreo de clima** | Anual (encuesta una vez/año) | Continuo (señales diarias) |
+| **Detección de problemas** | Cuando explotan | Semanas antes (predictivo) |
 | **Sesgo en decisiones** | Alto | Bajo (auditado) |
 | **Confianza en datos** | Media (~70%) | Alta (~95%) |
 | **Capacidad de escala** | Limitada | Ilimitada |
