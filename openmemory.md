@@ -4206,17 +4206,104 @@ Tarea 2 includes extensive architectural documentation for future reference and 
 
 ---
 
+### Tarea 3: Business Rules Engine (COMPLETADA ✅)
+
+- **9 per-agent validator classes** implemented (910 LOC):
+    - `BaseBusinessValidator` trait (265 LOC, 8 helper methods)
+    - 9 agent validators: StrategyAgent, Orquestacion, Matchmaker, Coach, RoleDesigner, CultureNavigator, Competency, LearningArchitect, Sentinel
+    - `ValidatorFactory` (60 LOC)
+- **Refactored TalentVerificationService** to delegate validation to per-agent validators
+- **All tests passing:** 18/18 from Tarea 2 + infrastructure tests
+- **Commit:** c5c8e764 (Sprint 3.1: 9 Business Rules Validators)
+
+### Tarea 4: Comprehensive Edge Case Testing (COMPLETADA ✅)
+
+- **ValidatorsEdgeCaseTest.php** created (849 LOC, 53 comprehensive tests):
+    - **StrategyAgentValidator:** 11 tests (boundary scores 0.49/1.01, invalid enum, reasoning length)
+    - **OrchestracionValidator:** 7 tests (evaluation score, biases, calibration length)
+    - **MatchmakerValidator:** 4 tests (candidates count, cultural fit boundaries)
+    - **CoachValidator:** 8 tests (learning path, duration, success factors)
+    - **RoleDesignerValidator:** 6 tests (role levels 1-5, competencies)
+    - **CultureNavigatorValidator:** 4 tests (sentiment score, anomalies)
+    - **CompetencyValidator:** 4 tests (proficiency levels, competencies count)
+    - **LearningArchitectValidator:** 5 tests (course outline length, learning objectives, modules)
+    - **SentinelValidator:** 4 tests (ethics score, governance violations)
+- **Test coverage:** Null/empty values, boundary conditions, invalid enums, type mismatches, multiple violations
+- **Pass rate:** 53/53 (100%) | Full suite: 363 tests passed, 0 regressions
+- **Commit:** f08be393 (test: Tarea 4 - Comprehensive Edge Case Tests)
+
 **Próximas Tareas:**
 
-- **Tarea 3:** Business Rules Engine (6 horas) — 9 per-agent validator classes (StrategyValidator, OrchestrationValidator, etc.)
-    - Start by reading: talentverificationservice_architecture_decisions.md (section: Future Architecture Decisions Pending)
-    - Configuration already prepared in: config/verification_rules.php (9 agents)
-- **Tarea 4:** Testing suite expansion (6 horas) — 12-15 additional integration tests, edge cases
-    - Reference: talentverificationservice_testing.md for test patterns and setup
-    - Target coverage: 45+ total tests across Tarea 2-4
 - **Tarea 5:** Integration & Docs (4 horas) — Hook into AiOrchestratorService, OpenAPI, openmemory final update
     - Start by reading: talentverificationservice_integration.md (Integration Point 1: AiOrchestratorService hook)
     - 4-phase rollout: silent → flagging → reject → tuning
+
+---
+
+## Business Rules Validators - Edge Case Patterns (Post-Tarea 4)
+
+### Validator Boundary Reference
+
+| Validator | Field | Type | Min | Max | Boundary | Notes |
+|-----------|-------|------|-----|-----|----------|-------|
+| StrategyAgent | confidence_score | Float | 0.0 | 1.0 | 0.5 | Confidence must be ≥ 0.5 |
+| StrategyAgent | reasoning | String | 10 | 500 | - | Required, min 10 chars |
+| StrategyAgent | recommendations | Array | 0 | 3 | - | Max 3 items |
+| Orquestacion | evaluation_score | Float | 0 | 5 | - | Score 0-5 range |
+| Orquestacion | bias_detection | Array | 0 | 3 | - | Max 3 biases |
+| Orquestacion | calibration | String | - | 1000 | - | Max 1000 chars |
+| Matchmaker | matched_candidates | Array | 1 | 5 | - | 1-5 candidates |
+| Matchmaker | cultural_fit_score | Float | 0.6 | 1.0 | 0.6 | Must be ≥ 0.6 |
+| Coach | learning_path | String | 10 | 500 | - | Required, min 10 chars |
+| Coach | learning_steps | Array | 1 | 10 | - | 1-10 steps |
+| Coach | success_factors | Array | 1 | - | - | Min 1, no max |
+| Coach | duration_weeks | Integer | 1 | 52 | - | 1-52 weeks |
+| Coach | duration_unit | Enum | - | - | weeks/months/quarters | Only: weeks, months, quarters |
+| RoleDesigner | role_level | Enum | - | - | L1-L5 | Only: L1, L2, L3, L4, L5 |
+| RoleDesigner | role_name | String | 3 | 100 | - | 3-100 chars |
+| RoleDesigner | competencies_curated | Array | 1 | 10 | - | 1-10 competencies |
+| CultureNavigator | sentiment_score | Float | 0.0 | 1.0 | - | Full 0-1 range |
+| CultureNavigator | cultural_anomalies | Array | 0 | 5 | - | Max 5 anomalies |
+| CompetencyValidator | proficiency_levels | Array | 1 | 5 | - | 1-5 levels |
+| CompetencyValidator | competency_standard | Array | 1 | 10 | - | 1-10 competencies |
+| LearningArchitect | course_outline | String | 20 | 4000 | - | 20-4000 chars |
+| LearningArchitect | learning_objectives | Array | 1 | - | - | Min 1, no max |
+| LearningArchitect | learning_modules | Array | 1 | 12 | - | 1-12 modules |
+| SentinelValidator | ethics_score | Float | 0.0 | 100.0 | 75.0 | Must be ≥ 75.0 |
+| SentinelValidator | governance_violations | Array | 0 | 0 | - | Must be empty [] |
+
+### Test Pattern Reference (Tarea 4 Output)
+
+**File:** `tests/Unit/Services/ValidatorsEdgeCaseTest.php` (849 LOC, 53 tests)
+
+**Key Patterns:**
+
+```php
+// 1. Boundary testing (min-1, min, max, max+1)
+expect($result['violations'])->not->toBeEmpty();
+expect(count($result['violations']))->toBeGreaterThan(0);
+
+// 2. Null/error field handling
+expect($result['valid'])->toBeFalse();
+expect($result['violations'][0]->rule)->toBe('required_field_missing');
+
+// 3. Enum validation
+expect($result['violations'][0]->rule)->toBe('invalid_enum_value');
+
+// 4. Multiple violations
+expect(count($result['violations']))->toBeGreaterThanOrEqual(2);
+
+// 5. Valid boundary (exact limit)
+expect($result['valid'])->toBeTrue();
+``` 
+
+**Test Count by Category:**
+
+- Null/missing field tests: 9 (one per validator)
+- Boundary condition tests: 18 (low/high/exact for ~9 fields)
+- Invalid enum tests: 9 (one per enum validator like RoleDesigner L1-L5)
+- Type mismatch tests: 5 (non-array, non-float, etc.)
+- Multiple violation tests: 12 (complex scenarios mixing violations)
 
 **Total Sprint 3.1:** Estimado 3-4 días | **Complexity:** Medium-High | **Se estima terminar:** 25-26 03-2026
 
