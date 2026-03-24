@@ -273,4 +273,14 @@ Route::prefix('scenarios')->group(function () {
     Route::post('{id}/mitigate', [ScenarioSimulationController::class, 'getMitigationPlan']);
 });
 
+// Verification Deployment Configuration Routes (Admin Only)
+Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
+    Route::get('/deployment/verification-config', [\App\Http\Controllers\Deployment\VerificationConfigurationController::class, 'show'])
+        ->name('deployment.verification-config');
+    Route::post('/deployment/verification-config', [\App\Http\Controllers\Deployment\VerificationConfigurationController::class, 'store'])
+        ->name('deployment.verification-config.store');
+    Route::get('/api/deployment/verification-status', [\App\Http\Controllers\Deployment\VerificationConfigurationController::class, 'status'])
+        ->name('deployment.verification-status');
+});
+
 require __DIR__.'/settings.php';

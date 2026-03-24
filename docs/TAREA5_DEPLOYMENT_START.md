@@ -1,5 +1,32 @@
 # 🚀 Tarea 5: Pasos Opcionales - Implementados ✅
 
+## 🎯 Configurar Tu Sistema
+
+Antes de comenzar, elige cómo deseas que funcione el despliegue. **Tienes 2 formas de configurar:**
+
+### Opción A: Interfaz Web (Recomendado para No-técnicos)
+
+```
+📱 Accede a: http://miapp.local/deployment/verification-config
+```
+
+- Interfaz visual interactiva
+- Configuración en tiempo real
+- Vista previa de parámetros
+- Perfecto para Business Users
+
+### Opción B: Línea de Comandos (CLI Interactivo)
+
+```bash
+php artisan verification:configure
+```
+
+- Preguntas interactivas paso a paso
+- Configuración rápida desde terminal
+- Perfecto para DevOps/Técnicos
+
+---
+
 ## ¿Qué se acaba de implementar?
 
 Se han creado **3 herramientas** para desplegar de forma segura los 4 phases del sistema de verificación:
