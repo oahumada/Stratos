@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Traits\BelongsToOrganization;
 
 class Agent extends Model
 {
+    use HasFactory;
     use BelongsToOrganization;
     protected $fillable = [
         'name',
