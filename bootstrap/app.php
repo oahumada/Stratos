@@ -2,6 +2,8 @@
 
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Jobs\ProcessVerificationPhaseTransition;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -39,6 +41,21 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'module' => \App\Http\Middleware\CheckTenantModule::class,
         ]);
+    })
+    ->withSchedule(function (Schedule $schedule): void {
+        // Verification Phase Transition - runs hourly
+        // Multi-tenant: dispatches job per organization
+        $schedule->call(function (): void {
+            // Get all active organizations
+            $organizations = \App\Models\Organization::where('is_active', true)->pluck('id');
+
+            foreach ($organizations as $orgId) {
+                ProcessVerificationPhaseTransition::dispatch($orgId);
+            }
+        })
+            ->hourly()
+            ->name('verification:process-phase-transitions')
+            ->withoutOverlapping();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
