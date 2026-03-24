@@ -307,6 +307,14 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         ->name('deployment.verification.test-notification');
     Route::get('/api/deployment/verification/configuration', [\App\Http\Controllers\Deployment\VerificationHubController::class, 'configuration'])
         ->name('deployment.verification.configuration');
+
+    // Verification Hub Phase 2 (Advanced Features) - Admin Only
+    Route::get('/api/deployment/verification/audit-logs', [\App\Http\Controllers\Deployment\VerificationHubController::class, 'auditLogs'])
+        ->name('deployment.verification.audit-logs');
+    Route::post('/api/deployment/verification/dry-run', [\App\Http\Controllers\Deployment\VerificationHubController::class, 'dryRunSimulation'])
+        ->name('deployment.verification.dry-run');
+    Route::get('/api/deployment/verification/compliance-report', [\App\Http\Controllers\Deployment\VerificationHubController::class, 'complianceReport'])
+        ->name('deployment.verification.compliance-report');
 });
 
 require __DIR__.'/settings.php';

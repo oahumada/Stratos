@@ -6,6 +6,10 @@ import SchedulerStatus from '@/components/Verification/SchedulerStatus.vue'
 import NotificationCenter from '@/components/Verification/NotificationCenter.vue'
 import ChannelConfig from '@/components/Verification/ChannelConfig.vue'
 import TransitionReadiness from '@/components/Verification/TransitionReadiness.vue'
+import AuditLogExplorer from '@/components/Verification/AuditLogExplorer.vue'
+import DryRunSimulator from '@/components/Verification/DryRunSimulator.vue'
+import SetupWizard from '@/components/Verification/SetupWizard.vue'
+import ComplianceReportGenerator from '@/components/Verification/ComplianceReportGenerator.vue'
 
 const activeTab = ref('overview')
 
@@ -90,33 +94,36 @@ const tabs = [
           <div v-show="activeTab === 'control'" class="space-y-6">
             <h2 class="text-xl font-semibold">🎮 Centro de Control</h2>
             
+            <div class="grid grid-cols-2 gap-6">
+              <!-- Dry Run Simulator -->
+              <div class="col-span-1 bg-card border border-border rounded-lg p-6">
+                <h3 class="font-semibold mb-4">🧪 Simulador de Transiciones</h3>
+                <DryRunSimulator />
+              </div>
+
+              <!-- Setup Wizard -->
+              <div class="col-span-1 bg-card border border-border rounded-lg p-6">
+                <h3 class="font-semibold mb-4">🪄 Asistente de Configuración</h3>
+                <SetupWizard />
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
             <div class="grid grid-cols-2 gap-4">
               <button class="bg-card border border-border rounded-lg p-4 text-left hover:border-primary transition-colors h-24 flex flex-col justify-center">
                 <div class="text-2xl mb-2">🔄</div>
                 <h3 class="font-semibold">Ejecutar Scheduler Ahora</h3>
-                <p class="text-xs text-muted-foreground mt-1">Fuerza evaluación inmediata de transiciones</p>
-              </button>
-              
-              <button class="bg-card border border-border rounded-lg p-4 text-left hover:border-primary transition-colors h-24 flex flex-col justify-center">
-                <div class="text-2xl mb-2">🧪</div>
-                <h3 class="font-semibold">Ejecutar Dry-Run</h3>
-                <p class="text-xs text-muted-foreground mt-1">Simula transiciones sin aplicar cambios</p>
+                <p class="text-xs text-muted-foreground mt-1">Fuerza evaluación inmediata</p>
               </button>
               
               <button class="bg-card border border-border rounded-lg p-4 text-left hover:border-primary transition-colors h-24 flex flex-col justify-center">
                 <div class="text-2xl mb-2">🔔</div>
-                <h3 class="font-semibold">Enviar Notificación de Prueba</h3>
-                <p class="text-xs text-muted-foreground mt-1">Test todos los canales configurados</p>
-              </button>
-              
-              <button class="bg-card border border-border rounded-lg p-4 text-left hover:border-primary transition-colors h-24 flex flex-col justify-center">
-                <div class="text-2xl mb-2">⚙️</div>
-                <h3 class="font-semibold">Configuración Rápida</h3>
-                <p class="text-xs text-muted-foreground mt-1">Asistente de configuración inicial</p>
+                <h3 class="font-semibold">Test de Notificaciones</h3>
+                <p class="text-xs text-muted-foreground mt-1">Prueba todos los canales</p>
               </button>
             </div>
 
-            <!-- Toggles Section -->
+            <!-- System Controls -->
             <div class="bg-card border border-border rounded-lg p-4">
               <h3 class="font-semibold mb-4">🔧 Controles de Activación</h3>
               <div class="space-y-3">
@@ -151,15 +158,16 @@ const tabs = [
           <!-- Audit Tab -->
           <div v-show="activeTab === 'audit'" class="space-y-6">
             <h2 class="text-xl font-semibold">📋 Registro de Auditoría</h2>
-            <div class="bg-card border border-border rounded-lg p-4">
-              <p class="text-muted-foreground">El explorador de auditoría estará disponible próximamente</p>
-              <p class="text-sm text-muted-foreground mt-2">Mostrará:</p>
-              <ul class="list-disc list-inside text-sm text-muted-foreground mt-2 space-y-1">
-                <li>Historial completo de transiciones de fase</li>
-                <li>Cambios de configuración con usuario y timestamp</li>
-                <li>Acciones manuales del sistema</li>
-                <li>Filtros avanzados y exportación</li>
-              </ul>
+            
+            <!-- Audit Log Explorer -->
+            <div class="bg-card border border-border rounded-lg p-6">
+              <AuditLogExplorer />
+            </div>
+
+            <!-- Compliance Reports -->
+            <div class="bg-card border border-border rounded-lg p-6">
+              <h3 class="text-lg font-semibold mb-4">📊 Generador de Reportes de Cumplimiento</h3>
+              <ComplianceReportGenerator />
             </div>
           </div>
         </div>
