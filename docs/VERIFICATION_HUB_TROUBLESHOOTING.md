@@ -1,7 +1,7 @@
 # 🆘 Verification Hub - Troubleshooting & FAQ
 
 **Última actualización:** 24.03.2026  
-**Versión:** 1.0  
+**Versión:** 1.0
 
 ---
 
@@ -9,61 +9,72 @@
 
 ### ❌ Error: "Verification Hub no carga"
 
-**Síntomas:** 
+**Síntomas:**
+
 - Página en blanco o loading infinito
 - Error en consola del navegador
 
 **Diagnóstico:**
+
 ```javascript
 // Abre DevTools (F12) → Console → copia esto:
-console.log('URL:', window.location.href)
-console.log('Token:', localStorage.getItem('sanctum_token'))
+console.log('URL:', window.location.href);
+console.log('Token:', localStorage.getItem('sanctum_token'));
 fetch('/api/deployment/verification/scheduler-status', {
-  headers: { 'Authorization': `Bearer ${localStorage.getItem('sanctum_token')}` }
-}).then(r => r.json()).then(console.log).catch(console.error)
+    headers: {
+        Authorization: `Bearer ${localStorage.getItem('sanctum_token')}`,
+    },
+})
+    .then((r) => r.json())
+    .then(console.log)
+    .catch(console.error);
 ```
 
 **Soluciones (en orden):**
 
 1. **¿Estás logueado?**
-   ```
-   → Si no: Login primero
-   → Si sí: Continúa
-   ```
+
+    ```
+    → Si no: Login primero
+    → Si sí: Continúa
+    ```
 
 2. **¿Tienes rol admin?**
-   ```
-   Verifica en: /settings/profile
-   → Si no tienes role "admin": Solicita al administrador
-   → Si tienes: Continúa
-   ```
+
+    ```
+    Verifica en: /settings/profile
+    → Si no tienes role "admin": Solicita al administrador
+    → Si tienes: Continúa
+    ```
 
 3. **¿El API responde?**
-   ```bash
-   curl -X GET "http://localhost:8000/api/deployment/verification/scheduler-status" \
-     -H "Authorization: Bearer YOUR_TOKEN"
-   
-   → Si error 500: Revisa Laravel logs (ver abajo)
-   → Si error 401: Token inválido/expirado → re-login
-   → Si error 404: URL mal → verifica rutas
-   ```
+
+    ```bash
+    curl -X GET "http://localhost:8000/api/deployment/verification/scheduler-status" \
+      -H "Authorization: Bearer YOUR_TOKEN"
+
+    → Si error 500: Revisa Laravel logs (ver abajo)
+    → Si error 401: Token inválido/expirado → re-login
+    → Si error 404: URL mal → verifica rutas
+    ```
 
 4. **Revisa Laravel logs:**
-   ```bash
-   # Terminal en proyecto:
-   tail -f storage/logs/laravel.log | grep -i verification
-   
-   # O en archivo:
-   cat storage/logs/laravel.log | grep -A5 "Verification"
-   ```
+
+    ```bash
+    # Terminal en proyecto:
+    tail -f storage/logs/laravel.log | grep -i verification
+
+    # O en archivo:
+    cat storage/logs/laravel.log | grep -A5 "Verification"
+    ```
 
 5. **Limpia cache del navegador:**
-   ```
-   DevTools → Application → Clear Site Data
-   → Cierra tab
-   → Abre nueva tab
-   → Intenta nuevamente
-   ```
+    ```
+    DevTools → Application → Clear Site Data
+    → Cierra tab
+    → Abre nueva tab
+    → Intenta nuevamente
+    ```
 
 **Si sigue sin funcionar:** Contacta al equipo de desarrollo con el output del paso 3 y 4.
 
@@ -72,10 +83,12 @@ fetch('/api/deployment/verification/scheduler-status', {
 ### ❌ Error: "Access Denied / 403 Forbidden"
 
 **Síntomas:**
+
 - Mensaje: "User does not have admin role"
 - API retorna 403
 
 **Solución:**
+
 1. Abre `/settings/profile`
 2. Busca tu "Role"
 3. Si no dice "admin" → Solicita al administrador que te asigne
@@ -84,6 +97,7 @@ fetch('/api/deployment/verification/scheduler-status', {
 6. Intenta nuevamente
 
 **Para administrador (agregar rol admin):**
+
 ```bash
 php artisan tinker
 
@@ -99,6 +113,7 @@ php artisan tinker
 ### ❌ Error: "Scheduler nunca ejecuta"
 
 **Síntomas:**
+
 - `SchedulerStatus.vue` dice "Never run"
 - `next_run` No existe o es en el pasado
 - Transiciones no ocurren automáticamente
@@ -106,31 +121,34 @@ php artisan tinker
 **Diagnóstico:**
 
 1. **¿El scheduler está enabled?**
-   ```bash
-   php artisan tinker
-   >>> DB::table('verification_scheduler')->first()
-   
-   # Busca: enabled = true
-   ```
+
+    ```bash
+    php artisan tinker
+    >>> DB::table('verification_scheduler')->first()
+
+    # Busca: enabled = true
+    ```
 
 2. **¿Está el Laravel queue en vivo?**
-   ```bash
-   # En terminal, revisa si está corriendo:
-   ps aux | grep queue
-   
-   # Debería haber un proceso:
-   "php artisan queue:work"
-   ```
+
+    ```bash
+    # En terminal, revisa si está corriendo:
+    ps aux | grep queue
+
+    # Debería haber un proceso:
+    "php artisan queue:work"
+    ```
 
 3. **¿Hay errores en queue?**
-   ```bash
-   # Terminal:
-   tail -f storage/logs/laravel.log | grep -i "queue\|job"
-   ```
+    ```bash
+    # Terminal:
+    tail -f storage/logs/laravel.log | grep -i "queue\|job"
+    ```
 
 **Solución:**
 
 Si queue no está corriendo:
+
 ```bash
 # Terminal en proyecto (detener si está corriendo):
 # Ctrl+C
@@ -143,6 +161,7 @@ php artisan queue:work &
 ```
 
 Si con `composer run dev` (debería incluir queue):
+
 ```bash
 # Verifica que queue está en procfile o script
 cat Procfile  # o package.json scripts
@@ -158,40 +177,44 @@ cat Procfile  # o package.json scripts
 ### ❌ Error: "Notifications en Slack no llegan"
 
 **Síntomas:**
+
 - `ChannelConfig.vue` Test OK, pero no recibe mensajes reales
 - Audit log muestra "notification_sent" pero no hay mensaje
 
 **Diagnóstico:**
 
 1. **Test Slack funciona?**
-   ```
-   Tab Configuration → Test Slack
-   → ¿Recibes mensaje en Slack?
-   ```
 
-   Si NO:
-   - Webhook URL incorrecta
-   - Webhook expiró
-   - Canal de Slack incorrecto
+    ```
+    Tab Configuration → Test Slack
+    → ¿Recibes mensaje en Slack?
+    ```
+
+    Si NO:
+    - Webhook URL incorrecta
+    - Webhook expiró
+    - Canal de Slack incorrecto
 
 2. **¿Webhook URL es válida?**
-   ```bash
-   # En Terminal, test directo:
-   curl -X POST "https://hooks.slack.com/services/YOUR/WEBHOOK/URL" \
-     -H 'Content-type: application/json' \
-     -d '{"text":"Test message"}'
-   
-   # Debería responder con: ok
-   ```
+
+    ```bash
+    # En Terminal, test directo:
+    curl -X POST "https://hooks.slack.com/services/YOUR/WEBHOOK/URL" \
+      -H 'Content-type: application/json' \
+      -d '{"text":"Test message"}'
+
+    # Debería responder con: ok
+    ```
 
 3. **¿El canal de Slack existe?**
-   - Abre Slack
-   - Ve al canal donde debería ir el mensaje
-   - Revisa permisos (debe permitir apps)
+    - Abre Slack
+    - Ve al canal donde debería ir el mensaje
+    - Revisa permisos (debe permitir apps)
 
 **Soluciones:**
 
 **Si webhook expiró:**
+
 1. Ve a Slack app settings
 2. Regenera webhook URL
 3. Copia nueva URL
@@ -199,11 +222,13 @@ cat Procfile  # o package.json scripts
 5. Click [Test Slack]
 
 **Si canal incorrecto:**
+
 1. En Slack app settings: revisa tu webhook
 2. Asegúrate que apunta al canal correcto
 3. Regener if needed
 
 **Si webhook invalidó:**
+
 1. Slack Web UI → Your Apps → Verification Hub
 2. Incoming Webhooks → Add New Webhook to Workspace
 3. Selecciona canal
@@ -215,11 +240,13 @@ cat Procfile  # o package.json scripts
 ### ❌ Error: "Database llena / Disk space"
 
 **Síntomas:**
+
 - Error al intentar crear audit logs
 - Página lenta
 - "Disk full" error
 
 **Diagnóstico:**
+
 ```bash
 # Ver tamaño de BD:
 df -h | grep postgres  # Si PostgreSQL
@@ -235,32 +262,34 @@ php artisan tinker
 **Solución:**
 
 1. **Reducir retention policy:**
-   ```
-   Tab Configuration → Database section
-   Cambiar retention_days: 365 → 90
-   ```
+
+    ```
+    Tab Configuration → Database section
+    Cambiar retention_days: 365 → 90
+    ```
 
 2. **Ejecutar cleanup:**
-   ```bash
-   # Artisan command (crear si no existe):
-   php artisan verification:cleanup-logs --days=90
-   
-   # O borrar manualmente:
-   php artisan tinker
-   >>> DB::table('verification_audit_logs')
-        ->where('created_at', '<', now()->subDays(90))
-        ->delete()
-   ```
+
+    ```bash
+    # Artisan command (crear si no existe):
+    php artisan verification:cleanup-logs --days=90
+
+    # O borrar manualmente:
+    php artisan tinker
+    >>> DB::table('verification_audit_logs')
+         ->where('created_at', '<', now()->subDays(90))
+         ->delete()
+    ```
 
 3. **Archivar datos viejos:**
-   ```bash
-   # Exportar a CSV antes de borrar:
-   # (desde ComplianceReportGenerator)
-   1. Date Range: 1 año atrás
-   2. Click "Descargar CSV"
-   3. Guarda archivo
-   4. Luego ejecuta cleanup
-   ```
+    ```bash
+    # Exportar a CSV antes de borrar:
+    # (desde ComplianceReportGenerator)
+    1. Date Range: 1 año atrás
+    2. Click "Descargar CSV"
+    3. Guarda archivo
+    4. Luego ejecuta cleanup
+    ```
 
 ---
 
@@ -269,21 +298,23 @@ php artisan tinker
 ### P: Dry-Run Simulator retorna valores NULL
 
 **Problema:**
+
 ```json
 {
-  "error": "Cannot evaluate metrics - insufficient data",
-  "metrics": null
+    "error": "Cannot evaluate metrics - insufficient data",
+    "metrics": null
 }
 ```
 
 **Causa:** No hay datos de tests en la base de datos
 
 **Solución:**
+
 1. Asegúrate que el sistema tiene datos históricos
 2. Ejecuta tests primero:
-   ```bash
-   php artisan test  # O tu test suite
-   ```
+    ```bash
+    php artisan test  # O tu test suite
+    ```
 3. Espera a que se populen métricas (puede tomar 5-10 min)
 4. Intenta dry-run nuevamente
 
@@ -292,10 +323,12 @@ php artisan tinker
 ### P: Transitions nunca ocurren aunque métricas son buenas
 
 **Problema:**
+
 - `DryRunSimulator` says "would_transition": true
 - Pero sistema nunca transaciona
 
 **Causa Potencial:**
+
 - Scheduler no está checking
 - Cuota de transiciones alcanzada
 - Sistema en modo "manual-only"
@@ -303,41 +336,45 @@ php artisan tinker
 **Solución:**
 
 1. **Verifica modo del sistema:**
-   ```
-   Tab Configuration → Mode: debe ser "auto_transitions"
-   Si no → Cambiar a auto
-   ```
+
+    ```
+    Tab Configuration → Mode: debe ser "auto_transitions"
+    Si no → Cambiar a auto
+    ```
 
 2. **Revisa historial de transiciones:**
-   ```
-   Tab Overview → TransitionReadiness
-   ¿Cuándo fue la última transición?
-   
-   Si fue hace 10 minutos → Espera a siguiente hora
-   (Scheduler corre cada hora)
-   ```
+
+    ```
+    Tab Overview → TransitionReadiness
+    ¿Cuándo fue la última transición?
+
+    Si fue hace 10 minutos → Espera a siguiente hora
+    (Scheduler corre cada hora)
+    ```
 
 3. **Fuerza evaluación:**
-   ```
-   SchedulerStatus.vue → Click [Ejecutar Ahora]
-   Verifica si transaciona
-   ```
+    ```
+    SchedulerStatus.vue → Click [Ejecutar Ahora]
+    Verifica si transaciona
+    ```
 
 ---
 
 ### P: Audit Log Explorer no muestra logs antiguos
 
 **Problema:**
+
 - Filtro por fecha antigua retorna vacío
 - Pero ComplianceReport SÍ muestra datos
 
 **Causa:** Logs fueron archivados/borrados
 
 **Solución:**
+
 1. Revisa fecha de retention en Configuration
-   ```
-   Si fue set a 30 dias → Logs más viejos fueron borrados
-   ```
+    ```
+    Si fue set a 30 dias → Logs más viejos fueron borrados
+    ```
 2. Para datos históricos: usa ComplianceReport (tiene caché)
 3. Para futuros: reduce rotation speed si necesario
 
@@ -346,6 +383,7 @@ php artisan tinker
 ### P: SetupWizard se queda en paso 2
 
 **Problema:**
+
 - Wizard no avanza al paso 3
 - Botón "Next" no responde
 - Errores de validación no claros
@@ -353,6 +391,7 @@ php artisan tinker
 **Causa:** Página no se renderizó completamente
 
 **Solución:**
+
 1. Reload: F5
 2. Limpia cache: Ctrl+Shift+Delete
 3. Abre nuevamente Hub
@@ -365,6 +404,7 @@ php artisan tinker
 ### "Necesito saber qué pasó en el sistema el jueves pasado"
 
 **Solución:**
+
 ```
 1. Tab Audit → Audit Log Explorer
 2. Date Filter: "last_thursday"
@@ -376,6 +416,7 @@ php artisan tinker
 ### "Quiero tener alertas por email, no Slack"
 
 **Solución:**
+
 ```
 1. Tab Configuration → Email section
 2. Toggle ON
@@ -390,6 +431,7 @@ php artisan tinker
 ### "Sistema pasó a fase "reject" pero no debería"
 
 **Solución:**
+
 ```
 1. Tab Audit → AuditLogExplorer
 2. Busca transición a "reject"
@@ -406,6 +448,7 @@ php artisan tinker
 ### "Quiero crear reporte para auditoría externa"
 
 **Solución:**
+
 ```
 1. Tab Audit → ComplianceReportGenerator (bottom)
 2. Date Range: sel quarter que necesitas
@@ -480,6 +523,7 @@ composer run dev  # Vite + PHP server
 ### P: ¿Puedo hacer transición manual?
 
 **R:** Sí, pero está limitado:
+
 ```
 1. Tab Control → DryRunSimulator
 2. Verifica que "would_transition" es true
@@ -491,6 +535,7 @@ composer run dev  # Vite + PHP server
 ### P: ¿Qué es la "fase" exactamente?
 
 **R:** El sistema tiene 4 fases de aceptación de cambios:
+
 - **Silent**: Recolecta datos, no reporta
 - **Flagging**: Reporta issues pero no rechaza
 - **Reject**: Rechaza cambios que no pasen
@@ -501,6 +546,7 @@ composer run dev  # Vite + PHP server
 ### P: ¿Puedo ver diferencia entre lo que SERÍA vs lo que ES?
 
 **R:** Sí, usa DryRunSimulator:
+
 ```
 1. Tab Control → Left panel (DryRunSimulator)
 2. Ajusta sliders para simular
@@ -513,6 +559,7 @@ composer run dev  # Vite + PHP server
 ### P: ¿Qué hacer si un audit log tiene error?
 
 **R:** Los logs solo leen, no escriben. Si hay errores en lectura:
+
 ```
 1. Verifica DB connection
 2. Revisa si tabla tiene datos
@@ -524,6 +571,7 @@ composer run dev  # Vite + PHP server
 ### P: ¿Cómo exporto datos para análisis?
 
 **R:** Varios formatos:
+
 ```
 1. AuditLogExplorer: Exporta CSV con tabla completa
 2. ComplianceReport: Exporta JSON/CSV/PDF con resumen
@@ -535,6 +583,7 @@ composer run dev  # Vite + PHP server
 ### P: ¿Qué sucede si pierdo conexión a Internet mientras uso el Hub?
 
 **R:** Depende:
+
 - **Si estás leyendo**: Perderás datos no cargados
 - **Si estás escribiendo**: Cambio no se guarda
 - **Recomendación**: Recarga página después de conexión restaurada
@@ -544,6 +593,7 @@ composer run dev  # Vite + PHP server
 ### P: ¿Hay límite a cuántar datos puedo ver?
 
 **R:** Sí:
+
 - **Notificaciones**: Default 20 por página
 - **Audit Logs**: Default 50 por página
 - **Rate limit**: 60 requests/minuto
@@ -553,6 +603,7 @@ composer run dev  # Vite + PHP server
 ### P: ¿Puedo integrar el Hub con mis propias herramientas?
 
 **R:** Sí, todos los endpoints son REST JSON:
+
 ```
 Ver: VERIFICATION_HUB_API_REFERENCE.md para
 integración con:
@@ -569,29 +620,30 @@ integración con:
 Si después de estos pasos el problema persiste:
 
 1. **Recolecta información:**
-   ```bash
-   # Copia output de:
-   php artisan --version
-   php --version
-   npm --version
-   
-   # Logs:
-   cat storage/logs/laravel.log | tail -50
-   
-   # DevTools Console error
-   F12 → Console → Screenshot
-   ```
+
+    ```bash
+    # Copia output de:
+    php artisan --version
+    php --version
+    npm --version
+
+    # Logs:
+    cat storage/logs/laravel.log | tail -50
+
+    # DevTools Console error
+    F12 → Console → Screenshot
+    ```
 
 2. **Documenta:**
-   - ¿Qué intentaste hacer?
-   - ¿Qué error ves?
-   - ¿Cuándo empezó?
-   - ¿Otros usuarios afectados?
+    - ¿Qué intentaste hacer?
+    - ¿Qué error ves?
+    - ¿Cuándo empezó?
+    - ¿Otros usuarios afectados?
 
 3. **Contacta:**
-   - Slack: #tech-support
-   - Email: support@company.com
-   - Issue: GitHub repo
+    - Slack: #tech-support
+    - Email: support@company.com
+    - Issue: GitHub repo
 
 ---
 
@@ -604,4 +656,3 @@ Si después de estos pasos el problema persiste:
 - [Vue 3 Docs](https://vuejs.org/guide/introduction.html)
 
 ---
-

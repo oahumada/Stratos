@@ -47,12 +47,12 @@
 
 ### Service Responsibilities
 
-| Service | Responsibility | Key Methods |
-|---------|------------------|------------|
-| **MetricsAggregationService** | Aggregates raw VerificationAudit data into queryable metrics | `getMetricsHistory()`, `getCurrentMetrics()`, `getMetricsComparison()` |
-| **AnomalyDetectionService** | Detects statistical anomalies and deviations | `analyzeVerificationMetrics()`, `analyzeTalentAnomalies()` |
-| **PredictiveInsightsService** | Forecasts future trends and optimal windows | `forecastCompliance()`, `predictDeploymentWindow()`, `assessTransitionRisk()` |
-| **AutomatedRecommendationsService** | Synthesizes anomalies & predictions into actionable recommendations | `generateComprehensiveRecommendations()`, `getDetailedExplanation()` |
+| Service                             | Responsibility                                                      | Key Methods                                                                   |
+| ----------------------------------- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| **MetricsAggregationService**       | Aggregates raw VerificationAudit data into queryable metrics        | `getMetricsHistory()`, `getCurrentMetrics()`, `getMetricsComparison()`        |
+| **AnomalyDetectionService**         | Detects statistical anomalies and deviations                        | `analyzeVerificationMetrics()`, `analyzeTalentAnomalies()`                    |
+| **PredictiveInsightsService**       | Forecasts future trends and optimal windows                         | `forecastCompliance()`, `predictDeploymentWindow()`, `assessTransitionRisk()` |
+| **AutomatedRecommendationsService** | Synthesizes anomalies & predictions into actionable recommendations | `generateComprehensiveRecommendations()`, `getDetailedExplanation()`          |
 
 ---
 
@@ -65,150 +65,161 @@ GET /api/analytics/anomalies
 ```
 
 **Response:**
+
 ```json
 {
-  "organization_id": "org-123",
-  "timestamp": "2026-03-25T10:30:00Z",
-  "verification_anomalies": [
-    {
-      "type": "SPIKE",
-      "metric": "avg_latency",
-      "value": 1250,
-      "severity": "HIGH",
-      "z_score": 3.2
-    }
-  ],
-  "talent_anomalies": [
-    {
-      "type": "VACANCY_RISK",
-      "critical_roles": ["Technical Lead", "Architect"]
-    }
-  ],
-  "total_anomalies": 5
+    "organization_id": "org-123",
+    "timestamp": "2026-03-25T10:30:00Z",
+    "verification_anomalies": [
+        {
+            "type": "SPIKE",
+            "metric": "avg_latency",
+            "value": 1250,
+            "severity": "HIGH",
+            "z_score": 3.2
+        }
+    ],
+    "talent_anomalies": [
+        {
+            "type": "VACANCY_RISK",
+            "critical_roles": ["Technical Lead", "Architect"]
+        }
+    ],
+    "total_anomalies": 5
 }
 ```
 
 ### Predictions
 
 #### Compliance Forecast
+
 ```http
 GET /api/analytics/predictions/compliance
 ```
 
 **Response:**
+
 ```json
 {
-  "status": "success",
-  "current_score": 0.92,
-  "forecast_days": 30,
-  "expected_range": {
-    "min": 0.87,
-    "max": 0.95,
-    "avg": 0.91
-  },
-  "trend": "IMPROVING",
-  "trend_confidence": 2.1,
-  "predicted_breach_date": null
+    "status": "success",
+    "current_score": 0.92,
+    "forecast_days": 30,
+    "expected_range": {
+        "min": 0.87,
+        "max": 0.95,
+        "avg": 0.91
+    },
+    "trend": "IMPROVING",
+    "trend_confidence": 2.1,
+    "predicted_breach_date": null
 }
 ```
 
 #### Deployment Window
+
 ```http
 GET /api/analytics/predictions/deployment-window?days=14
 ```
 
 **Response:**
+
 ```json
 {
-  "status": "success",
-  "predictions": {
-    "2026-03-25": {
-      "predicted_stress_level": 45.3,
-      "predicted_latency_ms": 210,
-      "risk_score": 35,
-      "recommendation": "OPTIMAL"
+    "status": "success",
+    "predictions": {
+        "2026-03-25": {
+            "predicted_stress_level": 45.3,
+            "predicted_latency_ms": 210,
+            "risk_score": 35,
+            "recommendation": "OPTIMAL"
+        },
+        "2026-03-26": {
+            "predicted_stress_level": 82.5,
+            "predicted_latency_ms": 620,
+            "risk_score": 78,
+            "recommendation": "RISKY"
+        }
     },
-    "2026-03-26": {
-      "predicted_stress_level": 82.5,
-      "predicted_latency_ms": 620,
-      "risk_score": 78,
-      "recommendation": "RISKY"
-    }
-  },
-  "optimal_window": ["2026-03-25", "2026-03-27", "2026-03-29"],
-  "next_optimal_date": "2026-03-25"
+    "optimal_window": ["2026-03-25", "2026-03-27", "2026-03-29"],
+    "next_optimal_date": "2026-03-25"
 }
 ```
 
 #### Resource Needs
+
 ```http
 GET /api/analytics/predictions/resources
 ```
 
 **Response:**
+
 ```json
 {
-  "status": "success",
-  "throughput_trend": {
-    "direction": "INCREASING",
-    "percent_change_per_week": 5.2,
-    "utilization_at_capacity": false
-  },
-  "processing_time_trend": {
-    "direction": "IMPROVING",
-    "percent_change_per_week": -3.1
-  },
-  "recommendations": [
-    "Monitor system resources closely",
-    "Plan infrastructure upgrade for Q2"
-  ],
-  "capacity_saturation_date": "2026-05-15"
+    "status": "success",
+    "throughput_trend": {
+        "direction": "INCREASING",
+        "percent_change_per_week": 5.2,
+        "utilization_at_capacity": false
+    },
+    "processing_time_trend": {
+        "direction": "IMPROVING",
+        "percent_change_per_week": -3.1
+    },
+    "recommendations": [
+        "Monitor system resources closely",
+        "Plan infrastructure upgrade for Q2"
+    ],
+    "capacity_saturation_date": "2026-05-15"
 }
 ```
 
 ### Metrics
 
 #### Current Snapshot
+
 ```http
 GET /api/analytics/metrics/current
 ```
 
 **Response:**
+
 ```json
 {
-  "organization_id": "org-123",
-  "timestamp": "2026-03-25T10:30:00Z",
-  "metrics": {
-    "compliance_score": 0.92,
-    "success_rate": 0.94,
-    "avg_latency": 245,
-    "p95_latency": 580,
-    "p99_latency": 820,
-    "throughput_capacity_percent": 72
-  }
+    "organization_id": "org-123",
+    "timestamp": "2026-03-25T10:30:00Z",
+    "metrics": {
+        "compliance_score": 0.92,
+        "success_rate": 0.94,
+        "avg_latency": 245,
+        "p95_latency": 580,
+        "p99_latency": 820,
+        "throughput_capacity_percent": 72
+    }
 }
 ```
 
 #### Historical Data
+
 ```http
 GET /api/analytics/metrics/history?days=30&interval=daily
 ```
 
 **Response:**
+
 ```json
 {
-  "organization_id": "org-123",
-  "period_days": 30,
-  "interval": "daily",
-  "total_data_points": 30,
-  "data": [
-    {
-      "timestamp": "2026-02-24",
-      "compliance_score": 0.88,
-      "success_rate": 0.91,
-      "avg_latency": 220
-    }
-  ]
+    "organization_id": "org-123",
+    "period_days": 30,
+    "interval": "daily",
+    "total_data_points": 30,
+    "data": [
+        {
+            "timestamp": "2026-02-24",
+            "compliance_score": 0.88,
+            "success_rate": 0.91,
+            "avg_latency": 220
+        }
+    ]
 }
 ```
 
@@ -219,30 +230,31 @@ GET /api/analytics/recommendations?include_llm=false
 ```
 
 **Response:**
+
 ```json
 {
-  "organization_id": "org-123",
-  "generated_at": "2026-03-25T10:30:00Z",
-  "total_recommendations": 7,
-  "by_priority": {
-    "critical": 1,
-    "high": 3,
-    "medium": 3
-  },
-  "recommendations": [
-    {
-      "category": "PERFORMANCE",
-      "priority": "HIGH",
-      "title": "Latency Spike Detected",
-      "description": "Current latency exceeds historical average",
-      "impact": "Slower verification transitions",
-      "suggested_actions": [
-        "Check database performance",
-        "Monitor CPU usage"
-      ],
-      "confidence_score": 0.95
-    }
-  ]
+    "organization_id": "org-123",
+    "generated_at": "2026-03-25T10:30:00Z",
+    "total_recommendations": 7,
+    "by_priority": {
+        "critical": 1,
+        "high": 3,
+        "medium": 3
+    },
+    "recommendations": [
+        {
+            "category": "PERFORMANCE",
+            "priority": "HIGH",
+            "title": "Latency Spike Detected",
+            "description": "Current latency exceeds historical average",
+            "impact": "Slower verification transitions",
+            "suggested_actions": [
+                "Check database performance",
+                "Monitor CPU usage"
+            ],
+            "confidence_score": 0.95
+        }
+    ]
 }
 ```
 
@@ -253,6 +265,7 @@ GET /api/analytics/dashboard-summary
 ```
 
 **Response:**
+
 ```json
 {
   "organization_id": "org-123",
@@ -274,6 +287,7 @@ GET /api/analytics/dashboard-summary
 ### Anomaly Detection
 
 #### 1. Z-Score (Spike Detection)
+
 ```
 z = (value - mean) / stddev
 
@@ -284,11 +298,13 @@ If |z| > threshold:
 ```
 
 **Use Cases:**
+
 - Latency spikes
 - Throughput drops
 - Error rate increases
 
 #### 2. Trend Deviation (Gradual Changes)
+
 ```
 recent_avg = avg(last 7 days)
 older_avg = avg(previous 7 days)
@@ -299,6 +315,7 @@ If deviation > threshold (e.g., 15%):
 ```
 
 **Use Cases:**
+
 - Compliance score decline
 - System performance degradation
 - Resource utilization increase
@@ -306,6 +323,7 @@ If deviation > threshold (e.g., 15%):
 ### Predictive Forecasting
 
 #### Simple Linear Forecast (ARIMA-like)
+
 ```
 1. Calculate trend using least squares:
    slope = (n∑XY - ∑X∑Y) / (n∑X² - (∑X)²)
@@ -318,6 +336,7 @@ If deviation > threshold (e.g., 15%):
 ```
 
 **Accuracy:**
+
 - 7-15 day forecasts: ~85%
 - 30 day forecasts: ~70%
 - 60+ day forecasts: Less reliable
@@ -373,59 +392,78 @@ LLM_PROVIDER=deepseek
 
 ```vue
 <template>
-  <div class="analytics-dashboard">
-    <!-- Anomalies Section -->
-    <section v-if="anomalies.length > 0">
-      <h3>🚨 Active Anomalies</h3>
-      <div class="anomaly-list">
-        <div v-for="anomaly in anomalies" :key="anomaly.type" :class="`severity-${anomaly.severity}`">
-          {{ anomaly.type }}: {{ anomaly.description }}
-        </div>
-      </div>
-    </section>
+    <div class="analytics-dashboard">
+        <!-- Anomalies Section -->
+        <section v-if="anomalies.length > 0">
+            <h3>🚨 Active Anomalies</h3>
+            <div class="anomaly-list">
+                <div
+                    v-for="anomaly in anomalies"
+                    :key="anomaly.type"
+                    :class="`severity-${anomaly.severity}`"
+                >
+                    {{ anomaly.type }}: {{ anomaly.description }}
+                </div>
+            </div>
+        </section>
 
-    <!-- Predictions Section -->
-    <section>
-      <h3>📈 Forecast</h3>
-      <p>Compliance Trend: <strong>{{ complianceForecast.trend }}</strong></p>
-      <p>Expected Range: {{ complianceForecast.expected_range.min }} - {{ complianceForecast.expected_range.max }}</p>
-    </section>
+        <!-- Predictions Section -->
+        <section>
+            <h3>📈 Forecast</h3>
+            <p>
+                Compliance Trend:
+                <strong>{{ complianceForecast.trend }}</strong>
+            </p>
+            <p>
+                Expected Range: {{ complianceForecast.expected_range.min }} -
+                {{ complianceForecast.expected_range.max }}
+            </p>
+        </section>
 
-    <!-- Recommendations Section -->
-    <section>
-      <h3>💡 AI Recommendations</h3>
-      <div class="recommendations-list">
-        <div v-for="rec in recommendations" :key="rec.title" :class="`priority-${rec.priority}`">
-          <h4>{{ rec.title }}</h4>
-          <p>{{ rec.description }}</p>
-          <ul>
-            <li v-for="action in rec.suggested_actions" :key="action">{{ action }}</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-  </div>
+        <!-- Recommendations Section -->
+        <section>
+            <h3>💡 AI Recommendations</h3>
+            <div class="recommendations-list">
+                <div
+                    v-for="rec in recommendations"
+                    :key="rec.title"
+                    :class="`priority-${rec.priority}`"
+                >
+                    <h4>{{ rec.title }}</h4>
+                    <p>{{ rec.description }}</p>
+                    <ul>
+                        <li
+                            v-for="action in rec.suggested_actions"
+                            :key="action"
+                        >
+                            {{ action }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { apiClient } from '@/lib/api'
+import { ref, onMounted } from 'vue';
+import { apiClient } from '@/lib/api';
 
-const anomalies = ref([])
-const complianceForecast = ref(null)
-const recommendations = ref([])
+const anomalies = ref([]);
+const complianceForecast = ref(null);
+const recommendations = ref([]);
 
 onMounted(async () => {
-  const [anomaliesRes, forecastRes, recommendationsRes] = await Promise.all([
-    apiClient.get('/analytics/anomalies'),
-    apiClient.get('/analytics/predictions/compliance'),
-    apiClient.get('/analytics/recommendations'),
-  ])
+    const [anomaliesRes, forecastRes, recommendationsRes] = await Promise.all([
+        apiClient.get('/analytics/anomalies'),
+        apiClient.get('/analytics/predictions/compliance'),
+        apiClient.get('/analytics/recommendations'),
+    ]);
 
-  anomalies.value = anomaliesRes.verification_anomalies
-  complianceForecast.value = forecastRes
-  recommendations.value = recommendationsRes.recommendations
-})
+    anomalies.value = anomaliesRes.verification_anomalies;
+    complianceForecast.value = forecastRes;
+    recommendations.value = recommendationsRes.recommendations;
+});
 </script>
 ```
 
@@ -467,6 +505,7 @@ php artisan test tests/Feature/Api/AnalyticsTest.php
 ```
 
 **Test Coverage:**
+
 - ✅ Anomaly detection endpoint
 - ✅ Compliance forecasting
 - ✅ Deployment window prediction
@@ -534,15 +573,19 @@ php artisan test tests/Feature/Api/AnalyticsTest.php
 ## 🆘 Troubleshooting
 
 ### Issue: "Insufficient Data" on Forecasts
+
 **Solution:** Ensure 7+ days of historical VerificationAudit data exists.
 
 ### Issue: Anomalies Not Detected
+
 **Solution:** Check if anomaly thresholds are too strict. Review Z-score threshold (default 2.5).
 
 ### Issue: LLM Recommendations Fail
+
 **Solution:** LLM explanations are optional. Set `include_llm=false` to skip.
 
 ### Issue: Performance Slow on Large Datasets
+
 **Solution:** Query optimization: add index on `VerificationAudit(organization_id, created_at)`.
 
 ---

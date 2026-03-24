@@ -4567,10 +4567,36 @@ expect($result['valid'])->toBeTrue();
 | 8 | Real-time WebSockets & SSE | ✅ | 1,500+ |
 | 9 | AI/ML Anomaly Detection & Predictions | ✅ | 1,200+ |
 | 10 | Automation & Webhooks | ✅ | 1,200+ |
-| **Total** | **Production-Ready Stratos** | **✅** | **12,000+** |
+| 11 | Mobile-First Support | ✅ | 2,100+ |
+| **Total** | **Production-Ready Stratos** | **✅** | **14,100+** |
+
+### Phase 11: Mobile-First Support - Push Notifications, Approvals & Offline Queue (2026-03-24) ✅ COMPLETED
+
+**Commit:** `73270bf3 feat: Phase 11 - Mobile-First Support`
+
+**Services (4 new, 1,060+ LOC):**
+- `PushNotificationService` (250 LOC): FCM/APNs delivery, device registration, severity-based alerts
+- `MobileApprovalService` (280 LOC): Approval workflows, 24h timeout, escalation to manager
+- `OfflineQueueService` (350 LOC): Persistent sync queue, 3x retry, deduplication, batch (50/sync)
+- `DeviceTokenService` (180 LOC): Device lifecycle, stale cleanup (30d), platform validation
+
+**Models (3 new):**
+- `DeviceToken`: FCM/APNs tokens, multi-platform (iOS/Android), scopes by platform/activity
+- `MobileApproval`: Workflows pending→approved/rejected/escalated/expired, context JSON, audit trail
+- `OfflineQueue`: Queue entries, deduplication key, retry tracking, status state machine
+
+**API Endpoints (8 new under /api/mobile/*):**
+- POST `/register-device` — Register FCM/APNs token
+- GET `/devices` — List active devices
+- DELETE `/devices/{id}` — Deactivate device
+- GET `/approvals` — Pending approvals
+- POST `/approvals/{id}/approve|reject` — Approve/reject
+- GET `/approvals/history` — Paginated history
+- POST `/offline-queue/sync` — Sync offline queue
+- GET `/offline-queue/status` — Queue stats
+
+**Testing:** 15+ test methods covering happy paths, security, edge cases, multi-tenant isolation.
+
+**Data Flow:** Phase 10 (remediation escalation) → Phase 11 (mobile approval) → Push notification → Offline queue sync
 
 **Remaining Optional Phases:**
-- Phase 11: Mobile-First Support
-- Phase 12: Enterprise Security (RBAC, 2FA, encryption)
-
----

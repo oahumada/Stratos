@@ -14,6 +14,7 @@ Esta es la referencia completa para entender, usar, integrar y troubleshootear e
 → [📖 Guía de Uso Completa](VERIFICATION_HUB_GUIDE.md)
 
 Incluye:
+
 - Cómo acceder al Hub
 - Qué hace cada componente
 - Casos de uso comunes
@@ -23,6 +24,7 @@ Incluye:
 → [🆘 Troubleshooting & FAQ](VERIFICATION_HUB_TROUBLESHOOTING.md)
 
 Incluye:
+
 - Problemas comunes y soluciones
 - Debug tips
 - Cómo escalar a soporte
@@ -35,6 +37,7 @@ Incluye:
 → [🔌 API Reference Completa](VERIFICATION_HUB_API_REFERENCE.md)
 
 Incluye:
+
 - 8 endpoints documentados
 - Request/response examples
 - Error handling
@@ -44,6 +47,7 @@ Incluye:
 → [🏗️ System Architecture](VERIFICATION_HUB_ARCHITECTURE.md)
 
 Incluye:
+
 - Diagrama de componentes
 - Flujo de datos
 - Seguridad multi-tenant
@@ -62,6 +66,7 @@ Luego → [📖 Guía Técnica](VERIFICATION_HUB_GUIDE.md#arquitectura-técnica)
 → [🏗️ System Architecture - Diagramas](VERIFICATION_HUB_ARCHITECTURE.md#diagrama-general-del-sistema)
 
 Incluye:
+
 - Arquitectura general
 - Flujos de datos
 - Seguridad
@@ -76,6 +81,7 @@ Incluye:
 **Tipo:** Guía de Usuario + Técnica  
 **Audiencia:** Todos (usuarios, devs, admins)  
 **Secciones:**
+
 - ✅ Introducción y características
 - ✅ Acceso y navegación
 - ✅ 8 componentes explicados en detalle
@@ -94,6 +100,7 @@ Incluye:
 **Tipo:** Arquitectura Técnica + Mermaid Diagrams  
 **Audiencia:** Desarrolladores, Arquitectos, Tech Leads  
 **Secciones:**
+
 - ✅ Diagrama general de 4 capas (Frontend, API, Services, Data)
 - ✅ Flujos de datos: Lectura, Acción, Dry-Run, Auditoría
 - ✅ Mapa de componentes (9 Vue + 1 Controller)
@@ -111,6 +118,7 @@ Incluye:
 **Tipo:** API Documentation (OpenAPI-style)  
 **Audiencia:** Desarrolladores, Integradores  
 **Secciones:**
+
 - ✅ 8 endpoints documentados (Phase 1 + Phase 2)
 - ✅ Request/Response examples para cada uno
 - ✅ Parámetros query, body, headers
@@ -128,6 +136,7 @@ Incluye:
 **Tipo:** Troubleshooting + FAQ  
 **Audiencia:** Usuarios, Admins, Soporte Técnico  
 **Secciones:**
+
 - ✅ 4 Problemas críticos (no carga, access denied, scheduler, notificaciones)
 - ✅ 5 Problemas comunes (datos null, transiciones stuck, etc.)
 - ✅ 5 Casos de uso (solucionador rápido)
@@ -194,17 +203,17 @@ Incluye:
 
 ## 📊 Estadísticas de la Documentación
 
-| Métrica | Valor |
-|---------|-------|
-| **Documentos** | 4 archivos MD |
-| **Palabras totales** | ~15,000 |
-| **Secciones** | 50+ |
-| **Diagramas Mermaid** | 20+ |
-| **Ejemplos de código** | 30+ |
-| **Endpoints documentados** | 8 |
-| **Componentes explicados** | 9 |
-| **Casos de uso** | 10+ |
-| **Problemas cubiertos** | 20+ |
+| Métrica                    | Valor         |
+| -------------------------- | ------------- |
+| **Documentos**             | 4 archivos MD |
+| **Palabras totales**       | ~15,000       |
+| **Secciones**              | 50+           |
+| **Diagramas Mermaid**      | 20+           |
+| **Ejemplos de código**     | 30+           |
+| **Endpoints documentados** | 8             |
+| **Componentes explicados** | 9             |
+| **Casos de uso**           | 10+           |
+| **Problemas cubiertos**    | 20+           |
 
 ---
 
@@ -213,25 +222,27 @@ Incluye:
 ### Para Empezar (5 minutos)
 
 1. **Acceso:**
-   ```
-   1. Ve a /controlcenter
-   2. Busca tarjeta "Verification Hub"
-   3. Click
-   ```
+
+    ```
+    1. Ve a /controlcenter
+    2. Busca tarjeta "Verification Hub"
+    3. Click
+    ```
 
 2. **Exploración:**
-   ```
-   1. Tab Overview → Mira scheduler status
-   2. Tab Notifications → Revisa alertas
-   3. Tab Configuration → Configura canales
-   ```
+
+    ```
+    1. Tab Overview → Mira scheduler status
+    2. Tab Notifications → Revisa alertas
+    3. Tab Configuration → Configura canales
+    ```
 
 3. **Primeras Acciones:**
-   ```
-   1. Enable un canal (Slack o Email)
-   2. Click [Test]
-   3. Verifica funcionamiento
-   ```
+    ```
+    1. Enable un canal (Slack o Email)
+    2. Click [Test]
+    3. Verifica funcionamiento
+    ```
 
 ### Para Setup (20 minutos)
 
@@ -250,6 +261,7 @@ Incluye:
 ### 👤 Usuario Final (No-technical)
 
 **Flujo recomendado:**
+
 ```
 1. Comienza: VERIFICATION_HUB_GUIDE.md (Introduction + Components)
 2. Setup: VERIFICATION_HUB_GUIDE.md (Getting Started)
@@ -263,6 +275,7 @@ Incluye:
 ### 👨‍💻 Desarrollador Frontend
 
 **Flujo recomendado:**
+
 ```
 1. Comienza: VERIFICATION_HUB_ARCHITECTURE.md (System Overview)
 2. Componentes: VERIFICATION_HUB_GUIDE.md (Components Section)
@@ -277,6 +290,7 @@ Incluye:
 ### 👨‍💼 Backend Developer
 
 **Flujo recomendado:**
+
 ```
 1. Comienza: VERIFICATION_HUB_ARCHITECTURE.md (Backend Layer)
 2. Endpoints: VERIFICATION_HUB_API_REFERENCE.md (todos los 8)
@@ -291,6 +305,7 @@ Incluye:
 ### 🏗️ Arquitecto / Tech Lead
 
 **Flujo recomendado:**
+
 ```
 1. Overview: VERIFICATION_HUB_ARCHITECTURE.md (General Diagram)
 2. Security: VERIFICATION_HUB_ARCHITECTURE.md (Security Architecture)
@@ -305,6 +320,7 @@ Incluye:
 ### 🆘 Tech Support
 
 **Flujo recomendado:**
+
 ```
 1. Referencia rápida: VERIFICATION_HUB_TROUBLESHOOTING.md
    - Problemas Críticos (first line support)
@@ -322,32 +338,40 @@ Incluye:
 ### Conceptos Core
 
 **1. Phases (4 fases de transición)**
+
 ```
 Silent → Flagging → Reject → Tuning
 ```
+
 [Leer más en GUIDE→Casos de Uso]
 
 **2. Metrics (4 métricas evaluadas)**
+
 ```
 - Confidence (≥90%)
 - Error Rate (≤40%)
 - Retry Rate (≤20%)
 - Sample Size (≥100)
 ```
+
 [Leer más en GUIDE→TransitionReadiness]
 
 **3. Multi-tenant Scope**
+
 ```
 Todos los datos filtrados por organization_id
 Previene cross-tenant data leakage
 ```
+
 [Leer más en ARCHITECTURE→Multi-Tenant Scoping]
 
 **4. Real-time Notifications**
+
 ```
 Multi-channel: Slack, Email, Database, Logs
 Trigger: Phase transitions, Configuration changes
 ```
+
 [Leer más en GUIDE→ChannelConfig]
 
 ---
@@ -359,9 +383,9 @@ Trigger: Phase transitions, Configuration changes
 1. **Busca en:** [FAQ Completo](VERIFICATION_HUB_TROUBLESHOOTING.md#-faq)
 2. **Si no:** Busca en [Problemas Comunes](VERIFICATION_HUB_TROUBLESHOOTING.md#-problemas-comunes)
 3. **Si sigue no:** Contacta con:
-   - **Slack:** #tech-support
-   - **Email:** support@company.com
-   - **GitHub:** Issues
+    - **Slack:** #tech-support
+    - **Email:** support@company.com
+    - **GitHub:** Issues
 
 ### Encontré un bug en la documentación
 
@@ -396,7 +420,7 @@ Trigger: Phase transitions, Configuration changes
 ✅ **30+ ejemplos código**  
 ✅ **8 endpoints** documentados  
 ✅ **9 componentes** explicados  
-✅ **20+ problemas** cubiertos  
+✅ **20+ problemas** cubiertos
 
 **Ahora:**
 
@@ -411,6 +435,6 @@ Trigger: Phase transitions, Configuration changes
 
 ---
 
-*Documentación mantenida por: DevTeam Stratos*  
-*Última actualización: 24.03.2026*  
-*Versión: 1.0.0*
+_Documentación mantenida por: DevTeam Stratos_  
+_Última actualización: 24.03.2026_  
+_Versión: 1.0.0_

@@ -8,14 +8,14 @@ The Advanced Dashboards suite provides comprehensive real-time analytics and ins
 
 ### Dashboard Stack
 
-| Dashboard | Purpose | Key Metrics | Refresh Rate | Users |
-|-----------|---------|-------------|--------------|-------|
-| **Executive** | C-Level overview | KPIs, transitions, health | 30s | Admins |
-| **Operational** | System operations | Status, alerts, events | 15s | Operators |
-| **Compliance** | Audit & compliance | Scores, history, trends | 60s | Auditors |
-| **Performance** | Latency & throughput | P50/P95/P99, capacity | 60s | DevOps |
-| **Insights** | AI analysis | Recommendations, forecasts | 60s | Analysts |
-| **Real-time Monitor** | Live event stream | Events, transactions, logs | 5-10s | Operators |
+| Dashboard             | Purpose              | Key Metrics                | Refresh Rate | Users     |
+| --------------------- | -------------------- | -------------------------- | ------------ | --------- |
+| **Executive**         | C-Level overview     | KPIs, transitions, health  | 30s          | Admins    |
+| **Operational**       | System operations    | Status, alerts, events     | 15s          | Operators |
+| **Compliance**        | Audit & compliance   | Scores, history, trends    | 60s          | Auditors  |
+| **Performance**       | Latency & throughput | P50/P95/P99, capacity      | 60s          | DevOps    |
+| **Insights**          | AI analysis          | Recommendations, forecasts | 60s          | Analysts  |
+| **Real-time Monitor** | Live event stream    | Events, transactions, logs | 5-10s        | Operators |
 
 ---
 
@@ -24,11 +24,13 @@ The Advanced Dashboards suite provides comprehensive real-time analytics and ins
 ### Composable-Based State Management
 
 All dashboards share a single composable: `useVerificationDashboard()` located at:
+
 ```
 resources/js/composables/useVerificationDashboard.ts
 ```
 
 **Features:**
+
 - Centralized metrics state
 - Auto-polling with configurable intervals (15-60s)
 - Real-time event subscription
@@ -38,6 +40,7 @@ resources/js/composables/useVerificationDashboard.ts
 - Export functionality (JSON, CSV, PDF)
 
 **Methods:**
+
 ```typescript
 // Fetching
 fetchMetrics(): Promise<void>
@@ -60,6 +63,7 @@ recentAlerts: ComputedRef<RealtimeEvent[]>
 ### API Layer
 
 Located at:
+
 ```
 app/Http/Controllers/Deployment/VerificationDashboardController.php
 ```
@@ -75,16 +79,17 @@ GET /api/deployment/verification/export-metrics?format={json|csv}
 ```
 
 **Response Format (Metrics):**
+
 ```json
 {
-  "currentPhase": "tuning",
-  "confidenceScore": 92,
-  "errorRate": 28,
-  "retryRate": 16,
-  "sampleSize": 540,
-  "transitionReadiness": 94,
-  "lastUpdated": "2025-01-27T14:32:00Z",
-  "timestamp": "2025-01-27T14:32:15Z"
+    "currentPhase": "tuning",
+    "confidenceScore": 92,
+    "errorRate": 28,
+    "retryRate": 16,
+    "sampleSize": 540,
+    "transitionReadiness": 94,
+    "lastUpdated": "2025-01-27T14:32:00Z",
+    "timestamp": "2025-01-27T14:32:15Z"
 }
 ```
 
@@ -93,14 +98,16 @@ GET /api/deployment/verification/export-metrics?format={json|csv}
 ## 📈 Dashboard Details
 
 ### 1️⃣ Executive Dashboard
+
 **Path**: `/deployment/verification/dashboard/executive`
 
 **Components:**
+
 - 4 KPI Cards
-  - Current Phase
-  - Confidence Score (%)
-  - Error Rate (%)
-  - Compliance Score (%)
+    - Current Phase
+    - Confidence Score (%)
+    - Error Rate (%)
+    - Compliance Score (%)
 - 7-day Transitions Chart (ApexCharts Area)
 - System Health Progress Bars
 - Recent Transitions List (last 5)
@@ -108,6 +115,7 @@ GET /api/deployment/verification/export-metrics?format={json|csv}
 - Export to PDF Button
 
 **Use Cases:**
+
 - Executive briefings
 - Board-level reporting
 - Phase transition planning
@@ -116,27 +124,30 @@ GET /api/deployment/verification/export-metrics?format={json|csv}
 **Data Refresh**: 30 seconds
 
 ### 2️⃣ Operational Dashboard
+
 **Path**: `/deployment/verification/dashboard/operational`
 
 **Components:**
+
 - Status Indicator Grid
-  - Phase indicator
-  - Confidence gauge
-  - Error rate alert
+    - Phase indicator
+    - Confidence gauge
+    - Error rate alert
 - Recent Alerts Section
-  - Live pulse indicator
-  - Severity color coding
-  - Last 10 alerts
+    - Live pulse indicator
+    - Severity color coding
+    - Last 10 alerts
 - Live Events Stream
-  - Real-time transaction log
-  - Type filtering (transitions, alerts, config, notifications)
-  - 100-event buffer
+    - Real-time transaction log
+    - Type filtering (transitions, alerts, config, notifications)
+    - 100-event buffer
 - Transition Readiness
-  - Blockers list
-  - Recommendation cards
-  - Action buttons
+    - Blockers list
+    - Recommendation cards
+    - Action buttons
 
 **Use Cases:**
+
 - Live system monitoring
 - Incident response
 - Issue investigation
@@ -145,27 +156,30 @@ GET /api/deployment/verification/export-metrics?format={json|csv}
 **Data Refresh**: 15 seconds (most frequent)
 
 ### 3️⃣ Compliance Dashboard
+
 **Path**: `/deployment/verification/dashboard/compliance`
 
 **Components:**
+
 - Compliance Score Card (large)
-  - Current score (e.g., 94%)
-  - Trend indicator (↑/↓/→)
-  - Change percentage
+    - Current score (e.g., 94%)
+    - Trend indicator (↑/↓/→)
+    - Change percentage
 - Passed Tests Indicator
-  - 12/12 passed (example)
-  - Percentage badge
+    - 12/12 passed (example)
+    - Percentage badge
 - 6-Month Trend Line Chart (ApexCharts)
-  - Historical compliance scores
-  - Smooth curves
-  - Gradient fill
+    - Historical compliance scores
+    - Smooth curves
+    - Gradient fill
 - Audit History List
-  - 3 most recent audits
-  - Status badge (passed/failed/pending)
-  - Date & score
-  - Export Report Button
+    - 3 most recent audits
+    - Status badge (passed/failed/pending)
+    - Date & score
+    - Export Report Button
 
 **Use Cases:**
+
 - Audit compliance reporting
 - Regulatory reviews
 - Trend analysis
@@ -174,34 +188,37 @@ GET /api/deployment/verification/export-metrics?format={json|csv}
 **Data Refresh**: 60 seconds
 
 ### 4️⃣ Performance Dashboard
+
 **Path**: `/deployment/verification/dashboard/performance`
 
 **Components:**
+
 - Latency KPIs (4 cards)
-  - Average Latency (ms)
-  - P50 Latency
-  - P95 Latency (yellow warning at >500ms)
-  - P99 Latency (red alert at >1000ms)
+    - Average Latency (ms)
+    - P50 Latency
+    - P95 Latency (yellow warning at >500ms)
+    - P99 Latency (red alert at >1000ms)
 - Throughput KPIs (2 cards)
-  - Current Throughput (req/s)
-  - Average Throughput (24h)
+    - Current Throughput (req/s)
+    - Average Throughput (24h)
 - Latency Trend Chart (24h)
-  - Multi-line chart (avg, p50, p95, p99)
-  - ApexCharts Line
-  - Dark theme
+    - Multi-line chart (avg, p50, p95, p99)
+    - ApexCharts Line
+    - Dark theme
 - Request Distribution Donut Chart
-  - Successful (60%)
-  - Retry (25%)
-  - Error (10%)
-  - Timeout (5%)
+    - Successful (60%)
+    - Retry (25%)
+    - Error (10%)
+    - Timeout (5%)
 - Throughput Trend Chart (24h)
-  - ApexCharts Area
-  - Gradient fill
+    - ApexCharts Area
+    - Gradient fill
 - Performance Summary
-  - Status badges (Optimal/Acceptable/Degraded)
-  - Health metrics
+    - Status badges (Optimal/Acceptable/Degraded)
+    - Health metrics
 
 **Use Cases:**
+
 - Performance optimization
 - Capacity planning
 - SLA monitoring
@@ -210,41 +227,44 @@ GET /api/deployment/verification/export-metrics?format={json|csv}
 **Data Refresh**: 60 seconds
 
 ### 5️⃣ Insights Dashboard
+
 **Path**: `/deployment/verification/dashboard/insights`
 
 **Components:**
+
 - Key Insights (4 cards)
-  - Recommendation: Optimize Retry Strategy
-  - Anomaly: Unusual Error Spike
-  - Prediction: Forecast Phase Transition
-  - Optimization: Sample Size
+    - Recommendation: Optimize Retry Strategy
+    - Anomaly: Unusual Error Spike
+    - Prediction: Forecast Phase Transition
+    - Optimization: Sample Size
 - Metric Trends (4 cards)
-  - Confidence Score (target: ≥90%)
-  - Error Rate (target: ≤40%)
-  - Retry Rate (target: ≤20%)
-  - System Health (target: >90%)
-  - Trend indicators (↑/↓ with % change)
+    - Confidence Score (target: ≥90%)
+    - Error Rate (target: ≤40%)
+    - Retry Rate (target: ≤20%)
+    - System Health (target: >90%)
+    - Trend indicators (↑/↓ with % change)
 - AI Recommendations
-  - Dynamic list based on thresholds
-  - Priority levels (critical, high, medium)
-  - Color-coded severity
-  - "Learn more" links
+    - Dynamic list based on thresholds
+    - Priority levels (critical, high, medium)
+    - Color-coded severity
+    - "Learn more" links
 - System Health Score
-  - Circular gauge (92/100)
-  - Status badge (Excellent/Good/Fair/Poor)
-  - Breakdown (Reliability, Performance, Compliance)
+    - Circular gauge (92/100)
+    - Status badge (Excellent/Good/Fair/Poor)
+    - Breakdown (Reliability, Performance, Compliance)
 - Anomaly Timeline (24h)
-  - Event markers
-  - Severity indicators
-  - Duration tracking
-  - Cause analysis
+    - Event markers
+    - Severity indicators
+    - Duration tracking
+    - Cause analysis
 - 24h Forecast
-  - Predicted phase
-  - Expected confidence
-  - Error rate projection
-  - System health forecast
+    - Predicted phase
+    - Expected confidence
+    - Error rate projection
+    - System health forecast
 
 **Use Cases:**
+
 - Predictive analysis
 - Anomaly detection
 - Trend forecasting
@@ -254,31 +274,34 @@ GET /api/deployment/verification/export-metrics?format={json|csv}
 **Data Refresh**: 60 seconds
 
 ### 6️⃣ Real-time Monitor
+
 **Path**: `/deployment/verification/dashboard/realtime`
 
 **Components:**
+
 - Live Status Badge
-  - Green pulse indicator
-  - "LIVE" label
+    - Green pulse indicator
+    - "LIVE" label
 - Event Statistics (5 cards)
-  - Total events
-  - Transitions
-  - Alerts
-  - Config changes
-  - Notifications
+    - Total events
+    - Transitions
+    - Alerts
+    - Config changes
+    - Notifications
 - Event Stream (scrollable)
-  - Max height: calc(100vh - 400px)
-  - Auto-scroll toggle
-  - Event cards with:
-    - Type icon (🔄🎯⚠️⚙️📢)
-    - Event message
-    - Event data (key-value pairs)
-    - Timestamp (formatted + relative)
-    - Severity color coding
+    - Max height: calc(100vh - 400px)
+    - Auto-scroll toggle
+    - Event cards with:
+        - Type icon (🔄🎯⚠️⚙️📢)
+        - Event message
+        - Event data (key-value pairs)
+        - Timestamp (formatted + relative)
+        - Severity color coding
 - System Metrics Footer
-  - Phase, Confidence, Error Rate, Sample Size
+    - Phase, Confidence, Error Rate, Sample Size
 
 **Use Cases:**
+
 - Live operations center
 - Event debugging
 - Real-time anomaly detection
@@ -337,6 +360,7 @@ Table: verification_audits
 ### Configuration
 
 **Polling Intervals** (configurable in composable):
+
 ```typescript
 // Default intervals by dashboard
 ExecutiveDashboard:     30000ms (30s)
@@ -348,15 +372,16 @@ RealtimeMonitor:        10000ms (10s)
 ```
 
 **Thresholds** (soft limits that trigger warnings):
+
 ```json
 {
-  "confidence": { "target": 90, "min": 80 },
-  "errorRate": { "target": 40, "max": 50 },
-  "retryRate": { "target": 20, "max": 25 },
-  "sampleSize": { "target": 100, "min": 50 },
-  "latencyP95": { "target": 500, "warning": 750 },
-  "latencyP99": { "target": 1000, "warning": 1500 },
-  "throughput": { "min": 500 }
+    "confidence": { "target": 90, "min": 80 },
+    "errorRate": { "target": 40, "max": 50 },
+    "retryRate": { "target": 20, "max": 25 },
+    "sampleSize": { "target": 100, "min": 50 },
+    "latencyP95": { "target": 500, "warning": 750 },
+    "latencyP99": { "target": 1000, "warning": 1500 },
+    "throughput": { "min": 500 }
 }
 ```
 
@@ -365,6 +390,7 @@ RealtimeMonitor:        10000ms (10s)
 ## 🔐 Security & Multi-tenancy
 
 All endpoints are protected:
+
 - ✅ Sanctum token authentication
 - ✅ Admin role requirement (via middleware in routes/web.php)
 - ✅ Multi-tenant scoping: `auth()->user()->organization_id`
@@ -372,6 +398,7 @@ All endpoints are protected:
 - ✅ Authorization policies (enforced in controllers)
 
 **Example Scoping** (in VerificationDashboardController):
+
 ```php
 $organizationId = auth()->user()->organization_id;
 $metrics = VerificationAudit::where('organization_id', $organizationId)
@@ -385,14 +412,15 @@ $metrics = VerificationAudit::where('organization_id', $organizationId)
 
 All dashboards are fully responsive:
 
-| Breakpoint | Grid Cols | Behavior |
-|-----------|-----------|----------|
-| Mobile (sm) | 1-2 cols | Stacked cards |
-| Tablet (md) | 2-3 cols | 2-column grid |
-| Desktop (lg) | 3-4 cols | Full grid |
-| Wide (xl) | 4+ cols | Multi-column |
+| Breakpoint   | Grid Cols | Behavior      |
+| ------------ | --------- | ------------- |
+| Mobile (sm)  | 1-2 cols  | Stacked cards |
+| Tablet (md)  | 2-3 cols  | 2-column grid |
+| Desktop (lg) | 3-4 cols  | Full grid     |
+| Wide (xl)    | 4+ cols   | Multi-column  |
 
 **TailwindCSS Classes Used:**
+
 - `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:grid-cols-4`
 - `lg:col-span-2` (for spanning charts)
 - `max-h-[calc(...)]` (for scrollable sections)
@@ -402,17 +430,19 @@ All dashboards are fully responsive:
 ## 🎨 Styling & Theming
 
 **Design System:**
+
 - **Theme**: Dark mode (dark background with glass morphism)
-- **Colors**: 
-  - Primary: Indigo/Purple (500/600)
-  - Success: Green (400/500)
-  - Warning: Yellow (400/500)
-  - Error: Red (400/500)
+- **Colors**:
+    - Primary: Indigo/Purple (500/600)
+    - Success: Green (400/500)
+    - Warning: Yellow (400/500)
+    - Error: Red (400/500)
 - **Backdrop**: `backdrop-blur-xl` (glass effect)
 - **Borders**: `border-white/10` (subtle dividers)
 - **Transparency**: `bg-white/5 to bg-white/20` (layered depth)
 
 **Typography:**
+
 - Headings: `text-white` with `font-bold`
 - Labels: `text-white/70` (muted)
 - Values: `text-white` or `text-{color}-400` (highlighted)
@@ -440,35 +470,36 @@ router.visit('/deployment/verification/dashboard/executive')
 
 ```vue
 <script setup lang="ts">
-import { useVerificationDashboard } from '@/composables/useVerificationDashboard'
+import { useVerificationDashboard } from '@/composables/useVerificationDashboard';
 
-const { metrics, isLoading, fetchMetrics, startPolling } = useVerificationDashboard()
+const { metrics, isLoading, fetchMetrics, startPolling } =
+    useVerificationDashboard();
 
 onMounted(() => {
-  fetchMetrics()
-  startPolling(30000) // 30-second refresh
-})
+    fetchMetrics();
+    startPolling(30000); // 30-second refresh
+});
 </script>
 
 <template>
-  <div v-if="isLoading" class="spinner">Loading...</div>
-  <div v-else class="metrics">
-    <p>Phase: {{ metrics?.currentPhase }}</p>
-    <p>Confidence: {{ metrics?.confidenceScore }}%</p>
-  </div>
+    <div v-if="isLoading" class="spinner">Loading...</div>
+    <div v-else class="metrics">
+        <p>Phase: {{ metrics?.currentPhase }}</p>
+        <p>Confidence: {{ metrics?.confidenceScore }}%</p>
+    </div>
 </template>
 ```
 
 ### Exporting Data
 
 ```typescript
-const { exportMetrics } = useVerificationDashboard()
+const { exportMetrics } = useVerificationDashboard();
 
 // Export as JSON
-await exportMetrics('json')
+await exportMetrics('json');
 
 // Export as CSV
-await exportMetrics('csv')
+await exportMetrics('csv');
 ```
 
 ---
@@ -479,13 +510,13 @@ await exportMetrics('csv')
 
 ```json
 {
-  "currentPhase": "tuning",
-  "confidenceScore": 92,
-  "errorRate": 28,
-  "retryRate": 16,
-  "sampleSize": 540,
-  "transitionReadiness": 94,
-  "lastUpdated": "2025-01-27T14:32:00Z"
+    "currentPhase": "tuning",
+    "confidenceScore": 92,
+    "errorRate": 28,
+    "retryRate": 16,
+    "sampleSize": 540,
+    "transitionReadiness": 94,
+    "lastUpdated": "2025-01-27T14:32:00Z"
 }
 ```
 
@@ -493,18 +524,18 @@ await exportMetrics('csv')
 
 ```json
 {
-  "complianceScore": 94,
-  "passedTests": 12,
-  "totalTests": 12,
-  "trend": 3,
-  "recentAudits": [
-    {
-      "date": "Jan 27, 14:32",
-      "status": "passed",
-      "score": 94,
-      "errorRate": 28
-    }
-  ]
+    "complianceScore": 94,
+    "passedTests": 12,
+    "totalTests": 12,
+    "trend": 3,
+    "recentAudits": [
+        {
+            "date": "Jan 27, 14:32",
+            "status": "passed",
+            "score": 94,
+            "errorRate": 28
+        }
+    ]
 }
 ```
 
@@ -512,14 +543,14 @@ await exportMetrics('csv')
 
 ```json
 [
-  {
-    "timestamp": "2025-01-27T14:00:00Z",
-    "confidenceScore": 88,
-    "errorRate": 35,
-    "retryRate": 20,
-    "throughput": 890,
-    "latency": 342
-  }
+    {
+        "timestamp": "2025-01-27T14:00:00Z",
+        "confidenceScore": 88,
+        "errorRate": 35,
+        "retryRate": 20,
+        "throughput": 890,
+        "latency": 342
+    }
 ]
 ```
 
@@ -527,17 +558,17 @@ await exportMetrics('csv')
 
 ```json
 [
-  {
-    "id": "evt_123",
-    "timestamp": "2025-01-27T14:32:15Z",
-    "type": "transition",
-    "message": "System transitioned to tuning phase",
-    "severity": "info",
-    "data": {
-      "phase": "tuning",
-      "status": "success"
+    {
+        "id": "evt_123",
+        "timestamp": "2025-01-27T14:32:15Z",
+        "type": "transition",
+        "message": "System transitioned to tuning phase",
+        "severity": "info",
+        "data": {
+            "phase": "tuning",
+            "status": "success"
+        }
     }
-  }
 ]
 ```
 
@@ -546,13 +577,15 @@ await exportMetrics('csv')
 ## 🔄 Polling Strategy
 
 **Current Implementation: Client-side polling**
+
 ```typescript
 // In composable
-const polling = setInterval(fetchMetrics, interval)
-onUnmounted(() => clearInterval(polling))
+const polling = setInterval(fetchMetrics, interval);
+onUnmounted(() => clearInterval(polling));
 ```
 
 **Future Enhancements:**
+
 1. **WebSockets** (via Laravel Reverb): Replace polling with real-time subscriptions
 2. **Server-Sent Events (SSE)**: For one-way server-to-client streams
 3. **GraphQL Subscriptions**: More granular data subscriptions
@@ -563,6 +596,7 @@ onUnmounted(() => clearInterval(polling))
 ## 🧪 Testing
 
 ### Unit Tests
+
 ```bash
 # Test composable logic
 php artisan test tests/Unit/Composables/...
@@ -572,12 +606,14 @@ php artisan test tests/Unit/Controllers/...
 ```
 
 ### Feature Tests
+
 ```bash
 # Test full dashboard data flow
 php artisan test tests/Feature/Dashboards/...
 ```
 
 ### Browser Tests (E2E)
+
 ```bash
 # Test user interactions on dashboards
 php artisan test --browser tests/Browser/DashboardsTest.php
@@ -590,39 +626,43 @@ php artisan test --browser tests/Browser/DashboardsTest.php
 ### Adding a New Metric
 
 1. **Update the composable** (`useVerificationDashboard.ts`):
-   ```typescript
-   interface DashboardMetrics {
-     // ...existing...
-     newMetric: number
-   }
-   ```
+
+    ```typescript
+    interface DashboardMetrics {
+        // ...existing...
+        newMetric: number;
+    }
+    ```
 
 2. **Update the API** (`VerificationDashboardController.php`):
-   ```php
-   public function metrics(): JsonResponse {
-     return response()->json([
-       // ...existing...
-       'newMetric' => $calculated_value,
-     ]);
-   }
-   ```
+
+    ```php
+    public function metrics(): JsonResponse {
+      return response()->json([
+        // ...existing...
+        'newMetric' => $calculated_value,
+      ]);
+    }
+    ```
 
 3. **Update the dashboard components** that use the metric:
-   ```vue
-   <p>New Metric: {{ metrics.newMetric }}</p>
-   ```
+    ```vue
+    <p>New Metric: {{ metrics.newMetric }}</p>
+    ```
 
 ### Changing Refresh Intervals
 
 Edit the composable's `startPolling()` calls in each dashboard:
+
 ```typescript
 // In each dashboard's onMounted()
-unsubscribe = startPolling(120000) // 120 seconds instead of 60
+unsubscribe = startPolling(120000); // 120 seconds instead of 60
 ```
 
 ### Customizing Colors & Styling
 
 Edit TailwindCSS classes in dashboard components:
+
 ```vue
 <!-- Change from indigo to green -->
 <div class="bg-green-500/20 text-green-300">
@@ -659,6 +699,7 @@ Edit TailwindCSS classes in dashboard components:
 
 **Problem**: Blank page or 404 error
 **Solution**:
+
 1. Verify route exists: `php artisan route:list | grep verification`
 2. Check authentication: Ensure you're logged in as admin
 3. Verify Inertia setup: Check `config/inertia.php`
@@ -667,6 +708,7 @@ Edit TailwindCSS classes in dashboard components:
 
 **Problem**: API responds with 401 status
 **Solution**:
+
 1. Verify Sanctum token: Check `Authorization` header
 2. Check role: `User::find(1)->checkPermissionTo('admin')`
 3. Review middleware in routes/web.php
@@ -675,6 +717,7 @@ Edit TailwindCSS classes in dashboard components:
 
 **Problem**: Blank chart areas
 **Solution**:
+
 1. Verify VueApexCharts installed: `npm list vue3-apexcharts`
 2. Check data format: Ensure `timestamp` is ISO8601 string
 3. Review browser console for errors: `F12` → Console tab
@@ -683,6 +726,7 @@ Edit TailwindCSS classes in dashboard components:
 
 **Problem**: Dashboards slow to load or update
 **Solution**:
+
 1. Reduce polling interval (but watch API load)
 2. Implement pagination for large datasets
 3. Use lazy loading for charts
@@ -692,6 +736,7 @@ Edit TailwindCSS classes in dashboard components:
 
 **Problem**: Metrics show 0 or null
 **Solution**:
+
 1. Verify database has records: `select * from verification_audits`
 2. Check org_id filtering: Ensure user's org has data
 3. Review API response: Check `/api/deployment/verification/metrics` in Postman
@@ -737,6 +782,7 @@ Edit TailwindCSS classes in dashboard components:
 ## 🙋 Support
 
 For questions or issues:
+
 1. Check this guide first
 2. Review code comments in components
 3. Check Laravel Boost MCP for framework guidance

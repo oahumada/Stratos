@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useVerificationDashboard } from '@/composables/useVerificationDashboard'
-import { computed, onMounted, onUnmounted } from 'vue'
-import VueApexCharts from 'vue3-apexcharts'
+import { useVerificationDashboard } from '@/composables/useVerificationDashboard';
+import { computed, onMounted, onUnmounted } from 'vue';
+import VueApexCharts from 'vue3-apexcharts';
 
 defineOptions({
     name: 'PerformanceDashboard',
     components: { VueApexCharts },
-})
+});
 
 const {
     metrics,
@@ -15,19 +15,19 @@ const {
     fetchMetrics,
     fetchMetricsHistory,
     startPolling,
-} = useVerificationDashboard()
+} = useVerificationDashboard();
 
-let unsubscribe: (() => void) | null = null
+let unsubscribe: (() => void) | null = null;
 
 onMounted(() => {
-    fetchMetrics()
-    fetchMetricsHistory(24)
-    unsubscribe = startPolling(60000) // 1 minute refresh for performance metrics
-})
+    fetchMetrics();
+    fetchMetricsHistory(24);
+    unsubscribe = startPolling(60000); // 1 minute refresh for performance metrics
+});
 
 onUnmounted(() => {
-    unsubscribe?.()
-})
+    unsubscribe?.();
+});
 
 // Compute performance metrics
 const performanceMetrics = computed(() => {
@@ -39,26 +39,29 @@ const performanceMetrics = computed(() => {
             p99Latency: 0,
             throughput: 0,
             avgThroughput: 0,
-        }
+        };
     }
 
     const latencies = metricsHistory.value
-        .map(m => m.latency || 0)
-        .filter(l => l > 0)
-        .sort((a, b) => a - b)
+        .map((m) => m.latency || 0)
+        .filter((l) => l > 0)
+        .sort((a, b) => a - b);
 
-    const throughputs = metricsHistory.value
-        .map(m => m.throughput || 0)
+    const throughputs = metricsHistory.value.map((m) => m.throughput || 0);
 
     return {
-        avgLatency: Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length),
+        avgLatency: Math.round(
+            latencies.reduce((a, b) => a + b, 0) / latencies.length,
+        ),
         p50Latency: latencies[Math.floor(latencies.length * 0.5)],
         p95Latency: latencies[Math.floor(latencies.length * 0.95)],
         p99Latency: latencies[Math.floor(latencies.length * 0.99)],
         throughput: throughputs[throughputs.length - 1],
-        avgThroughput: Math.round(throughputs.reduce((a, b) => a + b, 0) / throughputs.length),
-    }
-})
+        avgThroughput: Math.round(
+            throughputs.reduce((a, b) => a + b, 0) / throughputs.length,
+        ),
+    };
+});
 
 // Latency chart data
 const latencyChartOptions = computed(() => ({
@@ -98,17 +101,17 @@ const latencyChartOptions = computed(() => ({
     tooltip: {
         theme: 'dark',
     },
-}))
+}));
 
 const latencyChartSeries = computed(() => [
     {
         name: 'Average Latency (ms)',
-        data: metricsHistory.value.map(m => ({
+        data: metricsHistory.value.map((m) => ({
             x: new Date(m.timestamp).getTime(),
             y: m.latency || 0,
         })),
     },
-])
+]);
 
 // Throughput chart data
 const throughputChartOptions = computed(() => ({
@@ -156,17 +159,17 @@ const throughputChartOptions = computed(() => ({
     tooltip: {
         theme: 'dark',
     },
-}))
+}));
 
 const throughputChartSeries = computed(() => [
     {
         name: 'Throughput (req/s)',
-        data: metricsHistory.value.map(m => ({
+        data: metricsHistory.value.map((m) => ({
             x: new Date(m.timestamp).getTime(),
             y: m.throughput || 0,
         })),
     },
-])
+]);
 
 // Request distribution data
 const requestDistributionOptions = computed(() => ({
@@ -191,28 +194,34 @@ const requestDistributionOptions = computed(() => ({
     tooltip: {
         theme: 'dark',
     },
-}))
+}));
 
 const requestDistributionSeries = computed(() => [
     parseInt(String(performanceMetrics.value.throughput * 0.6)),
     parseInt(String(performanceMetrics.value.throughput * 0.25)),
     parseInt(String(performanceMetrics.value.throughput * 0.1)),
     parseInt(String(performanceMetrics.value.throughput * 0.05)),
-])
+]);
 </script>
 
 <template>
-    <div class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8">
+    <div
+        class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8"
+    >
         <!-- Header -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-white">Performance Analytics</h1>
-            <p class="mt-2 text-sm text-white/50">Latency, throughput & capacity metrics</p>
+            <p class="mt-2 text-sm text-white/50">
+                Latency, throughput & capacity metrics
+            </p>
         </div>
 
         <!-- Latency KPIs -->
         <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <!-- Average Latency -->
-            <div class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <div
+                class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
+            >
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-white/70">Average Latency</p>
@@ -227,7 +236,9 @@ const requestDistributionSeries = computed(() => [
             </div>
 
             <!-- P50 Latency -->
-            <div class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <div
+                class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
+            >
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-white/70">P50 Latency</p>
@@ -242,7 +253,9 @@ const requestDistributionSeries = computed(() => [
             </div>
 
             <!-- P95 Latency -->
-            <div class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <div
+                class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
+            >
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-white/70">P95 Latency</p>
@@ -257,7 +270,9 @@ const requestDistributionSeries = computed(() => [
             </div>
 
             <!-- P99 Latency -->
-            <div class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <div
+                class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
+            >
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-white/70">P99 Latency</p>
@@ -275,7 +290,9 @@ const requestDistributionSeries = computed(() => [
         <!-- Throughput KPIs -->
         <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <!-- Current Throughput -->
-            <div class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <div
+                class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
+            >
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-white/70">Current Throughput</p>
@@ -290,7 +307,9 @@ const requestDistributionSeries = computed(() => [
             </div>
 
             <!-- Average Throughput -->
-            <div class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <div
+                class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
+            >
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-white/70">Average Throughput</p>
@@ -308,8 +327,12 @@ const requestDistributionSeries = computed(() => [
         <!-- Charts Grid -->
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
             <!-- Latency Trend -->
-            <div class="lg:col-span-2 rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-                <h2 class="mb-4 text-lg font-semibold text-white">Latency Trend (24h)</h2>
+            <div
+                class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl lg:col-span-2"
+            >
+                <h2 class="mb-4 text-lg font-semibold text-white">
+                    Latency Trend (24h)
+                </h2>
                 <div v-if="latencyChartSeries[0].data.length > 0" class="-mx-4">
                     <VueApexCharts
                         type="line"
@@ -324,8 +347,12 @@ const requestDistributionSeries = computed(() => [
             </div>
 
             <!-- Request Distribution -->
-            <div class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-                <h2 class="mb-4 text-lg font-semibold text-white">Request Distribution</h2>
+            <div
+                class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
+            >
+                <h2 class="mb-4 text-lg font-semibold text-white">
+                    Request Distribution
+                </h2>
                 <VueApexCharts
                     type="donut"
                     :options="requestDistributionOptions"
@@ -333,17 +360,33 @@ const requestDistributionSeries = computed(() => [
                     height="300"
                 />
                 <div class="mt-4 space-y-2 text-xs text-white/70">
-                    <p>🔵 Successful: {{ (performanceMetrics.throughput * 0.6).toFixed(0) }}</p>
-                    <p>🟣 Retry: {{ (performanceMetrics.throughput * 0.25).toFixed(0) }}</p>
-                    <p>🔴 Error: {{ (performanceMetrics.throughput * 0.1).toFixed(0) }}</p>
-                    <p>⚡ Timeout: {{ (performanceMetrics.throughput * 0.05).toFixed(0) }}</p>
+                    <p>
+                        🔵 Successful:
+                        {{ (performanceMetrics.throughput * 0.6).toFixed(0) }}
+                    </p>
+                    <p>
+                        🟣 Retry:
+                        {{ (performanceMetrics.throughput * 0.25).toFixed(0) }}
+                    </p>
+                    <p>
+                        🔴 Error:
+                        {{ (performanceMetrics.throughput * 0.1).toFixed(0) }}
+                    </p>
+                    <p>
+                        ⚡ Timeout:
+                        {{ (performanceMetrics.throughput * 0.05).toFixed(0) }}
+                    </p>
                 </div>
             </div>
         </div>
 
         <!-- Throughput Chart -->
-        <div class="mt-8 rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-            <h2 class="mb-4 text-lg font-semibold text-white">Throughput Trend (24h)</h2>
+        <div
+            class="mt-8 rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
+        >
+            <h2 class="mb-4 text-lg font-semibold text-white">
+                Throughput Trend (24h)
+            </h2>
             <div v-if="throughputChartSeries[0].data.length > 0" class="-mx-4">
                 <VueApexCharts
                     type="area"
@@ -358,8 +401,12 @@ const requestDistributionSeries = computed(() => [
         </div>
 
         <!-- Performance Summary -->
-        <div class="mt-8 rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-            <h2 class="mb-4 text-lg font-semibold text-white">Performance Summary</h2>
+        <div
+            class="mt-8 rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"
+        >
+            <h2 class="mb-4 text-lg font-semibold text-white">
+                Performance Summary
+            </h2>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div class="space-y-2">
                     <p class="text-sm text-white/70">Latency Status</p>
@@ -403,7 +450,9 @@ const requestDistributionSeries = computed(() => [
                 </div>
                 <div class="space-y-2">
                     <p class="text-sm text-white/70">Capacity Health</p>
-                    <div class="inline-block rounded-lg bg-blue-500/20 px-3 py-1 text-xs font-medium text-blue-300">
+                    <div
+                        class="inline-block rounded-lg bg-blue-500/20 px-3 py-1 text-xs font-medium text-blue-300"
+                    >
                         📊 85% Utilized
                     </div>
                 </div>

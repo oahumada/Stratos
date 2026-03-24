@@ -69,12 +69,14 @@ Phase 10 extends Phase 8 (real-time WebSocket/SSE/Polling) and Phase 9 (AI/ML an
 Maps real-time anomalies and predictions to automation triggers.
 
 **Key Methods:**
+
 - `evaluateAndTrigger(orgId, triggerType)` → Comprehensive state evaluation
 - `triggerFromAnomalies(orgId)` → Latency → Performance investigation
 - `triggerFromPredictions(orgId)` → Capacity saturation → Scaling workflow
 - `manuallyTrigger(orgId, workflowCode, triggerData)` → Developer API
 
 **Trigger Types:**
+
 ```
 anomalies          → Latency spike, health degradation, compliance drift
 predictions        → Capacity saturation, compliance breach
@@ -82,6 +84,7 @@ comprehensive      → All triggers evaluated (default)
 ```
 
 **Workflow Codes:**
+
 ```
 performance_investigation    → Latency/throughput diagnostics
 incident_management          → Ops team notification & incident creation
@@ -100,6 +103,7 @@ custom                       → User-defined externally
 Orchestrates n8n workflow execution via HybridGatewayService.
 
 **Key Methods:**
+
 - `triggerWorkflow(orgId, code, triggerData, async)` → Execute workflow
 - `getExecutionStatus(executionId)` → Poll execution status
 - `cancelExecution(executionId)` → Stop running execution
@@ -107,6 +111,7 @@ Orchestrates n8n workflow execution via HybridGatewayService.
 - `toggleAutomationStatus(orgId, enabled)` → Pause/resume org automations
 
 **Execution Flow:**
+
 ```
 1. Prepare payload (execution_id, organization_id, workflow_code, trigger_data)
 2. Send to n8n via HybridGatewayService.sendToN8n()
@@ -116,6 +121,7 @@ Orchestrates n8n workflow execution via HybridGatewayService.
 ```
 
 **Retry Logic:**
+
 - Max 3 retries with exponential backoff (60s → 120s → 240s)
 - Preserve original trigger data + track retry count
 - Support updated trigger data on manual retry
@@ -127,6 +133,7 @@ Orchestrates n8n workflow execution via HybridGatewayService.
 Manages custom webhooks for outbound event delivery.
 
 **Key Methods:**
+
 - `registerWebhook(org, url, eventFilters, active)` → Create webhook record
 - `updateWebhook(webhook, updates)` → Modify event filters / active status
 - `deleteWebhook(webhook)` → Remove webhook
@@ -135,12 +142,14 @@ Manages custom webhooks for outbound event delivery.
 - `broadcastEvent(orgId, payload)` → Broadcast to all org webhooks
 
 **Security:**
+
 - HMAC-SHA256 signature: `hash_hmac('sha256', json_encode(payload), secret)`
 - Signature sent in `X-Webhook-Signature` header
 - Webhook IDs and org IDs in headers for routing
 - Support verification via: `WebhookRegistryService::verifySignature(signature, payload, secret)`
 
 **Event Filtering:**
+
 ```
 event_filters: ['*']                    // All events
 event_filters: ['anomaly.*']            // Wildcard: anomaly.spike, anomaly.drift
@@ -149,6 +158,7 @@ event_filters: ['anomaly.*', 'performance.*']  // Multiple filters
 ```
 
 **Delivery Strategy:**
+
 1. Check if webhook active
 2. Evaluate event against filters
 3. Generate HMAC signature
@@ -163,21 +173,24 @@ event_filters: ['anomaly.*', 'performance.*']  // Multiple filters
 Automatically executes corrective actions based on anomaly severity.
 
 **Key Methods:**
+
 - `remediateAnomaly(org, anomaly, level)` → Route anomaly to remediation
 - Specific handlers: `handleSpike()`, `handleTrendDeviation()`, `handleHealthDegradation()`, `handleComplianceDrift()`
 
 **Remediation Levels:**
+
 ```
 automatic       → Auto execute low-risk actions (cache clear)
                   Skip compliance/critical items (escalate)
-                  
+
 manual          → Notify ops team, require human review
-                  
+
 escalation      → Management review, incident creation
                   Use for critical/compliance issues
 ```
 
 **Action Types:**
+
 ```
 cache_clear              → Clear application caches (low risk)
 service_restart          → Graceful service restart (medium risk)
@@ -190,6 +203,7 @@ escalate_to_management   → Executive escalation
 ```
 
 **Example Flows:**
+
 ```
 Latency SPIKE + HIGH severity
   → automatic: clear caches → notify via webhook
@@ -212,6 +226,7 @@ Compliance DRIFT (any severity)
 ## API Endpoints (14 Total)
 
 ### Trigger Evaluation
+
 ```
 GET /api/automation/evaluate?trigger_type=comprehensive
   → Evaluate org state → trigger matching workflows
@@ -219,6 +234,7 @@ GET /api/automation/evaluate?trigger_type=comprehensive
 ```
 
 ### Workflow Management
+
 ```
 POST /api/automation/workflows/{code}/trigger
   Request:  { trigger_data: {}, async: true }
@@ -230,6 +246,7 @@ GET /api/automation/workflows/available
 ```
 
 ### Execution Management
+
 ```
 GET /api/automation/executions/{executionId}
   Response: { execution_id, status, workflow_code, n8n_response }
@@ -243,6 +260,7 @@ POST /api/automation/executions/{executionId}/retry
 ```
 
 ### Webhook Management
+
 ```
 GET /api/automation/webhooks
   Response: { webhooks: [{id, url, is_active, health}], count }
@@ -267,6 +285,7 @@ GET /api/automation/webhooks/{webhookId}/stats
 ```
 
 ### Remediation
+
 ```
 POST /api/automation/remediate
   Request:  { anomaly: {...}, level: "automatic|manual|escalation" }
@@ -277,6 +296,7 @@ GET /api/automation/remediation-history?limit=50
 ```
 
 ### Status Management
+
 ```
 GET /api/automation/status
   Response: 200 { automation_enabled: true/false, status: "active|paused" }
@@ -293,6 +313,7 @@ POST /api/automation/status
 ### Example 1: Register Webhook for Anomalies
 
 **Request:**
+
 ```bash
 curl -X POST https://app.example.com/api/automation/webhooks \
   -H "Authorization: Bearer {token}" \
@@ -305,41 +326,43 @@ curl -X POST https://app.example.com/api/automation/webhooks \
 ```
 
 **Response:**
+
 ```json
 {
-  "webhook": {
-    "id": 42,
-    "webhook_url": "https://company-internal.com/alerts/anomalies",
-    "event_filters": ["anomaly.*"],
-    "is_active": true
-  },
-  "signing_secret": "sk_abcd1234efgh5678ijkl9012mnop3456",
-  "message": "Webhook registered. Save the signing_secret in a secure location."
+    "webhook": {
+        "id": 42,
+        "webhook_url": "https://company-internal.com/alerts/anomalies",
+        "event_filters": ["anomaly.*"],
+        "is_active": true
+    },
+    "signing_secret": "sk_abcd1234efgh5678ijkl9012mnop3456",
+    "message": "Webhook registered. Save the signing_secret in a secure location."
 }
 ```
 
 **Save this in your webhook handler:**
+
 ```javascript
 const SIGNING_SECRET = 'sk_abcd1234efgh5678ijkl9012mnop3456';
 
 app.post('/alerts/anomalies', (req, res) => {
-  const signature = req.headers['x-webhook-signature'];
-  const payload = req.body;
+    const signature = req.headers['x-webhook-signature'];
+    const payload = req.body;
 
-  // Verify signature
-  const crypto = require('crypto');
-  const expectedSig = crypto
-    .createHmac('sha256', SIGNING_SECRET)
-    .update(JSON.stringify(payload))
-    .digest('hex');
+    // Verify signature
+    const crypto = require('crypto');
+    const expectedSig = crypto
+        .createHmac('sha256', SIGNING_SECRET)
+        .update(JSON.stringify(payload))
+        .digest('hex');
 
-  if (!crypto.timingSafeEqual(signature, expectedSig)) {
-    return res.status(401).send('Invalid signature');
-  }
+    if (!crypto.timingSafeEqual(signature, expectedSig)) {
+        return res.status(401).send('Invalid signature');
+    }
 
-  // Process event
-  console.log('Anomaly received:', payload);
-  res.send({ status: 'received' });
+    // Process event
+    console.log('Anomaly received:', payload);
+    res.send({ status: 'received' });
 });
 ```
 
@@ -348,6 +371,7 @@ app.post('/alerts/anomalies', (req, res) => {
 ### Example 2: Manually Trigger Performance Investigation
 
 **Request:**
+
 ```bash
 curl -X POST https://app.example.com/api/automation/workflows/performance_investigation/trigger \
   -H "Authorization: Bearer {token}" \
@@ -362,19 +386,21 @@ curl -X POST https://app.example.com/api/automation/workflows/performance_invest
 ```
 
 **Response:**
+
 ```json
 {
-  "execution_id": "org-123:performance_investigation:550e8400-e29b-41d4-a716-446655440000",
-  "workflow_code": "performance_investigation",
-  "status": "triggered",
-  "async": true,
-  "n8n_response": {
-    "executionId": "n8n-exec-id-12345"
-  }
+    "execution_id": "org-123:performance_investigation:550e8400-e29b-41d4-a716-446655440000",
+    "workflow_code": "performance_investigation",
+    "status": "triggered",
+    "async": true,
+    "n8n_response": {
+        "executionId": "n8n-exec-id-12345"
+    }
 }
 ```
 
 **Poll Status:**
+
 ```bash
 curl https://app.example.com/api/automation/executions/org-123:performance_investigation:550e8400-e29b-41d4-a716-446655440000 \
   -H "Authorization: Bearer {token}"
@@ -394,6 +420,7 @@ curl https://app.example.com/api/automation/executions/org-123:performance_inves
 ### Example 3: Automatic Remediation
 
 **Request:**
+
 ```bash
 curl -X POST https://app.example.com/api/automation/remediate \
   -H "Authorization: Bearer {token}" \
@@ -411,34 +438,35 @@ curl -X POST https://app.example.com/api/automation/remediate \
 ```
 
 **Response:**
+
 ```json
 {
-  "anomaly_type": "SPIKE",
-  "organization_id": "org-123",
-  "level": "automatic",
-  "actions": [
-    {
-      "type": "cache_clear",
-      "status": "executed",
-      "tags_cleared": ["verification", "metrics"]
-    },
-    {
-      "type": "webhook_broadcast",
-      "status": "executed",
-      "message": "Notified all registered webhooks"
-    },
-    {
-      "type": "notify_ops",
-      "status": "notified",
-      "channels": ["slack", "email"]
-    },
-    {
-      "type": "create_incident",
-      "status": "created",
-      "incident_title": "Anomaly Detected: SPIKE"
-    }
-  ],
-  "executed_at": "2024-01-15T10:35:00Z"
+    "anomaly_type": "SPIKE",
+    "organization_id": "org-123",
+    "level": "automatic",
+    "actions": [
+        {
+            "type": "cache_clear",
+            "status": "executed",
+            "tags_cleared": ["verification", "metrics"]
+        },
+        {
+            "type": "webhook_broadcast",
+            "status": "executed",
+            "message": "Notified all registered webhooks"
+        },
+        {
+            "type": "notify_ops",
+            "status": "notified",
+            "channels": ["slack", "email"]
+        },
+        {
+            "type": "create_incident",
+            "status": "created",
+            "incident_title": "Anomaly Detected: SPIKE"
+        }
+    ],
+    "executed_at": "2024-01-15T10:35:00Z"
 }
 ```
 
@@ -462,7 +490,7 @@ CREATE TABLE webhook_registry (
   metadata              JSON,
   created_at            TIMESTAMP,
   updated_at            TIMESTAMP,
-  
+
   FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
   INDEX (organization_id, is_active),
   INDEX (created_at DESC)
@@ -485,7 +513,7 @@ CREATE TABLE automation_audit (
   execution_time_ms     INT,
   created_by_user_id    BIGINT NULL,
   created_at            TIMESTAMP,
-  
+
   FOREIGN KEY (organization_id) REFERENCES organizations(id),
   FOREIGN KEY (created_by_user_id) REFERENCES users(id),
   INDEX (organization_id, created_at DESC),
@@ -498,6 +526,7 @@ CREATE TABLE automation_audit (
 ## Configuration
 
 Add to `.env`:
+
 ```ini
 # n8n Integration (already configured in Phase 8)
 N8N_WEBHOOK_URL=https://n8n.example.com/api
@@ -527,6 +556,7 @@ php artisan test tests/Feature/Api/AutomationTest.php --filter "can_register_web
 ```
 
 **Test Coverage:**
+
 - ✅ Trigger evaluation (anomalies, predictions, comprehensive)
 - ✅ Workflow triggering & polling
 - ✅ Webhook registration & management
@@ -555,15 +585,16 @@ php artisan test tests/Feature/Api/AutomationTest.php --filter "can_register_web
 
 ## Performance Considerations
 
-| Operation | Complexity | Estimated Time |
-|-----------|-----------|-----------------|
-| Evaluate triggers | O(n) on audit count | 2-5s for 1M records |
-| Trigger workflow | O(1) HTTP call | 200-500ms |
-| Deliver webhook | O(1) per webhook | 100-300ms per delivery |
-| Remediate anomaly | O(1) routing + actions | 50-200ms |
-| Query webhook stats | O(1) cache lookup | <50ms |
+| Operation           | Complexity             | Estimated Time         |
+| ------------------- | ---------------------- | ---------------------- |
+| Evaluate triggers   | O(n) on audit count    | 2-5s for 1M records    |
+| Trigger workflow    | O(1) HTTP call         | 200-500ms              |
+| Deliver webhook     | O(1) per webhook       | 100-300ms per delivery |
+| Remediate anomaly   | O(1) routing + actions | 50-200ms               |
+| Query webhook stats | O(1) cache lookup      | <50ms                  |
 
 **Optimization Tips:**
+
 - Cache execution status for 24h (Redis)
 - Batch webhook broadcasts (group events, deliver once/minute)
 - Use queue jobs for retry logic (defer exponential backoff)
@@ -578,6 +609,7 @@ php artisan test tests/Feature/Api/AutomationTest.php --filter "can_register_web
 **Problem:** EventTriggerService.evaluate() returns empty workflows
 
 **Solutions:**
+
 1. Verify anomalies detected: `GET /api/analytics/anomalies`
 2. Check automation enabled: `GET /api/automation/status`
 3. Review trigger thresholds in EventTriggerService (Z-score, trend %)
@@ -588,6 +620,7 @@ php artisan test tests/Feature/Api/AutomationTest.php --filter "can_register_web
 **Problem:** Webhook status shows "failed", failure_count increasing
 
 **Solutions:**
+
 1. Test with `POST /api/automation/webhooks/{id}/test`
 2. Verify webhook URL is accessible: `curl -v https://your-url/webhook`
 3. Check signature verification on receiver
@@ -599,6 +632,7 @@ php artisan test tests/Feature/Api/AutomationTest.php --filter "can_register_web
 **Problem:** RemediationService.remediateAnomaly() returns empty actions
 
 **Solutions:**
+
 1. Verify anomaly.type is in handled types (SPIKE, TREND_DEVIATION, etc.)
 2. Check remediation level (automatic vs. escalation) and severity
 3. Verify compliance rules don't prevent automatic execution
@@ -609,16 +643,19 @@ php artisan test tests/Feature/Api/AutomationTest.php --filter "can_register_web
 ## Integration with Phase 8 & Phase 9
 
 **Phase 8 → Phase 10:**
+
 - Real-time WebSocket events trigger EventTriggerService.evaluate()
 - SSE pushes automation execution status to frontend
 - Polling fallback for webhook test results
 
 **Phase 9 → Phase 10:**
+
 - Anomalies → Automatic remediation triggers
 - Predictions → Proactive workflow invocations
 - Recommendations → Can execute with approval gate
 
 **Sequence:**
+
 ```
 1. Phase 8: Real-time event stream
 2. Phase 9: Analytics detect anomaly
@@ -634,6 +671,7 @@ php artisan test tests/Feature/Api/AutomationTest.php --filter "can_register_web
 ## Next Phase: Phase 11 (Mobile-First Support)
 
 Phase 11 will extend automation to mobile notifications:
+
 - Push notifications for critical alerts
 - Mobile approval flows for manual escalations
 - Offline queue for mobile webhook creation

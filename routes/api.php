@@ -1334,6 +1334,30 @@ Route::middleware('auth:sanctum')->prefix('automation')->group(function () {
     Route::post('/status', [\App\Http\Controllers\Api\AutomationController::class, 'toggleAutomationStatus'])->name('automation.toggle-status');
 });
 
+// ── Mobile-First Support (Phase 11) ──
+// Device token registration & management
+Route::prefix('/mobile')
+    ->middleware('auth:sanctum')
+    ->group(function () {
+        // Device management
+        Route::post('/register-device', [\App\Http\Controllers\Api\MobileController::class, 'registerDevice'])->name('mobile.register-device');
+        Route::get('/devices', [\App\Http\Controllers\Api\MobileController::class, 'getDevices'])->name('mobile.get-devices');
+        Route::delete('/devices/{deviceId}', [\App\Http\Controllers\Api\MobileController::class, 'deactivateDevice'])->name('mobile.deactivate-device');
+
+        // Approval workflows
+        Route::get('/approvals', [\App\Http\Controllers\Api\MobileController::class, 'getPendingApprovals'])->name('mobile.get-approvals');
+        Route::post('/approvals/{approvalId}/approve', [\App\Http\Controllers\Api\MobileController::class, 'approveRequest'])->name('mobile.approve-request');
+        Route::post('/approvals/{approvalId}/reject', [\App\Http\Controllers\Api\MobileController::class, 'rejectRequest'])->name('mobile.reject-request');
+        Route::get('/approvals/history', [\App\Http\Controllers\Api\MobileController::class, 'getApprovalHistory'])->name('mobile.approval-history');
+
+        // Offline queue sync
+        Route::post('/offline-queue/sync', [\App\Http\Controllers\Api\MobileController::class, 'syncQueue'])->name('mobile.sync-queue');
+        Route::get('/offline-queue/status', [\App\Http\Controllers\Api\MobileController::class, 'getQueueStatus'])->name('mobile.queue-status');
+
+        // Admin statistics
+        Route::get('/stats/devices', [\App\Http\Controllers\Api\MobileController::class, 'getDeviceStats'])->name('mobile.device-stats');
+    });
+
 // ── Inbound n8n Webhooks (Unauthenticated, secured via X-N8n-Secret header) ──
 Route::post('/webhooks/n8n', [\App\Http\Controllers\Api\Automation\N8nController::class, 'handleWebhook'])->name('webhooks.n8n');
 
