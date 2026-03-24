@@ -281,6 +281,16 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         ->name('deployment.verification-config.store');
     Route::get('/api/deployment/verification-status', [\App\Http\Controllers\Deployment\VerificationConfigurationController::class, 'status'])
         ->name('deployment.verification-status');
+
+    // Verification Metrics Dashboard (Admin Only)
+    Route::inertia('/deployment/verification-metrics', 'Deployment/VerificationMetricsDashboard')
+        ->name('deployment.verification-metrics');
+    Route::get('/api/deployment/verification-metrics', [\App\Http\Controllers\Deployment\VerificationMetricsDashboardController::class, 'current'])
+        ->name('deployment.verification-metrics.current');
+    Route::get('/api/deployment/verification-metrics/by-type', [\App\Http\Controllers\Deployment\VerificationMetricsDashboardController::class, 'byType'])
+        ->name('deployment.verification-metrics.byType');
+    Route::get('/api/deployment/verification-metrics/export', [\App\Http\Controllers\Deployment\VerificationMetricsDashboardController::class, 'export'])
+        ->name('deployment.verification-metrics.export');
 });
 
 require __DIR__.'/settings.php';
