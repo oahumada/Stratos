@@ -3997,13 +3997,214 @@ Estado de métricas:
 
 **Status:** Git `7dc627ac` | **Tests:** 15/15 passing ✅ | **Code:** Pint compliant | **Lines Created:** 712
 
+### Tarea 2: TalentVerificationService Core (COMPLETADA ✅)
+
+**Fecha:** 24-03-2026  
+**Duración:** 2 horas  
+**Objetivo:** Implementar servicio completo con 5 validators integrados, orquestación de verificaciones, integración con RAGASEvaluator.
+
+**Componentes Creados:**
+
+**1. Main Service: `app/Services/TalentVerificationService.php` (420 líneas)**
+   - Entry point: `verify(agentId: string, output: array, context: array): VerificationResult`
+   - DI Constructor: RAGASEvaluator + AuditTrailService
+   - Multi-tenant scoping por organization_id
+
+**2. Five Sequential Validators Integrated:**
+
+   **2.1 Multi-Tenant Validation (Security Critical)**
+   - Applies: Always first (security guardrail)
+   - Checks:
+     - organization_id presence en context
+     - Cross-tenant data detection en output JSON
+     - Prevents data leakage entre orgs
+   - Violations: `missing_organization_id`, `cross_tenant_data_detected`
+
+   **2.2 Schema Validation (Structural)**
+   - Length checks: max 50k, min 10 chars (from global config)
+   - Required fields validation (per-agent from config)
+   - Field presence checks with field-level reporting
+   - Violations: `max_length_exceeded`, `min_length_violated`, `required_field_missing`
+
+   **2.3 Business Rules Validation (Per-Agent Logic)**
+   - Max constraints: recommendations, candidates, biases, path_steps, competencies
+   - Enum validation: strategies, role_levels, etc.
+   - Numeric ranges: confidence_score, evaluation_score, ethics_score, sentiment_score
+   - Uses config/verification_rules.php agent-specific rules
+   - Violations: `constraint_violated`, `invalid_value`, `threshold_exceeded`
+
+   **2.4 Hallucination Detection (RAGASEvaluator)**
+   - Conditional: if `hallucination_detection.use_ragas_evaluator = true`
+   - Sample size limit: 500 chars (configurable)
+   - Threshold: 0.3 (if hallucination_rate > 30%)
+   - Also checks faithfulness_score < 0.75
+   - Graceful degradation: logs warning if RAGAS unavailable, continues
+   - Violations: `hallucination_detected`, `low_faithfulness`, `ragas_evaluation_unavailable`
+
+   **2.5 Contradiction Detection (Logical Consistency)**
+   - Field consistency checks:
+     - If approved=true but approved_date empty → contradiction
+     - If high confidence_score but empty reasoning → contradiction
+   - Logical consistency checks:
+     - Buy strategy with training_hours > 0 → contradiction
+     - Matched_candidates empty but cultural_fit_score set → contradiction
+   - Violations: Added to `contradictions[]` collection (separate from violations)
+
+**3. Core Features:**
+   - Auto-tracks: totalChecks = 5, passedChecks calculated
+   - Auto-audit: Logs to AuditTrailService on completion
+   - Error handling: Catches throwables, returns failed VerificationResult
+   - Score auto-recalculation: Inherited from VerificationResult (1.0 → 0.75 → 0.5 → 0.2)
+
+**4. Test Suite: `tests/Feature/Services/TalentVerificationServiceTest.php` (455 líneas, 18 tests)**
+
+   **Tests Coverage:**
+
+   ✅ Multi-Tenant Validation (2 tests)
+   - `test_verify_adds_violation_if_organization_id_missing`
+   - `test_verify_detects_cross_tenant_data`
+
+   ✅ Schema Validation (4 tests)
+   - `test_verify_detects_missing_required_fields`
+   - `test_verify_rejects_response_exceeding_max_length`
+   - `test_verify_rejects_response_below_min_length`
+
+   ✅ Business Rules Validation (4 tests)
+   - `test_verify_rejects_invalid_strategy_enum`
+   - `test_verify_detects_confidence_score_below_minimum`
+   - `test_verify_detects_confidence_score_above_maximum`
+   - `test_verify_detects_max_recommendations_exceeded`
+
+   ✅ Hallucination Detection (1 test)
+   - `test_verify_detects_high_hallucination_rate`
+   - `test_verify_accepts_output_with_low_hallucination_rate`
+   - `test_verify_detects_low_faithfulness`
+
+   ✅ Contradiction Detection (2 tests)
+   - `test_verify_detects_field_inconsistency_approved_without_date`
+   - `test_verify_detects_logical_contradiction_buy_with_training`
+
+   ✅ Comprehensive Flow Tests (5 tests)
+   - `test_verify_passes_valid_output`
+   - `test_verify_score_degrades_with_multiple_violations`
+   - `test_verify_different_agent_orquestador_360`
+   - `test_verify_different_agent_matchmaker`
+   - `test_verify_total_checks_count`
+
+   **Test Setup:**
+   - RefreshDatabase trait (clean DB per test)
+   - Http::fake() mocks RAGAS service responses
+   - Multi-agent testing (Estratega, Orquestador 360, Matchmaker)
+   - Edge cases: null values, constraint violations, mixed errors
+
+**Architecture Decisions:**
+
+| Decisión | Justificación |
+|----------|---------------|
+| **Validator Order** | Multi-tenant first (security), then structural, then logic, then AI |
+| **RAGAS Integration** | Conditional: off if not configured, continues if service down |
+| **Contradiction Tracking** | Separate from violations for different severity semantics |
+| **Config-Driven** | All rules from verification_rules.php (9 agents supported) |
+| **Fluent API** | VerificationResult supports chaining: `add()->add()->add()` |
+| **Immutable Violations** | Each violation is immutable value object (VerificationViolation) |
+| **Fail-Safe Audit** | Audit logging wrapped in try-catch, never fails main flow |
+
+**Integration Points:**
+
+1. **Configuration:** Uses `config('verification_rules.*')`
+2. **RAGASEvaluator:** Calls `evaluate()` for hallucination detection
+3. **AuditTrailService:** Logs verification action after completion
+4. **Multi-tenant Middleware:** Respects organization_id from context
+5. **Future Hook:** Will be called from AiOrchestratorService::agentThink() (Tarea 5)
+
+**Code Quality:**
+
+- ✅ **Tests:** 18/18 PASSING (100%)
+- ✅ **Formatting:** Pint compliant (2 style issues auto-fixed)
+- ✅ **Type Safety:** All return types, parameter types explicit
+- ✅ **Error Handling:** Comprehensive try-catch, graceful degradation
+- ✅ **Patterns:** Follows LlmResponseValidator, MetadataValidator models
+- ✅ **Lines Created:** 875 (420 service + 455 tests)
+
+**Git Commit:** (pending)
+
+---
+
+**Comprehensive Memory Files (Tarea 2 Documentation):**
+
+Tarea 2 includes extensive architectural documentation for future reference and team collaboration:
+
+1. **[`.openmemory_memories/talentverificationservice_index.md`](.openmemory_memories/talentverificationservice_index.md)** (MASTER INDEX)
+   - Central reference guide for all Tarea 2 memory files
+   - Quick reference tables (validator pipeline, score calculation, 9 agents)
+   - Memory file index and reading guides by use case
+   - Project status dashboard (40% complete, 2/5 tareas done)
+
+2. **[`.openmemory_memories/talentverificationservice_architecture.md`](.openmemory_memories/talentverificationservice_architecture.md)**
+   - Component structure and verification pipeline
+   - Score recalculation rules (table: error count → score → recommendation)
+   - 5-validator sequential processing with details
+   - Multi-tenant enforcement strategy
+   - RAGASEvaluator integration with code examples
+   - Configuration structure (9 agents)
+   - Audit trail format and fields
+   - Error handling strategy
+
+3. **[`.openmemory_memories/talentverificationservice_testing.md`](.openmemory_memories/talentverificationservice_testing.md)**
+   - Comprehensive test strategy (feature-level, RefreshDatabase, Http::fake())
+   - Test coverage map (18 tests organized by validator)
+   - 6 reusable test patterns with code examples
+   - Test setup pattern and DI configuration
+   - HTTP mocking for RAGAS integration
+   - Assertions best practices
+   - Debugging patterns and tools
+   - Known test limitations and performance characteristics
+
+4. **[`.openmemory_memories/talentverificationservice_architecture_decisions.md`](.openmemory_memories/talentverificationservice_architecture_decisions.md)**
+   - Architecture decision matrix (8 major decisions)
+   - Validator pipeline design rationale (sequential vs parallel)
+   - Score calculation design (discrete thresholds)
+   - RAGAS integration strategy (conditional, graceful degradation)
+   - Error handling strategy (outer try-catch pattern)
+   - Multi-tenant enforcement (zero-trust model)
+   - Configuration management (externalized config)
+   - Immutability pattern and benefits
+   - Dependency injection strategy
+
+5. **[`.openmemory_memories/talentverificationservice_integration.md`](.openmemory_memories/talentverificationservice_integration.md)**
+   - Current integration map and dependencies
+   - 7 integration points (AiOrchestratorService, API response, config, monitoring, error handling, multi-tenancy, testing)
+   - Proposed AiOrchestratorService hook (Tarea 5)
+   - API response shape examples (success, review, reject cases)
+   - 4-phase integration rollout strategy (silent → flagging → reject → tuning)
+   - Multi-tenant query patterns
+   - End-to-end test examples
+   - Known integration limitations & mitigations
+   - Future extensions (Tarea 6+, 8 potential add-ons)
+
+**How to Use These Files:**
+- **Starting Tarea 3?** Begin with: talentverificationservice_index.md → talentverificationservice_architecture.md
+- **Writing Tarea 4 Tests?** Read: talentverificationservice_testing.md (copy patterns)
+- **Planning Tarea 5 Integration?** Read: talentverificationservice_integration.md (Integration Point 1)
+- **Making Architectural Decisions?** Reference: talentverificationservice_architecture_decisions.md
+- **Debugging Failures?** Check: talentverificationservice_testing.md (debugging patterns section)
+
+---
+
 **Próximas Tareas:**
 
-- **Tarea 2:** TalentVerificationService core (8 horas) — 5 validators (schema, rules, hallucinations, contradictions, multi-tenant)
-- **Tarea 3:** Business Rules Engine (6 horas) — Per-agent validators (9 clases)
-- **Tarea 4:** Testing suite (6 horas) — 12-15 Feature + Unit tests
-- **Tarea 5:** Integration & Docs (4 horas) — OpenAPI, AiOrchestratorService integration, openmemory update
+- **Tarea 3:** Business Rules Engine (6 horas) — 9 per-agent validator classes (StrategyValidator, OrchestrationValidator, etc.)
+  - Start by reading: talentverificationservice_architecture_decisions.md (section: Future Architecture Decisions Pending)
+  - Configuration already prepared in: config/verification_rules.php (9 agents)
+  
+- **Tarea 4:** Testing suite expansion (6 horas) — 12-15 additional integration tests, edge cases
+  - Reference: talentverificationservice_testing.md for test patterns and setup
+  - Target coverage: 45+ total tests across Tarea 2-4
+  
+- **Tarea 5:** Integration & Docs (4 horas) — Hook into AiOrchestratorService, OpenAPI, openmemory final update
+  - Start by reading: talentverificationservice_integration.md (Integration Point 1: AiOrchestratorService hook)
+  - 4-phase rollout: silent → flagging → reject → tuning
 
-**Total Sprint 3.1:** 3-4 días | **Complexity:** Medium | **Estimated Completion:** 25-26 03-2026
+**Total Sprint 3.1:** Estimado 3-4 días | **Complexity:** Medium-High | **Se estima terminar:** 25-26 03-2026
 
 ---

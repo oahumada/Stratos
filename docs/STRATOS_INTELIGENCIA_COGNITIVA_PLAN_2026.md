@@ -1377,12 +1377,12 @@ KPI ajustado por contexto:
 Conclusión: Sin contexto, A parecía mejor. Con datos, B es superior.
 ```
 
-**3. Consenso Social (Mapa Cerebro)**
+**3. Consenso Social (Mapa Cerbero)**
 
-Stratos recolecta feedback de pares usando el "Mapa Cerebro" — una red social interna donde:
+Stratos recolecta feedback de pares usando el "Mapa Cerbero" — una red social interna donde:
 
 - Compañeros responden: "¿Esta persona colabora?" "¿Levanta el nivel?" "¿Es confiable?"
-- Las respuestas se procesan con inteligencia: identifica **quién opina** (¿Tiene credibilidad? ¿Trabalaja cerca?) y **qué opinan**
+- Las respuestas se procesan con inteligencia: identifica **quién opina** (¿Tiene credibilidad? ¿Trabaja cerca?) y **qué opinan**
 - Filtra ruido: opiniones de personas que no trabajan juntas, opiniones extremas, tendencias políticas
 
 **Lo diferente de Stratos**:
@@ -1405,9 +1405,9 @@ Stratos:
 
 El Motor Vanguard de Stratos es donde ocurre toda la magia: toma las 3 fuentes anteriores y:
 
-- **Cruza correlaciones**: Si la evidencia y KPIs dicen "excelente" pero el Mapa Cerebro dice "poco colaborador", Stratos lo detecta y pregunta "¿por qué?"
+- **Cruza correlaciones**: Si la evidencia y KPIs dicen "excelente" pero el Mapa Cerbero dice "poco colaborador", Stratos lo detecta y pregunta "¿por qué?"
 - **Ajusta por contexto**: "Trabajo bajo presión" vs. "Ambiente relajado". "Equipo experado" vs. "Equipo junior". El mismo comportamiento se evalúa diferente según contexto
-- **Identifica patrones ocultos**: "Esta persona tiene buen KPI pero el Mapa Cerebro la describe como 'difícil'. Probablemente genera resultado a costa de relaciones" (insostenible a largo plazo)
+- **Identifica patrones ocultos**: "Esta persona tiene buen KPI pero el Mapa Cerbero la describe como 'difícil'. Probablemente genera resultado a costa de relaciones" (insostenible a largo plazo)
 - **Genera recomendaciones**: "Persona A: 360 Score Alto Y Confiable. Recomendado para promover. Persona B: 360 Score Alto PERO potencialmente insostenible. Recomendado coaching en colaboración antes de promover."
 
 **El Triángulo de la Verdad:**
@@ -1548,7 +1548,7 @@ Las evaluaciones 360 dejan de ser "opiniones compiladas" para convertirse en:
 | 9️⃣   | **Monitoreo del Ambiente Laboral (Experience)**         | Monitorea continuamente: encuestas de pulso, comunicación interna, rotación, burnout, conflictos. Detecta problemas en SEMANAS. Genera recomendaciones específicas para mejorar clima. Rastrea si mejoran.         |
 | 🔟   | **Cultura Declarada vs. Real (Fricción Estratégica)**   | Mide brecha entre misión/valores proclamados vs. cómo vive la gente. Identifica fricción % con cambios estratégicos. Recomienda alineación previa antes de gastar en iniciativas que fracasarán.                   |
 | 1️⃣1️⃣ | **Psicometría Dinámica & Potencial Evolutivo**          | Integra test psicométrico + comportamiento real histórico. Genera evaluación contextualizada, no etiqueta estática. Potencial se actualiza cada 6 meses basado en progreso real. Planes de desarrollo accionables. |
-| 1️⃣2️⃣ | **Evaluaciones 360° Sin Sesgo (Triangulación)**         | TRIANGULA 4 fuentes: Evidencia verificable (ERP, repos) + KPIs cuantitativos ajustados + Consenso social (Mapa Cerebro) + Motor Vanguard (correlación). Fin del amiguismo. Justicia auditable.                     |
+| 1️⃣2️⃣ | **Evaluaciones 360° Sin Sesgo (Triangulación)**         | TRIANGULA 4 fuentes: Evidencia verificable (ERP, repos) + KPIs cuantitativos ajustados + Consenso social (Mapa Cerbero) + Motor Vanguard (correlación). Fin del amiguismo. Justicia auditable.                     |
 
 ---
 
