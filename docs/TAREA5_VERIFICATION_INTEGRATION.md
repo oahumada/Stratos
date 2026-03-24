@@ -21,24 +21,28 @@ Porque no queremos activar todo de una vez y romper el sistema. Es como cuando s
 ### Las 4 Fases Explicadas Sencillamente:
 
 #### **Fase 1: SILENCIOSA - "Observar sin actuar"**
+
 - 🔇 **Lo que hace:** El sistema detecta errores pero LOS CALLA. Los errores se registran en logs (reportes internos) pero NO afectan al usuario.
 - 📍 **Dónde:** Development (desarrollo) y Staging (pruebas internas)
 - 👥 **Impacto en usuarios:** Cero. Ellos no ven nada diferente.
 - 📊 **Propósito:** Recopilar datos: ¿Cuántos errores hay? ¿Qué tipos de errores son?
 
 #### **Fase 2: BANDERA - "Alertar pero permitir"**
+
 - 🚩 **Lo que hace:** El sistema detecta errores Y LOS MARCA con una banderita. El usuario ve que hay algo sospechoso ("⚠️ Esta respuesta puede tener problemas") pero la respuesta se muestra de todas formas.
 - 📍 **Dónde:** Transición de Staging a Producción
 - 👥 **Impacto en usuarios:** Aviso en la interfaz: "Revisar esto manualmente antes de actuar"
 - 📊 **Propósito:** Los usuarios y administradores pueden revisar los errores detectados
 
 #### **Fase 3: RECHAZO - "Bloquear lo malo"**
+
 - ❌ **Lo que hace:** El sistema detecta errores Y RECHAZA la respuesta. El usuario recibe un mensaje de error (422) diciendo "Esto no es válido, intenta de nuevo".
 - 📍 **Dónde:** Producción (el sistema en vivo)
 - 👥 **Impacto en usuarios:** "Tu solicitud no pudo completarse. Por favor, intenta de nuevo."
 - 📊 **Propósito:** Garantizar que SOLO las respuestas correctas lleguen a los usuarios
 
 #### **Fase 4: AUTO-MEJORA - "Intentar arreglarlo automáticamente"**
+
 - 🔄 **Lo que hace:** Si el sistema detecta un error, en lugar de rechazar, le pide al agente IA que lo intente de nuevo pero de forma mejorada (hasta 2 intentos). Si la segunda vez sale bien, ¡perfecto!
 - 📍 **Dónde:** Producción (optimización)
 - 👥 **Impacto en usuarios:** La solicitud tarda un poco más pero tiene más probabilidad de éxito
@@ -59,6 +63,7 @@ Imagina que pides a un asistente IA que te cree una estrategia de recursos human
 ### ¿Cómo se Decide "Válido" o "Inválido"?
 
 El sistema cuenta los **errores (violaciones)**:
+
 - ✅ **0 errores** → Perfecto. Confianza: 100%. Decisión: **ACEPTAR**
 - ⚠️ **1-2 errores** → Dudoso. Confianza: 65-85%. Decisión: **REVISAR MANUALMENTE**
 - ❌ **3+ errores** → Muy malo. Confianza: <40%. Decisión: **RECHAZAR**
@@ -654,6 +659,193 @@ A: Check agent name matches a configured validator in `ValidatorFactory`
 
 **Q: Violations flagged in phase 1, OK?**  
 A: Yes - silent phase logs all violations for baseline analysis
+
+---
+
+## 📊 Pasos Opcionales: Análisis de Impacto y ROI
+
+> **Nota:** Para análisis detallado de cada paso, ver [TAREA5_DEPLOYMENT_ROADMAP.md](TAREA5_DEPLOYMENT_ROADMAP.md)
+
+### Resumen Ejecutivo: ¿Qué Mejoras Traería Cada Paso?
+
+| Paso                 | Mejoras Principales             | Inversión | ROI        | Recomendación  |
+| -------------------- | ------------------------------- | --------- | ---------- | -------------- |
+| **Phase 1 Deploy**   | Visibilidad 100% de errores     | 15 min    | ⭐⭐⭐⭐⭐ | ✅ HAZLO       |
+| **Monitor 24h**      | Baselines de error rate         | 1h        | ⭐⭐⭐⭐⭐ | ✅ HAZLO       |
+| **Phase 2 Flagging** | Usuarios ven ⚠️ banderas        | 5 min     | ⭐⭐⭐⭐   | ✅ HAZLO       |
+| **Phase 3 Reject**   | Garantía 100% calidad           | 5 min     | ⭐⭐⭐⭐⭐ | ✅ HAZLO       |
+| **Phase 4 Tuning**   | Auto-recuperación +10-15% éxito | 5 min     | ⭐⭐⭐⭐   | ⚠️ CONDICIONAL |
+
+### Paso 1: Deploy Phase 1 (Silent) - Visibilidad Zero-Risk
+
+**¿Qué mejoras consigues?**
+
+- 🔍 **Visibilidad Completa:** Descubrirás ALL los errores que cometen los agentes (antes estaban ocultos)
+- 📊 **Patrones Identificados:** Verás qué tipo de errores son más comunes (ej: "60% campos faltantes")
+- ✅ **Validación de Reglas:** Confirmar que las 9 reglas funcionan correctamente en producción
+- 👥 **Impacto Zero Usuarios:** El sistema funciona igual, usuarios NO ven cambios
+
+**Datos que recopilarás:**
+
+- Total solicitudes procesadas
+- % Solicitudes con 0 errores (perfecto)
+- % Solicitudes con 1-2 errores (dudoso)
+- % Solicitudes con 3+ errores (malo)
+
+**¿Cuándo hacerlo?** Ahora mismo, inmediatamente.
+
+---
+
+### Paso 2: Monitorear Baselines por 24h
+
+**¿Qué mejoras consigues?**
+
+- 📈 **Error Rate Baseline:** Sabes exactamente cuántos errores hay ("2%", "15%", etc.)
+- 🎯 **Falsos Positivos Detectados:** ¿Las reglas se equivocan? ¿Cuánto? (<10% es OK)
+- 🤖 **Performance por Agent:** Ves quién falla más (Estratega 5%, TalentBridge 10%, etc.)
+- 🕐 **Patrones Temporales:** ¿Hay más errores a cierta hora? ¿Con ciertos datos?
+
+**Decisión que tomas después:**
+
+- Si error_rate < 5%: "Quizá Phase 1-2 son suficientes"
+- Si error_rate 5-15%: "Necesito Phase 2-3"
+- Si error_rate > 15%: "Necesito Phase 3-4 urgentemente"
+
+**¿Cuándo hacerlo?** Después de Phase 1, esperar 24h de datos.
+
+---
+
+### Paso 3: Pasar a Phase 2 (Flagging) - Visibilidad del Usuario
+
+**¿Qué mejoras consigues?**
+
+- 👥 **Usuarios Ven Problema:** Aparece ⚠️ "Esta respuesta puede tener problemas"
+- 🎯 **Validez de Reglas:** Usuarios dicen si la bandera fue correcta o falsa
+- 💻 **Test de UX:** Confirmas que los usuarios entienden las banderas
+- ✅ **Aún Funciona:** Usuarios reciben respuesta aunque tenga problema
+
+**Métrica crítica a medir:**
+
+- Tasa de falsos positivos (debe ser <10%)
+- Feedback de usuarios ("esta bandera no tiene sentido")
+
+**¿Cuándo hacerlo?** Después de validar Phase 1 + 24h monitoreo.
+
+---
+
+### Paso 4: Pasar a Phase 3 (Reject) - Garantía de Calidad
+
+**¿Qué mejoras consigues?**
+
+- 🏆 **100% Garantía de Calidad:** SOLO respuestas válidas llegan a usuarios
+- 💪 **Confianza del Usuario:** Usa la respuesta sin dudar
+- 📋 **Cumplimiento Normativo:** Datos RRHH siempre cumplen reglas
+- 🔗 **Sistemas Downstream:** Otros sistemas que usen estos datos no necesitan validar
+
+**El costo:**
+
+- ❌ Algunos usuarios reciben rechazo (error 422)
+- 🔄 Deben reintentar (típico: 5-15% retry rate)
+- 😕 Experiencia degradada si no tienes Phase 4
+
+**¿Cuándo hacerlo?** Después validar Phase 2 es correcto.
+
+**⚠️ IMPORTANTE:** Si retry_rate > 10%, necesitas Phase 4 URGENTEMENTE.
+
+---
+
+### Paso 5: Activar Phase 4 (Tuning/Auto-Mejora) - Auto-Recuperación
+
+**¿Qué mejoras consigues?**
+
+- 🔄 **Recuperación Automática:** Errores de Phase 3 se arreglan automáticamente
+- ✅ **Primera Vez+10-15%:** Más solicitaciones tienen éxito en primer intento
+- 😊 **Usuarios Felices:** NO ven rechazo, el sistema se "arregla solo"
+- 💚 **Menos Frustración:** Usuario nunca ve error, solo tardanza
+
+**El costo:**
+
+- ⏱️ **Latencia +2-4 segundos:** Debido a reintento automático
+- 💸 **Tokens +10-20%:** Cada reintento es otra llamada a OpenAI/DeepSeek
+- 🔧 **Complejidad:** Más código corriendo, más cosas pueden fallar
+
+**¿Es OBLIGATORIO?**
+
+- SI retry_rate > 10% → **SÍ, HAZLO URGENTE**
+- SI retry_rate 5-10% → **CONSIDERA (depende latencia)**
+- SI retry_rate < 5% → **OPCIONAL**
+
+**¿Cuándo saltarlo?**
+
+- Si SLAs de latencia son <2s → No hacer Phase 4
+- Si consumo tokens es crítico → No hacer Phase 4
+- Si error_rate >20% → Arreglar reglas primero, Phase 4 no es solución
+
+---
+
+### 🎯 Matriz de Decisión Rápida
+
+```
+SI error_rate < 5%:
+  ✅ Phases 1-2-3 definitivamente
+  ⚠️  Phase 4 opcional
+
+SI 5% ≤ error_rate ≤ 15%:
+  ✅ Phases 1-2-3 definitivamente
+  ✅ Phase 4 recomendada (mejor UX)
+
+SI error_rate > 15%:
+  ✅ Phases 1-2-3-4 TODAS
+  🚨 Phase 4 es crítica para experiencia
+```
+
+---
+
+### ⏱️ Timeline Recomendado
+
+```
+DÍA 1 - MAÑANA:
+  □ Deploy Phase 1 (5 min)
+  □ Monitoreo en vivo empieza
+
+DÍA 1 - NOCHE:
+  □ Análisis de datos (1h)
+
+DÍA 2 - MAÑANA:
+  □ Decisión basada en baselines
+  □ Deploy Phase 2 si todo OK (5 min)
+
+DÍA 2 - NOCHE:
+  □ Análisis de banderas (1h)
+
+DÍA 3 - MAÑANA:
+  □ Deploy Phase 3 (5 min)
+
+DÍA 3 - NOCHE:
+  □ Análisis de reintentos (1h)
+
+DÍA 4 - MAÑANA:
+  □ Decide Phase 4: ¿error_rate justifica +2s latencia?
+```
+
+---
+
+### 💡 Recomendación Final
+
+✅ **HAZLO AHORA:**
+
+1. Phase 1 Deploy (15 min)
+2. Monitor 24h (recolecta datos)
+3. Phase 2 Flagging (después datos)
+4. Phase 3 Reject (después validar)
+
+⚠️ **HAZLO SOLO SI:**
+
+- Phase 4: error_rate > 5-10%
+- Phase 4: toleras +2s latencia
+- Phase 4: consumo tokens no es problema
+
+📚 **Para análisis más profundo:** Ver [TAREA5_DEPLOYMENT_ROADMAP.md](TAREA5_DEPLOYMENT_ROADMAP.md)
 
 ---
 

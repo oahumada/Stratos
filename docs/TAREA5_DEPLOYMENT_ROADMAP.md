@@ -8,13 +8,13 @@ Este documento analiza qué beneficios específicos traería cada paso del despl
 
 ## 🎯 Resumen Ejecutivo
 
-| Paso | Inversión | Beneficio | Riesgo Mitigado | Recomendación |
-|------|-----------|----------|---|---|
-| **Phase 1 Deploy** | ⭐ (Mínima) | 🟢 Alto | Errores silenciosos ocultos | ✅ HACER |
-| **Monitoreo 24h** | ⭐⭐ (Baja) | 🟢 Alto | Falsos positivos, overhead | ✅ HACER |
-| **Phase 2 Flagging** | ⭐⭐ (Baja) | 🟡 Medio | Usuarios sin visibilidad | ✅ HACER |
-| **Phase 3 Reject** | ⭐⭐⭐ (Media) | 🟢 Alto | Calidad garantizada | ✅ HACER |
-| **Phase 4 Tuning** | ⭐⭐⭐⭐ (Alta) | 🟡 Variable | Retiros aumentan | ⚠️ CONDITIONAL |
+| Paso                 | Inversión       | Beneficio   | Riesgo Mitigado             | Recomendación  |
+| -------------------- | --------------- | ----------- | --------------------------- | -------------- |
+| **Phase 1 Deploy**   | ⭐ (Mínima)     | 🟢 Alto     | Errores silenciosos ocultos | ✅ HACER       |
+| **Monitoreo 24h**    | ⭐⭐ (Baja)     | 🟢 Alto     | Falsos positivos, overhead  | ✅ HACER       |
+| **Phase 2 Flagging** | ⭐⭐ (Baja)     | 🟡 Medio    | Usuarios sin visibilidad    | ✅ HACER       |
+| **Phase 3 Reject**   | ⭐⭐⭐ (Media)  | 🟢 Alto     | Calidad garantizada         | ✅ HACER       |
+| **Phase 4 Tuning**   | ⭐⭐⭐⭐ (Alta) | 🟡 Variable | Retiros aumentan            | ⚠️ CONDITIONAL |
 
 ---
 
@@ -28,35 +28,38 @@ Activa el sistema de verificación en modo silencioso (solo registra errores, no
 **Mejoras que alcanzarías:**
 
 1. **Visibilidad Completa de Errores** 🔍
-   - Descubrirás ALL los tipos de errores que cometen los agentes IA
-   - Verás patrones (ej: "60% de errores son campos faltantes")
-   - MÉTRICA: Baseline de error rates por tipo
+    - Descubrirás ALL los tipos de errores que cometen los agentes IA
+    - Verás patrones (ej: "60% de errores son campos faltantes")
+    - MÉTRICA: Baseline de error rates por tipo
 
 2. **Validación de Reglas** ✅
-   - Confirmar que las 9 reglas definidas funcionan correctamente en producción
-   - Detectar si hay casos no cubiertos
-   - MÉTRICA: Coverage de casos reales vs casos de test
+    - Confirmar que las 9 reglas definidas funcionan correctamente en producción
+    - Detectar si hay casos no cubiertos
+    - MÉTRICA: Coverage de casos reales vs casos de test
 
 3. **Impacto Cero en Usuarios** 👥
-   - Los usuarios NO ven cambios, todo funciona igual
-   - Puedes revertir en segundos sin daño
-   - MÉTRICA: 0% impacto, 100% reversibilidad
+    - Los usuarios NO ven cambios, todo funciona igual
+    - Puedes revertir en segundos sin daño
+    - MÉTRICA: 0% impacto, 100% reversibilidad
 
 4. **Datos para Decisiones** 📈
-   - Con estos datos, decides si necesitas las fases 2, 3, 4
-   - Si hay muy pocos errores, quizá no necesites más fases
-   - Si hay muchos, necesitas desplegar las siguientes
+    - Con estos datos, decides si necesitas las fases 2, 3, 4
+    - Si hay muy pocos errores, quizá no necesites más fases
+    - Si hay muchos, necesitas desplegar las siguientes
 
 **Inversión:**
+
 - 15 min: Configurar VERIFICATION_ENABLED=true, VERIFICATION_PHASE=silent
 - 0 min: Sin código nuevo (ya implementado)
 - 0 min: Sin cambios en infraestructura
 
 **Riesgo:**
+
 - Log file puede crecer (1-2% incremento típico)
 - CPU mínimo incremento (<1%)
 
 **ROI:**
+
 - ⭐⭐⭐⭐⭐ EXCELENTE - Información valiosa, riesgo mínimo
 
 ---
@@ -66,38 +69,40 @@ Activa el sistema de verificación en modo silencioso (solo registra errores, no
 **¿Qué debes monitorear?**
 
 1. **Volume Metrics** 📊
-   ```
-   - Total solicitudes procesadas
-   - Solicitudes con 0 errores
-   - Solicitudes con 1-2 errores
-   - Solicitudes con 3+ errores
-   - Error rate: Porcentaje de solicitudes con errores
-   ```
+
+    ```
+    - Total solicitudes procesadas
+    - Solicitudes con 0 errores
+    - Solicitudes con 1-2 errores
+    - Solicitudes con 3+ errores
+    - Error rate: Porcentaje de solicitudes con errores
+    ```
 
 2. **Error Type Distribution** 🔴
-   ```
-   - ¿Cuál es el error más común? (40%? 10%?)
-   - ¿Cuáles son los top 3 errores?
-   - ¿Hay un agente que comete más errores?
-   - ¿Los errores ocurren a cierta hora del día?
-   ```
+
+    ```
+    - ¿Cuál es el error más común? (40%? 10%?)
+    - ¿Cuáles son los top 3 errores?
+    - ¿Hay un agente que comete más errores?
+    - ¿Los errores ocurren a cierta hora del día?
+    ```
 
 3. **Confidence Score Distribution** 📈
-   ```
-   - % de respuestas con confianza 1.0 (perfecto)
-   - % de respuestas con confianza 0.85 (bueno)
-   - % de respuestas con confianza 0.65 (dudoso)
-   - % de respuestas con confianza <0.40 (malo)
-   ```
+    ```
+    - % de respuestas con confianza 1.0 (perfecto)
+    - % de respuestas con confianza 0.85 (bueno)
+    - % de respuestas con confianza 0.65 (dudoso)
+    - % de respuestas con confianza <0.40 (malo)
+    ```
 
 **Mejoras que alcanzarías:**
 
-| Métrica | Antes | Después | Beneficio |
-|---------|-------|---------|-----------|
-| **Visibilidad de errores** | 0% (ocultos) | 100% (visibles) | Sabes todos tus problemas |
-| **Falsos positivos** | ? | Medido | Decides si ajustar reglas |
-| **Impacto de validación** | ? | Cuantificado | Ves si vale la pena Phase 2-4 |
-| **Agent performance** | Desconocido | Comparado | Sabes quién falla más |
+| Métrica                    | Antes        | Después         | Beneficio                     |
+| -------------------------- | ------------ | --------------- | ----------------------------- |
+| **Visibilidad de errores** | 0% (ocultos) | 100% (visibles) | Sabes todos tus problemas     |
+| **Falsos positivos**       | ?            | Medido          | Decides si ajustar reglas     |
+| **Impacto de validación**  | ?            | Cuantificado    | Ves si vale la pena Phase 2-4 |
+| **Agent performance**      | Desconocido  | Comparado       | Sabes quién falla más         |
 
 **Decisiones que tomas después:**
 
@@ -107,14 +112,17 @@ Activa el sistema de verificación en modo silencioso (solo registra errores, no
 - Si errores = 100% a cierta hora: "Hay un problema con la infraestructura a esa hora"
 
 **Inversión:**
+
 - 1h: Crear dashboard de monitoreo (1 query SQL + 1 gráfica)
 - 24h: Esperar con el sistema en producción
 - 30 min: Analizar datos y decidir siguiente paso
 
 **Riesgo:**
+
 - El sistema está como siempre, cero riesgo
 
 **ROI:**
+
 - ⭐⭐⭐⭐⭐ EXCELENTE - Información crítica para decisiones
 
 ---
@@ -127,24 +135,24 @@ Los errores detectados ahora se MARCAN en la respuesta (⚠️) pero sigue siend
 **Mejoras que alcanzarías:**
 
 1. **Visibilidad del Usuario** 👥
-   - Los usuarios ven: "⚠️ Esta respuesta puede tener problemas"
-   - Pueden revisar manualmente antes de confiar
-   - MÉTRICA: % de usuarios que siguen la bandera
+    - Los usuarios ven: "⚠️ Esta respuesta puede tener problemas"
+    - Pueden revisar manualmente antes de confiar
+    - MÉTRICA: % de usuarios que siguen la bandera
 
 2. **Detección de Falsos Positivos** 🎯
-   - Si los usuarios dicen "esta bandera está mal", detectas falsos positivos
-   - Ejemplo: Sistema marca como error algo que en realidad es correcto
-   - MÉTRICA: Tasa de falsos positivos (debe ser <10%)
+    - Si los usuarios dicen "esta bandera está mal", detectas falsos positivos
+    - Ejemplo: Sistema marca como error algo que en realidad es correcto
+    - MÉTRICA: Tasa de falsos positivos (debe ser <10%)
 
 3. **Validación de UX** 💻
-   - Confirmas que la interfaz muestra bien las banderas
-   - Los usuarios saben qué hacer con las banderas
-   - MÉTRICA: User feedback, task completion rate
+    - Confirmas que la interfaz muestra bien las banderas
+    - Los usuarios saben qué hacer con las banderas
+    - MÉTRICA: User feedback, task completion rate
 
 4. **Impacto Mínimo** ✅
-   - Los usuarios PUEDEN seguir usando el sistema sin problemas
-   - Si algo falla, todavía reciben respuesta (con bandera)
-   - MÉTRICA: 0 broken workflows, 100% availability
+    - Los usuarios PUEDEN seguir usando el sistema sin problemas
+    - Si algo falla, todavía reciben respuesta (con bandera)
+    - MÉTRICA: 0 broken workflows, 100% availability
 
 **Decisiones que tomas después:**
 
@@ -153,15 +161,18 @@ Los errores detectados ahora se MARCAN en la respuesta (⚠️) pero sigue siend
 - Si todo va bien: "Listos para Phase 3 (rechazo)"
 
 **Inversión:**
+
 - 2h: Cambiar config a VERIFICATION_PHASE=flagging
 - 1h: Monitorear reacciones de usuarios
 - 24h: Esperar con el sistema en producción
 
 **Riesgo:**
+
 - ⚠️ MODERADO: Si muchas banderas son falsas, usuarios pierden confianza
 - ⚠️ MODERADO: Si UX confunde, usuarios no saben qué hacer
 
 **ROI:**
+
 - ⭐⭐⭐⭐ BUENO - Valida que el sistema es correcto antes de rechazar
 
 ---
@@ -174,40 +185,40 @@ Los errores detectados ahora RECHAZAN la solicitud (422 error).
 **Mejoras que alcanzarías:**
 
 1. **Garantía de Calidad** 🏆
-   - SOLO respuestas correctas llegan a los usuarios
-   - Elimina completamente las respuestas malas
-   - MÉTRICA: Error rate de usuarios finales = 0% (para errores detectables)
+    - SOLO respuestas correctas llegan a los usuarios
+    - Elimina completamente las respuestas malas
+    - MÉTRICA: Error rate de usuarios finales = 0% (para errores detectables)
 
 2. **Confianza del Usuario** 💪
-   - Los usuarios saben que si reciben algo, ES CORRECTO
-   - Eliminan la necesidad de revisar manualmente banderas
-   - MÉTRICA: User confidence score (satisfaction)
+    - Los usuarios saben que si reciben algo, ES CORRECTO
+    - Eliminan la necesidad de revisar manualmente banderas
+    - MÉTRICA: User confidence score (satisfaction)
 
 3. **Cumplimiento Normativo** 📋
-   - Garantiza que datos sensibles de RRHH son válidos
-   - Cumple requisitos de calidad de datos
-   - MÉTRICA: Compliance audit pass
+    - Garantiza que datos sensibles de RRHH son válidos
+    - Cumple requisitos de calidad de datos
+    - MÉTRICA: Compliance audit pass
 
 4. **Reducción de Problemas Downstream** 🔗
-   - Si otros sistemas consumen estas respuestas, no necesitan validar
-   - Menos errores en cascada
-   - MÉTRICA: Ticket reduction, fewer data quality issues
+    - Si otros sistemas consumen estas respuestas, no necesitan validar
+    - Menos errores en cascada
+    - MÉTRICA: Ticket reduction, fewer data quality issues
 
 **Pero... ¿Cuál es el costo?**
 
 1. **Usuarios Rechazados** ❌
-   - Algunos usuarios reciben "Tu solicitud no es válida"
-   - Deben reintentar
-   - MÉTRICA: Retry rate (será >= 5-10% típicamente)
+    - Algunos usuarios reciben "Tu solicitud no es válida"
+    - Deben reintentar
+    - MÉTRICA: Retry rate (será >= 5-10% típicamente)
 
 2. **Experiencia Degradada** 😕
-   - Antes: "Aquí está tu respuesta, cuidado hay un problema"
-   - Ahora: "Error, intenta de nuevo"
-   - MÉTRICA: User frustration (puede aumentar inicialmente)
+    - Antes: "Aquí está tu respuesta, cuidado hay un problema"
+    - Ahora: "Error, intenta de nuevo"
+    - MÉTRICA: User frustration (puede aumentar inicialmente)
 
 3. **Necesidad Phase 4** 🔄
-   - Si retry rate > 15%, necesitas Phase 4 (auto-mejora) urgentemente
-   - Si no activas Phase 4, usuarios se frustran
+    - Si retry rate > 15%, necesitas Phase 4 (auto-mejora) urgentemente
+    - Si no activas Phase 4, usuarios se frustran
 
 **Decisiones que tomas después:**
 
@@ -216,18 +227,22 @@ Los errores detectados ahora RECHAZAN la solicitud (422 error).
 - Si retry_rate > 15%: "Phase 4 es urgente o volver a Phase 2"
 
 **Inversión:**
+
 - 5 min: Cambiar config a VERIFICATION_PHASE=reject
 - 2h: Monitorear reacciones de usuarios
 - Riesgo: Si hay problema, es reversible en 5 min
 
 **Riesgo:**
+
 - ⚠️⚠️ ALTO: Si retry_rate es muy alto, usuarios se frustran
 - ⚠️⚠️ ALTO: Si no tienes Phase 4, experience es mala
 
 **ROI si está bien calibrado:**
+
 - ⭐⭐⭐⭐⭐ EXCELENTE - Garantiza calidad
 
 **ROI si retry_rate es alto (sin Phase 4):**
+
 - ⭐ POBRE - Usuarios frustrados, necesitas Phase 4 urgentemente
 
 ---
@@ -240,39 +255,39 @@ Si Phase 3 rechaza una respuesta, el sistema REINTENTA automáticamente con indi
 **Mejoras que alcanzarías:**
 
 1. **Recuperación Automática** 🔄
-   - Solicitudes que fallarían en Phase 3 ahora se salvan
-   - El IA aprende y lo intenta mejor
-   - MÉTRICA: Success rate recovery (típicamente +5-15%)
+    - Solicitudes que fallarían en Phase 3 ahora se salvan
+    - El IA aprende y lo intenta mejor
+    - MÉTRICA: Success rate recovery (típicamente +5-15%)
 
 2. **Experiencia del Usuario** 😊
-   - Usuario NO ve error ni rechazos
-   - La solicitud se procesa "más lentamente pero mejor"
-   - MÉTRICA: First-time success rate (aumenta)
+    - Usuario NO ve error ni rechazos
+    - La solicitud se procesa "más lentamente pero mejor"
+    - MÉTRICA: First-time success rate (aumenta)
 
 3. **Menos Frustración** 💚
-   - Usuarios NO tienen que reintentar
-   - Sistema se "arregla a sí mismo"
-   - MÉTRICA: User satisfaction (aumenta)
+    - Usuarios NO tienen que reintentar
+    - Sistema se "arregla a sí mismo"
+    - MÉTRICA: User satisfaction (aumenta)
 
 4. **Mejor ROI de Agentes IA** 💰
-   - Menos "fallas" = mejor percepción de la IA
-   - Los agentes IA parecen más competentes
-   - MÉTRICA: Agent effectiveness score
+    - Menos "fallas" = mejor percepción de la IA
+    - Los agentes IA parecen más competentes
+    - MÉTRICA: Agent effectiveness score
 
 **Pero... ¿Cuál es el costo?**
 
 1. **Latencia Aumentada** ⏱️
-   - Una solicitud que tardaba 2s ahora tarda 4-6s (por reintentos)
-   - MÉTRICA: p95 latency (+100%)
+    - Una solicitud que tardaba 2s ahora tarda 4-6s (por reintentos)
+    - MÉTRICA: p95 latency (+100%)
 
 2. **Consumo de Tokens Aumentado** 💸
-   - Cada reintento = más llamadas a OpenAI/DeepSeek
-   - Si 10% fallan, consumen tokens adicionales
-   - MÉTRICA: Token cost (+10-20% típicamente)
+    - Cada reintento = más llamadas a OpenAI/DeepSeek
+    - Si 10% fallan, consumen tokens adicionales
+    - MÉTRICA: Token cost (+10-20% típicamente)
 
 3. **Complejidad Aumentada** 🔧
-   - Más código corriendo (retry logic)
-   - Más cosas que pueden fallar
+    - Más código corriendo (retry logic)
+    - Más cosas que pueden fallar
 
 **¿Cuándo es OBLIGATORIO Phase 4?**
 
@@ -288,15 +303,18 @@ Si Phase 3 rechaza una respuesta, el sistema REINTENTA automáticamente con indi
 - Si error_rate es muy alto (>20%): **Phase 4 no es la solución, necesitas mejorar las reglas primero**
 
 **Inversión:**
+
 - 0 min: Phase 4 está completamente implementado y testeado
 - 5 min: Cambiar config a VERIFICATION_PHASE=tuning
 - 2h: Monitorear latencia y éxito de reintentos
 
 **Riesgo:**
+
 - ⚠️ BAJO risk, pero ⏱️ latency risk
 - Si latencia no es problema, activar Phase 4 es ganancia pura
 
 **ROI:**
+
 - ⭐⭐⭐⭐ BUENO - Si toleras +2s latencia
 - ⭐⭐ DÉBIL - Si latencia es crítica o error_rate es muy alto
 
@@ -330,13 +348,13 @@ IF error_rate > 30% O retry_rate > 20%:
 
 ## 🎯 Recomendación Final
 
-| Paso | Recomendación | Cuándo | Por qué |
-|------|---|---|---|
-| **Phase 1 Deploy** | ✅ **HAZLO AHORA** | Inmediato | Cero riesgo, máxima info |
-| **Monitor 24h** | ✅ **HAZLO AHORA** | Después Phase 1 | Decisiones basadas en datos |
-| **Phase 2 Flagging** | ✅ **HAZLO YA** | Después baselines | Valida antes de rechazar |
-| **Phase 3 Reject** | ✅ **HAZLO YA** | Después Phase 2 OK | Garantía de calidad |
-| **Phase 4 Tuning** | ⚠️ **DEPENDE** | Ver matriz arriba | Solo si error_rate > 5% |
+| Paso                 | Recomendación      | Cuándo             | Por qué                     |
+| -------------------- | ------------------ | ------------------ | --------------------------- |
+| **Phase 1 Deploy**   | ✅ **HAZLO AHORA** | Inmediato          | Cero riesgo, máxima info    |
+| **Monitor 24h**      | ✅ **HAZLO AHORA** | Después Phase 1    | Decisiones basadas en datos |
+| **Phase 2 Flagging** | ✅ **HAZLO YA**    | Después baselines  | Valida antes de rechazar    |
+| **Phase 3 Reject**   | ✅ **HAZLO YA**    | Después Phase 2 OK | Garantía de calidad         |
+| **Phase 4 Tuning**   | ⚠️ **DEPENDE**     | Ver matriz arriba  | Solo si error_rate > 5%     |
 
 ---
 
