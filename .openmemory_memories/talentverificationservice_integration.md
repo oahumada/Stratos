@@ -97,7 +97,7 @@ public function handleAgentOutput(string $agentId, array $output): Response
 public function orchestrate(array $input): AgentResponse
 {
     $agentThinkResult = $this->agentThink($input);
-    
+
     // Process output
     return new AgentResponse(
         success: true,
@@ -113,7 +113,7 @@ public function orchestrate(array $input): AgentResponse
 public function orchestrate(array $input): AgentResponse
 {
     $agentThinkResult = $this->agentThink($input);
-    
+
     // NEW: Verify agent output
     $verification = $this->verifier->verify(
         agentId: $this->currentAgent->name,
@@ -125,7 +125,7 @@ public function orchestrate(array $input): AgentResponse
             'provider' => config('llm.provider'),
         ]
     );
-    
+
     // Decision based on verification result
     if ($verification->recommendation === 'reject') {
         // Log rejection in audit trail
@@ -135,10 +135,10 @@ public function orchestrate(array $input): AgentResponse
             metadata: ['verification_result' => $verification->toArray()],
         );
     }
-    
+
     // If 'review', flag for human review but still return data
     $flagReview = $verification->recommendation === 'review';
-    
+
     return new AgentResponse(
         success: true,
         data: $agentThinkResult['output'],
@@ -170,6 +170,7 @@ Agent Output → TalentVerificationService.verify()
 ```
 
 **Benefits of this integration:**
+
 1. **Quality Gate:** No LLM outputs pass verification without review
 2. **Audit Trail:** Every agent output has verification record
 3. **Graceful Degradation:** 'review' flag signals uncertain outputs
@@ -184,9 +185,9 @@ Agent Output → TalentVerificationService.verify()
 
 ```json
 {
-  "success": true,
-  "data": { "strategy": "Buy", "confidence_score": 0.85 },
-  "metadata": { "agent_id": "Estratega de Talento" }
+    "success": true,
+    "data": { "strategy": "Buy", "confidence_score": 0.85 },
+    "metadata": { "agent_id": "Estratega de Talento" }
 }
 ```
 
@@ -194,19 +195,19 @@ Agent Output → TalentVerificationService.verify()
 
 ```json
 {
-  "success": true,
-  "data": { "strategy": "Buy", "confidence_score": 0.85 },
-  "metadata": {
-    "agent_id": "Estratega de Talento",
-    "verification": {
-      "score": 0.75,
-      "recommendation": "review",
-      "flag_for_review": true,
-      "total_checks": 5,
-      "error_count": 1,
-      "violation_rules": ["field_inconsistency_approved_without_date"]
+    "success": true,
+    "data": { "strategy": "Buy", "confidence_score": 0.85 },
+    "metadata": {
+        "agent_id": "Estratega de Talento",
+        "verification": {
+            "score": 0.75,
+            "recommendation": "review",
+            "flag_for_review": true,
+            "total_checks": 5,
+            "error_count": 1,
+            "violation_rules": ["field_inconsistency_approved_without_date"]
+        }
     }
-  }
 }
 ```
 
@@ -214,23 +215,23 @@ Agent Output → TalentVerificationService.verify()
 
 ```json
 {
-  "success": false,
-  "error": "Agent output rejected during verification",
-  "details": {
-    "verification_score": 0.2,
-    "recommendation": "reject",
-    "violations": [
-      {
-        "rule": "cross_tenant_data_detected",
-        "message": "Field 'organization_ids' indicates multi-tenant data",
-        "severity": "critical"
-      },
-      {
-        "rule": "threshold_exceeded",
-        "message": "Confidence score 0.3 below minimum 0.5"
-      }
-    ]
-  }
+    "success": false,
+    "error": "Agent output rejected during verification",
+    "details": {
+        "verification_score": 0.2,
+        "recommendation": "reject",
+        "violations": [
+            {
+                "rule": "cross_tenant_data_detected",
+                "message": "Field 'organization_ids' indicates multi-tenant data",
+                "severity": "critical"
+            },
+            {
+                "rule": "threshold_exceeded",
+                "message": "Confidence score 0.3 below minimum 0.5"
+            }
+        ]
+    }
 }
 ```
 
@@ -303,9 +304,9 @@ POST /api/admin/verification-rules
 
 ```sql
 -- Verification acceptance rates by agent
-SELECT agent_id, 
+SELECT agent_id,
        SUM(CASE WHEN recommendation='accept' THEN 1 ELSE 0 END) / COUNT(*) as acceptance_rate
-FROM audit_trails 
+FROM audit_trails
 WHERE action = 'verification_completed'
 GROUP BY agent_id
 
@@ -317,7 +318,7 @@ GROUP BY violation_rules ->> 0
 ORDER BY frequency DESC
 
 -- RAGAS service reliability
-SELECT 
+SELECT
     SUM(CASE WHEN ragas_available THEN 1 ELSE 0 END) / COUNT(*) as availability
 FROM audit_trails
 WHERE action = 'verification_completed' AND date_created > DATE_SUB(NOW(), INTERVAL 7 DAY)
@@ -461,25 +462,25 @@ $verifications = AuditTrail::query()
 it('rejects agent output with cross-tenant data in orchestration flow', function () {
     $org1 = Organization::factory()->create();
     $org2 = Organization::factory()->create();
-    
+
     $user = User::factory()->create(['organization_id' => $org1->id]);
-    
+
     $this->actingAs($user);
-    
+
     $orchestrator = app(AiOrchestratorService::class);
-    
+
     $output = [
         'evaluations' => [
             ['org_id' => $org1->id, 'data' => '...'],
             ['org_id' => $org2->id, 'data' => '...'],  // Cross-tenant!
         ],
     ];
-    
+
     $response = $orchestrator->orchestrate([
         'agent_id' => 'Orquestador 360',
         'output' => $output,
     ]);
-    
+
     expect($response->success)->toBeFalse();
     expect($response->metadata['verification']['recommendation'])->toBe('reject');
 });
@@ -489,20 +490,21 @@ it('rejects agent output with cross-tenant data in orchestration flow', function
 
 ## Known Integration Limitations & Mitigations
 
-| Limitation | Impact | Mitigation (Tarea 5) |
-|------------|--------|----------------------|
-| RAGAS service unavailable | Hallucinations not detected | Graceful degradation, use low threshold |
-| Network latency to RAGAS | Verification slow (245ms typical) | Async verification queue option (Tarea 6+) |
-| False positive hallucinations | Valid outputs flagged for review | Audit monitoring, adjust threshold over time |
-| Config not hot-reloadable | Need restart to change rules | Run in debug mode, cache invalidation (Tarea 6+) |
-| No per-user verification rules | Same rules for all users in org | Add user_role to context, filter rules by role (Tarea 6+) |
-| Violation messages hardcoded | Not localized for tenants | Add i18n keys, translate at API layer (Tarea 6+) |
+| Limitation                     | Impact                            | Mitigation (Tarea 5)                                      |
+| ------------------------------ | --------------------------------- | --------------------------------------------------------- |
+| RAGAS service unavailable      | Hallucinations not detected       | Graceful degradation, use low threshold                   |
+| Network latency to RAGAS       | Verification slow (245ms typical) | Async verification queue option (Tarea 6+)                |
+| False positive hallucinations  | Valid outputs flagged for review  | Audit monitoring, adjust threshold over time              |
+| Config not hot-reloadable      | Need restart to change rules      | Run in debug mode, cache invalidation (Tarea 6+)          |
+| No per-user verification rules | Same rules for all users in org   | Add user_role to context, filter rules by role (Tarea 6+) |
+| Violation messages hardcoded   | Not localized for tenants         | Add i18n keys, translate at API layer (Tarea 6+)          |
 
 ---
 
 ## Recommended Integration Rollout (Tarea 5)
 
 ### Phase 1: Silent Integration (Week 1)
+
 ```php
 // AiOrchestratorService
 $verification = $this->verifier->verify(...);
@@ -511,6 +513,7 @@ $verification = $this->verifier->verify(...);
 ```
 
 ### Phase 2: Review Flagging (Week 2)
+
 ```php
 // AiOrchestratorService
 $verification = $this->verifier->verify(...);
@@ -521,6 +524,7 @@ if ($verification->recommendation === 'review') {
 ```
 
 ### Phase 3: Hard Reject (Week 3)
+
 ```php
 // AiOrchestratorService
 $verification = $this->verifier->verify(...);
@@ -531,6 +535,7 @@ if ($verification->recommendation === 'reject') {
 ```
 
 ### Phase 4: Monitoring & Tuning (Week 4+)
+
 ```php
 // Analyze metrics
 // Adjust thresholds based on false positive rate
@@ -543,6 +548,7 @@ if ($verification->recommendation === 'reject') {
 ## Future Extensions (Tarea 6+)
 
 ### Potential Add-Ons
+
 1. **Async Verification Queue** - Long-running verifications in background
 2. **Rule Learning** - ML model learns agent-specific rule patterns
 3. **A/B Testing** - Test different verification strategies

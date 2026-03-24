@@ -91,6 +91,7 @@ class TalentVerificationServiceTest extends TestCase
 ```
 
 **Key Decisions:**
+
 - Use real `TalentVerificationService` (not mocked) to test full flow
 - Mock only external RAGAS service
 - Each test modifies Http::fake() if it needs different RAGAS response
@@ -119,6 +120,7 @@ public function test_verify_adds_violation_if_organization_id_missing()
 ```
 
 **Why this pattern:**
+
 - Tests security guardrail first
 - Ensures organization_id is mandatory
 - Simple assertion: rule name present in violations
@@ -128,6 +130,7 @@ public function test_verify_adds_violation_if_organization_id_missing()
 ## Test Pattern 2: Schema Validation Edge Cases
 
 **Minimum Length Test:**
+
 ```php
 public function test_verify_rejects_response_below_min_length()
 {
@@ -153,12 +156,14 @@ public function test_verify_rejects_response_below_min_length()
 ```
 
 **Why this approach:**
+
 - Tests an edge case that's hard to trigger
 - JSON encoding makes very short responses difficult
 - Gracefully skips if preconditions can't be met
 - Acknowledges test setup limitations
 
 **Maximum Length Test:**
+
 ```php
 public function test_verify_rejects_response_exceeding_max_length()
 {
@@ -178,6 +183,7 @@ public function test_verify_rejects_response_exceeding_max_length()
 ```
 
 **Why this pattern:**
+
 - Generates data that clearly exceeds constraint
 - Deterministic: always triggers violation
 - Single-concern: tests only max length
@@ -207,6 +213,7 @@ public function test_verify_detects_confidence_score_below_minimum()
 ```
 
 **Why this pattern:**
+
 - Tests numeric constraint boundary
 - Uses value just below threshold
 - Complements test_above_maximum (symmetric coverage)
@@ -217,11 +224,12 @@ public function test_verify_detects_confidence_score_below_minimum()
 ## Test Pattern 4: HTTP Mocking for RAGAS Integration
 
 **Test 1: Low Hallucination (Setup Default)**
+
 ```php
 public function test_verify_accepts_output_with_low_hallucination_rate()
 {
     // Uses setUp() default Http::fake with hallucination = 0.08
-    
+
     $output = [
         'strategy' => 'Buy',
         'reasoning' => 'Market analysis shows strong fit',
@@ -245,6 +253,7 @@ public function test_verify_accepts_output_with_low_hallucination_rate()
 ```
 
 **Test 2: High Hallucination (Override Http Mock)**
+
 ```php
 public function test_verify_detects_high_hallucination_rate()
 {
@@ -271,6 +280,7 @@ public function test_verify_detects_high_hallucination_rate()
 ```
 
 **Why this approach:**
+
 - Reusable Http mock in setUp()
 - Override per test for different RAGAS responses
 - Tests both "passes" and "fails" paths
@@ -299,6 +309,7 @@ public function test_verify_detects_field_inconsistency_approved_without_date()
 ```
 
 **Why this pattern:**
+
 - Tests logical inconsistency detection
 - Uses contradictions[] collection (not violations[])
 - Contradictions have different semantics (not rule violations)
@@ -347,6 +358,7 @@ public function test_verify_different_agent_matchmaker()
 ```
 
 **Why this pattern:**
+
 - Tests agent-specific rule validation
 - Each agent has different required_fields, constraints, valid_values
 - Verifies config-driven flexibility
@@ -357,6 +369,7 @@ public function test_verify_different_agent_matchmaker()
 ## Test Assertions Pattern
 
 **Collection Assertions:**
+
 ```php
 // Get rules from violations collection
 $violations->pluck('rule')->values()->toArray()
@@ -368,6 +381,7 @@ $violations->pluck('rule')->values()->toArray()
 ```
 
 **Recommendation Breadth:**
+
 ```php
 // Don't assert exact recommendation if edge case
 expect($result->recommendation)->toBeIn(['accept', 'review']);
@@ -380,6 +394,7 @@ expect($result->recommendation)->toBeIn(['accept', 'review']);
 ```
 
 **Score Ranges:**
+
 ```php
 // Test score bounds, not exact value
 expect($result->score)->toBeGreaterThanOrEqual(0.5);
@@ -396,6 +411,7 @@ expect($result->score)->toBeGreaterThanOrEqual(0.5);
 ## Debugging Patterns
 
 **Print Violations When Test Fails:**
+
 ```php
 $violationRules = $result->violations
     ->pluck('rule')
@@ -406,11 +422,13 @@ dd($violationRules);  // See what rules were triggered
 ```
 
 **Inspect Full Result:**
+
 ```php
 dd($result->toArray());  // All data: score, recommendation, violations, etc.
 ```
 
 **Check RAGAS Response:**
+
 ```php
 // Override Http mock in test to see what gets called
 Http::spy();

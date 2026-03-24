@@ -14,9 +14,11 @@
 **Namespace:** `App\Services`
 
 ### Purpose
+
 Validates agent outputs against business rules, detects hallucinations, contradictions, and enforces multi-tenant compliance. Acts as quality gatekeeper for AI-generated content before reaching users.
 
 ### Core Method Signature
+
 ```php
 public function verify(
     string $agentId,
@@ -28,42 +30,42 @@ public function verify(
 ### Processing Pipeline (5 Sequential Validators)
 
 1. **Multi-Tenant Validation** (Security First)
-   - Checks organization_id presence
-   - Detects cross-tenant data in output
-   - Severity: Errors stop further processing conceptually
-   - Rules: Global config `verify_multi_tenant = true`
+    - Checks organization_id presence
+    - Detects cross-tenant data in output
+    - Severity: Errors stop further processing conceptually
+    - Rules: Global config `verify_multi_tenant = true`
 
 2. **Schema Validation** (Structural)
-   - Length bounds: 10-50,000 chars
-   - Required fields per agent (from config)
-   - Field presence and emptiness checks
-   - Source: `verification_rules.agents[agentId].required_fields`
+    - Length bounds: 10-50,000 chars
+    - Required fields per agent (from config)
+    - Field presence and emptiness checks
+    - Source: `verification_rules.agents[agentId].required_fields`
 
 3. **Business Rules Validation** (Per-Agent Logic)
-   - Max/min constraints from config
-   - Enum validation (Buy/Build/Borrow, L1-L5, etc.)
-   - Numeric ranges (confidence, evaluation scores)
-   - Composite rules: strategy-dependent validation
-   - Source: `verification_rules.agents[agentId].*`
+    - Max/min constraints from config
+    - Enum validation (Buy/Build/Borrow, L1-L5, etc.)
+    - Numeric ranges (confidence, evaluation scores)
+    - Composite rules: strategy-dependent validation
+    - Source: `verification_rules.agents[agentId].*`
 
 4. **Hallucination Detection** (RAGASEvaluator)
-   - Calls RAGASEvaluator::evaluate() if enabled
-   - Threshold: hallucination_rate > 0.3 = violation
-   - Secondary checks: faithfulness_score < 0.75
-   - Sample size: 500 chars max (configurable)
-   - Graceful: Logs & continues if service unavailable
-   - Source: `verification_rules.hallucination_detection`
+    - Calls RAGASEvaluator::evaluate() if enabled
+    - Threshold: hallucination_rate > 0.3 = violation
+    - Secondary checks: faithfulness_score < 0.75
+    - Sample size: 500 chars max (configurable)
+    - Graceful: Logs & continues if service unavailable
+    - Source: `verification_rules.hallucination_detection`
 
 5. **Contradiction Detection** (Logical Consistency)
-   - Field consistency: approved flag vs date presence
-   - Logical consistency: strategy implications (Buy=no training)
-   - Dependency checks: empty candidates but scores set
-   - Returns contradictions[] (separate from violations)
+    - Field consistency: approved flag vs date presence
+    - Logical consistency: strategy implications (Buy=no training)
+    - Dependency checks: empty candidates but scores set
+    - Returns contradictions[] (separate from violations)
 
 ### Score Recalculation Logic (Inherited from VerificationResult)
 
 | Error Count | Score | Recommendation |
-|-------------|-------|-----------------|
+| ----------- | ----- | -------------- |
 | 0           | 1.0   | accept         |
 | 1           | 0.75  | review         |
 | 2-3         | 0.5   | review         |
@@ -108,6 +110,7 @@ $evaluation = $this->ragasEvaluator->evaluate(
 ### Configuration Integration
 
 All rules read from `config/verification_rules.php`:
+
 ```
 global.max_response_length = 50000
 global.min_response_length = 10
@@ -148,6 +151,7 @@ contradiction_detection.check_logical_consistency = true
 ### Violation Object Structure
 
 Each violation is immutable VerificationViolation:
+
 ```php
 {
     'rule': 'max_length_exceeded',        // Rule name
@@ -184,6 +188,7 @@ Each has specific rules in config/verification_rules.php
 ### Future Integration (Tarea 5)
 
 Will be called from AiOrchestratorService:
+
 ```php
 // In AiOrchestratorService::agentThink()
 $output = $this->generateOutput(...);
@@ -214,6 +219,7 @@ if (!$verification->isPassed()) {
 ## Architecture Decision: Why 5 Sequential Validators
 
 **Context:**
+
 - Need to validate agent outputs comprehensively
 - Prevent hallucinations, contradictions, data leaks
 - Support 9 different agent types with different rules
@@ -222,6 +228,7 @@ if (!$verification->isPassed()) {
 **Decision:** Use 5 sequential validators, ordered by business impact
 
 **Rationale:**
+
 1. **Multi-tenant FIRST** → Security critical, foundational
 2. **Schema SECOND** → Catches structural problems early
 3. **Business Rules THIRD** → Agent-specific constraints
@@ -229,6 +236,7 @@ if (!$verification->isPassed()) {
 5. **Contradictions LAST** → Logical consistency (catches accumulated issues)
 
 **Alternatives Considered:**
+
 - Single monolithic validator (harder to test/debug)
 - Parallel validators (ordering complexity)
 - Plugin architecture (over-engineered for 5 validators)
@@ -240,9 +248,10 @@ if (!$verification->isPassed()) {
 ## Key Implementation Insights
 
 1. **Fluent API Pattern:** VerificationResult supports chaining
-   ```php
-   $result->addViolation()->addHallucination()->addContradiction()
-   ```
+
+    ```php
+    $result->addViolation()->addHallucination()->addContradiction()
+    ```
 
 2. **Immutable Violations:** Each violation is value object (no state mutation)
 

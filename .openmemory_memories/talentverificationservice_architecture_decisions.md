@@ -9,16 +9,16 @@
 
 ## Core Architecture Decision Matrix
 
-| Decision | Choice | Rationale | Tradeoff |
-|----------|--------|-----------|----------|
-| **Validator Order** | Multi-tenant → Schema → Rules → Halluc → Contrad | Fail fast on security, then structural, then logic | Can't short-circuit early if security fails |
-| **Score Calculation** | Discrete thresholds (0/1/2-3/4+) | Simple, auditable, matches business logic | Less granular than continuous (0.0-1.0) |
-| **RAGAS Integration** | Optional, graceful degradation | Service unavailability ≠ verification failure | May allow hallucinated content if RAGAS down |
-| **Immutability** | VerificationResult immutable, violations locked | Audit safety, no hidden mutations | Can't update result after creation |
-| **Error Handling** | Outer try-catch wraps service | Never throw from verify() | Exceptions logged but not exposed to caller |
-| **Multi-Tenant** | Validated first, not assumed | Zero-trust model | Slight performance hit for org_id extraction |
-| **Configuration** | Externalized in PHP config | Easy to modify without code changes | Need to restart app for config changes |
-| **Audit Integration** | Sync logging in verify() | Events recorded immediately | Adds minimal latency to verification |
+| Decision              | Choice                                           | Rationale                                          | Tradeoff                                     |
+| --------------------- | ------------------------------------------------ | -------------------------------------------------- | -------------------------------------------- |
+| **Validator Order**   | Multi-tenant → Schema → Rules → Halluc → Contrad | Fail fast on security, then structural, then logic | Can't short-circuit early if security fails  |
+| **Score Calculation** | Discrete thresholds (0/1/2-3/4+)                 | Simple, auditable, matches business logic          | Less granular than continuous (0.0-1.0)      |
+| **RAGAS Integration** | Optional, graceful degradation                   | Service unavailability ≠ verification failure      | May allow hallucinated content if RAGAS down |
+| **Immutability**      | VerificationResult immutable, violations locked  | Audit safety, no hidden mutations                  | Can't update result after creation           |
+| **Error Handling**    | Outer try-catch wraps service                    | Never throw from verify()                          | Exceptions logged but not exposed to caller  |
+| **Multi-Tenant**      | Validated first, not assumed                     | Zero-trust model                                   | Slight performance hit for org_id extraction |
+| **Configuration**     | Externalized in PHP config                       | Easy to modify without code changes                | Need to restart app for config changes       |
+| **Audit Integration** | Sync logging in verify()                         | Events recorded immediately                        | Adds minimal latency to verification         |
 
 ---
 
@@ -27,22 +27,26 @@
 ### Sequential vs. Parallel Execution
 
 **Choice:** Sequential (current implementation)
+
 ```
 Multi-tenant → Schema → Rules → Hallucinations → Contradictions
 ```
 
 **Rationale:**
+
 - Fail-fast: Stop early if critical violations found
 - Deterministic: Same order every run
 - Auditable: Clear progression of validation stages
 - Incremental violations: Can inspect at each stage
 
 **Alternative (Parallel):**
+
 ```
 All validators run simultaneously, collect all violations
 ```
 
 **Why not chosen:**
+
 - Harder to debug (which violation came from where?)
 - Less fail-fast (always runs all validators)
 - Score calculation becomes more complex (no clear priority)
@@ -64,6 +68,7 @@ All validators run simultaneously, collect all violations
 ```
 
 **Rationale:**
+
 - Matches business logic (HR teams think in discrete categories)
 - Easy to explain ("Each violation costs X points")
 - Easy to audit ("Why was recommendation 'review'? 2 violations")
@@ -71,11 +76,13 @@ All validators run simultaneously, collect all violations
 - Prevents gaming (e.g., 0.748 score vs 0.75)
 
 **Alternative (Continuous):**
+
 ```php
 score = max(0.2, 1.0 - (violations.count * 0.15))
 ```
 
 **Why not chosen:**
+
 - Harder to explain ("Why 0.741 and not 0.75?")
 - Business rules mentality is categorical, not continuous
 - Recommendations become arbitrary at crossover points
@@ -97,6 +104,7 @@ return new VerificationResult(violations: []);
 ```
 
 **Rationale:**
+
 - Per-agent opt-in (some agents may not need it)
 - Graceful degradation (service outage doesn't fail verification)
 - Testable: Can mock HTTP response easily
@@ -104,6 +112,7 @@ return new VerificationResult(violations: []);
 - Flexibility: Can add more agents without modifying code
 
 **Alternative 1 (Always Required):**
+
 ```php
 // Fail if RAGAS unavailable
 $hallucinations = $this->detectHallucinations($output, $context);
@@ -111,17 +120,20 @@ if (!$hallucinations) throw new RAGASUnavailableException();
 ```
 
 **Why not chosen:**
+
 - Creates hard dependency on external service
 - System goes down if RAGAS goes down (bad for SaaS)
 - No fallback for degraded RAGAS performance
 
 **Alternative 2 (Never Used):**
+
 ```php
 // Skip hallucination check
 $hallucinations = [];
 ```
 
 **Why not chosen:**
+
 - Loses LLM output quality assurance
 - Can't detect hallucinations at all
 - Reduces verification completeness
@@ -143,9 +155,9 @@ public function verify($agentId, $output, $context): VerificationResult
         return $result;
     } catch (Throwable $e) {
         // Log but don't throw
-        $this->auditVerification($agentId, $output, $context, 
+        $this->auditVerification($agentId, $output, $context,
             verification_failed: true, error: $e->getMessage());
-        
+
         // Return safe default
         return VerificationResult::rejected()
             ->withError($e->getMessage());
@@ -154,12 +166,14 @@ public function verify($agentId, $output, $context): VerificationResult
 ```
 
 **Rationale:**
+
 - Never throws from verify() (fail-safe pattern)
 - Caller always gets VerificationResult
 - Errors captured in audit trail
 - Error information available in result object
 
 **Alternative (Inner Try-Catch per Validator):**
+
 ```php
 try {
     $this->validateSchema(...);
@@ -177,6 +191,7 @@ try {
 ```
 
 **Why not chosen:**
+
 - Verbose, repeated error handling
 - Inconsistent error recovery across validators
 - Harder to audit (unclear which validator errored)
@@ -227,18 +242,21 @@ private function validateMultiTenant(
 ```
 
 **Rationale:**
+
 - Security first: Validate org_id before any other validation
 - Defense in depth: Multiple checks for cross-tenant data
 - Pattern-based: Key names that indicate shared data
 - Regex fallback: Catch case variations
 
 **Alternative (Trust-Provided):**
+
 ```php
 // Assume framework/middleware ensures organization_id
 // Skip this validation entirely
 ```
 
 **Why not chosen:**
+
 - Violates zero-trust principle
 - Middleware could be bypassed
 - Bug in framework = data leak
@@ -276,6 +294,7 @@ $minScore = $config['fields']['confidence_score']['min'];
 ```
 
 **Rationale:**
+
 - Zero code changes to add new agent
 - HR team can modify via config without developer
 - Restart app vs. deploy code (same cost operationally)
@@ -283,17 +302,20 @@ $minScore = $config['fields']['confidence_score']['min'];
 - Easy to audit ("What rules applied for this verification?")
 
 **Alternative 1 (Database-Driven):**
+
 ```php
 $config = VerificationRule::where('agent_id', $agentId)->get();
 ```
 
 **Why not chosen:**
+
 - Extra DB query per verification (performance)
 - Database becomes source of truth (harder to version)
 - Migration complexity (config schema changes)
 - Risk of partial config loads
 
 **Alternative 2 (Hardcoded in Service):**
+
 ```php
 if ($agentId === 'Estratega de Talento') {
     $minScore = 0.5;
@@ -303,6 +325,7 @@ if ($agentId === 'Estratega de Talento') {
 ```
 
 **Why not chosen:**
+
 - Duplicate rules across codebase
 - Hard to discover all agents
 - Code deployment needed for config changes
@@ -339,12 +362,14 @@ final class VerificationResult
 ```
 
 **Rationale:**
+
 - Audit safety: Result can't be modified after creation
 - Thread-safe: No state mutations across requests
 - Audit clarity: Exact result that was returned
 - Error prevention: Can't accidentally modify in callback
 
 **Alternative (Mutable):**
+
 ```php
 class VerificationResult
 {
@@ -356,6 +381,7 @@ class VerificationResult
 ```
 
 **Why not chosen:**
+
 - Someone could mutate result after verification (hidden bugs)
 - Audit trail unclear (which result was actually returned?)
 - Multi-thread issues if result mutated during logging
@@ -384,18 +410,21 @@ public function verify($agentId, $output, $context): VerificationResult
 ```
 
 **Rationale:**
+
 - Testable: Can mock RAGAS and AuditTrailService
 - Flexible: Can swap implementations without code changes
 - Clear dependencies: Constructor shows what service needs
 - Laravel convention: Service locator anti-pattern
 
 **Alternative (Service Locator):**
+
 ```php
 $ragas = app(RAGASEvaluator::class);
 $hallucinations = $ragas->evaluate(...);
 ```
 
 **Why not chosen:**
+
 - Less testable (hard to mock Magic app() call)
 - Hidden dependencies (not clear from constructor)
 - Runtime discovery (type checker can't verify)
@@ -422,7 +451,7 @@ private function detectContradictions(array $output): VerificationResult
     }
 
     // Contradiction 2: Buy strategy with training recommendation
-    if ($output['strategy'] === 'Buy' && 
+    if ($output['strategy'] === 'Buy' &&
         isset($output['recommendations']) &&
         in_array('Training', $output['recommendations'])
     ) {
@@ -436,18 +465,21 @@ private function detectContradictions(array $output): VerificationResult
 ```
 
 **Rationale:**
+
 - Business logic validation (not just data format)
 - Catches LLM reasoning errors (hallucinations at logic level)
 - Domain-specific (rules learned from domain experts)
 - High accuracy (false positives rare)
 
 **Alternative (No Contradiction Checks):**
+
 ```php
 // Skip logical validation
 return new VerificationResult(violations: []);
 ```
 
 **Why not chosen:**
+
 - LLM can produce structurally valid but logically invalid outputs
 - Misses reasoning errors (hallucinations at logic level)
 - Reduces verification completeness
@@ -477,6 +509,7 @@ $rules = $this->violations
 ```
 
 **Rationale:**
+
 - Laravel best practice for list handling
 - Immutable (supports immutable result object)
 - Easy filtering/mapping/chaining
@@ -484,6 +517,7 @@ $rules = $this->violations
 - Audit-friendly (exact list of violations)
 
 **Alternative (Array):**
+
 ```php
 private array $violations = [];
 
@@ -492,6 +526,7 @@ $this->violations[] = $violation;  // Mutates
 ```
 
 **Why not chosen:**
+
 - Native arrays mutable (harder to protect)
 - Less fluent API (can't chain operations)
 - Harder to map/filter
@@ -532,6 +567,7 @@ private function auditVerification(
 ```
 
 **Rationale:**
+
 - Single audit log per verification (atomic)
 - Captures complete verification state
 - Linked to organization (multi-tenant audit)
@@ -539,6 +575,7 @@ private function auditVerification(
 - Immutable log (no changes after creation)
 
 **Alternative (Per-Validator Logging):**
+
 ```php
 $this->audit->log('multi_tenant_check_passed');
 $this->audit->log('schema_check_passed');
@@ -546,6 +583,7 @@ $this->audit->log('schema_check_passed');
 ```
 
 **Why not chosen:**
+
 - Log spam (5+ logs per verification)
 - Harder to correlate (which logs belong to same verification?)
 - More processing (5 DB inserts vs 1)
@@ -560,22 +598,24 @@ $this->audit->log('schema_check_passed');
 ### Decision: Per-Agent Business Rule Validators (Tarea 3)
 
 **Options being considered:**
+
 1. **Common Base Class + 9 Subclasses**
-   - BaseBusinessRuleValidator
-   - EstrategiaValidator extends Base
-   - OrquestacionValidator extends Base
-   - ... 7 more
+    - BaseBusinessRuleValidator
+    - EstrategiaValidator extends Base
+    - OrquestacionValidator extends Base
+    - ... 7 more
 
 2. **Strategy Pattern (9 Strategy Classes)**
-   - BusinessRuleValidationStrategy interface
-   - EstrategiaStrategy implements interface
-   - inject (Strategy) not (Validator)
+    - BusinessRuleValidationStrategy interface
+    - EstrategiaStrategy implements interface
+    - inject (Strategy) not (Validator)
 
 3. **Configuration-Driven (No Classes)**
-   - All rules in verification_rules.php
-   - Generic validateBusinessRules() reads config
+    - All rules in verification_rules.php
+    - Generic validateBusinessRules() reads config
 
 **Trade-offs under evaluation:**
+
 - Option 1: Type-safe, clear inheritance, larger codebase
 - Option 2: Flexible, interchangeable, adds abstraction
 - Option 3: Simple, config-driven, less type safety

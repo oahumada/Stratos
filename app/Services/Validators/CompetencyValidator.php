@@ -53,9 +53,10 @@ class CompetencyValidator
                 foreach ($agentOutput['proficiency_levels'] as $index => $proficiency) {
                     if (! in_array($proficiency, $allowedProficiencies, true)) {
                         $violations[] = new VerificationViolation(
-                            field: "proficiency_levels[$index]",
-                            field_value: (string) $proficiency,
                             rule: 'invalid_value',
+                            severity: 'error',
+                            field: "proficiency_levels[$index]",
+                            received: (string) $proficiency,
                             message: "Invalid proficiency level '{$proficiency}'. Must be one of: ".implode(', ', $allowedProficiencies),
                         );
                     }
