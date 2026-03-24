@@ -291,6 +291,22 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         ->name('deployment.verification-metrics.byType');
     Route::get('/api/deployment/verification-metrics/export', [\App\Http\Controllers\Deployment\VerificationMetricsDashboardController::class, 'export'])
         ->name('deployment.verification-metrics.export');
+
+    // Verification Hub (Phase 1 MVP) - Admin Only
+    Route::inertia('/deployment/verification-hub', 'Deployment/VerificationHub')
+        ->name('deployment.verification-hub');
+    
+    // Hub API Endpoints
+    Route::get('/api/deployment/verification/scheduler-status', [\App\Http\Controllers\Deployment\VerificationHubController::class, 'schedulerStatus'])
+        ->name('deployment.verification.scheduler-status');
+    Route::get('/api/deployment/verification/transitions', [\App\Http\Controllers\Deployment\VerificationHubController::class, 'recentTransitions'])
+        ->name('deployment.verification.transitions');
+    Route::get('/api/deployment/verification/notifications', [\App\Http\Controllers\Deployment\VerificationHubController::class, 'notifications'])
+        ->name('deployment.verification.notifications');
+    Route::post('/api/deployment/verification/test-notification', [\App\Http\Controllers\Deployment\VerificationHubController::class, 'testNotification'])
+        ->name('deployment.verification.test-notification');
+    Route::get('/api/deployment/verification/configuration', [\App\Http\Controllers\Deployment\VerificationHubController::class, 'configuration'])
+        ->name('deployment.verification.configuration');
 });
 
 require __DIR__.'/settings.php';
