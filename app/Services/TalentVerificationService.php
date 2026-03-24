@@ -185,117 +185,33 @@ class TalentVerificationService
 
     /**
      * 3. Business rules validation - per-agent logic
+     *
+     * Delegates to per-agent validators via ValidatorFactory
      */
     protected function validateBusinessRules(
         string $agentId,
         array $agentOutput,
         VerificationResult $result
     ): void {
-        $agentConfig = config("verification_rules.agents.{$agentId}");
-
-        if (! $agentConfig) {
-            Log::warning("No verification rules found for agent: {$agentId}");
+        // Get validator for this agent
+        if (! Validators\ValidatorFactory::hasAgent($agentId)) {
+            Log::warning("No validator found for agent: {$agentId}");
 
             return;
         }
 
-        // Validate max constraints
-        $constraints = [
-            'max_recommendations' => fn ($v) => is_countable($v) ? count($v) : 0,
-            'max_candidates' => fn ($v) => is_countable($v) ? count($v) : 0,
-            'max_biases_to_report' => fn ($v) => is_countable($v) ? count($v) : 0,
-            'max_path_steps' => fn ($v) => is_countable($v) ? count($v) : 0,
-            'max_competencies' => fn ($v) => is_countable($v) ? count($v) : 0,
-            'max_anomalies_to_report' => fn ($v) => is_countable($v) ? count($v) : 0,
-        ];
+        try {
+            $validator = Validators\ValidatorFactory::make($agentId);
+            $validationResult = $validator->validate($agentOutput);
 
-        foreach ($constraints as $constraint => $getter) {
-            if (isset($agentConfig[$constraint])) {
-                foreach ($agentOutput as $key => $value) {
-                    $count = $getter($value);
-                    if ($count > $agentConfig[$constraint]) {
-                        $result->addViolation(
-                            new VerificationViolation(
-                                rule: 'constraint_violated',
-                                severity: 'warning',
-                                message: "{$key} exceeds limit of {$agentConfig[$constraint]} (got {$count})"
-                            )
-                        );
-                    }
+            // Add all violations to result
+            if (! empty($validationResult['violations'])) {
+                foreach ($validationResult['violations'] as $violation) {
+                    $result->addViolation($violation);
                 }
             }
-        }
-
-        // Validate enum values
-        if (isset($agentConfig['valid_strategies'])) {
-            if (isset($agentOutput['strategy']) && ! in_array($agentOutput['strategy'], $agentConfig['valid_strategies'], true)) {
-                $result->addViolation(
-                    new VerificationViolation(
-                        rule: 'invalid_value',
-                        severity: 'error',
-                        message: "Invalid strategy: {$agentOutput['strategy']}",
-                        field: 'strategy',
-                        received: $agentOutput['strategy'],
-                        expected: implode(', ', $agentConfig['valid_strategies'])
-                    )
-                );
-            }
-        }
-
-        if (isset($agentConfig['valid_role_levels'])) {
-            if (isset($agentOutput['role_level']) && ! in_array($agentOutput['role_level'], $agentConfig['valid_role_levels'], true)) {
-                $result->addViolation(
-                    new VerificationViolation(
-                        rule: 'invalid_value',
-                        severity: 'error',
-                        message: "Invalid role_level: {$agentOutput['role_level']}",
-                        field: 'role_level',
-                        received: $agentOutput['role_level'],
-                        expected: implode(', ', $agentConfig['valid_role_levels'])
-                    )
-                );
-            }
-        }
-
-        // Validate numeric ranges
-        $ranges = [
-            'confidence_score' => ['confidence_min', 'confidence_max'],
-            'evaluation_score' => ['evaluation_score_min', 'evaluation_score_max'],
-            'ethics_score' => ['ethics_score_min', 'ethics_score_max'],
-            'sentiment_score' => ['sentiment_min', 'sentiment_max'],
-        ];
-
-        foreach ($ranges as $field => $minMaxKeys) {
-            if (isset($agentOutput[$field])) {
-                $value = $agentOutput[$field];
-                [$minKey, $maxKey] = $minMaxKeys;
-
-                if (isset($agentConfig[$minKey]) && $value < $agentConfig[$minKey]) {
-                    $result->addViolation(
-                        new VerificationViolation(
-                            rule: 'threshold_exceeded',
-                            severity: 'warning',
-                            message: "{$field} {$value} is below minimum {$agentConfig[$minKey]}",
-                            field: $field,
-                            received: (string) $value,
-                            expected: '>= '.$agentConfig[$minKey]
-                        )
-                    );
-                }
-
-                if (isset($agentConfig[$maxKey]) && $value > $agentConfig[$maxKey]) {
-                    $result->addViolation(
-                        new VerificationViolation(
-                            rule: 'threshold_exceeded',
-                            severity: 'warning',
-                            message: "{$field} {$value} exceeds maximum {$agentConfig[$maxKey]}",
-                            field: $field,
-                            received: (string) $value,
-                            expected: '<= '.$agentConfig[$maxKey]
-                        )
-                    );
-                }
-            }
+        } catch (\InvalidArgumentException $e) {
+            Log::error("Validation error for agent {$agentId}: {$e->getMessage()}");
         }
     }
 
