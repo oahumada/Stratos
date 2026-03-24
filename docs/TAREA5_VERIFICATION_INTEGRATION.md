@@ -10,6 +10,61 @@ Tarea 5 integra el TalentVerificationService como quality gate en AiOrchestrator
 
 ---
 
+## 📖 Para No Especialistas: Guía Rápida de las 4 Fases
+
+**¿Qué es Tarea 5?**  
+Es un sistema de control de calidad que verifica que los agentes IA generen respuestas correctas. Piénsalo como un "revisor automático" que chequea que todo esté en orden antes de mostrar los resultados a los usuarios.
+
+**¿Por qué 4 fases?**  
+Porque no queremos activar todo de una vez y romper el sistema. Es como cuando subes el volumen de un equipo de música poco a poco en lugar de al máximo de golpe.
+
+### Las 4 Fases Explicadas Sencillamente:
+
+#### **Fase 1: SILENCIOSA - "Observar sin actuar"**
+- 🔇 **Lo que hace:** El sistema detecta errores pero LOS CALLA. Los errores se registran en logs (reportes internos) pero NO afectan al usuario.
+- 📍 **Dónde:** Development (desarrollo) y Staging (pruebas internas)
+- 👥 **Impacto en usuarios:** Cero. Ellos no ven nada diferente.
+- 📊 **Propósito:** Recopilar datos: ¿Cuántos errores hay? ¿Qué tipos de errores son?
+
+#### **Fase 2: BANDERA - "Alertar pero permitir"**
+- 🚩 **Lo que hace:** El sistema detecta errores Y LOS MARCA con una banderita. El usuario ve que hay algo sospechoso ("⚠️ Esta respuesta puede tener problemas") pero la respuesta se muestra de todas formas.
+- 📍 **Dónde:** Transición de Staging a Producción
+- 👥 **Impacto en usuarios:** Aviso en la interfaz: "Revisar esto manualmente antes de actuar"
+- 📊 **Propósito:** Los usuarios y administradores pueden revisar los errores detectados
+
+#### **Fase 3: RECHAZO - "Bloquear lo malo"**
+- ❌ **Lo que hace:** El sistema detecta errores Y RECHAZA la respuesta. El usuario recibe un mensaje de error (422) diciendo "Esto no es válido, intenta de nuevo".
+- 📍 **Dónde:** Producción (el sistema en vivo)
+- 👥 **Impacto en usuarios:** "Tu solicitud no pudo completarse. Por favor, intenta de nuevo."
+- 📊 **Propósito:** Garantizar que SOLO las respuestas correctas lleguen a los usuarios
+
+#### **Fase 4: AUTO-MEJORA - "Intentar arreglarlo automáticamente"**
+- 🔄 **Lo que hace:** Si el sistema detecta un error, en lugar de rechazar, le pide al agente IA que lo intente de nuevo pero de forma mejorada (hasta 2 intentos). Si la segunda vez sale bien, ¡perfecto!
+- 📍 **Dónde:** Producción (optimización)
+- 👥 **Impacto en usuarios:** La solicitud tarda un poco más pero tiene más probabilidad de éxito
+- 📊 **Propósito:** Mejorar la tasa de éxito de las solicitudes automáticamente
+
+### Un Ejemplo del Mundo Real:
+
+Imagina que pides a un asistente IA que te cree una estrategia de recursos humanos:
+
+- **Fase 1 (Silenciosa):** El sistema nota: "La estrategia no tiene presupuesto asociado". Pero la muestra de todas formas. Internamente, registra: "Error tipo X en 15 solicitudes hoy".
+
+- **Fase 2 (Bandera):** El sistema nota lo mismo y le pone una etiqueta amarilla: El usuario ve "⚠️ Cuidado: podría faltar información" pero recibe la estrategia.
+
+- **Fase 3 (Rechazo):** El sistema nota lo mismo y dice "No, esto no es válido. Solicitud rechazada." El usuario debe intentar de nuevo.
+
+- **Fase 4 (Auto-Mejora):** El sistema nota lo mismo. Pero en lugar de rechazar, le dice al IA: "Intenta de nuevo, pero esta vez asegúrate de incluir el presupuesto". El IA intenta de nuevo y esta vez ¡sale bien!
+
+### ¿Cómo se Decide "Válido" o "Inválido"?
+
+El sistema cuenta los **errores (violaciones)**:
+- ✅ **0 errores** → Perfecto. Confianza: 100%. Decisión: **ACEPTAR**
+- ⚠️ **1-2 errores** → Dudoso. Confianza: 65-85%. Decisión: **REVISAR MANUALMENTE**
+- ❌ **3+ errores** → Muy malo. Confianza: <40%. Decisión: **RECHAZAR**
+
+---
+
 ## Core Concepts
 
 ### 4-Phase Rollout Strategy
