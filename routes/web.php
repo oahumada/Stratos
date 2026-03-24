@@ -315,6 +315,20 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         ->name('deployment.verification.dry-run');
     Route::get('/api/deployment/verification/compliance-report', [\App\Http\Controllers\Deployment\VerificationHubController::class, 'complianceReport'])
         ->name('deployment.verification.compliance-report');
+
+    // Verification Dashboards (Phase 7) - Admin Only
+    Route::inertia('/deployment/verification/dashboard/executive', 'Verification/ExecutiveDashboard')
+        ->name('deployment.verification.dashboard.executive');
+    Route::inertia('/deployment/verification/dashboard/operational', 'Verification/OperationalDashboard')
+        ->name('deployment.verification.dashboard.operational');
+    Route::inertia('/deployment/verification/dashboard/compliance', 'Verification/ComplianceDashboard')
+        ->name('deployment.verification.dashboard.compliance');
+    Route::inertia('/deployment/verification/dashboard/performance', 'Verification/PerformanceDashboard')
+        ->name('deployment.verification.dashboard.performance');
+    Route::inertia('/deployment/verification/dashboard/insights', 'Verification/InsightsDashboard')
+        ->name('deployment.verification.dashboard.insights');
+    Route::inertia('/deployment/verification/dashboard/realtime', 'Verification/RealtimeMonitor')
+        ->name('deployment.verification.dashboard.realtime');
 });
 
 require __DIR__.'/settings.php';

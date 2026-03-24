@@ -1,4 +1,86 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import aggregates570a0b from './aggregates'
+/**
+* @see \App\Http\Controllers\Api\IntelligenceAggregatesController::aggregates
+* @see app/Http/Controllers/Api/IntelligenceAggregatesController.php:24
+* @route '/api/intelligence/aggregates'
+*/
+export const aggregates = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: aggregates.url(options),
+    method: 'get',
+})
+
+aggregates.definition = {
+    methods: ["get","head"],
+    url: '/api/intelligence/aggregates',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Api\IntelligenceAggregatesController::aggregates
+* @see app/Http/Controllers/Api/IntelligenceAggregatesController.php:24
+* @route '/api/intelligence/aggregates'
+*/
+aggregates.url = (options?: RouteQueryOptions) => {
+    return aggregates.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\IntelligenceAggregatesController::aggregates
+* @see app/Http/Controllers/Api/IntelligenceAggregatesController.php:24
+* @route '/api/intelligence/aggregates'
+*/
+aggregates.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: aggregates.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\IntelligenceAggregatesController::aggregates
+* @see app/Http/Controllers/Api/IntelligenceAggregatesController.php:24
+* @route '/api/intelligence/aggregates'
+*/
+aggregates.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: aggregates.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\Api\IntelligenceAggregatesController::aggregates
+* @see app/Http/Controllers/Api/IntelligenceAggregatesController.php:24
+* @route '/api/intelligence/aggregates'
+*/
+const aggregatesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: aggregates.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\IntelligenceAggregatesController::aggregates
+* @see app/Http/Controllers/Api/IntelligenceAggregatesController.php:24
+* @route '/api/intelligence/aggregates'
+*/
+aggregatesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: aggregates.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\IntelligenceAggregatesController::aggregates
+* @see app/Http/Controllers/Api/IntelligenceAggregatesController.php:24
+* @route '/api/intelligence/aggregates'
+*/
+aggregatesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: aggregates.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+aggregates.form = aggregatesForm
+
 /**
 * @see routes/web.php:250
 * @route '/intelligence/monitoring-hub'
@@ -221,10 +303,86 @@ agentMetricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 
 agentMetrics.form = agentMetricsForm
 
+/**
+* @see routes/web.php:262
+* @route '/intelligence/aggregates'
+*/
+export const metricsDashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: metricsDashboard.url(options),
+    method: 'get',
+})
+
+metricsDashboard.definition = {
+    methods: ["get","head"],
+    url: '/intelligence/aggregates',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:262
+* @route '/intelligence/aggregates'
+*/
+metricsDashboard.url = (options?: RouteQueryOptions) => {
+    return metricsDashboard.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:262
+* @route '/intelligence/aggregates'
+*/
+metricsDashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: metricsDashboard.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:262
+* @route '/intelligence/aggregates'
+*/
+metricsDashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: metricsDashboard.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:262
+* @route '/intelligence/aggregates'
+*/
+const metricsDashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: metricsDashboard.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:262
+* @route '/intelligence/aggregates'
+*/
+metricsDashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: metricsDashboard.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:262
+* @route '/intelligence/aggregates'
+*/
+metricsDashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: metricsDashboard.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+metricsDashboard.form = metricsDashboardForm
+
 const intelligence = {
+    aggregates: Object.assign(aggregates, aggregates570a0b),
     monitoringHub: Object.assign(monitoringHub, monitoringHub),
     qualityDashboard: Object.assign(qualityDashboard, qualityDashboard),
     agentMetrics: Object.assign(agentMetrics, agentMetrics),
+    metricsDashboard: Object.assign(metricsDashboard, metricsDashboard),
 }
 
 export default intelligence

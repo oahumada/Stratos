@@ -1268,6 +1268,17 @@ Route::middleware('auth:sanctum')->prefix('intelligence')->group(function () {
 // Catálogos dinámicos para selectores
 require __DIR__.'/form-schema-complete.php';
 
+// ── Verification Hub: Dashboards & Analytics ──────────────────────
+Route::middleware('auth:sanctum')->prefix('deployment/verification')->group(function () {
+    // Dashboard metrics endpoints
+    Route::get('/metrics', [\App\Http\Controllers\Deployment\VerificationDashboardController::class, 'metrics'])->name('verification.metrics');
+    Route::get('/compliance-metrics', [\App\Http\Controllers\Deployment\VerificationDashboardController::class, 'complianceMetrics'])->name('verification.compliance-metrics');
+    Route::get('/metrics-history', [\App\Http\Controllers\Deployment\VerificationDashboardController::class, 'metricsHistory'])->name('verification.metrics-history');
+    Route::get('/realtime-events', [\App\Http\Controllers\Deployment\VerificationDashboardController::class, 'realtimeEvents'])->name('verification.realtime-events');
+    Route::get('/realtime-events-stream', [\App\Http\Controllers\Deployment\VerificationDashboardController::class, 'realtimeEventsStream'])->name('verification.realtime-events-stream');
+    Route::get('/export-metrics', [\App\Http\Controllers\Deployment\VerificationDashboardController::class, 'exportMetrics'])->name('verification.export-metrics');
+});
+
 // ── Automation & Hybrid Workflows (n8n) ──────────────────────────
 Route::prefix('automation')->group(function () {
     Route::post('/webhooks/n8n', [\App\Http\Controllers\Api\Automation\N8nController::class, 'handleWebhook']);

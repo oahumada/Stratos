@@ -61,6 +61,7 @@ import PxController from './PxController'
 import RAGASEvaluationController from './RAGASEvaluationController'
 import RagController from './RagController'
 import AgentInteractionMetricsController from './AgentInteractionMetricsController'
+import IntelligenceAggregatesController from './IntelligenceAggregatesController'
 import Automation from './Automation'
 
 const Api = {
@@ -127,6 +128,7 @@ const Api = {
     RAGASEvaluationController: Object.assign(RAGASEvaluationController, RAGASEvaluationController),
     RagController: Object.assign(RagController, RagController),
     AgentInteractionMetricsController: Object.assign(AgentInteractionMetricsController, AgentInteractionMetricsController),
+    IntelligenceAggregatesController: Object.assign(IntelligenceAggregatesController, IntelligenceAggregatesController),
     Automation: Object.assign(Automation, Automation),
 }
 
