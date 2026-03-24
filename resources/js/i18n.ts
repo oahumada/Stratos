@@ -754,6 +754,11 @@ export const messages = {
                         description:
                             'Management of the Organizational Constitution: Mission, Vision, and Values.',
                     },
+                    verification_hub: {
+                        title: 'Verification Hub',
+                        description:
+                            'Real-time monitoring, simulation, and control of the phase transition verification system.',
+                    },
                     verification_deployment: {
                         title: 'Verification Deployment',
                         description:
@@ -1559,6 +1564,11 @@ export const messages = {
                         title: 'Stratos Identity',
                         description:
                             'Gestión de la Constitución Organizacional: Misión, Visión y Valores.',
+                    },
+                    verification_hub: {
+                        title: 'Verification Hub',
+                        description:
+                            'Monitoreo en tiempo real, simulación y control del sistema de verificación de transiciones de fase.',
                     },
                     verification_deployment: {
                         title: 'Despliegue de Verificación',

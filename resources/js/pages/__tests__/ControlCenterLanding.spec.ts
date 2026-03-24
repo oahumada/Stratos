@@ -41,6 +41,10 @@ vi.mock('vue-i18n', () => ({
                     'Stratos Identity',
                 'landings.control_center.modules.cultural_blueprint.description':
                     'Gestión de la Constitución Organizacional.',
+                'landings.control_center.modules.verification_hub.title':
+                    'Verification Hub',
+                'landings.control_center.modules.verification_hub.description':
+                    'Monitoreo, simulación y control del sistema de verificación de transiciones.',
                 'landings.control_center.modules.verification_deployment.title':
                     'Verification Deployment',
                 'landings.control_center.modules.verification_deployment.description':

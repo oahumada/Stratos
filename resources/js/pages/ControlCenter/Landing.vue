@@ -28,6 +28,7 @@ import {
     PhBrain,
     PhCertificate,
     PhChartLineUp,
+    PhCheckCircle,
     PhEye,
     PhGear,
     PhPlug,
@@ -125,6 +126,15 @@ const modules = computed(() => [
         icon: PhScroll,
         href: '/controlcenter/culture',
         iconColor: 'text-fuchsia-300',
+    },
+    {
+        title: t('landings.control_center.modules.verification_hub.title'),
+        description: t(
+            'landings.control_center.modules.verification_hub.description',
+        ),
+        icon: PhCheckCircle,
+        href: '/deployment/verification-hub',
+        iconColor: 'text-teal-300',
     },
     {
         title: t(
