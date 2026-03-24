@@ -5,7 +5,7 @@
 **Status:** ✅ COMPLETED  
 **File:** `tests/Unit/Services/ValidatorsEdgeCaseTest.php` (851 LOC)  
 **Tests:** 53 comprehensive edge case tests  
-**Pass Rate:** 53/53 (100%)  
+**Pass Rate:** 53/53 (100%)
 
 ---
 
@@ -15,15 +15,15 @@ Tarea 4 completed the validation framework by implementing comprehensive edge ca
 
 ### Key Metrics
 
-| Metric | Value |
-|--------|-------|
-| New test file LOC | 851 |
-| Test cases created | 53 |
-| Validators covered | 9/9 (100%) |
-| Pass rate | 53/53 (100%) |
-| Full suite tests passing | 363 |
-| Regressions | 0 |
-| Execution time | ~1.6 seconds |
+| Metric                   | Value        |
+| ------------------------ | ------------ |
+| New test file LOC        | 851          |
+| Test cases created       | 53           |
+| Validators covered       | 9/9 (100%)   |
+| Pass rate                | 53/53 (100%) |
+| Full suite tests passing | 363          |
+| Regressions              | 0            |
+| Execution time           | ~1.6 seconds |
 
 ---
 
@@ -245,11 +245,11 @@ expect(count($result['violations']))->toBeGreaterThanOrEqual(2);
 
 - **53 tests organized into 9 logical sections** (one per validator)
 - **Each section starts with clear comments:**
-  ```php
-  // ====================================================================
-  // 1. STRATEGY AGENT VALIDATOR - EDGE CASES
-  // ====================================================================
-  ```
+    ```php
+    // ====================================================================
+    // 1. STRATEGY AGENT VALIDATOR - EDGE CASES
+    // ====================================================================
+    ```
 - **Consistent naming convention:** `{validator}_{action}_{edge_case}`
 
 ### 2. Pest Assertion Patterns
@@ -262,6 +262,7 @@ expect(count($result['violations']))->toBeGreaterThanOrEqual(2);
 ### 3. Config Field Name Alignment
 
 All tests use exact field names from `config/verification_rules.php`:
+
 - `confidence_score` (not `confidence`)
 - `competency_standard` (not `competencies_curated`)
 - `cultural_fit_score` (not `cultural_fit`)
@@ -274,21 +275,22 @@ All tests use exact field names from `config/verification_rules.php`:
 
 ### Mandatory vs Optional Fields
 
-| Validator | Required Fields | Optional Fields |
-|-----------|-----------------|-----------------|
-| StrategyAgent | strategy, confidence_score, reasoning | recommendations |
-| Orquestacion | evaluation_score | bias_detection, calibration |
-| Matchmaker | matched_candidates, cultural_fit_score | - |
-| Coach | learning_path, duration_weeks, duration_unit | learning_steps, success_factors |
-| RoleDesigner | role_level, role_name | competencies_curated |
-| CultureNavigator | sentiment_score | cultural_anomalies |
-| CompetencyValidator | proficiency_levels, competency_standard | recommendations |
-| LearningArchitect | course_outline, learning_objectives | learning_modules |
-| SentinelValidator | ethics_score, governance_violations | compliance_notes |
+| Validator           | Required Fields                              | Optional Fields                 |
+| ------------------- | -------------------------------------------- | ------------------------------- |
+| StrategyAgent       | strategy, confidence_score, reasoning        | recommendations                 |
+| Orquestacion        | evaluation_score                             | bias_detection, calibration     |
+| Matchmaker          | matched_candidates, cultural_fit_score       | -                               |
+| Coach               | learning_path, duration_weeks, duration_unit | learning_steps, success_factors |
+| RoleDesigner        | role_level, role_name                        | competencies_curated            |
+| CultureNavigator    | sentiment_score                              | cultural_anomalies              |
+| CompetencyValidator | proficiency_levels, competency_standard      | recommendations                 |
+| LearningArchitect   | course_outline, learning_objectives          | learning_modules                |
+| SentinelValidator   | ethics_score, governance_violations          | compliance_notes                |
 
 ### Lenient Validation Behavior
 
 When optional fields are provided in wrong type:
+
 - ✅ If array expected but string provided → validator skips validation (lenient)
 - ✅ If required → validator rejects with violation
 
@@ -301,29 +303,31 @@ Example: `StrategyAgentValidator` with `recommendations: 'string'` (not array) �
 ### Use Cases for AiOrchestratorService
 
 1. **Verify agent output immediately after generation**
-   ```php
-   $agentOutput = $orchestrator->strategist->suggestStrategy($talentId);
-   $verification = $this->verifier->validate('StrategyAgent', $agentOutput);
-   if (!$verification['valid']) {
-       // Re-prompt or reject
-   }
-   ```
+
+    ```php
+    $agentOutput = $orchestrator->strategist->suggestStrategy($talentId);
+    $verification = $this->verifier->validate('StrategyAgent', $agentOutput);
+    if (!$verification['valid']) {
+        // Re-prompt or reject
+    }
+    ```
 
 2. **Accumulate violations across agent flow**
-   ```php
-   $violations = [];
-   foreach ($agents as $agent) {
-       $result = $orchestrator->callAgent($agent, $input);
-       $verification = $this->verifier->validate($agent->type, $result);
-       $violations = array_merge($violations, $verification['violations']);
-   }
-   ```
+
+    ```php
+    $violations = [];
+    foreach ($agents as $agent) {
+        $result = $orchestrator->callAgent($agent, $input);
+        $verification = $this->verifier->validate($agent->type, $result);
+        $violations = array_merge($violations, $verification['violations']);
+    }
+    ```
 
 3. **Support 4-phase rollout**
-   - Phase 1 (Silent): Log violations, accept output
-   - Phase 2 (Flagging): Include violations in response metadata
-   - Phase 3 (Reject): Reject invalid outputs, re-prompt
-   - Phase 4 (Tuning): Leverage violations for prompt refinement
+    - Phase 1 (Silent): Log violations, accept output
+    - Phase 2 (Flagging): Include violations in response metadata
+    - Phase 3 (Reject): Reject invalid outputs, re-prompt
+    - Phase 4 (Tuning): Leverage violations for prompt refinement
 
 ---
 
@@ -344,10 +348,10 @@ Example: `StrategyAgentValidator` with `recommendations: 'string'` (not array) �
 ## Next Steps: Tarea 5 Ready
 
 All validators now have:
+
 - ✅ Core implementation (9 validators, 910 LOC)
 - ✅ Comprehensive edge case tests (53 tests, 851 LOC)
 - ✅ Documented boundaries and constraints (24 fields)
 - ✅ Test patterns for future expansion
 
 **Ready to integrate into AiOrchestratorService** with confidence that validators will handle all common and edge case scenarios robustly.
-

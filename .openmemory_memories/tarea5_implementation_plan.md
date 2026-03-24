@@ -2,7 +2,7 @@
 
 **Date:** 24-03-2026  
 **Phase:** Phase 1 - Planning & Design  
-**Status:** 🚀 IN PROGRESS  
+**Status:** 🚀 IN PROGRESS
 
 ---
 
@@ -12,13 +12,13 @@ Tarea 5 integrates the comprehensive TalentVerificationService (+ 9 validators) 
 
 ### Key Metrics
 
-| Aspect | Details |
-|--------|---------|
-| **Scope** | Modify AiOrchestratorService to verify outputs post-generation |
-| **Validators** | 9 per-agent validators (from Tarea 3) |
-| **Test Suite** | 18 existing + new integration tests |
-| **Rollout Strategy** | 4-phase (silent → flagging → reject → tuning) |
-| **Estimated Time** | 4-5 hours |
+| Aspect               | Details                                                        |
+| -------------------- | -------------------------------------------------------------- |
+| **Scope**            | Modify AiOrchestratorService to verify outputs post-generation |
+| **Validators**       | 9 per-agent validators (from Tarea 3)                          |
+| **Test Suite**       | 18 existing + new integration tests                            |
+| **Rollout Strategy** | 4-phase (silent → flagging → reject → tuning)                  |
+| **Estimated Time**   | 4-5 hours                                                      |
 
 ---
 
@@ -63,6 +63,7 @@ class VerificationIntegrationService
 ```
 
 **Output Structure:**
+
 ```php
 class VerificationResult
 {
@@ -131,12 +132,12 @@ return [
 
 **Phase Behavior:**
 
-| Phase | Log | Flag Response | Reject | Re-prompt |
-|-------|-----|---------------|--------|-----------|
-| Silent | ✅ | ❌ | ❌ | ❌ |
-| Flagging | ✅ | ✅ | ❌ | ❌ |
-| Reject | ✅ | ✅ | ✅ | ❌ |
-| Tuning | ✅ | ✅ | ✅ | ✅ (×2) |
+| Phase    | Log | Flag Response | Reject | Re-prompt |
+| -------- | --- | ------------- | ------ | --------- |
+| Silent   | ✅  | ❌            | ❌     | ❌        |
+| Flagging | ✅  | ✅            | ❌     | ❌        |
+| Reject   | ✅  | ✅            | ✅     | ❌        |
+| Tuning   | ✅  | ✅            | ✅     | ✅ (×2)   |
 
 ### Part 3: Update AiOrchestratorService.agentThink()
 
@@ -356,7 +357,7 @@ public function verifyAgentOutput(
     array $context = []
 ): VerificationResult {
     $organizationId = $context['organization_id'] ?? auth()->user()->organization_id;
-    
+
     // Verify org_id matches authenticated user
     if ($organizationId !== auth()->user()->organization_id) {
         throw new UnauthorizedTenantException("Cross-tenant access detected");
@@ -449,24 +450,28 @@ class AgentValidatorNotFoundException extends Exception {}
 ## Rollout Plan (4-Phase Strategy)
 
 ### Phase 1: Silent Mode (Dev/Staging)
+
 - **Deploy date:** 24-03-2026
 - **Visibility:** Developers only via logs
 - **Impact:** None (violations logged but output accepted)
 - **Goal:** Collect baseline violation data
 
 ### Phase 2: Flagging Mode (Staging → Prod)
+
 - **Deploy date:** 25-03-2026 (next day)
 - **Visibility:** Flags in response metadata
 - **Impact:** Users see `_verification.flagged: true` when violations exist
 - **Goal:** User education + QA feedback
 
 ### Phase 3: Reject Mode (Prod)
+
 - **Deploy date:** 26-03-2026 (after 24h flagging feedback)
 - **Visibility:** Error responses for invalid outputs
 - **Impact:** Invalid outputs rejected, users see error message
 - **Goal:** Hard quality gate
 
 ### Phase 4: Tuning Mode (Prod + Optimization)
+
 - **Deploy date:** 27-03-2026 (optional, based on needs)
 - **Visibility:** Same as Phase 3 + re-prompt attempts
 - **Impact:** Agents retry up to 2 times with refined prompts
@@ -491,15 +496,15 @@ class AgentValidatorNotFoundException extends Exception {}
 
 ## Timeline Estimate
 
-| Step | Time | Status |
-|------|------|--------|
-| 1. Create VerificationIntegrationService | 45 min | ⏳ |
-| 2. Create config/verification.php | 15 min | ⏳ |
-| 3. Update AiOrchestratorService | 30 min | ⏳ |
-| 4. Create integration tests | 60 min | ⏳ |
-| 5. Debug & fix failures | 30 min | ⏳ |
-| 6. Documentation & commit | 20 min | ⏳ |
-| **Total** | **3.3 hours** | **Realistic** |
+| Step                                     | Time          | Status        |
+| ---------------------------------------- | ------------- | ------------- |
+| 1. Create VerificationIntegrationService | 45 min        | ⏳            |
+| 2. Create config/verification.php        | 15 min        | ⏳            |
+| 3. Update AiOrchestratorService          | 30 min        | ⏳            |
+| 4. Create integration tests              | 60 min        | ⏳            |
+| 5. Debug & fix failures                  | 30 min        | ⏳            |
+| 6. Documentation & commit                | 20 min        | ⏳            |
+| **Total**                                | **3.3 hours** | **Realistic** |
 
 ---
 
@@ -509,4 +514,3 @@ class AgentValidatorNotFoundException extends Exception {}
 ⏳ **Ready to proceed to Phase 2 (Implementation)**
 
 Recommend starting with **Step 1: Create VerificationIntegrationService** 👇
-

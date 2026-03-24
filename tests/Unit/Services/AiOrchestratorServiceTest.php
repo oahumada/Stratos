@@ -55,6 +55,9 @@ class AiOrchestratorServiceTest extends TestCase
         // 4. Ejecutar
         $result = $service->agentThink('TestAgent', 'Haz algo');
 
-        $this->assertEquals(['response' => 'OK'], $result);
+        // Verificar que la respuesta contenga el campo response y el campo de verificación
+        $this->assertEquals('OK', $result['response']);
+        $this->assertArrayHasKey('_verification', $result);
+        $this->assertIsArray($result['_verification']);
     }
 }

@@ -4244,33 +4244,33 @@ Tarea 2 includes extensive architectural documentation for future reference and 
 
 ### Validator Boundary Reference
 
-| Validator | Field | Type | Min | Max | Boundary | Notes |
-|-----------|-------|------|-----|-----|----------|-------|
-| StrategyAgent | confidence_score | Float | 0.0 | 1.0 | 0.5 | Confidence must be ≥ 0.5 |
-| StrategyAgent | reasoning | String | 10 | 500 | - | Required, min 10 chars |
-| StrategyAgent | recommendations | Array | 0 | 3 | - | Max 3 items |
-| Orquestacion | evaluation_score | Float | 0 | 5 | - | Score 0-5 range |
-| Orquestacion | bias_detection | Array | 0 | 3 | - | Max 3 biases |
-| Orquestacion | calibration | String | - | 1000 | - | Max 1000 chars |
-| Matchmaker | matched_candidates | Array | 1 | 5 | - | 1-5 candidates |
-| Matchmaker | cultural_fit_score | Float | 0.6 | 1.0 | 0.6 | Must be ≥ 0.6 |
-| Coach | learning_path | String | 10 | 500 | - | Required, min 10 chars |
-| Coach | learning_steps | Array | 1 | 10 | - | 1-10 steps |
-| Coach | success_factors | Array | 1 | - | - | Min 1, no max |
-| Coach | duration_weeks | Integer | 1 | 52 | - | 1-52 weeks |
-| Coach | duration_unit | Enum | - | - | weeks/months/quarters | Only: weeks, months, quarters |
-| RoleDesigner | role_level | Enum | - | - | L1-L5 | Only: L1, L2, L3, L4, L5 |
-| RoleDesigner | role_name | String | 3 | 100 | - | 3-100 chars |
-| RoleDesigner | competencies_curated | Array | 1 | 10 | - | 1-10 competencies |
-| CultureNavigator | sentiment_score | Float | 0.0 | 1.0 | - | Full 0-1 range |
-| CultureNavigator | cultural_anomalies | Array | 0 | 5 | - | Max 5 anomalies |
-| CompetencyValidator | proficiency_levels | Array | 1 | 5 | - | 1-5 levels |
-| CompetencyValidator | competency_standard | Array | 1 | 10 | - | 1-10 competencies |
-| LearningArchitect | course_outline | String | 20 | 4000 | - | 20-4000 chars |
-| LearningArchitect | learning_objectives | Array | 1 | - | - | Min 1, no max |
-| LearningArchitect | learning_modules | Array | 1 | 12 | - | 1-12 modules |
-| SentinelValidator | ethics_score | Float | 0.0 | 100.0 | 75.0 | Must be ≥ 75.0 |
-| SentinelValidator | governance_violations | Array | 0 | 0 | - | Must be empty [] |
+| Validator           | Field                 | Type    | Min | Max   | Boundary              | Notes                         |
+| ------------------- | --------------------- | ------- | --- | ----- | --------------------- | ----------------------------- |
+| StrategyAgent       | confidence_score      | Float   | 0.0 | 1.0   | 0.5                   | Confidence must be ≥ 0.5      |
+| StrategyAgent       | reasoning             | String  | 10  | 500   | -                     | Required, min 10 chars        |
+| StrategyAgent       | recommendations       | Array   | 0   | 3     | -                     | Max 3 items                   |
+| Orquestacion        | evaluation_score      | Float   | 0   | 5     | -                     | Score 0-5 range               |
+| Orquestacion        | bias_detection        | Array   | 0   | 3     | -                     | Max 3 biases                  |
+| Orquestacion        | calibration           | String  | -   | 1000  | -                     | Max 1000 chars                |
+| Matchmaker          | matched_candidates    | Array   | 1   | 5     | -                     | 1-5 candidates                |
+| Matchmaker          | cultural_fit_score    | Float   | 0.6 | 1.0   | 0.6                   | Must be ≥ 0.6                 |
+| Coach               | learning_path         | String  | 10  | 500   | -                     | Required, min 10 chars        |
+| Coach               | learning_steps        | Array   | 1   | 10    | -                     | 1-10 steps                    |
+| Coach               | success_factors       | Array   | 1   | -     | -                     | Min 1, no max                 |
+| Coach               | duration_weeks        | Integer | 1   | 52    | -                     | 1-52 weeks                    |
+| Coach               | duration_unit         | Enum    | -   | -     | weeks/months/quarters | Only: weeks, months, quarters |
+| RoleDesigner        | role_level            | Enum    | -   | -     | L1-L5                 | Only: L1, L2, L3, L4, L5      |
+| RoleDesigner        | role_name             | String  | 3   | 100   | -                     | 3-100 chars                   |
+| RoleDesigner        | competencies_curated  | Array   | 1   | 10    | -                     | 1-10 competencies             |
+| CultureNavigator    | sentiment_score       | Float   | 0.0 | 1.0   | -                     | Full 0-1 range                |
+| CultureNavigator    | cultural_anomalies    | Array   | 0   | 5     | -                     | Max 5 anomalies               |
+| CompetencyValidator | proficiency_levels    | Array   | 1   | 5     | -                     | 1-5 levels                    |
+| CompetencyValidator | competency_standard   | Array   | 1   | 10    | -                     | 1-10 competencies             |
+| LearningArchitect   | course_outline        | String  | 20  | 4000  | -                     | 20-4000 chars                 |
+| LearningArchitect   | learning_objectives   | Array   | 1   | -     | -                     | Min 1, no max                 |
+| LearningArchitect   | learning_modules      | Array   | 1   | 12    | -                     | 1-12 modules                  |
+| SentinelValidator   | ethics_score          | Float   | 0.0 | 100.0 | 75.0                  | Must be ≥ 75.0                |
+| SentinelValidator   | governance_violations | Array   | 0   | 0     | -                     | Must be empty []              |
 
 ### Test Pattern Reference (Tarea 4 Output)
 
@@ -4295,7 +4295,7 @@ expect(count($result['violations']))->toBeGreaterThanOrEqual(2);
 
 // 5. Valid boundary (exact limit)
 expect($result['valid'])->toBeTrue();
-``` 
+```
 
 **Test Count by Category:**
 

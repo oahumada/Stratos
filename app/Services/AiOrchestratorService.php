@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\DTOs\VerificationAction;
+use App\Exceptions\VerificationFailedException;
 use App\Models\Agent;
 use App\Models\AgentInteraction;
 use App\Services\LLMProviders\DeepSeekProvider;
@@ -13,10 +15,17 @@ class AiOrchestratorService
 {
     use LogsPrompts;
 
+    public function __construct(
+        protected ?VerificationIntegrationService $verificationIntegration = null,
+    ) {
+        $this->verificationIntegration ??= app(VerificationIntegrationService::class);
+    }
+
     /**
      * Hace que un agente específico "piense" y responda a una tarea.
      * Logs are PII-safe using LogsPrompts trait.
      * Auto-tracks interaction metrics.
+     * NEW: Verifies output against business rules validators.
      */
     public function agentThink(string $agentName, string $taskPrompt, ?string $systemPromptOverride = null): array
     {
@@ -49,6 +58,44 @@ class AiOrchestratorService
             $output = $provider->generate($taskPrompt, $options);
             $latency = intval((microtime(true) - $startMicrotime) * 1000); // milliseconds
 
+            // NEW: Verify agent output against business rules
+            if (config('verification.enabled', true)) {
+                $verificationIntegration = $this->verificationIntegration ?? app(VerificationIntegrationService::class);
+                
+                $verificationResult = $verificationIntegration->verifyAgentOutput(
+                    agentName: $agentName,
+                    output: $output,
+                    context: [
+                        'organization_id' => $agent->organization_id,
+                        'task_prompt' => $taskPrompt,
+                        'provider' => $agent->provider,
+                        'agent_id' => $agent->id,
+                    ]
+                );
+
+                // NEW: Decide action based on verification result
+                $action = $verificationIntegration->decideAction($verificationResult);
+
+                // NEW: Handle rejection (Phase 3 & 4)
+                if ($action->shouldReject()) {
+                    throw new VerificationFailedException(
+                        violations: $verificationResult->violations,
+                        agentName: $agentName,
+                        message: $action->errorMessage ?? $verificationResult->getHumanReadableErrors()
+                    );
+                }
+
+                // NEW: Attach verification metadata to output
+                $output['_verification'] = [
+                    'valid' => $verificationResult->valid,
+                    'recommendation' => $verificationResult->recommendation,
+                    'violations_count' => count($verificationResult->violations),
+                    'confidence_score' => $verificationResult->confidenceScore,
+                    'phase' => $verificationResult->phase,
+                    'flagged_for_review' => $action->shouldFlag(),
+                ];
+            }
+
             // Log the prompt and output with PII protection
             $promptHash = $this->logPrompt($taskPrompt, $output, [
                 'agent' => $agent->name,
@@ -72,6 +119,34 @@ class AiOrchestratorService
             );
 
             return $output;
+        } catch (VerificationFailedException $e) {
+            $latency = intval((microtime(true) - $startMicrotime) * 1000);
+
+            // Log verification failure
+            $promptHash = $this->logPromptError($taskPrompt, $e, [
+                'agent' => $agent->name,
+                'model' => $agent->model,
+                'provider' => $agent->provider,
+                'organization_id' => $agent->organization_id ?? null,
+                'failure_type' => 'verification',
+            ]);
+
+            // Record failed interaction (verification failure)
+            $this->recordInteraction(
+                agentName: $agent->name,
+                promptHash: $promptHash,
+                latencyMs: $latency,
+                tokenCount: 0,
+                status: 'verification_failed',
+                errorMessage: $e->getMessage(),
+                inputLength: strlen($taskPrompt),
+                outputLength: 0,
+                provider: $agent->provider,
+                model: $agent->model,
+                organizationId: $agent->organization_id,
+            );
+
+            throw $e;
         } catch (\Throwable $e) {
             $latency = intval((microtime(true) - $startMicrotime) * 1000);
 
