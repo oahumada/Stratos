@@ -3,7 +3,6 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
-use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -16,11 +15,8 @@ class VerificationHubControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->seed(RoleSeeder::class);
-        
-        $this->admin = User::factory()->create();
-        $this->admin->assignRole('admin');
+
+        $this->admin = User::factory()->admin()->create();
     }
 
     // ============================================================================

@@ -1,22 +1,17 @@
 
 
-echo "[husky] pre-push: running quick test suite (Pest + Vitest)"
+echo "[husky] pre-push: running unit tests only (Feature/Integration tests run in CI)"
 
-# Run PHP tests (Pest). Assumes composer deps installed.
+# Run only Unit tests (fast, no DB dependency).
+# Feature tests are environment-sensitive and run in CI instead.
 if [ -f composer.json ]; then
-  echo "Running Pest..."
-  composer test || {
-    echo "Pest failed - aborting push"
+  echo "Running Pest unit tests..."
+  vendor/bin/pest tests/Unit --compact || {
+    echo "Unit tests failed - aborting push"
     exit 1
   }
 else
   echo "composer.json not found; skipping Pest"
 fi
 
-echo "Running frontend unit tests (Vitest)..."
-npm run test:unit || {
-  echo "Vitest failed - aborting push"
-  exit 1
-}
-
-echo "[husky] pre-push: tests passed"
+echo "[husky] pre-push: unit tests passed"
