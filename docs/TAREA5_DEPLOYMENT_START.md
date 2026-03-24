@@ -50,6 +50,7 @@ Una **herramienta segura** para cambiar entre phases sin riesgo.
 ```
 
 **Características:**
+
 - ✅ Previene cambios peligrosos (valida antes)
 - ✅ Registra todos los cambios en logs
 - ✅ Rollback reversible en 5 minutos
@@ -73,6 +74,7 @@ php artisan verification:metrics --json > metrics.json
 ```
 
 **Muestra:**
+
 - 📊 Total de eventos de verificación
 - 🔴 Tipos de violaciones detectadas
 - 📈 Distribución de errores
@@ -83,6 +85,7 @@ php artisan verification:metrics --json > metrics.json
 ### 3️⃣ Guía Operativa (`TAREA5_DEPLOYMENT_OPERATIONS.md`)
 
 Un **manual paso a paso** con:
+
 - ✅ Cronograma recomendado (4 días)
 - ✅ Qué monitorear en cada phase
 - ✅ Cuándo pasar a siguiente phase
@@ -107,11 +110,13 @@ php artisan verification:metrics
 ```
 
 **Resultado esperado:**
+
 - Descubrirás cuántos errores hay realmente
 - Identificarás patrones de problemas
 - **Usuarios no ven nada diferente**
 
 **Métrica clave a recopilar:**
+
 ```
 error_rate = % solicitudes con errores
 ```
@@ -130,11 +135,11 @@ php artisan verification:metrics --json > day1-metrics.json
 ```
 SI error_rate < 5%:
   ✅ CONTINUAR a Phase 2 (Error rate muy bajo)
-  
+
 SI 5% <= error_rate <= 15%:
   ✅ CONTINUAR a Phase 2 (Error rate moderado)
   ⚠️  Phase 4 será necesaria
-  
+
 SI error_rate > 15%:
   🚨 PAUSAR (Error rate muy alto)
   Acción: Revisar y ajustar reglas de validación
@@ -157,6 +162,7 @@ php artisan verification:metrics --window=24
 ```
 
 **Resultado esperado:**
+
 - Usuarios ven ⚠️ en respuestas problemáticas
 - **Usuarios aún reciben respuestas**
 - Puedes medir "falsos positivos" (banderas incorrectas)
@@ -184,12 +190,12 @@ php artisan verification:metrics --window=24
 SI retry_rate < 5%:
   ✅ Phase 3 está bien
   ⚠️  Phase 4 es OPCIONAL (puede mejorar, pero no urgente)
-  
+
 SI 5% <= retry_rate <= 10%:
   ⚠️  Phase 3 es OK pero hay fricción
   ✅ Phase 4 es RECOMENDADA (mejora experiencia)
   ⏱️  Costo: +2-4 segundos por solicitud
-  
+
 SI retry_rate > 15%:
   🚨 Phase 3 está causando problema
   ✅ Phase 4 es URGENTE (recupera automáticamente)
@@ -288,16 +294,19 @@ Events by Type
 ```
 
 **Interpretar:**
+
 - Total Events = 1,250 solicitudes procesadas
 - violation = 850 tenían errores (68%)
 - accepted = 400 eran perfectas (32%)
 
 **Cálculo:**
+
 ```
 error_rate = violations / total = 850 / 1,250 = 68%
 ```
 
 Esto es **muy alto**. Según matriz:
+
 ```
 error_rate = 68% > 15%
 → PAUSAR
@@ -324,7 +333,7 @@ error_rate = 68% > 15%
 
 ```
 Problema: "Los usuarios reciben demasiados errores en Phase 2"
-Solución: 
+Solución:
   ./scripts/verification-phase-deploy.sh rollback silent
   # Revertir a Phase 1
   # Luego: Revisar y ajustar reglas
@@ -338,19 +347,19 @@ Solución:
 Para análisis más profundo:
 
 1. **[TAREA5_DEPLOYMENT_OPERATIONS.md](TAREA5_DEPLOYMENT_OPERATIONS.md)**
-   - Guía operativa detallada
-   - Procedimientos paso a paso
-   - Troubleshooting
+    - Guía operativa detallada
+    - Procedimientos paso a paso
+    - Troubleshooting
 
 2. **[TAREA5_DEPLOYMENT_ROADMAP.md](TAREA5_DEPLOYMENT_ROADMAP.md)**
-   - Análisis de cada phase
-   - ROI y costos
-   - Matriz de decisión
+    - Análisis de cada phase
+    - ROI y costos
+    - Matriz de decisión
 
 3. **[TAREA5_VERIFICATION_INTEGRATION.md](TAREA5_VERIFICATION_INTEGRATION.md)**
-   - Especificación técnica
-   - APIs y DTOs
-   - Configuración
+    - Especificación técnica
+    - APIs y DTOs
+    - Configuración
 
 ---
 
@@ -422,9 +431,10 @@ R: NO recomendado. Cada fase valida la anterior.
 
 ## 🚀 Conclusión
 
-Tienes todo lo necesario para desplegar de forma segura. 
+Tienes todo lo necesario para desplegar de forma segura.
 
 **El plan:**
+
 1. Day 1: Activar Phase 1 (recolectar datos)
 2. Day 2: Analizar y decidir
 3. Day 3: Activar Phase 2-3 (gradual)

@@ -30,6 +30,7 @@ import {
     PhChartLineUp,
     PhEye,
     PhGear,
+    PhPlug,
     PhRobot,
     PhRocketLaunch,
     PhScroll,
@@ -124,6 +125,17 @@ const modules = computed(() => [
         icon: PhScroll,
         href: '/controlcenter/culture',
         iconColor: 'text-fuchsia-300',
+    },
+    {
+        title: t(
+            'landings.control_center.modules.verification_deployment.title',
+        ),
+        description: t(
+            'landings.control_center.modules.verification_deployment.description',
+        ),
+        icon: PhPlug,
+        href: '/deployment/verification-config',
+        iconColor: 'text-blue-300',
     },
 ]);
 </script>

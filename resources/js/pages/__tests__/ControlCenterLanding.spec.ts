@@ -41,6 +41,10 @@ vi.mock('vue-i18n', () => ({
                     'Stratos Identity',
                 'landings.control_center.modules.cultural_blueprint.description':
                     'Gestión de la Constitución Organizacional.',
+                'landings.control_center.modules.verification_deployment.title':
+                    'Verification Deployment',
+                'landings.control_center.modules.verification_deployment.description':
+                    'Configure and manage verification system phases for data quality.',
             })[key] ?? key,
     }),
 }));

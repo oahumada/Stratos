@@ -754,6 +754,11 @@ export const messages = {
                         description:
                             'Management of the Organizational Constitution: Mission, Vision, and Values.',
                     },
+                    verification_deployment: {
+                        title: 'Verification Deployment',
+                        description:
+                            'Configure and manage verification system phases for data quality.',
+                    },
                 },
             },
             radar: {
@@ -1554,6 +1559,11 @@ export const messages = {
                         title: 'Stratos Identity',
                         description:
                             'Gestión de la Constitución Organizacional: Misión, Visión y Valores.',
+                    },
+                    verification_deployment: {
+                        title: 'Despliegue de Verificación',
+                        description:
+                            'Configura y gestiona las fases del sistema de verificación para calidad de datos.',
                     },
                 },
             },

@@ -3,14 +3,17 @@
 ## 📦 Archivos Nuevos Agregados
 
 ### 1. Comando CLI Interactivo
+
 **Ubicación:** `app/Console/Commands/VerificationConfigureCommand.php`
 
 **Uso:**
+
 ```bash
 php artisan verification:configure
 ```
 
 **Características:**
+
 - ✅ Preguntas interactivas paso a paso
 - ✅ Configuración visual con colores
 - ✅ Resumen al final de la configuración
@@ -21,14 +24,17 @@ php artisan verification:configure
 ---
 
 ### 2. Página Web de Configuración
+
 **Ubicación:** `resources/js/Pages/Deployment/VerificationConfiguration.vue`
 
 **Acceso:**
+
 ```
 http://miapp.local/deployment/verification-config
 ```
 
 **Características:**
+
 - ✅ Interfaz visual moderna con Tailwind CSS
 - ✅ Selección de modo con cards interactivas
 - ✅ Sliders y dropdowns para parámetros
@@ -43,14 +49,17 @@ http://miapp.local/deployment/verification-config
 ---
 
 ### 3. Controlador de Configuración
+
 **Ubicación:** `app/Http/Controllers/Deployment/VerificationConfigurationController.php`
 
 **Métodos:**
+
 - `show()` - Mostrar página de configuración
 - `store()` - Guardar configuración (POST)
 - `status()` - Obtener estado actual (API)
 
 **Endpoints:**
+
 ```
 GET    /deployment/verification-config       → Mostrar formulario
 POST   /deployment/verification-config       → Guardar configuración
@@ -60,15 +69,18 @@ GET    /api/deployment/verification-status   → Estado actual (JSON)
 ---
 
 ### 4. Archivo de Configuración
+
 **Ubicación:** `config/verification-deployment.php`
 
 **Contenido:**
+
 - Todos los parámetros de cada opción
 - Documentación inline
 - Valores por defecto
 - Configuración compartida
 
 **Acceso en código:**
+
 ```php
 $mode = config('verification-deployment.deployment_mode');
 $config = config('verification-deployment.auto_transitions');
@@ -77,6 +89,7 @@ $config = config('verification-deployment.auto_transitions');
 ---
 
 ### 5. Rutas Agregadas
+
 **Ubicación:** `routes/web.php`
 
 ```php
@@ -93,9 +106,11 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
 ## 🎯 Opciones Configurables
 
 ### 1. AUTO-TRANSITIONS (Opción 1)
+
 **Sistema de autopiloto automático**
 
 Parámetros configurables:
+
 - `error_rate_threshold_phase2` (%) - Umbral para cambiar a Phase 2
 - `retry_rate_threshold_phase4` (%) - Umbral para cambiar a Phase 4
 - `check_interval_minutes` - Cada cuánto verificar criterios
@@ -104,6 +119,7 @@ Parámetros configurables:
 - `notification_channel` - Dónde enviar (log/slack/email)
 
 **Ejemplo de flujo:**
+
 1. Sistema monitorea error_rate cada hora
 2. Si error_rate < 15%, cambia automáticamente a Phase 2
 3. Después, monitorea retry_rate
@@ -113,9 +129,11 @@ Parámetros configurables:
 ---
 
 ### 2. HYBRID (Opción 3)
+
 **Recolecta automáticamente + decisiones manuales**
 
 Parámetros configurables:
+
 - `metrics_collection_interval` - Cada cuántos minutos recolectar
 - `alert_threshold_percent` - Alertar si sube más del X%
 - `enable_suggestions` - Sugerencias automáticas
@@ -123,6 +141,7 @@ Parámetros configurables:
 - `suggestion_channel` - Dónde mostrar (cli/web/both)
 
 **Ejemplo de flujo:**
+
 1. Sistema recolecta métricas cada hora
 2. Muestra sugerencias: "Error_rate = 3%, listo para Phase 2"
 3. **TÚ DECIDES** cuándo cambiar
@@ -131,13 +150,16 @@ Parámetros configurables:
 ---
 
 ### 3. MONITORING ONLY (Opción 2)
+
 **Solo recolecta datos**
 
 Parámetros configurables:
+
 - `metrics_collection_interval` - Cada cuántos minutos recolectar
 - `metrics_retention_days` - Cuántos días guardar datos
 
 **Ejemplo de flujo:**
+
 1. Sistema recolecta métricas
 2. No hace nada automáticamente
 3. Tú analizas y tomas decisiones manuales
@@ -189,6 +211,7 @@ php artisan verification:configure
 ## 🔄 Sincronización Web ↔ CLI
 
 Ambas interfaces actualizan los mismos archivos:
+
 - `.env` - Variables de entorno
 - `config/verification-deployment.php` - Archivo de config
 
