@@ -6,11 +6,11 @@ use App\Models\Organizations;
 use App\Models\User;
 use App\Models\WebhookRegistry;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\Database;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class AutomationTest extends TestCase
 {
-    use Database\Concerns\DatabaseMigrations;
+    use RefreshDatabase;
 
     protected Organizations $organization;
     protected User $user;
@@ -24,7 +24,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('evaluates organization and triggers automations')
+    public function evaluates_organization_and_triggers_automations()
     {
         $response = $this->actingAs($this->user)->getJson('/api/automation/evaluate');
 
@@ -40,7 +40,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('can trigger specific workflow')
+    public function can_trigger_specific_workflow()
     {
         $response = $this->actingAs($this->user)
             ->postJson('/api/automation/workflows/performance_investigation/trigger', [
@@ -59,7 +59,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('lists available workflows')
+    public function lists_available_workflows()
     {
         $response = $this->actingAs($this->user)->getJson('/api/automation/workflows/available');
 
@@ -72,7 +72,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('gets execution status')
+    public function gets_execution_status()
     {
         $executionId = 'test-execution-id';
 
@@ -87,7 +87,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('can register webhook')
+    public function can_register_webhook()
     {
         $response = $this->actingAs($this->user)
             ->postJson('/api/automation/webhooks', [
@@ -110,7 +110,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('lists registered webhooks')
+    public function lists_registered_webhooks()
     {
         WebhookRegistry::factory()->create([
             'organization_id' => $this->organization->id,
@@ -134,7 +134,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('can update webhook')
+    public function can_update_webhook()
     {
         $webhook = WebhookRegistry::factory()->create([
             'organization_id' => $this->organization->id,
@@ -158,7 +158,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('can delete webhook')
+    public function can_delete_webhook()
     {
         $webhook = WebhookRegistry::factory()->create([
             'organization_id' => $this->organization->id,
@@ -172,7 +172,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('can test webhook')
+    public function can_test_webhook()
     {
         $webhook = WebhookRegistry::factory()->create([
             'organization_id' => $this->organization->id,
@@ -190,7 +190,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('gets webhook statistics')
+    public function gets_webhook_statistics()
     {
         $webhook = WebhookRegistry::factory()->create([
             'organization_id' => $this->organization->id,
@@ -211,7 +211,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('can remediate anomaly')
+    public function can_remediate_anomaly()
     {
         $response = $this->actingAs($this->user)
             ->postJson('/api/automation/remediate', [
@@ -233,7 +233,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('gets remediation history')
+    public function gets_remediation_history()
     {
         $response = $this->actingAs($this->user)
             ->getJson('/api/automation/remediation-history');
@@ -247,7 +247,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('gets automation status')
+    public function gets_automation_status()
     {
         $response = $this->actingAs($this->user)->getJson('/api/automation/status');
 
@@ -261,7 +261,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('can toggle automation status')
+    public function can_toggle_automation_status()
     {
         $response = $this->actingAs($this->user)
             ->postJson('/api/automation/status', [
@@ -273,7 +273,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('rejects unauthenticated requests')
+    public function rejects_unauthenticated_requests()
     {
         $response = $this->getJson('/api/automation/evaluate');
 
@@ -281,7 +281,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('ensures multi-tenant isolation for webhooks')
+    public function ensures_multi_tenant_isolation_for_webhooks()
     {
         $user2 = User::factory()->create();
         $org2 = Organizations::factory()->create();
@@ -301,7 +301,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('validates webhook url format')
+    public function validates_webhook_url_format()
     {
         $response = $this->actingAs($this->user)
             ->postJson('/api/automation/webhooks', [
@@ -313,7 +313,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('validates remediation level')
+    public function validates_remediation_level()
     {
         $response = $this->actingAs($this->user)
             ->postJson('/api/automation/remediate', [
@@ -326,7 +326,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('can cancel execution')
+    public function can_cancel_execution()
     {
         $executionId = 'test-execution-123';
 
@@ -341,7 +341,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('can retry failed execution')
+    public function can_retry_failed_execution()
     {
         $executionId = 'test-execution-456';
 
@@ -358,7 +358,7 @@ class AutomationTest extends TestCase
     }
 
     /** @test */
-    it('applies appropriate trigger filters')
+    public function applies_appropriate_trigger_filters()
     {
         $webhook = WebhookRegistry::factory()->create([
             'organization_id' => $this->organization->id,
