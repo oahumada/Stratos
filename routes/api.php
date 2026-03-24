@@ -1279,6 +1279,30 @@ Route::middleware('auth:sanctum')->prefix('deployment/verification')->group(func
     Route::get('/export-metrics', [\App\Http\Controllers\Deployment\VerificationDashboardController::class, 'exportMetrics'])->name('verification.export-metrics');
 });
 
+// ── AI/ML Analytics (Phase 9: Anomally Detection, Predictions, Recommendations) ──
+Route::middleware('auth:sanctum')->prefix('analytics')->group(function () {
+    // Anomaly detection
+    Route::get('/anomalies', [\App\Http\Controllers\Api\AnalyticsController::class, 'getAnomalies'])->name('analytics.anomalies');
+
+    // Predictions & forecasting
+    Route::get('/predictions/compliance', [\App\Http\Controllers\Api\AnalyticsController::class, 'forecastCompliance'])->name('analytics.forecast-compliance');
+    Route::get('/predictions/deployment-window', [\App\Http\Controllers\Api\AnalyticsController::class, 'predictDeploymentWindow'])->name('analytics.deployment-window');
+    Route::get('/predictions/resources', [\App\Http\Controllers\Api\AnalyticsController::class, 'predictResourceNeeds'])->name('analytics.resources');
+    Route::post('/predictions/transition-risk', [\App\Http\Controllers\Api\AnalyticsController::class, 'assessTransitionRisk'])->name('analytics.transition-risk');
+
+    // Recommendations
+    Route::get('/recommendations', [\App\Http\Controllers\Api\AnalyticsController::class, 'getRecommendations'])->name('analytics.recommendations');
+
+    // Metrics aggregation
+    Route::get('/metrics/current', [\App\Http\Controllers\Api\AnalyticsController::class, 'getCurrentMetrics'])->name('analytics.metrics-current');
+    Route::get('/metrics/history', [\App\Http\Controllers\Api\AnalyticsController::class, 'getMetricsHistory'])->name('analytics.metrics-history');
+    Route::get('/metrics/comparison', [\App\Http\Controllers\Api\AnalyticsController::class, 'getMetricsComparison'])->name('analytics.metrics-comparison');
+    Route::get('/metrics/latency-percentiles', [\App\Http\Controllers\Api\AnalyticsController::class, 'getLatencyPercentiles'])->name('analytics.latency-percentiles');
+
+    // Dashboard summary
+    Route::get('/dashboard-summary', [\App\Http\Controllers\Api\AnalyticsController::class, 'getDashboardSummary'])->name('analytics.dashboard-summary');
+});
+
 // ── Automation & Hybrid Workflows (n8n) ──────────────────────────
 Route::prefix('automation')->group(function () {
     Route::post('/webhooks/n8n', [\App\Http\Controllers\Api\Automation\N8nController::class, 'handleWebhook']);
