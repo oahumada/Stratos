@@ -1303,9 +1303,38 @@ Route::middleware('auth:sanctum')->prefix('analytics')->group(function () {
     Route::get('/dashboard-summary', [\App\Http\Controllers\Api\AnalyticsController::class, 'getDashboardSummary'])->name('analytics.dashboard-summary');
 });
 
-// ── Automation & Hybrid Workflows (n8n) ──────────────────────────
-Route::prefix('automation')->group(function () {
-    Route::post('/webhooks/n8n', [\App\Http\Controllers\Api\Automation\N8nController::class, 'handleWebhook']);
+// ── Automation & Hybrid Workflows (Phase 10: Event-driven Automation & Webhooks) ──
+Route::middleware('auth:sanctum')->prefix('automation')->group(function () {
+    // Trigger evaluation
+    Route::get('/evaluate', [\App\Http\Controllers\Api\AutomationController::class, 'evaluate'])->name('automation.evaluate');
+
+    // Workflow management
+    Route::post('/workflows/{code}/trigger', [\App\Http\Controllers\Api\AutomationController::class, 'triggerWorkflow'])->name('automation.trigger-workflow');
+    Route::get('/workflows/available', [\App\Http\Controllers\Api\AutomationController::class, 'listAvailableWorkflows'])->name('automation.list-workflows');
+
+    // Execution management
+    Route::get('/executions/{executionId}', [\App\Http\Controllers\Api\AutomationController::class, 'getExecutionStatus'])->name('automation.execution-status');
+    Route::delete('/executions/{executionId}', [\App\Http\Controllers\Api\AutomationController::class, 'cancelExecution'])->name('automation.cancel-execution');
+    Route::post('/executions/{executionId}/retry', [\App\Http\Controllers\Api\AutomationController::class, 'retryExecution'])->name('automation.retry-execution');
+
+    // Webhook registry
+    Route::get('/webhooks', [\App\Http\Controllers\Api\AutomationController::class, 'listWebhooks'])->name('automation.list-webhooks');
+    Route::post('/webhooks', [\App\Http\Controllers\Api\AutomationController::class, 'registerWebhook'])->name('automation.register-webhook');
+    Route::patch('/webhooks/{webhookId}', [\App\Http\Controllers\Api\AutomationController::class, 'updateWebhook'])->name('automation.update-webhook');
+    Route::delete('/webhooks/{webhookId}', [\App\Http\Controllers\Api\AutomationController::class, 'deleteWebhook'])->name('automation.delete-webhook');
+    Route::post('/webhooks/{webhookId}/test', [\App\Http\Controllers\Api\AutomationController::class, 'testWebhook'])->name('automation.test-webhook');
+    Route::get('/webhooks/{webhookId}/stats', [\App\Http\Controllers\Api\AutomationController::class, 'getWebhookStats'])->name('automation.webhook-stats');
+
+    // Remediation
+    Route::post('/remediate', [\App\Http\Controllers\Api\AutomationController::class, 'remediateAnomaly'])->name('automation.remediate');
+    Route::get('/remediation-history', [\App\Http\Controllers\Api\AutomationController::class, 'getRemediationHistory'])->name('automation.remediation-history');
+
+    // Automation status
+    Route::get('/status', [\App\Http\Controllers\Api\AutomationController::class, 'getAutomationStatus'])->name('automation.status');
+    Route::post('/status', [\App\Http\Controllers\Api\AutomationController::class, 'toggleAutomationStatus'])->name('automation.toggle-status');
 });
+
+// ── Inbound n8n Webhooks (Unauthenticated, secured via X-N8n-Secret header) ──
+Route::post('/webhooks/n8n', [\App\Http\Controllers\Api\Automation\N8nController::class, 'handleWebhook'])->name('webhooks.n8n');
 
 // TODO: recordar que estas rutas están protegidas por el middleware 'auth' en RouteServiceProvider.php y son Multinenant deben filtrar el organization_id del usuario autenticado
