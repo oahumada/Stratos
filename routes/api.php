@@ -1381,6 +1381,11 @@ Route::middleware(['auth:sanctum'])->prefix('messaging')->group(function () {
     // Participants
     Route::post('conversations/{conversation}/participants', [\App\Http\Controllers\Api\Messaging\ParticipantController::class, 'store'])->name('messaging.participants.store');
     Route::delete('conversations/{conversation}/participants/{participant}', [\App\Http\Controllers\Api\Messaging\ParticipantController::class, 'destroy'])->name('messaging.participants.destroy');
+
+    // Settings & Metrics
+    Route::get('settings', [\App\Http\Controllers\Api\Messaging\MessagingSettingsController::class, 'getSettings'])->name('messaging.settings.show');
+    Route::put('settings', [\App\Http\Controllers\Api\Messaging\MessagingSettingsController::class, 'updateSettings'])->name('messaging.settings.update');
+    Route::get('metrics', [\App\Http\Controllers\Api\Messaging\MessagingSettingsController::class, 'getMetrics'])->name('messaging.metrics.summary');
 });
 
 // ── Inbound n8n Webhooks (Unauthenticated, secured via X-N8n-Secret header) ──
