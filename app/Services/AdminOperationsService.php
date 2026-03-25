@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\InvalidOperationStatusException;
 use App\Models\AdminOperationAudit;
 use App\Models\Organization;
 use App\Models\User;
@@ -9,10 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class AdminOperationsService
 {
-    public function __construct()
-    {
-    }
-
     /**
      * Create and log an admin operation audit record
      */
@@ -58,7 +55,7 @@ class AdminOperationsService
         callable $executionCallback
     ): AdminOperationAudit {
         if (!in_array($audit->status, ['pending', 'dry_run'])) {
-            throw new \Exception("Cannot execute operation in {$audit->status} status");
+            throw new InvalidOperationStatusException($audit->status);
         }
 
         $audit->markAsRunning();

@@ -1,6 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
-* @see routes/web.php:28
+* @see [serialized-closure]:2
 * @route '/magnet'
 */
 export const landing = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +14,7 @@ landing.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:28
+* @see [serialized-closure]:2
 * @route '/magnet'
 */
 landing.url = (options?: RouteQueryOptions) => {
@@ -22,7 +22,7 @@ landing.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:28
+* @see [serialized-closure]:2
 * @route '/magnet'
 */
 landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -31,7 +31,7 @@ landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:28
+* @see [serialized-closure]:2
 * @route '/magnet'
 */
 landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -40,7 +40,7 @@ landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:28
+* @see [serialized-closure]:2
 * @route '/magnet'
 */
 const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -49,7 +49,7 @@ const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 })
 
 /**
-* @see routes/web.php:28
+* @see [serialized-closure]:2
 * @route '/magnet'
 */
 landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -58,7 +58,7 @@ landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:28
+* @see [serialized-closure]:2
 * @route '/magnet'
 */
 landingForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
