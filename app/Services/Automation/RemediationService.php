@@ -60,8 +60,9 @@ class RemediationService
         };
 
         // Log remediation
+        $anomalyId = $anomaly['id'] ?? 'unknown';
         Cache::put(
-            "remediation:{$organization->id}:{$anomaly['id'] ?? 'unknown'}",
+            "remediation:{$organization->id}:{$anomalyId}",
             $remediation,
             ttl: 86400 * 7  // 7 days
         );
