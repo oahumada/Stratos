@@ -1392,9 +1392,12 @@ Route::middleware(['auth:sanctum'])->prefix('messaging')->group(function () {
 Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     // Operations audit trail & management
     Route::get('operations', [\App\Http\Controllers\Api\AdminOperationsController::class, 'index'])->name('admin.operations.index');
-    Route::post('operations/{operation}/preview', [\App\Http\Controllers\Api\AdminOperationsController::class, 'preview'])->name('admin.operations.preview');
-    Route::post('operations/{operation}/execute', [\App\Http\Controllers\Api\AdminOperationsController::class, 'execute'])->name('admin.operations.execute');
-    Route::post('operations/{operation}/cancel', [\App\Http\Controllers\Api\AdminOperationsController::class, 'cancel'])->name('admin.operations.cancel');
+    Route::post('operations/{id}/preview', [\App\Http\Controllers\Api\AdminOperationsController::class, 'preview'])->name('admin.operations.preview');
+    Route::post('operations/{id}/execute', [\App\Http\Controllers\Api\AdminOperationsController::class, 'execute'])->name('admin.operations.execute');
+    Route::post('operations/{id}/cancel', [\App\Http\Controllers\Api\AdminOperationsController::class, 'cancel'])->name('admin.operations.cancel');
+
+    // Real-time monitoring (Alpha-3)
+    Route::get('operations/monitor/stream', [\App\Http\Controllers\Api\AdminOperationsController::class, 'monitorStream'])->name('admin.operations.monitor-stream');
 });
 
 // ── Inbound n8n Webhooks (Unauthenticated, secured via X-N8n-Secret header) ──

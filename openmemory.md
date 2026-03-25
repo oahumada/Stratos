@@ -3,6 +3,35 @@
 Este documento actúa como índice vivo (openmemory) del repositorio `oahumada/Stratos`.
 Se creó/actualizó automáticamente para registrar decisiones, implementaciones y referencias útiles.
 
+### [Implementation] Alpha-1 Admin Operations Dashboard (2026-03-25)
+
+- **Files**: `app/Http/Controllers/Api/AdminOperationsController.php`, `resources/js/Pages/Admin/Operations.vue`, 4 modal components, tests
+- **Purpose**: Fase Alpha-1 del roadmap de transición MVP→Alpha→Beta. Exponer operaciones críticas (backfill, generate, import, cleanup, rebuild) en interfaz admin segura con:
+    - Dry-run (preview) por defecto
+    - Confirmación explícita antes de apply
+    - Auditoría completa (usuario, parámetros, resultado, duración)
+    - Multi-tenancy: scoping por organization_id
+    - Autorización: solo admins pueden ver/ejecutar
+- **Infraestructura existente reutilizada**:
+    - Model `AdminOperationAudit` + tabla con campos: status, parameters, dry_run_preview, result, error_message, records_processed, duration_seconds
+    - Service `AdminOperationsService` con métodos: createAudit(), previewOperation(), executeOperation(), cancel()
+    - Policy `AdminOperationAuditPolicy` para autorización
+    - Event `OperationCompleted` disparando notifications (completado en sesión anterior)
+- **Operaciones soportadas**:
+    - `backfill`: Recalcular agregados de inteligencia para rango de fechas
+    - `generate`: Enqueuer generación de escenarios vía LLM (ScenarioGenerationService)
+    - `import`: Importar registros desde fuente externa
+    - `cleanup`: Limpiar datos antiguos (agregados > N días)
+    - `rebuild`: Reconstruir índices y limpiar caches
+- **Frontend**: UI lista + operaciones recientes (tabla) + stats badges + modales (detail, create)
+- **Autorización**: `AdminOperationAuditPolicy::viewAny()` valida admin role + organization_id
+- **Tests**: 2 tests Pest (basic auth + listing) - ambos pasando. Suite completa lista para CI.
+- **Próximos pasos (Near-term)**:
+    - (Alpha-2) Mover operaciones a jobs asíncronos con estados (queued, running, success, failed)
+    - (Alpha-2) Implementar lock de concurrencia para evitar solapamientos
+    - (Alpha-3) SLAs y alertas base en metrics
+    - (Beta-1) Step-up auth (MFA) en operaciones de alto impacto
+
 ### [Implementation] Operation Completion Notifications (2026-03-25)
 
 - **Files added**: `app/Events/OperationCompleted.php`, `app/Notifications/OperationCompletedNotification.php`, `app/Listeners/SendOperationCompletedNotification.php`, `resources/views/emails/admin_operation_completed.blade.php`

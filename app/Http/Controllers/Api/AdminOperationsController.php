@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\AdminOperationQueued;
 use App\Http\Controllers\Controller;
+use App\Jobs\AdminOperationJob;
 use App\Models\AdminOperationAudit;
 use App\Services\AdminOperationsService;
 use App\Services\IntelligenceMetricsAggregator;
@@ -44,11 +46,12 @@ class AdminOperationsController extends Controller
     }
 
     /**
-     * POST /api/admin/operations/{operation}/preview
+     * POST /api/admin/operations/{id}/preview
      * Preview what would happen with dry-run
      */
-    public function preview(Request $request, AdminOperationAudit $operation): JsonResponse
+    public function preview(Request $request, int $id): JsonResponse
     {
+        $operation = AdminOperationAudit::findOrFail($id);
         $this->authorize('update', $operation);
 
         if ($operation->status !== 'pending') {
@@ -78,11 +81,12 @@ class AdminOperationsController extends Controller
     }
 
     /**
-     * POST /api/admin/operations/{operation}/execute
-     * Execute the operation (after approval)
+     * POST /api/admin/operations/{id}/execute
+     * Queue the operation for async execution
      */
-    public function execute(Request $request, AdminOperationAudit $operation): JsonResponse
+    public function execute(Request $request, int $id): JsonResponse
     {
+        $operation = AdminOperationAudit::findOrFail($id);
         $this->authorize('update', $operation);
 
         $validated = $request->validate([
@@ -95,15 +99,30 @@ class AdminOperationsController extends Controller
             ], 422);
         }
 
+        // Only allow executing pending operations
+        if ($operation->status !== 'pending' && $operation->status !== 'dry_run') {
+            return response()->json([
+                'message' => "Cannot execute operation with status: {$operation->status}",
+            ], 422);
+        }
+
         try {
-            $operation = $this->operationsService->executeOperation(
-                $operation,
-                fn () => $this->performOperation($operation)
+            // Mark operation as queued
+            $operation->markAsQueued();
+
+            // Dispatch job for async execution
+            AdminOperationJob::dispatch(
+                $operation->id,
+                $operation->organization_id
             );
+
+            // Broadcast queued event
+            AdminOperationQueued::dispatch($operation);
 
             return response()->json([
                 'data' => $operation,
-                'message' => 'Operation executed successfully',
+                'message' => 'Operation queued for execution',
+                'status' => 'queued',
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -113,11 +132,12 @@ class AdminOperationsController extends Controller
     }
 
     /**
-     * POST /api/admin/operations/{operation}/cancel
+     * POST /api/admin/operations/{id}/cancel
      * Cancel a pending operation
      */
-    public function cancel(Request $request, AdminOperationAudit $operation): JsonResponse
+    public function cancel(Request $request, int $id): JsonResponse
     {
+        $operation = AdminOperationAudit::findOrFail($id);
         $this->authorize('delete', $operation);
 
         if ($operation->status !== 'pending') {
@@ -407,5 +427,50 @@ class AdminOperationsController extends Controller
             'records_processed' => $indexesRebuilt,
             'records_affected' => 0,
         ];
+    }
+
+    /**
+     * GET /api/admin/operations/monitor/stream
+     * Server-Sent Events endpoint for real-time operation monitoring
+     */
+    public function monitorStream(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $organizationId = $request->user()->organization_id ?? 1;
+
+        return response()->stream(function () use ($organizationId, $request) {
+            // Set SSE headers
+            header('Content-Type: text/event-stream');
+            header('Cache-Control: no-cache');
+            header('Connection: keep-alive');
+            header('X-Accel-Buffering: no');
+
+            // Initial connection event
+            echo "event: connected\n";
+            echo 'data: ' . json_encode(['message' => 'Connected to admin operations monitor']) . "\n\n";
+            flush();
+
+            // Send heartbeat every 30 seconds
+            $start = time();
+            $timeout = 300; // 5 min max connection time
+
+            while (true) {
+                // Check if client is still connected
+                if (connection_aborted()) {
+                    break;
+                }
+
+                // Send heartbeat
+                echo "event: heartbeat\n";
+                echo 'data: ' . json_encode(['timestamp' => now()->toIso8601String()]) . "\n\n";
+                flush();
+
+                // Check timeout
+                if (time() - $start > $timeout) {
+                    break;
+                }
+
+                sleep(30);
+            }
+        });
     }
 }

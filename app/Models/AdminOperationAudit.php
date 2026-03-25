@@ -66,6 +66,18 @@ class AdminOperationAudit extends Model
         return $this->status === 'pending';
     }
 
+    public function isQueued(): bool
+    {
+        return $this->status === 'queued';
+    }
+
+    public function markAsQueued(): void
+    {
+        $this->update([
+            'status' => 'queued',
+        ]);
+    }
+
     public function markAsDryRun(array $preview): void
     {
         $this->update([
