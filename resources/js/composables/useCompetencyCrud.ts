@@ -1,3 +1,4 @@
+import { useApi } from './useApi';
 import { useNodeCrud } from './useNodeCrud';
 
 /**
@@ -9,6 +10,26 @@ export function useCompetencyCrud() {
         entityName: 'competencia',
         entityNamePlural: 'competencies',
     });
+    const { get } = useApi();
+
+    /**
+     * Listar competencias.
+     */
+    async function listCompetencies() {
+        const res: any = await get('/api/competencies');
+        return res?.data ?? res ?? [];
+    }
+
+    /**
+     * Crear una competency.
+     */
+    async function createCompetency(payload: {
+        name: string;
+        description?: string;
+        status?: string;
+    }) {
+        return nodeCrud.createAndAttach(0, payload, '/api/competencies');
+    }
 
     /**
      * Crear una competency y asociarla a una capability dentro de un scenario
@@ -90,6 +111,8 @@ export function useCompetencyCrud() {
         ...nodeCrud,
 
         // Operaciones específicas de competencies
+        listCompetencies,
+        createCompetency,
         createCompetencyForCapability,
         updateCompetency,
         updateCompetencyPivot,

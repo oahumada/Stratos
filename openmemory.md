@@ -4783,11 +4783,11 @@ expect($result['valid'])->toBeTrue();
 
 - `Index.vue` tiene ~1,300 líneas (UI + CRUD + layout + error handling mezclados)
 - Composables ya creados: `useNodeCrud`, `useCapabilityCrud`, `useSkillCrud`, `useCompetencyCrud`
-- **Avance 2026-03-25:** integración parcial aplicada en `resources/js/pages/Competencies/Index.vue`
-    - `useCompetencyCrud`: update/delete de competencias
-    - `useSkillCrud`: update/fetch de skills y refresh de detalle
-- **Pendiente:** migrar flujos de creación/attach y consolidar estados de carga/errores para cierre total
-- Estado: en progreso 🟡
+- **Completado 2026-03-25:** composables aplicados al componente real `resources/js/pages/Competencies/Index.vue`
+    - `useCompetencyCrud`: list/create/update/delete
+    - `useSkillCrud`: list/create/attach/remove/update/fetch
+- Quedan llamados `axios` no-CRUD (curación IA, generación de preguntas, carga de aprobadores y request de aprobación), fuera del alcance DRY CRUD.
+- Estado: completado ✅
 
 #### Auto-accept / Auto-import tras generación LLM
 

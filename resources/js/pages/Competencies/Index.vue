@@ -1,33 +1,33 @@
 <script setup lang="ts">
+import SkillMaterializationWizard from '@/components/Competencies/SkillMaterializationWizard.vue';
 import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
 import StDigitalSealAudit from '@/components/StDigitalSealAudit.vue';
+import { useCompetencyCrud } from '@/composables/useCompetencyCrud';
+import { useSkillCrud } from '@/composables/useSkillCrud';
 import AppLayout from '@/layouts/AppLayout.vue';
-import axios from 'axios';
 import {
+    PhArrowCounterClockwise,
     PhBrain,
     PhCaretDown,
     PhCaretRight,
+    PhChatCircleText,
     PhCheckCircle,
     PhCircleDashed,
     PhClipboardText,
     PhFloppyDisk,
     PhLightning,
+    PhListBullets,
     PhMagicWand,
     PhPencilSimple,
     PhPlus,
+    PhSealCheck,
     PhStar,
     PhTrash,
     PhX,
-    PhArrowCounterClockwise,
-    PhChatCircleText,
-    PhListBullets,
-    PhSealCheck,
 } from '@phosphor-icons/vue';
-import SkillMaterializationWizard from '@/components/Competencies/SkillMaterializationWizard.vue';
-import { useCompetencyCrud } from '@/composables/useCompetencyCrud';
-import { useSkillCrud } from '@/composables/useSkillCrud';
+import axios from 'axios';
 import { computed, onMounted, reactive, ref } from 'vue';
 
 defineOptions({ layout: AppLayout });
@@ -45,7 +45,7 @@ const searchQuery = ref('');
 const activeFilter = ref<string | null>(null);
 
 const countByStatus = (status: string) => {
-    return competencies.value.filter(c => c.status === status).length;
+    return competencies.value.filter((c) => c.status === status).length;
 };
 
 // Detail panel
@@ -88,12 +88,12 @@ const skillCrud = useSkillCrud();
 // ─── Computed ─────────────────────────────────────────────────────────────────
 const filteredCompetencies = computed(() => {
     let result = competencies.value;
-    
+
     // Status Filter
     if (activeFilter.value) {
-        result = result.filter(c => c.status === activeFilter.value);
+        result = result.filter((c) => c.status === activeFilter.value);
     }
-    
+
     // Search Query
     if (searchQuery.value.trim()) {
         const q = searchQuery.value.toLowerCase();
@@ -103,7 +103,7 @@ const filteredCompetencies = computed(() => {
                 c.description?.toLowerCase().includes(q),
         );
     }
-    
+
     return result;
 });
 
@@ -111,8 +111,7 @@ const filteredCompetencies = computed(() => {
 const loadCompetencies = async () => {
     loading.value = true;
     try {
-        const res = await axios.get('/api/competencies');
-        competencies.value = res.data?.data || res.data || [];
+        competencies.value = await competencyCrud.listCompetencies();
     } catch (e) {
         console.error('Error loading competencies', e);
     } finally {
@@ -124,8 +123,8 @@ const loadSkillsForCompetency = async (competencyId: number) => {
     if (skillsCache.value[competencyId]) return;
     loadingSkills.value.add(competencyId);
     try {
-        const res = await axios.get(`/api/competencies/${competencyId}/skills`);
-        skillsCache.value[competencyId] = res.data?.data || res.data || [];
+        skillsCache.value[competencyId] =
+            await skillCrud.listSkillsForCompetency(competencyId);
     } catch (e) {
         console.error('Error loading skills for competency', competencyId, e);
         skillsCache.value[competencyId] = [];
@@ -164,9 +163,12 @@ const saveCompetency = async () => {
     saving.value = true;
     try {
         if (compEditing.value) {
-            await competencyCrud.updateCompetency(compEditing.value.id, compForm);
+            await competencyCrud.updateCompetency(
+                compEditing.value.id,
+                compForm,
+            );
         } else {
-            await axios.post('/api/competencies', compForm);
+            await competencyCrud.createCompetency(compForm);
         }
         compDialogOpen.value = false;
         skillsCache.value = {}; // clear cache
@@ -222,12 +224,12 @@ const saveSkill = async () => {
             await skillCrud.updateSkill(skillEditing.value.id, skillForm);
         } else {
             // Create skill then attach to competency
-            const res = await axios.post('/api/skills', skillForm);
-            const newSkill = res.data?.data || res.data;
+            const newSkill = await skillCrud.createSkill(skillForm);
             if (skillParentCompetencyId.value && newSkill?.id) {
-                await axios.post(`/api/competencies/${skillParentCompetencyId.value}/skills`, {
-                    skill_id: newSkill.id,
-                });
+                await skillCrud.attachSkillToCompetency(
+                    skillParentCompetencyId.value,
+                    newSkill.id,
+                );
             }
         }
         skillDialogOpen.value = false;
@@ -243,10 +245,13 @@ const saveSkill = async () => {
     }
 };
 
-const removeSkillFromCompetency = async (competencyId: number, skillId: number) => {
+const removeSkillFromCompetency = async (
+    competencyId: number,
+    skillId: number,
+) => {
     if (!confirm('¿Remover esta skill de la competencia?')) return;
     try {
-        await axios.delete(`/api/competencies/${competencyId}/skills/${skillId}`);
+        await skillCrud.removeSkillFromCompetency(competencyId, skillId);
         delete skillsCache.value[competencyId];
         await loadSkillsForCompetency(competencyId);
     } catch (e) {
@@ -273,7 +278,9 @@ const onWizardSuccess = async () => {
 const curateSkill = async (skillId: number, competencyId: number) => {
     curating.value = skillId;
     try {
-        await axios.post(`/api/strategic-planning/assessments/curator/skills/${skillId}/curate`);
+        await axios.post(
+            `/api/strategic-planning/assessments/curator/skills/${skillId}/curate`,
+        );
         delete skillsCache.value[competencyId];
         await loadSkillsForCompetency(competencyId);
         // Refresh detail if open
@@ -290,7 +297,9 @@ const curateSkill = async (skillId: number, competencyId: number) => {
 const generateQuestions = async (skillId: number, _competencyId: number) => {
     generatingQuestions.value = skillId;
     try {
-        await axios.post(`/api/strategic-planning/assessments/curator/skills/${skillId}/generate-questions`);
+        await axios.post(
+            `/api/strategic-planning/assessments/curator/skills/${skillId}/generate-questions`,
+        );
         if (detailSkill.value?.id === skillId) {
             detailSkill.value = await skillCrud.fetchSkill(skillId);
         }
@@ -304,16 +313,16 @@ const generateQuestions = async (skillId: number, _competencyId: number) => {
 const openApprovalSelector = async (comp: any) => {
     compToApprove.value = comp;
     showApprovalDialog.value = true;
-    
+
     if (approvers.value.length === 0) {
         try {
             const res = await axios.get('/api/catalogs', {
-                params: { catalogs: ['people'] }
+                params: { catalogs: ['people'] },
             });
             approvers.value = (res.data.people || []).map((p: any) => ({
                 id: p.id,
                 full_name: p.name,
-                job_title: p.job_title || 'Responsable'
+                job_title: p.job_title || 'Responsable',
             }));
         } catch (err) {
             console.error('Error loading approvers:', err);
@@ -323,16 +332,21 @@ const openApprovalSelector = async (comp: any) => {
 
 const submitApprovalRequest = async () => {
     if (!selectedApproverId.value) return;
-    
+
     requestingApproval.value = true;
     try {
-        await axios.post(`/api/competencies/${compToApprove.value.id}/request-approval`, {
-            approver_id: selectedApproverId.value
-        });
-        
+        await axios.post(
+            `/api/competencies/${compToApprove.value.id}/request-approval`,
+            {
+                approver_id: selectedApproverId.value,
+            },
+        );
+
         // Use standard alert if notify is not available, or just console log
-        alert('Se ha enviado un link de aprobación al responsable seleccionado.');
-        
+        alert(
+            'Se ha enviado un link de aprobación al responsable seleccionado.',
+        );
+
         showApprovalDialog.value = false;
         selectedApproverId.value = null;
     } catch (err) {
@@ -355,7 +369,13 @@ const openSkillDetail = async (skill: any) => {
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const categoryConfig: Record<string, { label: string; variant: 'primary' | 'success' | 'warning' | 'error' | 'glass' | 'info' }> = {
+const categoryConfig: Record<
+    string,
+    {
+        label: string;
+        variant: 'primary' | 'success' | 'warning' | 'error' | 'glass' | 'info';
+    }
+> = {
     technical: { label: 'Técnica', variant: 'primary' },
     soft: { label: 'Blanda', variant: 'success' },
     business: { label: 'Negocio', variant: 'warning' },
@@ -363,13 +383,24 @@ const categoryConfig: Record<string, { label: string; variant: 'primary' | 'succ
     incubation: { label: 'En Incubación', variant: 'info' },
 };
 
-const statusConfig: Record<string, { label: string; color: string; variant: 'primary' | 'success' | 'warning' | 'error' | 'glass' | 'info' }> = {
+const statusConfig: Record<
+    string,
+    {
+        label: string;
+        color: string;
+        variant: 'primary' | 'success' | 'warning' | 'error' | 'glass' | 'info';
+    }
+> = {
     active: { label: 'Activa', color: 'emerald', variant: 'success' },
     draft: { label: 'En Revisión', color: 'indigo', variant: 'info' },
     archived: { label: 'Archivada', color: 'slate', variant: 'glass' },
     in_incubation: { label: 'En Incubación', color: 'cyan', variant: 'info' },
     proposed: { label: 'Requiere Skills', color: 'orange', variant: 'warning' },
-    pending_review: { label: 'Por Validar', color: 'amber', variant: 'warning' },
+    pending_review: {
+        label: 'Por Validar',
+        color: 'amber',
+        variant: 'warning',
+    },
 };
 
 // ─── Lifecycle ────────────────────────────────────────────────────────────────
@@ -380,16 +411,23 @@ onMounted(loadCompetencies);
     <div class="competencies-page pa-6">
         <!-- ── Header ── -->
         <header class="mb-8">
-            <div class="d-flex align-center justify-space-between flex-wrap gap-4">
+            <div
+                class="d-flex align-center justify-space-between flex-wrap gap-4"
+            >
                 <div>
-                    <div class="d-flex align-center gap-3 mb-1">
-                        <component :is="PhBrain" :size="28" class="text-indigo-accent-1" />
+                    <div class="d-flex align-center mb-1 gap-3">
+                        <component
+                            :is="PhBrain"
+                            :size="28"
+                            class="text-indigo-accent-1"
+                        />
                         <h1 class="text-h4 font-weight-black text-white">
                             Competencias & Habilidades
                         </h1>
                     </div>
-                    <p class="text-slate-400 text-body-2 ml-10">
-                        Catálogo organizacional de capacidades y sus habilidades asociadas
+                    <p class="text-body-2 ml-10 text-slate-400">
+                        Catálogo organizacional de capacidades y sus habilidades
+                        asociadas
                     </p>
                 </div>
                 <StButtonGlass
@@ -404,7 +442,7 @@ onMounted(loadCompetencies);
         </header>
 
         <!-- ── Search ── -->
-        <StCardGlass class="mb-6 pa-4">
+        <StCardGlass class="pa-4 mb-6">
             <v-text-field
                 v-model="searchQuery"
                 placeholder="Buscar competencias..."
@@ -415,29 +453,37 @@ onMounted(loadCompetencies);
                 class="glass-input"
             >
                 <template #prepend-inner>
-                    <component :is="PhListBullets" :size="18" class="text-slate-400 mr-1" />
+                    <component
+                        :is="PhListBullets"
+                        :size="18"
+                        class="mr-1 text-slate-400"
+                    />
                 </template>
             </v-text-field>
         </StCardGlass>
 
         <!-- Status Filter Chips -->
-        <div class="d-flex align-center gap-2 mb-8 ml-1 overflow-x-auto pb-2 no-scrollbar">
+        <div
+            class="d-flex align-center no-scrollbar mb-8 ml-1 gap-2 overflow-x-auto pb-2"
+        >
             <v-chip
                 v-for="(config, status) in statusConfig"
                 :key="status"
                 size="small"
                 :color="activeFilter === status ? config.color : 'slate'"
                 :variant="activeFilter === status ? 'tonal' : 'outlined'"
-                class="px-4 font-weight-medium rounded-pill border-white/10 cursor-pointer hover:bg-white/5 transition-all!"
+                class="font-weight-medium rounded-pill cursor-pointer border-white/10 px-4 transition-all! hover:bg-white/5"
                 @click="activeFilter = activeFilter === status ? null : status"
             >
                 <div class="d-flex align-center gap-2">
-                    <div 
-                        v-if="activeFilter === status" 
-                        class="w-1.5 h-1.5 rounded-circle bg-current shadow-[0_0_8px_currentColor]"
+                    <div
+                        v-if="activeFilter === status"
+                        class="rounded-circle h-1.5 w-1.5 bg-current shadow-[0_0_8px_currentColor]"
                     ></div>
                     {{ config.label }}
-                    <span class="text-[10px] bg-white/10 px-1.5 py-0.5 rounded font-bold ml-1 opacity-70">
+                    <span
+                        class="ml-1 rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-bold opacity-70"
+                    >
                         {{ countByStatus(String(status)) }}
                     </span>
                 </div>
@@ -445,16 +491,32 @@ onMounted(loadCompetencies);
         </div>
 
         <!-- ── Loading ── -->
-        <div v-if="loading" class="text-center py-16">
-            <v-progress-circular indeterminate color="indigo-accent-2" size="48" />
-            <div class="text-slate-400 mt-4 text-body-2">Cargando competencias...</div>
+        <div v-if="loading" class="py-16 text-center">
+            <v-progress-circular
+                indeterminate
+                color="indigo-accent-2"
+                size="48"
+            />
+            <div class="text-body-2 mt-4 text-slate-400">
+                Cargando competencias...
+            </div>
         </div>
 
         <!-- ── Empty ── -->
-        <div v-else-if="filteredCompetencies.length === 0 && !loading" class="text-center py-16">
-            <component :is="PhBrain" :size="64" class="text-white/10 mb-4" />
-            <div class="text-slate-400 text-body-1">No hay competencias registradas</div>
-            <StButtonGlass variant="primary" :icon="PhPlus" class="mt-4" @click="openCreateComp">
+        <div
+            v-else-if="filteredCompetencies.length === 0 && !loading"
+            class="py-16 text-center"
+        >
+            <component :is="PhBrain" :size="64" class="mb-4 text-white/10" />
+            <div class="text-body-1 text-slate-400">
+                No hay competencias registradas
+            </div>
+            <StButtonGlass
+                variant="primary"
+                :icon="PhPlus"
+                class="mt-4"
+                @click="openCreateComp"
+            >
                 Crear primera competencia
             </StButtonGlass>
         </div>
@@ -470,16 +532,27 @@ onMounted(loadCompetencies);
                 <StCardGlass
                     :no-hover="true"
                     class="competency-header pa-0"
-                    :class="{ 'is-expanded': expandedCompetencies.has(comp.id) }"
+                    :class="{
+                        'is-expanded': expandedCompetencies.has(comp.id),
+                    }"
                 >
                     <div
-                        class="d-flex align-center px-5 py-4 cursor-pointer"
+                        class="d-flex align-center cursor-pointer px-5 py-4"
                         @click="toggleCompetency(comp.id)"
                     >
                         <!-- Expand toggle -->
-                        <div class="toggle-icon mr-3 transition-transform" :class="{ 'rotated': expandedCompetencies.has(comp.id) }">
+                        <div
+                            class="toggle-icon mr-3 transition-transform"
+                            :class="{
+                                rotated: expandedCompetencies.has(comp.id),
+                            }"
+                        >
                             <component
-                                :is="expandedCompetencies.has(comp.id) ? PhCaretDown : PhCaretRight"
+                                :is="
+                                    expandedCompetencies.has(comp.id)
+                                        ? PhCaretDown
+                                        : PhCaretRight
+                                "
                                 :size="18"
                                 class="text-indigo-accent-1"
                             />
@@ -488,49 +561,73 @@ onMounted(loadCompetencies);
                         <!-- Name & Description -->
                         <div class="grow">
                             <div class="d-flex align-center gap-2">
-                                <div class="text-subtitle-1 font-weight-bold text-white font-premium">
+                                <div
+                                    class="text-subtitle-1 font-weight-bold font-premium text-white"
+                                >
                                     {{ comp.name }}
                                 </div>
                                 <StBadgeGlass
                                     v-if="comp.status === 'in_incubation'"
                                     variant="info"
                                     size="sm"
-                                    class="text-[8px] px-1.5!"
+                                    class="px-1.5! text-[8px]"
                                 >
-                                    {{ $t('common.incubation', 'En Incubación') }}
+                                    {{
+                                        $t('common.incubation', 'En Incubación')
+                                    }}
                                 </StBadgeGlass>
                             </div>
-                            <div v-if="comp.description" class="text-caption text-slate-400 mt-0.5 line-clamp-1">
+                            <div
+                                v-if="comp.description"
+                                class="text-caption mt-0.5 line-clamp-1 text-slate-400"
+                            >
                                 {{ comp.description }}
                             </div>
                         </div>
 
                         <!-- Badges -->
-                        <div class="d-flex align-center gap-3 ml-4" @click.stop>
+                        <div class="d-flex align-center ml-4 gap-3" @click.stop>
                             <StBadgeGlass
                                 v-if="comp.skills_count !== undefined"
                                 variant="glass"
                                 size="md"
                             >
-                                <component :is="PhStar" :size="12" class="mr-1" />
-                                {{ comp.skills_count ?? (skillsCache[comp.id]?.length ?? '…') }} skills
+                                <component
+                                    :is="PhStar"
+                                    :size="12"
+                                    class="mr-1"
+                                />
+                                {{
+                                    comp.skills_count ??
+                                    skillsCache[comp.id]?.length ??
+                                    '…'
+                                }}
+                                skills
                             </StBadgeGlass>
 
                             <v-chip
                                 size="x-small"
-                                :color="statusConfig[comp.status]?.color || 'slate'"
+                                :color="
+                                    statusConfig[comp.status]?.color || 'slate'
+                                "
                                 variant="tonal"
-                                class="font-weight-bold rounded-lg text-uppercase tracking-wider"
+                                class="font-weight-bold text-uppercase rounded-lg tracking-wider"
                             >
-                                {{ statusConfig[comp.status]?.label || comp.status }}
+                                {{
+                                    statusConfig[comp.status]?.label ||
+                                    comp.status
+                                }}
                             </v-chip>
-                            
+
                             <!-- Sello Digital ISO Compliance -->
-                            <StDigitalSealAudit :item="comp" type="competency" />
+                            <StDigitalSealAudit
+                                :item="comp"
+                                type="competency"
+                            />
                         </div>
 
                         <!-- Actions -->
-                        <div class="d-flex align-center gap-1 ml-4" @click.stop>
+                        <div class="d-flex align-center ml-4 gap-1" @click.stop>
                             <v-btn
                                 icon
                                 variant="text"
@@ -538,7 +635,11 @@ onMounted(loadCompetencies);
                                 class="mr-1"
                                 @click="openApprovalSelector(comp)"
                             >
-                                <component :is="PhSealCheck" :size="16" class="text-indigo-400" />
+                                <component
+                                    :is="PhSealCheck"
+                                    :size="16"
+                                    class="text-indigo-400"
+                                />
                             </v-btn>
                             <v-btn
                                 icon
@@ -546,7 +647,11 @@ onMounted(loadCompetencies);
                                 size="small"
                                 @click="openEditComp(comp)"
                             >
-                                <component :is="PhPencilSimple" :size="16" class="text-slate-400" />
+                                <component
+                                    :is="PhPencilSimple"
+                                    :size="16"
+                                    class="text-slate-400"
+                                />
                             </v-btn>
                             <v-btn
                                 icon
@@ -554,23 +659,41 @@ onMounted(loadCompetencies);
                                 size="small"
                                 @click="deleteCompetency(comp.id)"
                             >
-                                <component :is="PhTrash" :size="16" class="text-rose-400/70" />
+                                <component
+                                    :is="PhTrash"
+                                    :size="16"
+                                    class="text-rose-400/70"
+                                />
                             </v-btn>
                         </div>
                     </div>
 
                     <!-- ── Skills Panel (expanded) ── -->
-                    <div v-if="expandedCompetencies.has(comp.id)" class="skills-panel border-t border-white/5">
+                    <div
+                        v-if="expandedCompetencies.has(comp.id)"
+                        class="skills-panel border-t border-white/5"
+                    >
                         <!-- Loading skills -->
-                        <div v-if="loadingSkills.has(comp.id)" class="py-6 text-center">
-                            <v-progress-circular indeterminate color="indigo-accent-1" size="28" />
+                        <div
+                            v-if="loadingSkills.has(comp.id)"
+                            class="py-6 text-center"
+                        >
+                            <v-progress-circular
+                                indeterminate
+                                color="indigo-accent-1"
+                                size="28"
+                            />
                         </div>
 
                         <!-- Skills list -->
                         <div v-else class="px-6 py-4">
                             <!-- Add skill button -->
-                            <div class="d-flex justify-space-between align-center mb-4">
-                                <span class="text-overline font-weight-black tracking-widest text-white/30 uppercase">
+                            <div
+                                class="d-flex justify-space-between align-center mb-4"
+                            >
+                                <span
+                                    class="text-overline font-weight-black tracking-widest text-white/30 uppercase"
+                                >
                                     Habilidades de esta competencia
                                 </span>
                                 <StButtonGlass
@@ -584,19 +707,40 @@ onMounted(loadCompetencies);
                             </div>
 
                             <div
-                                v-if="!skillsCache[comp.id] || skillsCache[comp.id].length === 0"
-                                class="py-10 text-center rounded-2xl border-2 border-dashed border-white/5 bg-white/2"
+                                v-if="
+                                    !skillsCache[comp.id] ||
+                                    skillsCache[comp.id].length === 0
+                                "
+                                class="rounded-2xl border-2 border-dashed border-white/5 bg-white/2 py-10 text-center"
                             >
                                 <div class="px-12">
-                                    <div class="d-inline-flex pa-4 rounded-circle bg-indigo-500/10 mb-4 border border-indigo-500/10">
-                                        <component :is="PhMagicWand" :size="32" class="text-indigo-400" />
+                                    <div
+                                        class="d-inline-flex pa-4 rounded-circle mb-4 border border-indigo-500/10 bg-indigo-500/10"
+                                    >
+                                        <component
+                                            :is="PhMagicWand"
+                                            :size="32"
+                                            class="text-indigo-400"
+                                        />
                                     </div>
-                                    <div class="text-subtitle-1 font-weight-black text-white mb-2 font-premium">Arquitectura Incompleta</div>
-                                    <p class="text-slate-400 text-body-2 mb-6 max-w-sm mx-auto">
-                                        Esta competencia aún no posee habilidades materializadas. <br>
-                                        Use el <strong>Agente Curador</strong> para definir los niveles SFIA/BARS y criterios de éxito.
+                                    <div
+                                        class="text-subtitle-1 font-weight-black font-premium mb-2 text-white"
+                                    >
+                                        Arquitectura Incompleta
+                                    </div>
+                                    <p
+                                        class="text-body-2 mx-auto mb-6 max-w-sm text-slate-400"
+                                    >
+                                        Esta competencia aún no posee
+                                        habilidades materializadas. <br />
+                                        Use el
+                                        <strong>Agente Curador</strong> para
+                                        definir los niveles SFIA/BARS y
+                                        criterios de éxito.
                                     </p>
-                                    <div class="d-flex align-center justify-center gap-4">
+                                    <div
+                                        class="d-flex align-center justify-center gap-4"
+                                    >
                                         <StButtonGlass
                                             variant="secondary"
                                             :icon="PhPlus"
@@ -623,64 +767,126 @@ onMounted(loadCompetencies);
                                 <div
                                     v-for="skill in skillsCache[comp.id]"
                                     :key="skill.id"
-                                    class="skill-card rounded-xl border border-white/8 bg-white/3 pa-4 cursor-pointer transition-all hover:border-indigo-500/30 hover:bg-white/5"
+                                    class="skill-card pa-4 cursor-pointer rounded-xl border border-white/8 bg-white/3 transition-all hover:border-indigo-500/30 hover:bg-white/5"
                                     @click="openSkillDetail(skill)"
                                 >
-                                    <div class="d-flex align-start justify-space-between mb-2">
-                                        <div class="text-body-2 font-weight-bold text-white grow pr-2">
+                                    <div
+                                        class="d-flex align-start justify-space-between mb-2"
+                                    >
+                                        <div
+                                            class="text-body-2 font-weight-bold grow pr-2 text-white"
+                                        >
                                             {{ skill.name }}
                                         </div>
-                                        <div class="d-flex align-center gap-1 shrink-0" @click.stop>
-                                            <v-tooltip text="Editar" location="top">
-                                                <template #activator="{ props }">
+                                        <div
+                                            class="d-flex align-center shrink-0 gap-1"
+                                            @click.stop
+                                        >
+                                            <v-tooltip
+                                                text="Editar"
+                                                location="top"
+                                            >
+                                                <template
+                                                    #activator="{ props }"
+                                                >
                                                     <v-btn
                                                         v-bind="props"
                                                         icon
                                                         variant="text"
                                                         size="x-small"
-                                                        @click="openEditSkill(skill, comp.id)"
+                                                        @click="
+                                                            openEditSkill(
+                                                                skill,
+                                                                comp.id,
+                                                            )
+                                                        "
                                                     >
-                                                        <component :is="PhPencilSimple" :size="14" class="text-slate-400" />
+                                                        <component
+                                                            :is="PhPencilSimple"
+                                                            :size="14"
+                                                            class="text-slate-400"
+                                                        />
                                                     </v-btn>
                                                 </template>
                                             </v-tooltip>
-                                            <v-tooltip text="Quitar de competencia" location="top">
-                                                <template #activator="{ props }">
+                                            <v-tooltip
+                                                text="Quitar de competencia"
+                                                location="top"
+                                            >
+                                                <template
+                                                    #activator="{ props }"
+                                                >
                                                     <v-btn
                                                         v-bind="props"
                                                         icon
                                                         variant="text"
                                                         size="x-small"
-                                                        @click="removeSkillFromCompetency(comp.id, skill.id)"
+                                                        @click="
+                                                            removeSkillFromCompetency(
+                                                                comp.id,
+                                                                skill.id,
+                                                            )
+                                                        "
                                                     >
-                                                        <component :is="PhX" :size="14" class="text-rose-400/70" />
+                                                        <component
+                                                            :is="PhX"
+                                                            :size="14"
+                                                            class="text-rose-400/70"
+                                                        />
                                                     </v-btn>
                                                 </template>
                                             </v-tooltip>
                                         </div>
                                     </div>
 
-                                    <div class="d-flex flex-wrap gap-2 mb-2">
+                                    <div class="d-flex mb-2 flex-wrap gap-2">
                                         <StBadgeGlass
-                                            :variant="categoryConfig[skill.category]?.variant || (skill.status === 'in_incubation' ? 'info' : 'glass')"
+                                            :variant="
+                                                categoryConfig[skill.category]
+                                                    ?.variant ||
+                                                (skill.status ===
+                                                'in_incubation'
+                                                    ? 'info'
+                                                    : 'glass')
+                                            "
                                             size="sm"
                                         >
-                                            {{ categoryConfig[skill.category]?.label || (skill.status === 'in_incubation' ? 'Incubada' : skill.category) }}
+                                            {{
+                                                categoryConfig[skill.category]
+                                                    ?.label ||
+                                                (skill.status ===
+                                                'in_incubation'
+                                                    ? 'Incubada'
+                                                    : skill.category)
+                                            }}
                                         </StBadgeGlass>
                                         <StBadgeGlass
                                             v-if="skill.is_critical"
                                             variant="error"
                                             size="sm"
                                         >
-                                            <component :is="PhLightning" :size="10" class="mr-1" />
+                                            <component
+                                                :is="PhLightning"
+                                                :size="10"
+                                                class="mr-1"
+                                            />
                                             Crítica
                                         </StBadgeGlass>
                                         <StBadgeGlass
-                                            v-if="skill.bars_levels_count > 0 || (skill.bars_levels && skill.bars_levels.length > 0)"
+                                            v-if="
+                                                skill.bars_levels_count > 0 ||
+                                                (skill.bars_levels &&
+                                                    skill.bars_levels.length >
+                                                        0)
+                                            "
                                             variant="success"
                                             size="sm"
                                         >
-                                            <component :is="PhCheckCircle" :size="10" class="mr-1" />
+                                            <component
+                                                :is="PhCheckCircle"
+                                                :size="10"
+                                                class="mr-1"
+                                            />
                                             BARS
                                         </StBadgeGlass>
                                         <StBadgeGlass
@@ -688,37 +894,73 @@ onMounted(loadCompetencies);
                                             variant="glass"
                                             size="sm"
                                         >
-                                            <component :is="PhCircleDashed" :size="10" class="mr-1" />
+                                            <component
+                                                :is="PhCircleDashed"
+                                                :size="10"
+                                                class="mr-1"
+                                            />
                                             Sin BARS
                                         </StBadgeGlass>
                                     </div>
 
-                                    <div v-if="skill.description" class="text-caption text-slate-400 line-clamp-2">
+                                    <div
+                                        v-if="skill.description"
+                                        class="text-caption line-clamp-2 text-slate-400"
+                                    >
                                         {{ skill.description }}
                                     </div>
 
                                     <!-- Quick AI action -->
-                                    <div class="d-flex gap-2 mt-3" @click.stop>
+                                    <div class="d-flex mt-3 gap-2" @click.stop>
                                         <v-btn
-                                            v-if="!skill.bars_levels_count && !(skill.bars_levels && skill.bars_levels.length > 0)"
+                                            v-if="
+                                                !skill.bars_levels_count &&
+                                                !(
+                                                    skill.bars_levels &&
+                                                    skill.bars_levels.length > 0
+                                                )
+                                            "
                                             size="x-small"
                                             variant="tonal"
                                             color="indigo"
                                             :loading="curating === skill.id"
-                                            @click="curateSkill(skill.id, comp.id)"
+                                            @click="
+                                                curateSkill(skill.id, comp.id)
+                                            "
                                         >
-                                            <component :is="PhMagicWand" :size="12" class="mr-1" />
+                                            <component
+                                                :is="PhMagicWand"
+                                                :size="12"
+                                                class="mr-1"
+                                            />
                                             Curar BARS
                                         </v-btn>
                                         <v-btn
-                                            v-else-if="!skill.questions_count && !(skill.questions && skill.questions.length > 0)"
+                                            v-else-if="
+                                                !skill.questions_count &&
+                                                !(
+                                                    skill.questions &&
+                                                    skill.questions.length > 0
+                                                )
+                                            "
                                             size="x-small"
                                             variant="tonal"
                                             color="teal"
-                                            :loading="generatingQuestions === skill.id"
-                                            @click="generateQuestions(skill.id, comp.id)"
+                                            :loading="
+                                                generatingQuestions === skill.id
+                                            "
+                                            @click="
+                                                generateQuestions(
+                                                    skill.id,
+                                                    comp.id,
+                                                )
+                                            "
                                         >
-                                            <component :is="PhChatCircleText" :size="12" class="mr-1" />
+                                            <component
+                                                :is="PhChatCircleText"
+                                                :size="12"
+                                                class="mr-1"
+                                            />
                                             Generar Preguntas
                                         </v-btn>
                                         <v-btn
@@ -726,10 +968,21 @@ onMounted(loadCompetencies);
                                             size="x-small"
                                             variant="text"
                                             color="slate"
-                                            :loading="generatingQuestions === skill.id"
-                                            @click="generateQuestions(skill.id, comp.id)"
+                                            :loading="
+                                                generatingQuestions === skill.id
+                                            "
+                                            @click="
+                                                generateQuestions(
+                                                    skill.id,
+                                                    comp.id,
+                                                )
+                                            "
                                         >
-                                            <component :is="PhArrowCounterClockwise" :size="12" class="mr-1" />
+                                            <component
+                                                :is="PhArrowCounterClockwise"
+                                                :size="12"
+                                                class="mr-1"
+                                            />
                                             Regenerar
                                         </v-btn>
                                     </div>
@@ -746,10 +999,16 @@ onMounted(loadCompetencies);
          Competency Dialog
     ═══════════════════════════════════════════════════════════ -->
     <v-dialog v-model="compDialogOpen" max-width="540" persistent>
-        <StCardGlass class="pa-0" :no-hover="true" style="margin: 2rem;">
-            <div class="d-flex align-center justify-space-between px-6 py-5 border-b border-white/5">
-                <div class="text-subtitle-1 font-weight-bold text-white font-premium">
-                    {{ compEditing ? 'Editar Competencia' : 'Nueva Competencia' }}
+        <StCardGlass class="pa-0" :no-hover="true" style="margin: 2rem">
+            <div
+                class="d-flex align-center justify-space-between border-b border-white/5 px-6 py-5"
+            >
+                <div
+                    class="text-subtitle-1 font-weight-bold font-premium text-white"
+                >
+                    {{
+                        compEditing ? 'Editar Competencia' : 'Nueva Competencia'
+                    }}
                 </div>
                 <v-btn icon variant="text" @click="compDialogOpen = false">
                     <component :is="PhX" :size="20" />
@@ -757,7 +1016,11 @@ onMounted(loadCompetencies);
             </div>
             <div class="pa-6 space-y-5">
                 <div class="space-y-1">
-                    <label for="comp-name" class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80">Nombre</label>
+                    <label
+                        for="comp-name"
+                        class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80"
+                        >Nombre</label
+                    >
                     <input
                         id="comp-name"
                         v-model="compForm.name"
@@ -767,7 +1030,11 @@ onMounted(loadCompetencies);
                     />
                 </div>
                 <div class="space-y-1">
-                    <label for="comp-desc" class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80">Descripción</label>
+                    <label
+                        for="comp-desc"
+                        class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80"
+                        >Descripción</label
+                    >
                     <textarea
                         id="comp-desc"
                         v-model="compForm.description"
@@ -777,17 +1044,32 @@ onMounted(loadCompetencies);
                     ></textarea>
                 </div>
                 <div class="space-y-1">
-                    <label for="comp-status" class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80">Estado</label>
-                    <select id="comp-status" v-model="compForm.status" class="comp-input w-full">
+                    <label
+                        for="comp-status"
+                        class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80"
+                        >Estado</label
+                    >
+                    <select
+                        id="comp-status"
+                        v-model="compForm.status"
+                        class="comp-input w-full"
+                    >
                         <option value="active">Activa</option>
                         <option value="draft">Borrador</option>
                         <option value="archived">Archivada</option>
                     </select>
                 </div>
             </div>
-            <div class="px-6 pb-6 d-flex justify-end gap-3">
-                <StButtonGlass variant="ghost" @click="compDialogOpen = false">Cancelar</StButtonGlass>
-                <StButtonGlass variant="primary" :icon="PhFloppyDisk" :loading="saving" @click="saveCompetency">
+            <div class="d-flex justify-end gap-3 px-6 pb-6">
+                <StButtonGlass variant="ghost" @click="compDialogOpen = false"
+                    >Cancelar</StButtonGlass
+                >
+                <StButtonGlass
+                    variant="primary"
+                    :icon="PhFloppyDisk"
+                    :loading="saving"
+                    @click="saveCompetency"
+                >
                     Guardar
                 </StButtonGlass>
             </div>
@@ -798,9 +1080,13 @@ onMounted(loadCompetencies);
          Skill Dialog
     ═══════════════════════════════════════════════════════════ -->
     <v-dialog v-model="skillDialogOpen" max-width="580" persistent>
-        <StCardGlass class="pa-0" :no-hover="true" style="margin: 2rem;">
-            <div class="d-flex align-center justify-space-between px-6 py-5 border-b border-white/5">
-                <div class="text-subtitle-1 font-weight-bold text-white font-premium">
+        <StCardGlass class="pa-0" :no-hover="true" style="margin: 2rem">
+            <div
+                class="d-flex align-center justify-space-between border-b border-white/5 px-6 py-5"
+            >
+                <div
+                    class="text-subtitle-1 font-weight-bold font-premium text-white"
+                >
                     {{ skillEditing ? 'Editar Habilidad' : 'Nueva Habilidad' }}
                 </div>
                 <v-btn icon variant="text" @click="skillDialogOpen = false">
@@ -809,12 +1095,30 @@ onMounted(loadCompetencies);
             </div>
             <div class="pa-6 grid grid-cols-2 gap-4">
                 <div class="col-span-2 space-y-1">
-                    <label for="skill-name" class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80">Nombre de la Habilidad</label>
-                    <input id="skill-name" v-model="skillForm.name" type="text" placeholder="Ej: Gestión del Cambio" class="comp-input w-full" />
+                    <label
+                        for="skill-name"
+                        class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80"
+                        >Nombre de la Habilidad</label
+                    >
+                    <input
+                        id="skill-name"
+                        v-model="skillForm.name"
+                        type="text"
+                        placeholder="Ej: Gestión del Cambio"
+                        class="comp-input w-full"
+                    />
                 </div>
                 <div class="space-y-1">
-                    <label for="skill-category" class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80">Categoría</label>
-                    <select id="skill-category" v-model="skillForm.category" class="comp-input w-full">
+                    <label
+                        for="skill-category"
+                        class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80"
+                        >Categoría</label
+                    >
+                    <select
+                        id="skill-category"
+                        v-model="skillForm.category"
+                        class="comp-input w-full"
+                    >
                         <option value="technical">Técnica</option>
                         <option value="soft">Blanda</option>
                         <option value="business">Negocio</option>
@@ -822,22 +1126,38 @@ onMounted(loadCompetencies);
                     </select>
                 </div>
                 <div class="space-y-1">
-                    <label for="skill-complexity" class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80">Complejidad</label>
-                    <select id="skill-complexity" v-model="skillForm.complexity_level" class="comp-input w-full">
+                    <label
+                        for="skill-complexity"
+                        class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80"
+                        >Complejidad</label
+                    >
+                    <select
+                        id="skill-complexity"
+                        v-model="skillForm.complexity_level"
+                        class="comp-input w-full"
+                    >
                         <option value="operative">Operativa</option>
                         <option value="tactical">Táctica</option>
                         <option value="strategic">Estratégica</option>
                     </select>
                 </div>
                 <div class="space-y-1">
-                    <label for="skill-scope" class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80">Alcance</label>
-                    <select id="skill-scope" v-model="skillForm.scope_type" class="comp-input w-full">
+                    <label
+                        for="skill-scope"
+                        class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80"
+                        >Alcance</label
+                    >
+                    <select
+                        id="skill-scope"
+                        v-model="skillForm.scope_type"
+                        class="comp-input w-full"
+                    >
                         <option value="transversal">Transversal</option>
                         <option value="domain">Dominio</option>
                         <option value="specific">Específica</option>
                     </select>
                 </div>
-                <div class="space-y-1 d-flex align-center gap-3 pt-4">
+                <div class="d-flex align-center gap-3 space-y-1 pt-4">
                     <v-switch
                         id="skill-critical"
                         v-model="skillForm.is_critical"
@@ -845,16 +1165,37 @@ onMounted(loadCompetencies);
                         hide-details
                         density="compact"
                     />
-                    <label for="skill-critical" class="text-[11px] font-black tracking-[0.2em] text-rose-300 uppercase opacity-80 cursor-pointer">Crítica</label>
+                    <label
+                        for="skill-critical"
+                        class="cursor-pointer text-[11px] font-black tracking-[0.2em] text-rose-300 uppercase opacity-80"
+                        >Crítica</label
+                    >
                 </div>
                 <div class="col-span-2 space-y-1">
-                    <label for="skill-desc" class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80">Descripción</label>
-                    <textarea id="skill-desc" v-model="skillForm.description" rows="3" placeholder="Describe el propósito de esta habilidad..." class="comp-input w-full resize-none"></textarea>
+                    <label
+                        for="skill-desc"
+                        class="text-[11px] font-black tracking-[0.2em] text-indigo-300 uppercase opacity-80"
+                        >Descripción</label
+                    >
+                    <textarea
+                        id="skill-desc"
+                        v-model="skillForm.description"
+                        rows="3"
+                        placeholder="Describe el propósito de esta habilidad..."
+                        class="comp-input w-full resize-none"
+                    ></textarea>
                 </div>
             </div>
-            <div class="px-6 pb-6 d-flex justify-end gap-3">
-                <StButtonGlass variant="ghost" @click="skillDialogOpen = false">Cancelar</StButtonGlass>
-                <StButtonGlass variant="primary" :icon="PhFloppyDisk" :loading="saving" @click="saveSkill">
+            <div class="d-flex justify-end gap-3 px-6 pb-6">
+                <StButtonGlass variant="ghost" @click="skillDialogOpen = false"
+                    >Cancelar</StButtonGlass
+                >
+                <StButtonGlass
+                    variant="primary"
+                    :icon="PhFloppyDisk"
+                    :loading="saving"
+                    @click="saveSkill"
+                >
                     Guardar
                 </StButtonGlass>
             </div>
@@ -864,21 +1205,51 @@ onMounted(loadCompetencies);
     <!-- ══════════════════════════════════════════════════════════
          Skill Detail Dialog
     ═══════════════════════════════════════════════════════════ -->
-    <v-dialog v-model="detailOpen" max-width="760" transition="dialog-transition">
-        <StCardGlass class="pa-0" :no-hover="true" style="margin: 2rem; max-height: 85vh; overflow-y: auto;">
+    <v-dialog
+        v-model="detailOpen"
+        max-width="760"
+        transition="dialog-transition"
+    >
+        <StCardGlass
+            class="pa-0"
+            :no-hover="true"
+            style="margin: 2rem; max-height: 85vh; overflow-y: auto"
+        >
             <div v-if="detailSkill">
                 <!-- Header -->
-                <div class="d-flex align-start justify-space-between px-6 py-5 border-b border-white/5">
+                <div
+                    class="d-flex align-start justify-space-between border-b border-white/5 px-6 py-5"
+                >
                     <div>
-                        <div class="text-subtitle-1 font-weight-bold text-white font-premium mb-1">
+                        <div
+                            class="text-subtitle-1 font-weight-bold font-premium mb-1 text-white"
+                        >
                             {{ detailSkill.name }}
                         </div>
                         <div class="d-flex gap-2">
-                            <StBadgeGlass :variant="categoryConfig[detailSkill.category]?.variant || 'glass'" size="sm">
-                                {{ categoryConfig[detailSkill.category]?.label || detailSkill.category }}
+                            <StBadgeGlass
+                                :variant="
+                                    categoryConfig[detailSkill.category]
+                                        ?.variant || 'glass'
+                                "
+                                size="sm"
+                            >
+                                {{
+                                    categoryConfig[detailSkill.category]
+                                        ?.label || detailSkill.category
+                                }}
                             </StBadgeGlass>
-                            <StBadgeGlass v-if="detailSkill.is_critical" variant="error" size="sm">
-                                <component :is="PhLightning" :size="10" class="mr-1" /> Crítica
+                            <StBadgeGlass
+                                v-if="detailSkill.is_critical"
+                                variant="error"
+                                size="sm"
+                            >
+                                <component
+                                    :is="PhLightning"
+                                    :size="10"
+                                    class="mr-1"
+                                />
+                                Crítica
                             </StBadgeGlass>
                         </div>
                     </div>
@@ -888,21 +1259,44 @@ onMounted(loadCompetencies);
                 </div>
 
                 <!-- Tabs -->
-                <v-tabs v-model="detailTab" color="indigo-accent-2" class="px-4 border-b border-white/5">
+                <v-tabs
+                    v-model="detailTab"
+                    color="indigo-accent-2"
+                    class="border-b border-white/5 px-4"
+                >
                     <v-tab value="info" class="text-none">
-                        <component :is="PhClipboardText" :size="16" class="mr-2" /> Información
+                        <component
+                            :is="PhClipboardText"
+                            :size="16"
+                            class="mr-2"
+                        />
+                        Información
                     </v-tab>
                     <v-tab value="bars" class="text-none">
                         <component :is="PhStar" :size="16" class="mr-2" />
                         BARS / Niveles
-                        <v-chip v-if="detailSkill.bars_levels?.length" size="x-small" color="emerald" class="ml-2">
+                        <v-chip
+                            v-if="detailSkill.bars_levels?.length"
+                            size="x-small"
+                            color="emerald"
+                            class="ml-2"
+                        >
                             {{ detailSkill.bars_levels.length }}
                         </v-chip>
                     </v-tab>
                     <v-tab value="questions" class="text-none">
-                        <component :is="PhChatCircleText" :size="16" class="mr-2" />
+                        <component
+                            :is="PhChatCircleText"
+                            :size="16"
+                            class="mr-2"
+                        />
                         Preguntas
-                        <v-chip v-if="detailSkill.questions?.length" size="x-small" color="teal" class="ml-2">
+                        <v-chip
+                            v-if="detailSkill.questions?.length"
+                            size="x-small"
+                            color="teal"
+                            class="ml-2"
+                        >
                             {{ detailSkill.questions.length }}
                         </v-chip>
                     </v-tab>
@@ -912,21 +1306,44 @@ onMounted(loadCompetencies);
                     <!-- Info -->
                     <v-window-item value="info">
                         <div class="space-y-4">
-                            <div v-if="detailSkill.description" class="pa-4 rounded-xl border border-white/8 bg-white/3 text-slate-200 text-body-2 leading-relaxed">
+                            <div
+                                v-if="detailSkill.description"
+                                class="pa-4 text-body-2 rounded-xl border border-white/8 bg-white/3 leading-relaxed text-slate-200"
+                            >
                                 {{ detailSkill.description }}
                             </div>
                             <div class="d-flex flex-wrap gap-3">
                                 <div class="info-chip">
-                                    <span class="text-slate-500 text-caption">Complejidad:</span>
-                                    <span class="text-white ml-1 text-caption font-weight-bold capitalize">{{ detailSkill.complexity_level }}</span>
+                                    <span class="text-caption text-slate-500"
+                                        >Complejidad:</span
+                                    >
+                                    <span
+                                        class="text-caption font-weight-bold ml-1 text-white capitalize"
+                                        >{{
+                                            detailSkill.complexity_level
+                                        }}</span
+                                    >
                                 </div>
                                 <div class="info-chip">
-                                    <span class="text-slate-500 text-caption">Alcance:</span>
-                                    <span class="text-white ml-1 text-caption font-weight-bold capitalize">{{ detailSkill.scope_type }}</span>
+                                    <span class="text-caption text-slate-500"
+                                        >Alcance:</span
+                                    >
+                                    <span
+                                        class="text-caption font-weight-bold ml-1 text-white capitalize"
+                                        >{{ detailSkill.scope_type }}</span
+                                    >
                                 </div>
-                                <div v-if="detailSkill.domain_tag" class="info-chip">
-                                    <span class="text-slate-500 text-caption">Dominio:</span>
-                                    <span class="text-white ml-1 text-caption font-weight-bold">{{ detailSkill.domain_tag }}</span>
+                                <div
+                                    v-if="detailSkill.domain_tag"
+                                    class="info-chip"
+                                >
+                                    <span class="text-caption text-slate-500"
+                                        >Dominio:</span
+                                    >
+                                    <span
+                                        class="text-caption font-weight-bold ml-1 text-white"
+                                        >{{ detailSkill.domain_tag }}</span
+                                    >
                                 </div>
                             </div>
                             <div class="d-flex gap-3 pt-2">
@@ -941,12 +1358,19 @@ onMounted(loadCompetencies);
                                     Curar BARS con IA
                                 </StButtonGlass>
                                 <StButtonGlass
-                                    v-if="detailSkill.bars_levels?.length && !detailSkill.questions?.length"
+                                    v-if="
+                                        detailSkill.bars_levels?.length &&
+                                        !detailSkill.questions?.length
+                                    "
                                     variant="glass"
                                     :icon="PhChatCircleText"
                                     size="sm"
-                                    :loading="generatingQuestions === detailSkill.id"
-                                    @click="generateQuestions(detailSkill.id, -1)"
+                                    :loading="
+                                        generatingQuestions === detailSkill.id
+                                    "
+                                    @click="
+                                        generateQuestions(detailSkill.id, -1)
+                                    "
                                 >
                                     Generar Preguntas
                                 </StButtonGlass>
@@ -956,9 +1380,18 @@ onMounted(loadCompetencies);
 
                     <!-- BARS -->
                     <v-window-item value="bars">
-                        <div v-if="!detailSkill.bars_levels?.length" class="py-10 text-center">
-                            <component :is="PhStar" :size="48" class="text-white/10 mb-3" />
-                            <div class="text-slate-400 text-body-2 mb-4">No hay niveles BARS curados aún</div>
+                        <div
+                            v-if="!detailSkill.bars_levels?.length"
+                            class="py-10 text-center"
+                        >
+                            <component
+                                :is="PhStar"
+                                :size="48"
+                                class="mb-3 text-white/10"
+                            />
+                            <div class="text-body-2 mb-4 text-slate-400">
+                                No hay niveles BARS curados aún
+                            </div>
                             <StButtonGlass
                                 variant="primary"
                                 :icon="PhMagicWand"
@@ -968,7 +1401,11 @@ onMounted(loadCompetencies);
                                 Generar con IA
                             </StButtonGlass>
                         </div>
-                        <v-expansion-panels v-else variant="accordion" class="elevation-0">
+                        <v-expansion-panels
+                            v-else
+                            variant="accordion"
+                            class="elevation-0"
+                        >
                             <v-expansion-panel
                                 v-for="level in detailSkill.bars_levels"
                                 :key="level.id"
@@ -977,29 +1414,74 @@ onMounted(loadCompetencies);
                                 <v-expansion-panel-title class="px-4 py-3">
                                     <div class="d-flex align-center gap-3">
                                         <StBadgeGlass
-                                            :variant="level.level >= 4 ? 'success' : level.level >= 3 ? 'primary' : 'warning'"
+                                            :variant="
+                                                level.level >= 4
+                                                    ? 'success'
+                                                    : level.level >= 3
+                                                      ? 'primary'
+                                                      : 'warning'
+                                            "
                                             size="md"
                                         >
                                             Nivel {{ level.level }}
                                         </StBadgeGlass>
-                                        <span class="font-weight-medium text-white text-body-2">{{ level.level_name }}</span>
+                                        <span
+                                            class="font-weight-medium text-body-2 text-white"
+                                            >{{ level.level_name }}</span
+                                        >
                                     </div>
                                 </v-expansion-panel-title>
                                 <v-expansion-panel-text class="pa-4">
                                     <div class="space-y-3">
                                         <div>
-                                            <div class="text-[10px] font-black tracking-widest text-white/30 uppercase mb-1">Comportamiento Esperado</div>
-                                            <div class="text-body-2 text-slate-300 leading-relaxed">{{ level.behavioral_description }}</div>
+                                            <div
+                                                class="mb-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
+                                            >
+                                                Comportamiento Esperado
+                                            </div>
+                                            <div
+                                                class="text-body-2 leading-relaxed text-slate-300"
+                                            >
+                                                {{
+                                                    level.behavioral_description
+                                                }}
+                                            </div>
                                         </div>
                                         <v-divider style="opacity: 0.05" />
                                         <div class="d-flex gap-6">
-                                            <div class="flex-1" v-if="level.learning_content">
-                                                <div class="text-[10px] font-black tracking-widest text-indigo-300/60 uppercase mb-1">Contenido de Aprendizaje</div>
-                                                <div class="text-body-2 text-slate-300 leading-relaxed">{{ level.learning_content }}</div>
+                                            <div
+                                                class="flex-1"
+                                                v-if="level.learning_content"
+                                            >
+                                                <div
+                                                    class="mb-1 text-[10px] font-black tracking-widest text-indigo-300/60 uppercase"
+                                                >
+                                                    Contenido de Aprendizaje
+                                                </div>
+                                                <div
+                                                    class="text-body-2 leading-relaxed text-slate-300"
+                                                >
+                                                    {{ level.learning_content }}
+                                                </div>
                                             </div>
-                                            <div class="flex-1" v-if="level.performance_indicator">
-                                                <div class="text-[10px] font-black tracking-widest text-emerald-300/60 uppercase mb-1">Indicador (KPI)</div>
-                                                <div class="text-body-2 text-slate-300 leading-relaxed">{{ level.performance_indicator }}</div>
+                                            <div
+                                                class="flex-1"
+                                                v-if="
+                                                    level.performance_indicator
+                                                "
+                                            >
+                                                <div
+                                                    class="mb-1 text-[10px] font-black tracking-widest text-emerald-300/60 uppercase"
+                                                >
+                                                    Indicador (KPI)
+                                                </div>
+                                                <div
+                                                    class="text-body-2 leading-relaxed text-slate-300"
+                                                >
+                                                    {{
+                                                        level.performance_indicator
+                                                    }}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1010,15 +1492,28 @@ onMounted(loadCompetencies);
 
                     <!-- Questions -->
                     <v-window-item value="questions">
-                        <div v-if="!detailSkill.questions?.length" class="py-10 text-center">
-                            <component :is="PhChatCircleText" :size="48" class="text-white/10 mb-3" />
-                            <div class="text-slate-400 text-body-2 mb-4">
-                                {{ !detailSkill.bars_levels?.length ? 'Necesitas curar los niveles BARS primero' : 'No hay preguntas generadas aún' }}
+                        <div
+                            v-if="!detailSkill.questions?.length"
+                            class="py-10 text-center"
+                        >
+                            <component
+                                :is="PhChatCircleText"
+                                :size="48"
+                                class="mb-3 text-white/10"
+                            />
+                            <div class="text-body-2 mb-4 text-slate-400">
+                                {{
+                                    !detailSkill.bars_levels?.length
+                                        ? 'Necesitas curar los niveles BARS primero'
+                                        : 'No hay preguntas generadas aún'
+                                }}
                             </div>
                             <StButtonGlass
                                 variant="primary"
                                 :icon="PhChatCircleText"
-                                :loading="generatingQuestions === detailSkill.id"
+                                :loading="
+                                    generatingQuestions === detailSkill.id
+                                "
                                 :disabled="!detailSkill.bars_levels?.length"
                                 @click="generateQuestions(detailSkill.id, -1)"
                             >
@@ -1026,13 +1521,17 @@ onMounted(loadCompetencies);
                             </StButtonGlass>
                         </div>
                         <div v-else class="space-y-3">
-                            <div class="d-flex justify-end mb-2">
+                            <div class="d-flex mb-2 justify-end">
                                 <StButtonGlass
                                     variant="ghost"
                                     size="sm"
                                     :icon="PhArrowCounterClockwise"
-                                    :loading="generatingQuestions === detailSkill.id"
-                                    @click="generateQuestions(detailSkill.id, -1)"
+                                    :loading="
+                                        generatingQuestions === detailSkill.id
+                                    "
+                                    @click="
+                                        generateQuestions(detailSkill.id, -1)
+                                    "
                                 >
                                     Regenerar
                                 </StButtonGlass>
@@ -1040,18 +1539,32 @@ onMounted(loadCompetencies);
                             <div
                                 v-for="q in detailSkill.questions"
                                 :key="q.id"
-                                class="pa-4 rounded-xl border border-white/8 bg-white/3 d-flex align-start gap-3"
+                                class="pa-4 d-flex align-start gap-3 rounded-xl border border-white/8 bg-white/3"
                             >
                                 <StBadgeGlass
-                                    :variant="q.level >= 4 ? 'success' : q.level >= 3 ? 'primary' : 'warning'"
+                                    :variant="
+                                        q.level >= 4
+                                            ? 'success'
+                                            : q.level >= 3
+                                              ? 'primary'
+                                              : 'warning'
+                                    "
                                     size="sm"
-                                    class="shrink-0 mt-0.5"
+                                    class="mt-0.5 shrink-0"
                                 >
                                     L{{ q.level }}
                                 </StBadgeGlass>
                                 <div>
-                                    <div class="text-body-2 text-slate-200 leading-relaxed">{{ q.question }}</div>
-                                    <div class="text-caption text-slate-500 mt-1 uppercase tracking-wider">{{ q.question_type }}</div>
+                                    <div
+                                        class="text-body-2 leading-relaxed text-slate-200"
+                                    >
+                                        {{ q.question }}
+                                    </div>
+                                    <div
+                                        class="text-caption mt-1 tracking-wider text-slate-500 uppercase"
+                                    >
+                                        {{ q.question_type }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1065,18 +1578,26 @@ onMounted(loadCompetencies);
     <v-dialog v-model="showApprovalDialog" max-width="500">
         <StCardGlass class="pa-6 border-indigo-500/30">
             <div class="d-flex align-center mb-6">
-                <div class="pa-3 rounded-lg bg-indigo-500/10 mr-4">
+                <div class="pa-3 mr-4 rounded-lg bg-indigo-500/10">
                     <PhSealCheck :size="24" class="text-indigo-400" />
                 </div>
                 <div>
-                    <h3 class="text-h5 font-weight-bold text-white">Solicitar Aprobación</h3>
-                    <p class="text-caption text-slate-400">Seleccione al responsable de validar la competencia</p>
+                    <h3 class="text-h5 font-weight-bold text-white">
+                        Solicitar Aprobación
+                    </h3>
+                    <p class="text-caption text-slate-400">
+                        Seleccione al responsable de validar la competencia
+                    </p>
                 </div>
             </div>
 
-            <p class="text-body-2 text-slate-300 mb-6">
-                Se enviará un <span class="text-indigo-accent-1 font-weight-bold italic">Link Mágico</span> al responsable. 
-                Él podrá editar los datos técnicos, firmar digitalmente y oficializar la competencia.
+            <p class="text-body-2 mb-6 text-slate-300">
+                Se enviará un
+                <span class="text-indigo-accent-1 font-weight-bold italic"
+                    >Link Mágico</span
+                >
+                al responsable. Él podrá editar los datos técnicos, firmar
+                digitalmente y oficializar la competencia.
             </p>
 
             <v-select
@@ -1092,11 +1613,23 @@ onMounted(loadCompetencies);
                 placeholder="Seleccione una persona..."
             >
                 <template #item="{ props, item }">
-                    <v-list-item v-bind="props" :title="item.raw.full_name" :subtitle="item.raw.job_title">
+                    <v-list-item
+                        v-bind="props"
+                        :title="item.raw.full_name"
+                        :subtitle="item.raw.job_title"
+                    >
                         <template #prepend>
-                            <v-avatar size="32" class="mr-2 border border-white/10">
-                                <v-img v-if="item.raw.avatar_url" :src="item.raw.avatar_url" />
-                                <span v-else class="text-caption">{{ item.raw.full_name?.[0] }}</span>
+                            <v-avatar
+                                size="32"
+                                class="mr-2 border border-white/10"
+                            >
+                                <v-img
+                                    v-if="item.raw.avatar_url"
+                                    :src="item.raw.avatar_url"
+                                />
+                                <span v-else class="text-caption">{{
+                                    item.raw.full_name?.[0]
+                                }}</span>
                             </v-avatar>
                         </template>
                     </v-list-item>
@@ -1104,11 +1637,14 @@ onMounted(loadCompetencies);
             </v-select>
 
             <div class="d-flex justify-end gap-3">
-                <StButtonGlass variant="ghost" @click="showApprovalDialog = false">
+                <StButtonGlass
+                    variant="ghost"
+                    @click="showApprovalDialog = false"
+                >
                     Cancelar
                 </StButtonGlass>
-                <StButtonGlass 
-                    variant="primary" 
+                <StButtonGlass
+                    variant="primary"
                     :loading="requestingApproval"
                     :disabled="!selectedApproverId"
                     @click="submitApprovalRequest"
@@ -1122,12 +1658,29 @@ onMounted(loadCompetencies);
     <!-- ══════════════════════════════════════════════════════════
          Skill Materialization Wizard Dialog
     ═══════════════════════════════════════════════════════════ -->
-    <v-dialog v-model="skillWizardOpen" max-width="900" persistent transition="dialog-bottom-transition">
-        <StCardGlass class="pa-0 overflow-hidden" :no-hover="true" style="margin: 2rem;">
-            <div class="d-flex align-center justify-space-between px-6 py-5 border-b border-white/10 bg-indigo-500/5">
+    <v-dialog
+        v-model="skillWizardOpen"
+        max-width="900"
+        persistent
+        transition="dialog-bottom-transition"
+    >
+        <StCardGlass
+            class="pa-0 overflow-hidden"
+            :no-hover="true"
+            style="margin: 2rem"
+        >
+            <div
+                class="d-flex align-center justify-space-between border-b border-white/10 bg-indigo-500/5 px-6 py-5"
+            >
                 <div class="d-flex align-center gap-3">
-                    <component :is="PhMagicWand" :size="24" class="text-indigo-accent-1" />
-                    <div class="text-subtitle-1 font-weight-bold text-white font-premium">
+                    <component
+                        :is="PhMagicWand"
+                        :size="24"
+                        class="text-indigo-accent-1"
+                    />
+                    <div
+                        class="text-subtitle-1 font-weight-bold font-premium text-white"
+                    >
                         Wizard de Materialización de Habilidades
                     </div>
                 </div>
@@ -1135,9 +1688,9 @@ onMounted(loadCompetencies);
                     <component :is="PhX" :size="20" />
                 </v-btn>
             </div>
-            
+
             <div class="pa-6">
-                <SkillMaterializationWizard 
+                <SkillMaterializationWizard
                     v-if="compToMaterialize"
                     :competency="compToMaterialize"
                     @close="skillWizardOpen = false"

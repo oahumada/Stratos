@@ -1,3 +1,4 @@
+import { useApi } from './useApi';
 import { useNodeCrud } from './useNodeCrud';
 
 /**
@@ -9,6 +10,51 @@ export function useSkillCrud() {
         entityName: 'skill',
         entityNamePlural: 'skills',
     });
+    const { get, post, del } = useApi();
+
+    /**
+     * Listar skills de una competency.
+     */
+    async function listSkillsForCompetency(competencyId: number | string) {
+        const res: any = await get(`/api/competencies/${competencyId}/skills`);
+        return res?.data ?? res ?? [];
+    }
+
+    /**
+     * Crear una skill.
+     */
+    async function createSkill(payload: {
+        name: string;
+        category?: string;
+        description?: string;
+        complexity_level?: string;
+        scope_type?: string;
+        is_critical?: boolean;
+    }) {
+        return nodeCrud.createAndAttach(0, payload, '/api/skills');
+    }
+
+    /**
+     * Asociar skill a una competency.
+     */
+    async function attachSkillToCompetency(
+        competencyId: number | string,
+        skillId: number | string,
+    ) {
+        return post(`/api/competencies/${competencyId}/skills`, {
+            skill_id: skillId,
+        });
+    }
+
+    /**
+     * Remover skill de una competency.
+     */
+    async function removeSkillFromCompetency(
+        competencyId: number | string,
+        skillId: number | string,
+    ) {
+        return del(`/api/competencies/${competencyId}/skills/${skillId}`);
+    }
 
     /**
      * Actualizar una skill
@@ -63,7 +109,7 @@ export function useSkillCrud() {
                     `[useSkillCrud] Pivot update failed for ${endpoint}, trying next...`,
                 );
                 // Si es el último endpoint, lanzar el error
-                if (endpoint === endpoints[endpoints.length - 1]) {
+                if (endpoint === endpoints.at(-1)) {
                     throw error;
                 }
             }
@@ -89,6 +135,10 @@ export function useSkillCrud() {
         ...nodeCrud,
 
         // Operaciones específicas de skills
+        listSkillsForCompetency,
+        createSkill,
+        attachSkillToCompetency,
+        removeSkillFromCompetency,
         updateSkill,
         updateSkillPivot,
         deleteSkill,
