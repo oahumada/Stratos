@@ -4,7 +4,7 @@
 **Start Date:** 2026-03-25  
 **Target GA:** 2026-03-31  
 **Developer:** Solo (Omar)  
-**Branch:** `feature/messaging-mvp`  
+**Branch:** `feature/messaging-mvp`
 
 ---
 
@@ -14,11 +14,11 @@ Messaging MVP es un sistema de **conversaciones multi-participante** con soporte
 
 ### High-Level Goals
 
-| Fase | Objetivo | Status | Fecha |
-| :--- | :--- | :--- | :--- |
-| **Phase 1** | Models, migrations, spec | ✅ DONE | Mar 25 |
-| **Phase 2** | Services + Form Requests | 🔲 TODO | Mar 26-27 |
-| **Phase 3** | Controllers + Routes | 🔲 TODO | Mar 28-29 |
+| Fase        | Objetivo                  | Status  | Fecha     |
+| :---------- | :------------------------ | :------ | :-------- |
+| **Phase 1** | Models, migrations, spec  | ✅ DONE | Mar 25    |
+| **Phase 2** | Services + Form Requests  | ✅ DONE | Mar 25    |
+| **Phase 3** | Controllers + Routes      | 🔲 TODO | Mar 28-29 |
 | **Phase 4** | Tests + Coverage + Polish | 🔲 TODO | Mar 30-31 |
 
 ---
@@ -29,18 +29,18 @@ Messaging MVP es un sistema de **conversaciones multi-participante** con soporte
 
 ### Deliverables
 
-| Item | File | Status | Notes |
-| :--- | :--- | :--- | :--- |
-| Specification | `docs/MESSAGING_MVP_SPEC.md` | ✅ | 400+ líneas, APIs complete, test templates |
-| Models (3) | `app/Models/Conversation.php` | ✅ | Relationships, scopes, helpers |
-| | `app/Models/ConversationParticipant.php` | ✅ | Permissions, tracking |
-| | `app/Models/Message.php` | ✅ | State machine, soft deletes |
-| Enums (2) | `app/Enums/MessageState.php` | ✅ | sent→delivered→read→failed |
-| | `app/Enums/ContextType.php` | ✅ | none, learning_assignment, etc |
-| Migrations (4) | `database/migrations/2026_03_25_1237*.php` | ✅ | All FK tested, executed |
-| | `database/migrations/2026_03_25_150000*.php` | ✅ | Self-reference FK for replies |
-| Factories (3) | `database/factories/Conversation*.php` | ✅ | Ready for seeding/testing |
-| Git Commit | `a3b6eaed` | ✅ | Semantic commit, branch active |
+| Item           | File                                         | Status | Notes                                      |
+| :------------- | :------------------------------------------- | :----- | :----------------------------------------- |
+| Specification  | `docs/MESSAGING_MVP_SPEC.md`                 | ✅     | 400+ líneas, APIs complete, test templates |
+| Models (3)     | `app/Models/Conversation.php`                | ✅     | Relationships, scopes, helpers             |
+|                | `app/Models/ConversationParticipant.php`     | ✅     | Permissions, tracking                      |
+|                | `app/Models/Message.php`                     | ✅     | State machine, soft deletes                |
+| Enums (2)      | `app/Enums/MessageState.php`                 | ✅     | sent→delivered→read→failed                 |
+|                | `app/Enums/ContextType.php`                  | ✅     | none, learning_assignment, etc             |
+| Migrations (4) | `database/migrations/2026_03_25_1237*.php`   | ✅     | All FK tested, executed                    |
+|                | `database/migrations/2026_03_25_150000*.php` | ✅     | Self-reference FK for replies              |
+| Factories (3)  | `database/factories/Conversation*.php`       | ✅     | Ready for seeding/testing                  |
+| Git Commit     | `a3b6eaed`                                   | ✅     | Semantic commit, branch active             |
 
 ### Key Decisions
 
@@ -49,7 +49,7 @@ Messaging MVP es un sistema de **conversaciones multi-participante** con soporte
 ✅ **MessageState enum** with state machine logic (`canTransition()`)  
 ✅ **Soft deletes** on Conversation and Message for audit trail  
 ✅ **Unread count tracking** in ConversationParticipant for UX  
-✅ **Self-referencing FK** for message replies (separate migration for schema safety)  
+✅ **Self-referencing FK** for message replies (separate migration for schema safety)
 
 ### Validation Checklist ✅
 
@@ -81,32 +81,45 @@ SHOW TABLES LIKE 'conversation%';
 
 ---
 
-## 🔲 Phase 2: Business Logic (TODO - Mar 26-27)
+## ✅ Phase 2: Business Logic (COMPLETED - Mar 25)
 
 **Objective:** Implement services and validation layers.
 
-### Tasks Breakdown
+**Status:** ✅ COMPLETED — All services, policies, and form requests implemented (Commit: 27a1a8f8)
 
-#### Day 1 (Mar 26): Services + Policies
+### Tasks Summary
 
-| Task | File | Est. | Dependencies |
-| :--- | :--- | :--- | :--- |
-| Create ConversationService | `app/Services/Messaging/ConversationService.php` | 1.5h | Models phase 1 |
-| Create MessagingService | `app/Services/Messaging/MessagingService.php` | 1.5h | Models, enum |
-| Create ParticipantManager | `app/Services/Messaging/ParticipantManager.php` | 1h | ConversationService |
-| ConversationPolicy | `app/Policies/ConversationPolicy.php` | 1h | Models, auth |
-| MessagePolicy | `app/Policies/MessagePolicy.php` | 0.5h | ConversationPolicy |
-| **Subtotal** | | **5.5h** | |
+#### Day 1 (Mar 26): Services + Policies ✅
 
-#### Day 2 (Mar 27): Form Requests
+| Task                       | File                                             | Status | Commit    |
+| :------------------------- | :----------------------------------------------- | :----- | :-------- |
+| Create ConversationService | `app/Services/Messaging/ConversationService.php` | ✅     | 27a1a8f8  |
+| Create MessagingService    | `app/Services/Messaging/MessagingService.php`    | ✅     | 27a1a8f8  |
+| Create ParticipantManager  | `app/Services/Messaging/ParticipantManager.php`  | ✅     | 27a1a8f8  |
+| ConversationPolicy         | `app/Policies/ConversationPolicy.php`            | ✅     | 27a1a8f8  |
+| MessagePolicy              | `app/Policies/MessagePolicy.php`                 | ✅     | 27a1a8f8  |
 
-| Task | File | Est. | Dependencies |
-| :--- | :--- | :--- | :--- |
-| StoreConversationRequest | `app/Http/Requests/Messaging/StoreConversationRequest.php` | 0.5h | — |
-| UpdateConversationRequest | `app/Http/Requests/Messaging/UpdateConversationRequest.php` | 0.5h | — |
-| StoreMessageRequest | `app/Http/Requests/Messaging/StoreMessageRequest.php` | 0.5h | — |
-| AddParticipantRequest | `app/Http/Requests/Messaging/AddParticipantRequest.php` | 0.5h | — |
-| **Subtotal** | | **2h** | |
+#### Day 2 (Mar 27): Form Requests ✅
+
+| Task                      | File                                          | Status | Commit   |
+| :------------------------ | :-------------------------------------------- | :----- | :------- |
+| StoreConversationRequest  | `app/Http/Requests/StoreConversationRequest.php`  | ✅     | 27a1a8f8 |
+| UpdateConversationRequest | `app/Http/Requests/UpdateConversationRequest.php` | ✅     | 27a1a8f8 |
+| StoreMessageRequest       | `app/Http/Requests/StoreMessageRequest.php`       | ✅     | 27a1a8f8 |
+| AddParticipantRequest     | `app/Http/Requests/AddParticipantRequest.php`     | ✅     | 27a1a8f8 |
+
+### Phase 2 Validation Checklist ✅
+
+- [x] ConversationService with 6 methods (create, get with messages, archive, add/remove participant, unread count)
+- [x] MessagingService with 4 methods (send message, mark as read, get unread total, validate sender)
+- [x] ParticipantManager utility (add multiple, validate people, get active count)
+- [x] ConversationPolicy with 6 auth methods (viewAny, view, create, sendMessage, update, delete)
+- [x] MessagePolicy with 6 auth methods (viewAny, view, create, update, delete)
+- [x] 4 Form Requests with validation rules (StoreConversation, UpdateConversation, StoreMessage, AddParticipant)
+- [x] All classes validated for PHP syntax
+- [x] Multi-tenant enforcement throughout (organization_id checks)
+- [x] Constructor dependency injection pattern used consistently
+- [x] Semantic git commit with detailed message
 
 ### Detailed Service Specs
 
@@ -210,6 +223,7 @@ public function getActiveCount(string $conversationId): int
 ### Form Request Validation Rules
 
 **StoreConversationRequest**
+
 ```php
 [
     'title' => 'required|string|max:255',
@@ -221,6 +235,7 @@ public function getActiveCount(string $conversationId): int
 ```
 
 **StoreMessageRequest**
+
 ```php
 [
     'body' => 'required|string|min:1|max:5000',
@@ -231,6 +246,7 @@ public function getActiveCount(string $conversationId): int
 ### Authorization Policy Methods
 
 **ConversationPolicy**
+
 ```php
 public function viewAny(User $user): bool // Is in organization
 public function view(User $user, Conversation $conv): bool // Is participant
@@ -271,12 +287,12 @@ php artisan tinker
 
 ### Controllers (2)
 
-| Controller | File | Endpoints | Est. |
-| :--- | :--- | :--- | :--- |
-| ConversationController | `app/Http/Controllers/Api/Messaging/ConversationController.php` | index, store, show, update, destroy | 2.5h |
-| MessageController | `app/Http/Controllers/Api/Messaging/MessageController.php` | index (per conv), store, mark_read | 2h |
-| ParticipantController | `app/Http/Controllers/Api/Messaging/ParticipantController.php` | store (add), destroy (remove) | 1h |
-| **Subtotal** | | | **5.5h** |
+| Controller             | File                                                            | Endpoints                           | Est.     |
+| :--------------------- | :-------------------------------------------------------------- | :---------------------------------- | :------- |
+| ConversationController | `app/Http/Controllers/Api/Messaging/ConversationController.php` | index, store, show, update, destroy | 2.5h     |
+| MessageController      | `app/Http/Controllers/Api/Messaging/MessageController.php`      | index (per conv), store, mark_read  | 2h       |
+| ParticipantController  | `app/Http/Controllers/Api/Messaging/ParticipantController.php`  | store (add), destroy (remove)       | 1h       |
+| **Subtotal**           |                                                                 |                                     | **5.5h** |
 
 ### Routes (`routes/api.php`)
 
@@ -306,6 +322,7 @@ Route::middleware(['auth:sanctum'])->prefix('api/messaging')->group(function () 
 ### API Response Shapes
 
 #### GET `/api/messaging/conversations` (Paginated)
+
 ```json
 {
   "data": [
@@ -325,17 +342,21 @@ Route::middleware(['auth:sanctum'])->prefix('api/messaging')->group(function () 
 ```
 
 #### POST `/api/messaging/conversations` (Create)
+
 **Request:**
+
 ```json
 {
-  "title": "Q2 Planning",
-  "participant_ids": [123, 456],
-  "context_type": "none"
+    "title": "Q2 Planning",
+    "participant_ids": [123, 456],
+    "context_type": "none"
 }
 ```
+
 **Response:** 201 Created → Full Conversation object
 
 #### GET `/api/messaging/conversations/{id}/messages` (Paginated)
+
 ```json
 {
   "data": [
@@ -357,7 +378,7 @@ Route::middleware(['auth:sanctum'])->prefix('api/messaging')->group(function () 
 public function index(Request $request)
 {
     $this->authorize('viewAny', Conversation::class);
-    
+
     return response()->json(
         $this->conversationService->listForUser(
             $request->user()->organization_id,
@@ -371,13 +392,13 @@ public function index(Request $request)
 public function store(StoreConversationRequest $request)
 {
     $this->authorize('create', Conversation::class);
-    
+
     $conversation = $this->conversationService->createConversation(
         $request->user()->organization_id,
         $request->user()->people_id,
         $request->validated()
     );
-    
+
     return response()->json($conversation, 201);
 }
 
@@ -387,31 +408,31 @@ public function sendMessage(
     MessagingService $messagingService
 ) {
     $this->authorize('sendMessage', $conversation);
-    
+
     $message = $messagingService->sendMessage(
         $conversation->id,
         $request->user()->organization_id,
         $request->user()->people_id,
         $request->validated()
     );
-    
+
     return response()->json($message, 201);
 }
 ```
 
 ### Error Handling
 
-| Status | Scenario | Response |
-| :--- | :--- | :--- |
-| 200 | Success | `{"data": {...}}` |
-| 201 | Created | `{"data": {...}}` |
-| 204 | No Content (mark read) | Empty body |
-| 400 | Validation Error | `{"errors": {"field": [...]}}` |
-| 401 | Unauthorized | `{"message": "Unauthorized"}` |
-| 403 | Forbidden | `{"message": "This action is not authorized"}` |
-| 404 | Not Found | `{"message": "Resource not found"}` |
-| 422 | Unprocessable | Form request validation errors |
-| 500 | Server Error | `{"message": "Internal server error"}` |
+| Status | Scenario               | Response                                       |
+| :----- | :--------------------- | :--------------------------------------------- |
+| 200    | Success                | `{"data": {...}}`                              |
+| 201    | Created                | `{"data": {...}}`                              |
+| 204    | No Content (mark read) | Empty body                                     |
+| 400    | Validation Error       | `{"errors": {"field": [...]}}`                 |
+| 401    | Unauthorized           | `{"message": "Unauthorized"}`                  |
+| 403    | Forbidden              | `{"message": "This action is not authorized"}` |
+| 404    | Not Found              | `{"message": "Resource not found"}`            |
+| 422    | Unprocessable          | Form request validation errors                 |
+| 500    | Server Error           | `{"message": "Internal server error"}`         |
 
 ### Acceptance Criteria
 
@@ -434,29 +455,30 @@ public function sendMessage(
 
 #### A. Unit Tests (6 tests) — `/tests/Unit/Messaging/`
 
-| Test Class | Methods | Purpose |
-| :--- | :--- | :--- |
-| `ConversationTest` | `isParticipant` | Helper logic |
-| | `markAsRead` | Unread count reset |
-| | `addParticipant` | Participant creation |
-| `MessageStateTest` | `canTransition` | State machine validation |
-| | `isTerminal` | Read/Failed terminal check |
-| `ConversationServiceTest` | Service methods | Business logic isolation |
+| Test Class                | Methods          | Purpose                    |
+| :------------------------ | :--------------- | :------------------------- |
+| `ConversationTest`        | `isParticipant`  | Helper logic               |
+|                           | `markAsRead`     | Unread count reset         |
+|                           | `addParticipant` | Participant creation       |
+| `MessageStateTest`        | `canTransition`  | State machine validation   |
+|                           | `isTerminal`     | Read/Failed terminal check |
+| `ConversationServiceTest` | Service methods  | Business logic isolation   |
 
 **Example:**
+
 ```php
 // tests/Unit/Messaging/ConversationTest.php
 it('determines if user is participant', function () {
     $org = Organization::factory()->create();
     $people = People::factory()->for($org)->create();
     $conversation = Conversation::factory()->for($org)->create();
-    
+
     ConversationParticipant::factory()
         ->for($conversation)
         ->for($org)
         ->for($people)
         ->create();
-    
+
     expect($conversation->isParticipant($people->id))->toBeTrue();
     expect($conversation->isParticipant(People::factory()->for($org)->create()->id))->toBeFalse();
 });
@@ -464,33 +486,34 @@ it('determines if user is participant', function () {
 
 #### B. Integration Tests (6 tests) — `/tests/Feature/Messaging/`
 
-| Test Class | Tests | Purpose | Personas |
-| :--- | :--- | :--- | :--- |
-| `ConversationApiTest` | List conversations | Index endpoint | L&D Manager María |
-| | Create conversation | Store w/ participants | CHRO, Talent Ops |
-| | View conversation | Show endpoint + mark read | People Manager |
-| | Prevent cross-org access | Authorization enforcement | Security Ops |
-| `MessageApiTest` | Send message | Store endpoint | L&D Manager |
-| | Mark as read | Mark read endpoint | L&D Manager |
+| Test Class            | Tests                    | Purpose                   | Personas          |
+| :-------------------- | :----------------------- | :------------------------ | :---------------- |
+| `ConversationApiTest` | List conversations       | Index endpoint            | L&D Manager María |
+|                       | Create conversation      | Store w/ participants     | CHRO, Talent Ops  |
+|                       | View conversation        | Show endpoint + mark read | People Manager    |
+|                       | Prevent cross-org access | Authorization enforcement | Security Ops      |
+| `MessageApiTest`      | Send message             | Store endpoint            | L&D Manager       |
+|                       | Mark as read             | Mark read endpoint        | L&D Manager       |
 
 **Example:**
+
 ```php
 // tests/Feature/Messaging/ConversationApiTest.php
 it('lists conversations for user', function () {
     $user = User::factory()
         ->for($org = Organization::factory()->create())
         ->create();
-    
+
     $conversation = Conversation::factory()->for($org)->create();
     ConversationParticipant::factory()
         ->for($conversation)
         ->for($org)
         ->for($user->people)
         ->create();
-    
+
     $response = $this->actingAs($user)
         ->get('/api/messaging/conversations');
-    
+
     $response->assertSuccessful()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.id', $conversation->id);
@@ -500,23 +523,23 @@ it('prevents access to conversations from other orgs', function () {
     $user1 = User::factory()->for($org1 = Organization::factory()->create())->create();
     $org2 = Organization::factory()->create();
     $conversation = Conversation::factory()->for($org2)->create();
-    
+
     $response = $this->actingAs($user1)
         ->get("/api/messaging/conversations/{$conversation->id}");
-    
+
     $response->assertForbidden();
 });
 ```
 
 #### C. E2E / Narrative Tests (5 tests) — `/tests/Browser/Messaging/` [Phase 2 Beta]
 
-| Scenario | Persona | Flow | Assertions |
-| :--- | :--- | :--- | :--- |
-| Create & Send | L&D Manager | Create conv → Add participants → Send msg → Mark read | All states transition |
-| Multi-participant Reply | People Manager | Join conv → Reply to message | Unread counts update |
-| Archive Conversation | CHRO | Archive old conv → Not in list | Soft delete respected |
-| Permission Denied | IT/Ops | Try to send without permission | 403 response |
-| Context Linking | Talent Ops | Create conv with learning_assignment context | Context_id saved |
+| Scenario                | Persona        | Flow                                                  | Assertions            |
+| :---------------------- | :------------- | :---------------------------------------------------- | :-------------------- |
+| Create & Send           | L&D Manager    | Create conv → Add participants → Send msg → Mark read | All states transition |
+| Multi-participant Reply | People Manager | Join conv → Reply to message                          | Unread counts update  |
+| Archive Conversation    | CHRO           | Archive old conv → Not in list                        | Soft delete respected |
+| Permission Denied       | IT/Ops         | Try to send without permission                        | 403 response          |
+| Context Linking         | Talent Ops     | Create conv with learning_assignment context          | Context_id saved      |
 
 ### Coverage Baseline Target
 
@@ -536,12 +559,12 @@ php artisan test --coverage --coverage-html
 
 ### Test Execution Schedule
 
-| Day | Event | Command | Expected |
-| :--- | :--- | :--- | :--- |
-| Mar 30 (AM) | Unit tests | `php artisan test tests/Unit/Messaging --compact` | ALL PASS ✅ |
-| Mar 30 (PM) | Feature tests | `php artisan test tests/Feature/Messaging --compact` | ALL PASS ✅ |
-| Mar 31 (AM) | Coverage report | `php artisan test --coverage` | ≥75% overall |
-| Mar 31 (PM) | Full suite | `php artisan test --compact` | ALL TESTS PASS ✅ |
+| Day         | Event           | Command                                              | Expected          |
+| :---------- | :-------------- | :--------------------------------------------------- | :---------------- |
+| Mar 30 (AM) | Unit tests      | `php artisan test tests/Unit/Messaging --compact`    | ALL PASS ✅       |
+| Mar 30 (PM) | Feature tests   | `php artisan test tests/Feature/Messaging --compact` | ALL PASS ✅       |
+| Mar 31 (AM) | Coverage report | `php artisan test --coverage`                        | ≥75% overall      |
+| Mar 31 (PM) | Full suite      | `php artisan test --compact`                         | ALL TESTS PASS ✅ |
 
 ### Polish Checklist
 
@@ -581,6 +604,7 @@ git log --oneline feature/messaging-mvp | head -10
 ## 📊 Master Checklist
 
 ### Phase 1 ✅ DONE
+
 - [x] Specification written
 - [x] Models created
 - [x] Migrations executed
@@ -588,6 +612,7 @@ git log --oneline feature/messaging-mvp | head -10
 - [x] Git commit semantic
 
 ### Phase 2 🔲 IN PROGRESS (Expected Mar 26-27)
+
 - [ ] ConversationService implemented
 - [ ] MessagingService implemented
 - [ ] ParticipantManager created
@@ -596,6 +621,7 @@ git log --oneline feature/messaging-mvp | head -10
 - [ ] Services tested (unit tinker)
 
 ### Phase 3 🔲 TODO (Expected Mar 28-29)
+
 - [ ] ConversationController implemented
 - [ ] MessageController implemented
 - [ ] ParticipantController implemented
@@ -603,6 +629,7 @@ git log --oneline feature/messaging-mvp | head -10
 - [ ] All endpoints tested (manual postman/curl)
 
 ### Phase 4 🔲 TODO (Expected Mar 30-31)
+
 - [ ] Unit tests written (6+)
 - [ ] Feature tests written (6+)
 - [ ] Coverage baseline ≥75%
@@ -622,7 +649,7 @@ Use this each day to track progress:
 **Yesterday:** [What was done]  
 **Today:** [What will be done]  
 **Blockers:** [Any issues?]  
-**Git Commits:** [Commit hashes from today]  
+**Git Commits:** [Commit hashes from today]
 ```
 
 ### Example (Mar 26)
@@ -631,14 +658,15 @@ Use this each day to track progress:
 ## Daily Standup — Mar 26
 
 **Yesterday:** Phase 1 complete - models, migrations, spec  
-**Today:** 
+**Today:**
+
 - Implement ConversationService (1.5h)
-- Implement MessagingService (1.5h)  
+- Implement MessagingService (1.5h)
 - Create all Form Requests (2h)
 - Create Policies (1,5h)
 
 **Blockers:** None  
-**Git Commits:** abcd1234, efgh5678  
+**Git Commits:** abcd1234, efgh5678
 ```
 
 ---
@@ -649,11 +677,11 @@ Use this each day to track progress:
 - **[NARRATIVE_TESTING_STRATEGY.md](NARRATIVE_TESTING_STRATEGY.md)** — Section 34 (personas, test cases, coverage)
 - **[ROADMAP_TRANSICION_MVP_ALPHA_BETA_2026.md](ROADMAP_TRANSICION_MVP_ALPHA_BETA_2026.md)** — Section 12.3 (messaging in larger context)
 - **Codebase:**
-  - `app/Models/Conversation.php` (Phase 1)
-  - `app/Services/Messaging/` (Phase 2)
-  - `app/Http/Controllers/Api/Messaging/` (Phase 3)
-  - `tests/Feature/Messaging/` (Phase 4)
-  - `tests/Unit/Messaging/` (Phase 4)
+    - `app/Models/Conversation.php` (Phase 1)
+    - `app/Services/Messaging/` (Phase 2)
+    - `app/Http/Controllers/Api/Messaging/` (Phase 3)
+    - `tests/Feature/Messaging/` (Phase 4)
+    - `tests/Unit/Messaging/` (Phase 4)
 
 ---
 
@@ -668,6 +696,6 @@ Use this each day to track progress:
 
 **Last Updated:** 2026-03-25  
 **Status:** Phase 1 ✅ | Phase 2-4 Planned  
-**Next Review:** Mar 26 EOD  
+**Next Review:** Mar 26 EOD
 
-*Keep this document updated daily for consistent progress tracking.*
+_Keep this document updated daily for consistent progress tracking._
