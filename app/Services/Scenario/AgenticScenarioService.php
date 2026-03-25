@@ -52,13 +52,13 @@ class AgenticScenarioService
         $simulationResult = match ($changeType) {
             'team_merge' => $this->simulateTeamMerge($params, $currentState),
             'tech_disruption' => $this->simulateTechDisruption($scenarioId, $params),
-            'expansion' => $this->simulateExpansion($params, $currentState),
+            'expansion' => $this->simulateExpansion($params, $currentState, $orgId),
             'downsizing' => $this->simulateDownsizing($scenarioId, $params),
             default => $this->simulateGenericChange($params, $currentState),
         };
 
         // 3. Calcular impacto en KPIs organizacionales
-        $kpiImpact = $this->calculateKpiImpact($simulationResult);
+        $kpiImpact = $this->calculateKpiImpact($simulationResult, $orgId);
 
         // 4. Generar plan de acción agéntico (IA propone acciones)
         $actionPlan = $this->generateAgenticActionPlan($simulationResult, $kpiImpact);
@@ -174,18 +174,18 @@ class AgenticScenarioService
         ]);
     }
 
-    protected function simulateExpansion(array $params, array $state): array
+    protected function simulateExpansion(array $params, array $state, ?int $orgId = null): array
     {
-        $orgId = Organization::first()?->id; // En prod usar ID del contexto
-        $benchmarks = $this->impactEngine->getFinancialBenchmarks($orgId ?? 1);
+        $resolvedOrgId = $orgId ?? Organization::first()?->id;
+        $benchmarks = $this->impactEngine->getFinancialBenchmarks($resolvedOrgId ?? 1);
 
         $growthRate = $params['growth_percentage'] ?? 20;
         $currentHeadcount = $state['org_metadata']['total_headcount'] ?? People::count();
         $newPositions = (int) ceil($currentHeadcount * ($growthRate / 100));
 
         // Mobility map para identificar candidatos internos
-        $mobilityData = $orgId
-            ? $this->careerPaths->generateMobilityMap($orgId)
+        $mobilityData = $resolvedOrgId
+            ? $this->careerPaths->generateMobilityMap($resolvedOrgId)
             : ['mobility_index' => 0, 'total_viable_transitions' => 0];
 
         $internalFillRate = min(100, $mobilityData['mobility_index'] * 1.5);
@@ -227,10 +227,10 @@ class AgenticScenarioService
 
     // ── Impact Calculation ───────────────────────────────────
 
-    protected function calculateKpiImpact(array $simulationResult): array
+    protected function calculateKpiImpact(array $simulationResult, ?int $orgId = null): array
     {
-        $orgId = Organization::first()?->id ?? 1;
-        $benchmarks = $this->impactEngine->getFinancialBenchmarks($orgId);
+        $resolvedOrgId = $orgId ?? Organization::first()?->id ?? 1;
+        $benchmarks = $this->impactEngine->getFinancialBenchmarks($resolvedOrgId);
 
         $headcountChange = 0;
         $costImpact = 0;
