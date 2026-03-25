@@ -59,7 +59,7 @@ class Conversation extends Model
     // Scopes
     public function scopeActive($query)
     {
-        return $query->where('is_active', true)->whereNull('archived_at');
+        return $query->where('is_active', true)->whereNull('deleted_at');
     }
 
     public function scopeForOrganization($query, $organizationId)

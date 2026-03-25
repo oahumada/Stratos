@@ -14,11 +14,11 @@ Messaging MVP es un sistema de **conversaciones multi-participante** con soporte
 
 ### High-Level Goals
 
-| Fase        | Objetivo                  | Status  | Fecha     |
-| :---------- | :------------------------ | :------ | :-------- |
-| **Phase 1** | Models, migrations, spec  | ✅ DONE | Mar 25    |
-| **Phase 2** | Services + Form Requests  | ✅ DONE | Mar 25    |
-| **Phase 3** | Controllers + Routes      | ✅ DONE | Mar 25    |
+| Fase        | Objetivo                  | Status        | Fecha  |
+| :---------- | :------------------------ | :------------ | :----- |
+| **Phase 1** | Models, migrations, spec  | ✅ DONE       | Mar 25 |
+| **Phase 2** | Services + Form Requests  | ✅ DONE       | Mar 25 |
+| **Phase 3** | Controllers + Routes      | ✅ DONE       | Mar 25 |
 | **Phase 4** | Tests + Coverage + Polish | � IN PROGRESS | Mar 26 |
 
 ---
@@ -91,18 +91,18 @@ SHOW TABLES LIKE 'conversation%';
 
 #### Day 1 (Mar 26): Services + Policies ✅
 
-| Task                       | File                                             | Status | Commit    |
-| :------------------------- | :----------------------------------------------- | :----- | :-------- |
-| Create ConversationService | `app/Services/Messaging/ConversationService.php` | ✅     | 27a1a8f8  |
-| Create MessagingService    | `app/Services/Messaging/MessagingService.php`    | ✅     | 27a1a8f8  |
-| Create ParticipantManager  | `app/Services/Messaging/ParticipantManager.php`  | ✅     | 27a1a8f8  |
-| ConversationPolicy         | `app/Policies/ConversationPolicy.php`            | ✅     | 27a1a8f8  |
-| MessagePolicy              | `app/Policies/MessagePolicy.php`                 | ✅     | 27a1a8f8  |
+| Task                       | File                                             | Status | Commit   |
+| :------------------------- | :----------------------------------------------- | :----- | :------- |
+| Create ConversationService | `app/Services/Messaging/ConversationService.php` | ✅     | 27a1a8f8 |
+| Create MessagingService    | `app/Services/Messaging/MessagingService.php`    | ✅     | 27a1a8f8 |
+| Create ParticipantManager  | `app/Services/Messaging/ParticipantManager.php`  | ✅     | 27a1a8f8 |
+| ConversationPolicy         | `app/Policies/ConversationPolicy.php`            | ✅     | 27a1a8f8 |
+| MessagePolicy              | `app/Policies/MessagePolicy.php`                 | ✅     | 27a1a8f8 |
 
 #### Day 2 (Mar 27): Form Requests ✅
 
-| Task                      | File                                          | Status | Commit   |
-| :------------------------ | :-------------------------------------------- | :----- | :------- |
+| Task                      | File                                              | Status | Commit   |
+| :------------------------ | :------------------------------------------------ | :----- | :------- |
 | StoreConversationRequest  | `app/Http/Requests/StoreConversationRequest.php`  | ✅     | 27a1a8f8 |
 | UpdateConversationRequest | `app/Http/Requests/UpdateConversationRequest.php` | ✅     | 27a1a8f8 |
 | StoreMessageRequest       | `app/Http/Requests/StoreMessageRequest.php`       | ✅     | 27a1a8f8 |
@@ -297,7 +297,7 @@ php artisan tinker
 
 ### Routes (11 endpoints) ✅
 
-Routes registered in `routes/api.php` with middleware `auth:sanctum`  and prefix `messaging`:
+Routes registered in `routes/api.php` with middleware `auth:sanctum` and prefix `messaging`:
 
 ```php
 // Conversations CRUD
@@ -715,60 +715,60 @@ Use this each day to track progress:
 
 ### Test Summary
 
-| Layer   | File                                          | Tests | Pass | Coverage | Notes                                      |
-| :------ | :-------------------------------------------- | :---- | :--- | :------- | :----------------------------------------- |
-| Unit    | `tests/Unit/Messaging/MessageStateTest.php`   | 4/4   | ✅   | 100%     | Enum tests - all passing                   |
-| Unit    | `tests/Unit/Messaging/ConversationModelTest.php` | 5     | 4/5  | 80%      | Scope tests - 1 archived_at fix pending    |
-| Unit    | `tests/Unit/Messaging/ConversationServiceTest.php` | 7   | 5/7  | 71%      | Service tests - transactional issue debug  |
-| Feature | `tests/Feature/Messaging/ConversationApiTest.php` | —     | ❌   | —        | ParseError - describe/beforeEach refactor  |
-| Feature | `tests/Feature/Messaging/MessageApiTest.php` | —     | ❌   | —        | ParseError - describe/beforeEach refactor  |
-| Feature | `tests/Feature/Messaging/ApiBasicTest.php`   | 2/2   | ⏳   | —        | Simple tests - route hang issue            |
+| Layer   | File                                               | Tests | Pass | Coverage | Notes                                     |
+| :------ | :------------------------------------------------- | :---- | :--- | :------- | :---------------------------------------- |
+| Unit    | `tests/Unit/Messaging/MessageStateTest.php`        | 4/4   | ✅   | 100%     | Enum tests - all passing                  |
+| Unit    | `tests/Unit/Messaging/ConversationModelTest.php`   | 5     | 4/5  | 80%      | Scope tests - 1 archived_at fix pending   |
+| Unit    | `tests/Unit/Messaging/ConversationServiceTest.php` | 7     | 5/7  | 71%      | Service tests - transactional issue debug |
+| Feature | `tests/Feature/Messaging/ConversationApiTest.php`  | —     | ❌   | —        | ParseError - describe/beforeEach refactor |
+| Feature | `tests/Feature/Messaging/MessageApiTest.php`       | —     | ❌   | —        | ParseError - describe/beforeEach refactor |
+| Feature | `tests/Feature/Messaging/ApiBasicTest.php`         | 2/2   | ⏳   | —        | Simple tests - route hang issue           |
 
 **Summary:** 13/16 unit tests passing (81%), feature tests need syntax fixes
 
 ### Issues Discovered & Fixes Applied
 
 1. **❌ Faker Factory Issue**
-   - **Problem:** `OrganizationFactory::$faker->company()` method not available in test environment
-   - **Fix:** Changed to `fake()->name()` (global helper using proper Faker instance)
-   - **Files Fixed:** Database/factories/OrganizationFactory.php, PeopleFactory.php
-   - **Status:** ✅ RESOLVED
+    - **Problem:** `OrganizationFactory::$faker->company()` method not available in test environment
+    - **Fix:** Changed to `fake()->name()` (global helper using proper Faker instance)
+    - **Files Fixed:** Database/factories/OrganizationFactory.php, PeopleFactory.php
+    - **Status:** ✅ RESOLVED
 
 2. **❌ User/People Relationship Mismatch**
-   - **Problem:** Test setup assumed `$user->people_id` column, but actual relationship is `User → hasOne(People)` with `People.user_id` FK
-   - **Discovery:** Read [User.php](app/Models/User.php) and [People.php](app/Models/People.php) to understand actual schema
-   - **Fix Applied:**
-     - Form Requests: Changed `auth()->user()->people_id` → `auth()->user()->people` (3 files)
-     - Test Setup: Changed direct assignment `$user->people_id = X` → `People::factory()->for($user, 'user')->create()`
-   - **Files Fixed:** StoreConversationRequest.php, StoreMessageRequest.php, AddParticipantRequest.php, test files
-   - **Status:** ✅ RESOLVED
+    - **Problem:** Test setup assumed `$user->people_id` column, but actual relationship is `User → hasOne(People)` with `People.user_id` FK
+    - **Discovery:** Read [User.php](app/Models/User.php) and [People.php](app/Models/People.php) to understand actual schema
+    - **Fix Applied:**
+        - Form Requests: Changed `auth()->user()->people_id` → `auth()->user()->people` (3 files)
+        - Test Setup: Changed direct assignment `$user->people_id = X` → `People::factory()->for($user, 'user')->create()`
+    - **Files Fixed:** StoreConversationRequest.php, StoreMessageRequest.php, AddParticipantRequest.php, test files
+    - **Status:** ✅ RESOLVED
 
 3. **❌ MessageState Enum Casing**
-   - **Problem:** Test used `MessageState::Sent` but enum defined with `case SENT = 'sent'` (UPPERCASE)
-   - **Fix:** Updated all test references from `::Sent`, `::Delivered`, etc. to `::SENT`, `::DELIVERED` (UPPERCASE)
-   - **Files Fixed:** tests/Unit/Messaging/MessageStateTest.php (all 4 tests)
-   - **Status:** ✅ RESOLVED → MessageStateTest now 4/4 PASSING ✅
+    - **Problem:** Test used `MessageState::Sent` but enum defined with `case SENT = 'sent'` (UPPERCASE)
+    - **Fix:** Updated all test references from `::Sent`, `::Delivered`, etc. to `::SENT`, `::DELIVERED` (UPPERCASE)
+    - **Files Fixed:** tests/Unit/Messaging/MessageStateTest.php (all 4 tests)
+    - **Status:** ✅ RESOLVED → MessageStateTest now 4/4 PASSING ✅
 
 4. **❌ Factory Nested Relationship Issue**
-   - **Problem:** When using `Conversation::factory()->for($org)->create()`, the created_by People didn't get linked to same org
-   - **Fix:** Simplified ConversationFactory definition to use independent factory instances
-   - **Files Fixed:** database/factories/ConversationFactory.php, ConversationParticipantFactory.php
-   - **Status:** ⚠️ PARTIAL - Some tests still need manual Conversation::create() for org scoping
+    - **Problem:** When using `Conversation::factory()->for($org)->create()`, the created_by People didn't get linked to same org
+    - **Fix:** Simplified ConversationFactory definition to use independent factory instances
+    - **Files Fixed:** database/factories/ConversationFactory.php, ConversationParticipantFactory.php
+    - **Status:** ⚠️ PARTIAL - Some tests still need manual Conversation::create() for org scoping
 
 5. **❌ Archived Column Mismatch**
-   - **Problem:** Service code tried to set `archived_at` column but migration only defined `deleted_at` (soft delete)
-   - **Fix:** Updated `ConversationService::archiveConversation()` to use soft delete mechanism instead
-   - **Impact:** Changed tests to check `.deleted_at` instead of `.archived_at`
-   - **Status:** ✅ RESOLVED
+    - **Problem:** Service code tried to set `archived_at` column but migration only defined `deleted_at` (soft delete)
+    - **Fix:** Updated `ConversationService::archiveConversation()` to use soft delete mechanism instead
+    - **Impact:** Changed tests to check `.deleted_at` instead of `.archived_at`
+    - **Status:** ✅ RESOLVED
 
 6. **❌ Feature Test Syntax Error**
-   - **Problem:** ConversationApiTest.php has unmatched braces (ParseError at line 294)
-   - **Root Cause:** Pest's describe/beforeEach nesting not properly closed in the middle of the file
-   - **Status:** 🔲 NEEDS FIXING - Requires full test file refactor
+    - **Problem:** ConversationApiTest.php has unmatched braces (ParseError at line 294)
+    - **Root Cause:** Pest's describe/beforeEach nesting not properly closed in the middle of the file
+    - **Status:** 🔲 NEEDS FIXING - Requires full test file refactor
 
 7. **❌ Route Hanging Issue**
-   - **Problem:** `php artisan route:list | grep messaging` times out (infinite loop or subprocess issue)
-   - **Status:** 🔲 INVESTIGATING - Possible git hook or dependency issue
+    - **Problem:** `php artisan route:list | grep messaging` times out (infinite loop or subprocess issue)
+    - **Status:** 🔲 INVESTIGATING - Possible git hook or dependency issue
 
 ### Current Test Run Results
 
@@ -777,7 +777,7 @@ Use this each day to track progress:
 
 PASS  Tests\Unit\Messaging\MessageStateTest
 ✓ MessageState Enum → it provides correct labels
-✓ MessageState Enum → it identifies terminal states correctly  
+✓ MessageState Enum → it identifies terminal states correctly
 ✓ MessageState Enum → it allows valid state transitions
 ✓ MessageState Enum → it rejects invalid state transitions
 
@@ -804,39 +804,39 @@ Duration: ~7s
 ### Next Steps (Priority Order)
 
 1. 🔴 **CRITICAL:** Debug "People not found" in ConversationServiceTest
-   - Issue: Service::createConversation() fails at People::where(...)->firstOrFail()
-   - Likely: Transaction isolation or beforeEach timing issue
-   - Fix: Trace factory relationship setup or switch to simpler test method
+    - Issue: Service::createConversation() fails at People::where(...)->firstOrFail()
+    - Likely: Transaction isolation or beforeEach timing issue
+    - Fix: Trace factory relationship setup or switch to simpler test method
 
 2. 🟡 **HIGH:** Fix feature test syntax errors
-   - Files: ConversationApiTest.php, MessageApiTest.php
-   - Action: Refactor Pest describe/it nesting or convert to class-based tests
+    - Files: ConversationApiTest.php, MessageApiTest.php
+    - Action: Refactor Pest describe/it nesting or convert to class-based tests
 
 3. 🟡 **HIGH:** Investigate route hanging
-   - Action: Check git hooks (pre-commit, post-merge)
-   - Action: Verify no infinite loops in controller constructors
+    - Action: Check git hooks (pre-commit, post-merge)
+    - Action: Verify no infinite loops in controller constructors
 
 4. 🟢 **MEDIUM:** Complete coverage measurement
-   - Command: `php artisan test --coverage --min=75`
-   - Goal: Achieve ≥75% coverage baseline
+    - Command: `php artisan test --coverage --min=75`
+    - Goal: Achieve ≥75% coverage baseline
 
 5. 🟢 **MEDIUM:** Polish & N+1 prevention
-   - Verify eager loading in API endpoints
-   - Check timestamp ISO8601 format in JSON responses
-   - Validate soft deletes respected in list queries
+    - Verify eager loading in API endpoints
+    - Check timestamp ISO8601 format in JSON responses
+    - Validate soft deletes respected in list queries
 
 ### Commits This Phase
 
 - `ef67548b` - Phase 4 testing progress (20 files changed, 890 insertions)
-  - Created 5 test files (ConversationModelTest, MessageStateTest, ConversationServiceTest, ConversationApiTest, MessageApiTest, ApiBasicTest)
-  - Fixed 4 factories (Conversation, ConversationParticipant, Organization, People)
-  - Updated services and policies for People relationship fix
-  - Updated Pest.php config
+    - Created 5 test files (ConversationModelTest, MessageStateTest, ConversationServiceTest, ConversationApiTest, MessageApiTest, ApiBasicTest)
+    - Fixed 4 factories (Conversation, ConversationParticipant, Organization, People)
+    - Updated services and policies for People relationship fix
+    - Updated Pest.php config
 
 ### Estimation for Completion
 
 - **Resolve People lookup issue:** 30 min
-- **Fix feature test syntax:** 45 min  
+- **Fix feature test syntax:** 45 min
 - **Verify coverage ≥75%:** 15 min
 - **Polish + commit:** 15 min
 - **Total:** ~2 hours to Phase 4 completion
