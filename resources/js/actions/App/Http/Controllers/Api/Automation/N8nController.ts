@@ -2,7 +2,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 /**
 * @see \App\Http\Controllers\Api\Automation\N8nController::handleWebhook
 * @see app/Http/Controllers/Api/Automation/N8nController.php:14
-* @route '/api/automation/webhooks/n8n'
+* @route '/api/webhooks/n8n'
 */
 export const handleWebhook = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: handleWebhook.url(options),
@@ -11,13 +11,13 @@ export const handleWebhook = (options?: RouteQueryOptions): RouteDefinition<'pos
 
 handleWebhook.definition = {
     methods: ["post"],
-    url: '/api/automation/webhooks/n8n',
+    url: '/api/webhooks/n8n',
 } satisfies RouteDefinition<["post"]>
 
 /**
 * @see \App\Http\Controllers\Api\Automation\N8nController::handleWebhook
 * @see app/Http/Controllers/Api/Automation/N8nController.php:14
-* @route '/api/automation/webhooks/n8n'
+* @route '/api/webhooks/n8n'
 */
 handleWebhook.url = (options?: RouteQueryOptions) => {
     return handleWebhook.definition.url + queryParams(options)
@@ -26,7 +26,7 @@ handleWebhook.url = (options?: RouteQueryOptions) => {
 /**
 * @see \App\Http\Controllers\Api\Automation\N8nController::handleWebhook
 * @see app/Http/Controllers/Api/Automation/N8nController.php:14
-* @route '/api/automation/webhooks/n8n'
+* @route '/api/webhooks/n8n'
 */
 handleWebhook.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: handleWebhook.url(options),
@@ -36,7 +36,7 @@ handleWebhook.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => (
 /**
 * @see \App\Http\Controllers\Api\Automation\N8nController::handleWebhook
 * @see app/Http/Controllers/Api/Automation/N8nController.php:14
-* @route '/api/automation/webhooks/n8n'
+* @route '/api/webhooks/n8n'
 */
 const handleWebhookForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: handleWebhook.url(options),
@@ -46,7 +46,7 @@ const handleWebhookForm = (options?: RouteQueryOptions): RouteFormDefinition<'po
 /**
 * @see \App\Http\Controllers\Api\Automation\N8nController::handleWebhook
 * @see app/Http/Controllers/Api/Automation/N8nController.php:14
-* @route '/api/automation/webhooks/n8n'
+* @route '/api/webhooks/n8n'
 */
 handleWebhookForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: handleWebhook.url(options),

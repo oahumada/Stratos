@@ -22,6 +22,7 @@ import MiStratosController from './MiStratosController'
 import SmartAlertController from './SmartAlertController'
 import GamificationController from './GamificationController'
 import SupportTicketController from './SupportTicketController'
+import SecurityAccessController from './SecurityAccessController'
 import InvestorDashboardController from './InvestorDashboardController'
 import AssessmentCycleController from './AssessmentCycleController'
 import PeopleProfileController from './PeopleProfileController'
@@ -62,6 +63,10 @@ import RAGASEvaluationController from './RAGASEvaluationController'
 import RagController from './RagController'
 import AgentInteractionMetricsController from './AgentInteractionMetricsController'
 import IntelligenceAggregatesController from './IntelligenceAggregatesController'
+import AnalyticsController from './AnalyticsController'
+import AutomationController from './AutomationController'
+import MobileController from './MobileController'
+import Messaging from './Messaging'
 import Automation from './Automation'
 
 const Api = {
@@ -89,6 +94,7 @@ const Api = {
     SmartAlertController: Object.assign(SmartAlertController, SmartAlertController),
     GamificationController: Object.assign(GamificationController, GamificationController),
     SupportTicketController: Object.assign(SupportTicketController, SupportTicketController),
+    SecurityAccessController: Object.assign(SecurityAccessController, SecurityAccessController),
     InvestorDashboardController: Object.assign(InvestorDashboardController, InvestorDashboardController),
     AssessmentCycleController: Object.assign(AssessmentCycleController, AssessmentCycleController),
     PeopleProfileController: Object.assign(PeopleProfileController, PeopleProfileController),
@@ -129,6 +135,10 @@ const Api = {
     RagController: Object.assign(RagController, RagController),
     AgentInteractionMetricsController: Object.assign(AgentInteractionMetricsController, AgentInteractionMetricsController),
     IntelligenceAggregatesController: Object.assign(IntelligenceAggregatesController, IntelligenceAggregatesController),
+    AnalyticsController: Object.assign(AnalyticsController, AnalyticsController),
+    AutomationController: Object.assign(AutomationController, AutomationController),
+    MobileController: Object.assign(MobileController, MobileController),
+    Messaging: Object.assign(Messaging, Messaging),
     Automation: Object.assign(Automation, Automation),
 }
 
