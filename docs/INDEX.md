@@ -10,6 +10,7 @@
 - **[CHEATSHEET_COMANDOS.md](CHEATSHEET_COMANDOS.md)** - Comandos útiles
 - **[ROADMAP_ESTRATEGICO_2026.md](ROADMAP_ESTRATEGICO_2026.md)** - 🗺️ **VISIÓN LARGO PLAZO Y TALENTO 360**
 - **[ROADMAP_STATUS_2026_02_27.md](ROADMAP_STATUS_2026_02_27.md)** - 📊 Status Report Feb 27
+- **[ROADMAP_TRANSICION_MVP_ALPHA_BETA_2026.md](ROADMAP_TRANSICION_MVP_ALPHA_BETA_2026.md)** - 🚦 **TRANSICIÓN MVP→ALPHA→BETA** (pendientes + deuda técnica consolidada)
 - **[ENTERPRISE_SECURITY_PHASE12_IMPLEMENTACION.md](ENTERPRISE_SECURITY_PHASE12_IMPLEMENTACION.md)** - 🛡️ **PHASE 12 COMPLETADA** (auditoría de acceso + MFA obligatorio + API de seguridad)
 - **[SESION_2026_03_20_RESUMEN.md](SESION_2026_03_20_RESUMEN.md)** - 🧬 **REVOLUCIÓN: TALENTO HÍBRIDO Y SINTÉTICO** (Cubo de Skill & Curaduría IA)
 - **[STRATOS_GLASS_DESIGN_SYSTEM.md](STRATOS_GLASS_DESIGN_SYSTEM.md)** - 🌌 **SISTEMA DE DISEÑO PREMIUM** (Phosphor & Glass)
@@ -79,6 +80,7 @@
 
 - **[VERSIONADO_SETUP.md](VERSIONADO_SETUP.md)** - Setup de versionado
 - **[GUIA_VERSIONADO_CHANGELOG.md](GUIA_VERSIONADO_CHANGELOG.md)** - Guía completa de versionado
+- **[NORMA_VERSIONADO_RELEASES_STRATOS.md](NORMA_VERSIONADO_RELEASES_STRATOS.md)** - 📐 Norma interna oficial de versionado, changelog y releases
 
 ---
 
@@ -227,6 +229,7 @@
 
 - **[Simulacion_Movilidad_Estrategica.md](Technical/Simulacion_Movilidad_Estrategica.md)** - Motor de Movilidad Estratégica
 - **[Inteligencia_Aprendizaje_LMS.md](Technical/Inteligencia_Aprendizaje_LMS.md)** - Hub de LMS e Inteligencia de Aprendizaje
+- **[BACKFILL_INTELLIGENCE_METRIC_AGGREGATES.md](BACKFILL_INTELLIGENCE_METRIC_AGGREGATES.md)** - Runbook operativo del backfill histórico de agregados de inteligencia
 
 ---
 

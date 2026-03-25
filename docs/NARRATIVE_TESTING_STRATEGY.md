@@ -9,6 +9,7 @@
 ### Por qué Narrativas?
 
 **Hoy (técnico, ❌ limitado):**
+
 ```php
 test('applies_lms_sync_rule_when_condition_matches', fn() => {
     $rule = ['condition' => 'new_course', 'action' => 'sync'];
@@ -17,6 +18,7 @@ test('applies_lms_sync_rule_when_condition_matches', fn() => {
 ```
 
 **Futuro (narrativo, ✅ orientado al usuario):**
+
 ```gherkin
 Scenario: L&D Manager syncs a new course to all staff
   Given L&D Manager "María" has 50-100 staff in HR department
@@ -27,6 +29,7 @@ Scenario: L&D Manager syncs a new course to all staff
 ```
 
 **Ventajas de narración:**
+
 - 🎯 **Alignment:** Devs entienden el problema del usuario, no solo el technical spec
 - 🚀 **Pre-GA bugs caught:** "5min SLA" → descubrimos race conditions
 - 📚 **Living documentation:** Test = customer journey doc para soporte
@@ -38,101 +41,106 @@ Scenario: L&D Manager syncs a new course to all staff
 ## 👥 2. PERSONAS OPERACIONALES (Testing Focus)
 
 ### Persona 1: L&D Manager (María)
+
 - **Rol:** Learning & Development Manager, 50-200 staff
 - **Objetivo principal:** "Lanzar programas de learning a 100+ personas sin fricción"
 - **Dolores:**
-  - LMS externo no sincroniza con Stratos → desfase de datos
-  - Debe avisar manualmente a su equipo para revisar contenido nuevo
-  - Si falla la sync, ¿cómo sabe? (no hay visibilidad)
+    - LMS externo no sincroniza con Stratos → desfase de datos
+    - Debe avisar manualmente a su equipo para revisar contenido nuevo
+    - Si falla la sync, ¿cómo sabe? (no hay visibilidad)
 - **Contexto:**
-  - Usa Cornerstone (o SAP) para LMS, y Stratos para inteligencia de talento
-  - Trabaja 8-10h diarias, necesita soluciones "fire-and-forget"
-  - Éxito = sus 100 staff vean el contenido en 5 minutos
+    - Usa Cornerstone (o SAP) para LMS, y Stratos para inteligencia de talento
+    - Trabaja 8-10h diarias, necesita soluciones "fire-and-forget"
+    - Éxito = sus 100 staff vean el contenido en 5 minutos
 
-| Story | Criticalidad | SLA | Metric |
-|:------|:------------|:----|:-------|
-| Sync new course to all staff | P0 | <5min | Latency + 0 failures |
-| Bulk assign learning paths | P1 | <1h | 100% assignment rate |
-| See sync history & errors | P2 | <24h | Error log completeness |
+| Story                        | Criticalidad | SLA   | Metric                 |
+| :--------------------------- | :----------- | :---- | :--------------------- |
+| Sync new course to all staff | P0           | <5min | Latency + 0 failures   |
+| Bulk assign learning paths   | P1           | <1h   | 100% assignment rate   |
+| See sync history & errors    | P2           | <24h  | Error log completeness |
 
 ---
 
 ### Persona 2: CHRO (Chief HR Officer)
+
 - **Rol:** C-Suite, strategic HR leader, 5K+ employees
 - **Objetivo principal:** "KPIs de adopción/talento en 1 click — no noise"
 - **Dolores:**
-  - Demasiados dashboards (Excel + HR system + training platform)
-  - Decisiones sin data (ej. "¿adoptó realmente el learning?")
-  - Anomalías no detectadas hasta quarter-end (too late)
+    - Demasiados dashboards (Excel + HR system + training platform)
+    - Decisiones sin data (ej. "¿adoptó realmente el learning?")
+    - Anomalías no detectadas hasta quarter-end (too late)
 - **Contexto:**
-  - Dashboard semanal de 15 min antes de exec meeting
-  - Necesita "signal-to-noise" alto (máximo 3 KPIs clave)
-  - Responde a board sobre ROI de learning/talent programs
+    - Dashboard semanal de 15 min antes de exec meeting
+    - Necesita "signal-to-noise" alto (máximo 3 KPIs clave)
+    - Responde a board sobre ROI de learning/talent programs
 
-| Story | Criticalidad | SLA | Metric |
-|:------|:------------|:----|:-------|
-| See adoption KPIs by dept + trend | P0 | <2s load | Accuracy + latency |
-| Get alerted to anomalies (auto) | P1 | <1h alert | True positive rate ≥ 90% |
-| Drill into problematic dept | P2 | <5s drill | Data completeness |
+| Story                             | Criticalidad | SLA       | Metric                   |
+| :-------------------------------- | :----------- | :-------- | :----------------------- |
+| See adoption KPIs by dept + trend | P0           | <2s load  | Accuracy + latency       |
+| Get alerted to anomalies (auto)   | P1           | <1h alert | True positive rate ≥ 90% |
+| Drill into problematic dept       | P2           | <5s drill | Data completeness        |
 
 ---
 
 ### Persona 3: Talent Ops Lead
+
 - **Rol:** Operational HR, 500-1K staff, managing workflows
 - **Objetivo principal:** "Configurar reglas + monitorear ejecución sin código"
 - **Dolores:**
-  - Crear rules es tedious (no UI amigable)
-  - Execution errors → lost emails/records (silent failures)
-  - No hay audit trail (compliance risk)
+    - Crear rules es tedious (no UI amigable)
+    - Execution errors → lost emails/records (silent failures)
+    - No hay audit trail (compliance risk)
 - **Contexto:**
-  - Power user (but non-technical)
-  - Works with IT + HRIS + Learning teams
-  - 20-30% of day = rule management + troubleshooting
+    - Power user (but non-technical)
+    - Works with IT + HRIS + Learning teams
+    - 20-30% of day = rule management + troubleshooting
 
-| Story | Criticalidad | SLA | Metric |
-|:------|:------------|:----|:-------|
-| Create messaging rule with UI wizard | P0 | <10min setup | Config success rate ≥ 95% |
-| See execution log (all events) | P1 | <1s search | Log completeness 100% |
-| Retry failed delivery | P2 | <5min retry | Retry success ≥ 85% |
+| Story                                | Criticalidad | SLA          | Metric                    |
+| :----------------------------------- | :----------- | :----------- | :------------------------ |
+| Create messaging rule with UI wizard | P0           | <10min setup | Config success rate ≥ 95% |
+| See execution log (all events)       | P1           | <1s search   | Log completeness 100%     |
+| Retry failed delivery                | P2           | <5min retry  | Retry success ≥ 85%       |
 
 ---
 
 ### Persona 4: People Manager (Local Leader)
+
 - **Rol:** Direct manager, 10-50 reports
 - **Objetivo principal:** "Prepare my team for next quarter — identify gaps, quick"
 - **Dolores:**
-  - Doesn't know who's ready for promotion vs. needs upskilling
-  - Conversations with reports = data-less ("just a feeling")
-  - Training recommendations feel generic, not tailored
+    - Doesn't know who's ready for promotion vs. needs upskilling
+    - Conversations with reports = data-less ("just a feeling")
+    - Training recommendations feel generic, not tailored
 - **Contexto:**
-  - Uses Stratos 2-3x/week (before 1:1s, reviews)
-  - Needs data in <15 sec or won't use
+    - Uses Stratos 2-3x/week (before 1:1s, reviews)
+    - Needs data in <15 sec or won't use
 
-| Story | Criticalidad | SLA | Metric |
-|:------|:------------|:----|:-------|
-| See team skill gaps vs. role | P0 | <2s summary | Data freshness ≤ 1h |
-| Recommend next steps per person | P1 | <5s recommendation | Recommendation relevance ≥ 80% |
-| Share insight with report | P2 | <1min export | Export format flexibility |
+| Story                           | Criticalidad | SLA                | Metric                         |
+| :------------------------------ | :----------- | :----------------- | :----------------------------- |
+| See team skill gaps vs. role    | P0           | <2s summary        | Data freshness ≤ 1h            |
+| Recommend next steps per person | P1           | <5s recommendation | Recommendation relevance ≥ 80% |
+| Share insight with report       | P2           | <1min export       | Export format flexibility      |
 
 ---
 
 ### Persona 5: IT/Security Ops
+
 - **Rol:** System admin, compliance officer
 - **Objetivo principal:** "Data is secure, audit trail is complete, SLAs met"
 - **Dolores:**
-  - Compliance questions ("where did this data go?")
-  - Integrations fail silently
-  - No rate limit protection (DDoS risk)
+    - Compliance questions ("where did this data go?")
+    - Integrations fail silently
+    - No rate limit protection (DDoS risk)
 - **Contexto:**
-  - Nighttime troubleshooting (on-call)
-  - Audit queries once/quarter
-  - Security = non-negotiable
+    - Nighttime troubleshooting (on-call)
+    - Audit queries once/quarter
+    - Security = non-negotiable
 
-| Story | Criticalidad | SLA | Metric |
-|:------|:------------|:----|:-------|
-| View complete audit log (encrypted) | P0 | <5s query | Log size ≤ 10s to retrieve |
-| Alert on integration failures | P0 | <5min alert | Accuracy of alert ≥ 98% |
-| Rate limit + circuit breaker working | P0 | 24/7 monitoring | Uptime ≥ 99.9% (SLA verified) |
+| Story                                | Criticalidad | SLA             | Metric                        |
+| :----------------------------------- | :----------- | :-------------- | :---------------------------- |
+| View complete audit log (encrypted)  | P0           | <5s query       | Log size ≤ 10s to retrieve    |
+| Alert on integration failures        | P0           | <5min alert     | Accuracy of alert ≥ 98%       |
+| Rate limit + circuit breaker working | P0           | 24/7 monitoring | Uptime ≥ 99.9% (SLA verified) |
 
 ---
 
@@ -141,25 +149,28 @@ Scenario: L&D Manager syncs a new course to all staff
 ### Story 1: María (L&D Manager) – "Launch new compliance course in 5 min"
 
 **Context:**
+
 - María is in weekly L&D team meeting at 9am
 - New compliance course just published in Cornerstone LMS
 - She needs all 100 HR staff to see it by EOD (same day)
 
 **Journey:**
+
 1. **Setup (Pre-GA, one-time):** María configured an LMS sync rule: `IF course_category=Compliance → sync to Stratos THEN notify_team_lead`
 2. **Trigger (Morning):** Course appears in Cornerstone
 3. **Auto-sync:** Stratos rule fires automatically (no actions from María)
-4. **Verification (5-10min):** 
-   - María opens Stratos Intelligence Hub
-   - Sees "New courses: 1" badge
-   - Clicks to view: "Compliance 2024 - 100 staff assigned"
-   - Dashboard shows: `Status: ✅ Synced at 09:07am | 100/100 staff visible`
+4. **Verification (5-10min):**
+    - María opens Stratos Intelligence Hub
+    - Sees "New courses: 1" badge
+    - Clicks to view: "Compliance 2024 - 100 staff assigned"
+    - Dashboard shows: `Status: ✅ Synced at 09:07am | 100/100 staff visible`
 5. **Confirmation Email (auto):**
-   - HR team lead gets: "New course synced: Compliance 2024 (100 people)"
+    - HR team lead gets: "New course synced: Compliance 2024 (100 people)"
 6. **Result:** 100% adoption visible within 5 minutes, zero manual intervention needed
 
 **Success Criteria (Test Assertions):**
-``` gherkin
+
+```gherkin
 Given María has 100 staff in Stratos
 And Cornerstone LMS has "Compliance 2024" course (category: Compliance)
 And María's LMS sync rule: "category=Compliance → sync + notify"
@@ -179,6 +190,7 @@ And María opens Intelligence Hub:
 ```
 
 **Related Tests (Pest/Vitest/Playwright):**
+
 - **Unit:** `LMSSyncRuleEngine.apply()` — rule matching logic
 - **Integration:** `LMSSyncJobTest` — job processes webhook → DB update
 - **E2E:** `playwright/stories/l2d-manager-lms-flow.spec.ts`
@@ -188,23 +200,26 @@ And María opens Intelligence Hub:
 ### Story 2: CHRO (Chief HR Officer) – "Board meeting: talent KPIs in 2 seconds"
 
 **Context:**
+
 - CHRO has 5 min before exec meeting
 - Board will ask: "What % of leadership team is ready for promotion?"
 - She needs dashboard to load + answer in <2s
 
 **Journey:**
+
 1. **Monday 08:00am:** CHRO logs into Stratos
 2. **Click "Dashboard":** Lands on Talent Intelligence dashboard
 3. **First glance (2-5s):** Sees:
-   - Top KPI 1: "Leadership Ready Now: 68% (Target: 75%)"
-   - Top KPI 2: "Adoption of learning programs: 82% (↑5% last week)"
-   - Top KPI 3: "Turnover risk (high): 3 people flagged 🚨"
+    - Top KPI 1: "Leadership Ready Now: 68% (Target: 75%)"
+    - Top KPI 2: "Adoption of learning programs: 82% (↑5% last week)"
+    - Top KPI 3: "Turnover risk (high): 3 people flagged 🚨"
 4. **Drill (if needed):** Clicks "3 people flagged" → sees names + risk factors + recommended actions
 5. **Board:** CHRO confidently answers: "We're at 68% leadership readiness; 3 names flagged for immediate support"
 6. **Post-board:** CHRO forwards dashboard to CEO + COO (auto-generated PDF or share link)
 
 **Success Criteria (Test Assertions):**
-``` gherkin
+
+```gherkin
 Given CHRO dashboard is configured with 3 KPIs (leadership readiness, adoption, turnover risk)
 And data is fresh (< 1 hour old)
 
@@ -227,6 +242,7 @@ When CHRO shares the dashboard:
 ```
 
 **Related Tests:**
+
 - **Unit:** `KPICalculator.calculateLeadershipReadiness()` — algorithm correctness
 - **Integration:** `DashboardMetricsTest` — aggregates from talent pipeline
 - **E2E:** `playwright/stories/chro-dashboard-load.spec.ts` (performance + accuracy)
@@ -236,28 +252,31 @@ When CHRO shares the dashboard:
 ### Story 3: Talent Ops — "Create messaging rule (no code, full audit trail)"
 
 **Context:**
+
 - Talent Ops needs to: "When person gets promoted, send message to manager + person"
 - Must be configurable in UI wizard
 - Must log all executions for audit
 
 **Journey:**
+
 1. **Monday 10am:** Talent Ops opens Rules → "Create new messaging rule"
 2. **Wizard Step 1 - Trigger:** Select "Person promoted"
 3. **Wizard Step 2 - Conditions:** Add filter "Promoted to Manager role"
-4. **Wizard Step 3 - Messaging:** 
-   - Channel: Email + In-App
-   - To: Person + Direct Manager
-   - Template: "Congratulations! You've been promoted to {{promoted_role}}"
-5. **Wizard Step 4 - Review & Test:** 
-   - See preview (actual message)
-   - Run test with 2 sample people → see mock emails
+4. **Wizard Step 3 - Messaging:**
+    - Channel: Email + In-App
+    - To: Person + Direct Manager
+    - Template: "Congratulations! You've been promoted to {{promoted_role}}"
+5. **Wizard Step 4 - Review & Test:**
+    - See preview (actual message)
+    - Run test with 2 sample people → see mock emails
 6. **Save:** Rule is now ACTIVE
-7. **Monitoring:** 
-   - Execution log shows each time someone gets promoted
-   - If delivery fails → shows error + retry option
+7. **Monitoring:**
+    - Execution log shows each time someone gets promoted
+    - If delivery fails → shows error + retry option
 
 **Success Criteria (Test Assertions):**
-``` gherkin
+
+```gherkin
 Given Talent Ops has Manager role and Rule-Create permission
 
 When Talent Ops creates messaging rule:
@@ -290,6 +309,7 @@ When Talent Ops reviews execution log:
 ```
 
 **Related Tests:**
+
 - **Unit:** `RuleEngine.evaluateConditions()` — trigger matching
 - **Integration:** `MessagingRuleTest` — full execution flow
 - **E2E:** `playwright/stories/talentops-create-rule.spec.ts` (UI wizard + confirmation)
@@ -299,29 +319,32 @@ When Talent Ops reviews execution log:
 ### Story 4: People Manager— "Know your team's gaps in < 15 seconds"
 
 **Context:**
+
 - Manager is before 1:1 meeting
 - Needs to know: "Who is under-skilled? Ready for promo?"
 - Decision-making, not deep analysis
 
 **Journey:**
+
 1. **Monday 14:45pm (before 1:1s):** Manager opens Mi Stratos
 2. **Clicks "My Team":** Sees list of 12 direct reports
 3. **Quick scan (5-10s):**
-   - Employee A: ⭐️⭐️⭐️⭐️⭐️ 95% ready | No gaps | ✅ Ready for promotion
-   - Employee B: ⭐️⭐️⭐️ 75% ready | 2 gaps: Leadership, Strategic Thinking | 🔄 In progress (2 courses)
-   - Employee C: ⭐️⭐️ 50% ready | 5 gaps | 🚨 High attention needed
+    - Employee A: ⭐️⭐️⭐️⭐️⭐️ 95% ready | No gaps | ✅ Ready for promotion
+    - Employee B: ⭐️⭐️⭐️ 75% ready | 2 gaps: Leadership, Strategic Thinking | 🔄 In progress (2 courses)
+    - Employee C: ⭐️⭐️ 50% ready | 5 gaps | 🚨 High attention needed
 4. **Click on Employee B:** Expanded card shows:
-   - Gap 1: Leadership (current 2/5 → target 4/5) | Recommended: Internal coaching
-   - Gap 2: Strategic Thinking (current 2/5 → target 4/5) | Recommended: MBA-style course
+    - Gap 1: Leadership (current 2/5 → target 4/5) | Recommended: Internal coaching
+    - Gap 2: Strategic Thinking (current 2/5 → target 4/5) | Recommended: MBA-style course
 5. **1:1 preparation:** Manager click "Generate talking points for Employee B"
-   - Generates: "Strengths: XYZ | Development priorities: ABC | Recommended path: DEF"
+    - Generates: "Strengths: XYZ | Development priorities: ABC | Recommended path: DEF"
 6. **During 1:1 with Employee B:**
-   - Manager shares: "I see you're at 75% readiness. Let's work on leadership + strategic thinking"
-   - Employee sees the recommended path and agrees to 2 courses + mentoring
+    - Manager shares: "I see you're at 75% readiness. Let's work on leadership + strategic thinking"
+    - Employee sees the recommended path and agrees to 2 courses + mentoring
 7. **Post-meeting:** Manager clicks "Share with Employee" → sends summary
 
 **Success Criteria (Test Assertions):**
-``` gherkin
+
+```gherkin
 Given Manager has 12 direct reports
 And each person has a role + skill gap data (fresh ≤ 1h)
 
@@ -353,6 +376,7 @@ When Manager clicks "Share with Employee":
 ```
 
 **Related Tests:**
+
 - **Unit:** `TeamGapAggregator.calculateTeamReadiness()` — aggregate calculation
 - **Integration:** `PeopleManagerAPITest` — fetch team + calculate readiness
 - **E2E:** `playwright/stories/manager-team-dashboard.spec.ts` (loading + interactions)
@@ -362,32 +386,34 @@ When Manager clicks "Share with Employee":
 ### Story 5: IT/Security Ops — "Audit trail complete, integrations healthy"
 
 **Context:**
+
 - Quarterly compliance audit: "Show me all data movements last Q"
 - Integration with Cornerstone LMS failed yesterday: "Fix it + prove it's monitored"
 
 **Journey:**
+
 1. **Scenario A - Audit Trail (Quarterly):**
-   - Auditor logs in with read-only "Auditor" role
-   - Clicks "Compliance Audit" → "Data movements"
-   - Applies filter: "Date range: Q4 2025 | Entity: People | Action: all"
-   - Result: Paginated log of all people-related changes (create, update, delete, export)
-   - Each row: timestamp | user | action | old_value | new_value | ip_address | mfa_verified
-   - Exports as signed PDF (cryptographically verified)
-   
+    - Auditor logs in with read-only "Auditor" role
+    - Clicks "Compliance Audit" → "Data movements"
+    - Applies filter: "Date range: Q4 2025 | Entity: People | Action: all"
+    - Result: Paginated log of all people-related changes (create, update, delete, export)
+    - Each row: timestamp | user | action | old_value | new_value | ip_address | mfa_verified
+    - Exports as signed PDF (cryptographically verified)
 2. **Scenario B - Integration Failed Yesterday:**
-   - Ops opens "Monitoring" → "Integrations" → "Cornerstone LMS"
-   - Status shows: 🔴 ERROR (last 24 hours)
-   - Alert generated at 11:23pm: "LMS webhook failed (3 retries, then stopped)"
-   - Ops clicks "View latest attempt" → sees:
-     - Request: POST /api/lms-webhook | Payload: {...synced_course...}
-     - Response: 503 Service Unavailable
-     - Retry queue: 7 items pending
-   - Ops clicks "Manual retry" → system tries again → Success! 🟢
-   - Alert sent to Ops + CTO: "Integration recovered"
-   - Audit log records: `event_type=manual_retry, integration=cornerstone, status=success`
+    - Ops opens "Monitoring" → "Integrations" → "Cornerstone LMS"
+    - Status shows: 🔴 ERROR (last 24 hours)
+    - Alert generated at 11:23pm: "LMS webhook failed (3 retries, then stopped)"
+    - Ops clicks "View latest attempt" → sees:
+        - Request: POST /api/lms-webhook | Payload: {...synced_course...}
+        - Response: 503 Service Unavailable
+        - Retry queue: 7 items pending
+    - Ops clicks "Manual retry" → system tries again → Success! 🟢
+    - Alert sent to Ops + CTO: "Integration recovered"
+    - Audit log records: `event_type=manual_retry, integration=cornerstone, status=success`
 
 **Success Criteria (Test Assertions):**
-``` gherkin
+
+```gherkin
 Given audit data from Q4 2025
 And Cornerstone integration has 7 failed events
 
@@ -415,6 +441,7 @@ When Auditor runs compliance query next month:
 ```
 
 **Related Tests:**
+
 - **Unit:** `AuditLogGenerator.formatForExport()` — log formatting correctness
 - **Integration:** `IntegrationHealthTest` — webhook failure handling
 - **E2E + Security:** `playwright/stories/ops-audit-trail.spec.ts` + `security-tests/audit-immutability.spec.ts`
@@ -436,12 +463,12 @@ test('lms_sync_evaluates_rules_and_queues_job_within_100ms', function () {
         'sync_batch_window_ms' => 500,
     ]);
     $course = ['id' => 1, 'category' => 'Compliance', 'name' => 'Compliance 2024'];
-    
+
     $startTime = now();
     $engine = new LMSSyncEngine();
     $jobDispatched = $engine->evaluate($course, $rule);
     $endTime = now();
-    
+
     expect($jobDispatched)->toBeTrue();
     expect($endTime->diffInMilliseconds($startTime))->toBeLessThan(100); // Unit test, mocked DB
 });
@@ -455,24 +482,24 @@ test('lms_sync_job_syncs_100_staff_within_5minutes', function () {
     $org = Organization::factory()->create();
     $staff = People::factory()->count(100)->create(['organization_id' => $org->id]);
     $course = Course::factory()->create(['external_id' => 'CORNERSTONE-123', 'category' => 'Compliance']);
-    
+
     $startTime = now();
-    
+
     // Dispatch job (simulates LMS webhook)
     dispatch(new LMSSyncJob($org->id, $course->id, 100));
-    
+
     // Process the job synchronously in test
     Bus::assertDispatched(LMSSyncJob::class);
-    
+
     // Verify results
     expect(CourseAssignment::where('course_id', $course->id)
         ->where('organization_id', $org->id)
         ->count()
     )->toBe(100);
-    
+
     $endTime = now();
     expect($endTime->diffInMinutes($startTime))->toBeLessThan(5); // 5-min SLA
-    
+
     // Verify audit log
     expect(AuditLog::where('event_type', 'lms_sync')
         ->where('course_id', $course->id)
@@ -485,43 +512,46 @@ test('lms_sync_job_syncs_100_staff_within_5minutes', function () {
 
 ```typescript
 // tests/e2e/stories/lms-manager-sync-workflow.spec.ts
-test('L&D Manager sees synced course within 5 minutes (user perspective)', async ({ page, browser }) => {
-  // 1. Setup: Create LMS sync rule
-  await page.goto('/rules/lms-sync');
-  await page.click('text=Create Rule');
-  await page.selectOption('select[name="trigger"]', 'new_course');
-  await page.fill('input[name="condition"]', 'category=Compliance');
-  await page.click('text=Save Rule');
-  await expect(page.locator('text=Rule created successfully')).toBeVisible();
+test('L&D Manager sees synced course within 5 minutes (user perspective)', async ({
+    page,
+    browser,
+}) => {
+    // 1. Setup: Create LMS sync rule
+    await page.goto('/rules/lms-sync');
+    await page.click('text=Create Rule');
+    await page.selectOption('select[name="trigger"]', 'new_course');
+    await page.fill('input[name="condition"]', 'category=Compliance');
+    await page.click('text=Save Rule');
+    await expect(page.locator('text=Rule created successfully')).toBeVisible();
 
-  // 2. Simulate LMS webhook (backend call)
-  const coursePayload = {
-    external_id: 'CORNERSTONE-123',
-    name: 'Compliance 2024',
-    category: 'Compliance',
-  };
-  const response = await page.request.post('/api/webhooks/lms-sync', {
-    data: coursePayload,
-  });
-  expect(response.ok()).toBe(true);
+    // 2. Simulate LMS webhook (backend call)
+    const coursePayload = {
+        external_id: 'CORNERSTONE-123',
+        name: 'Compliance 2024',
+        category: 'Compliance',
+    };
+    const response = await page.request.post('/api/webhooks/lms-sync', {
+        data: coursePayload,
+    });
+    expect(response.ok()).toBe(true);
 
-  // 3. Wait & verify: Dashboard shows synced course
-  await page.goto('/intelligence/hub');
-  const courseCard = page.locator('text=Compliance 2024');
-  await expect(courseCard).toBeVisible({ timeout: 5 * 60 * 1000 }); // 5 min timeout
+    // 3. Wait & verify: Dashboard shows synced course
+    await page.goto('/intelligence/hub');
+    const courseCard = page.locator('text=Compliance 2024');
+    await expect(courseCard).toBeVisible({ timeout: 5 * 60 * 1000 }); // 5 min timeout
 
-  // 4. Verify details
-  await courseCard.click();
-  const statusBadge = page.locator('text=✅ Synced');
-  await expect(statusBadge).toBeVisible();
-  
-  const staffCount = page.locator('text=/100\\/100 staff/');
-  await expect(staffCount).toBeVisible();
+    // 4. Verify details
+    await courseCard.click();
+    const statusBadge = page.locator('text=✅ Synced');
+    await expect(statusBadge).toBeVisible();
 
-  // 5. Verify email was sent (API check)
-  const emailJob = await page.request.get('/api/test/emails/latest');
-  const emailData = await emailJob.json();
-  expect(emailData.subject).toContain('New course synced');
+    const staffCount = page.locator('text=/100\\/100 staff/');
+    await expect(staffCount).toBeVisible();
+
+    // 5. Verify email was sent (API check)
+    const emailJob = await page.request.get('/api/test/emails/latest');
+    const emailData = await emailJob.json();
+    expect(emailData.subject).toContain('New course synced');
 });
 ```
 
@@ -529,15 +559,16 @@ test('L&D Manager sees synced course within 5 minutes (user perspective)', async
 
 ## 📊 5. COVERAGE MATRIX BY PERSONA
 
-| Persona | Layer 1 (Unit) | Layer 2 (Integration) | Layer 3 (E2E) | SLA | Owner |
-|:--------|:------|:-----|:------|:---|:------|
-| **L&D Manager** | LMSSyncEngine tests (3) | LMSSyncJob full workflow (1) | Dashboard + sync E2E (1) | <5min | Backend Lead + QA |
-| **CHRO** | KPICalculator tests (3) | Dashboard metrics aggregation (1) | Dashboard load perf + accuracy (1) | <2s | Analytics + QA |
-| **Talent Ops** | RuleEngine logic (5) | Rule execution full stack (2) | Rule wizard UI + audit log (1) | <10min setup | Backend Lead + QA |
-| **People Manager** | Gap calculator (3) | Team data fetch + aggregate (1) | Manager dashboard interactions (1) | <2s load | Backend Lead + QA |
-| **IT/Ops** | AuditLog formatting (2) | Webhook retry + circuit breaker (1) | Audit trail export + monitoring (1) | <30s export | DevOps + QA |
+| Persona            | Layer 1 (Unit)          | Layer 2 (Integration)               | Layer 3 (E2E)                       | SLA          | Owner             |
+| :----------------- | :---------------------- | :---------------------------------- | :---------------------------------- | :----------- | :---------------- |
+| **L&D Manager**    | LMSSyncEngine tests (3) | LMSSyncJob full workflow (1)        | Dashboard + sync E2E (1)            | <5min        | Backend Lead + QA |
+| **CHRO**           | KPICalculator tests (3) | Dashboard metrics aggregation (1)   | Dashboard load perf + accuracy (1)  | <2s          | Analytics + QA    |
+| **Talent Ops**     | RuleEngine logic (5)    | Rule execution full stack (2)       | Rule wizard UI + audit log (1)      | <10min setup | Backend Lead + QA |
+| **People Manager** | Gap calculator (3)      | Team data fetch + aggregate (1)     | Manager dashboard interactions (1)  | <2s load     | Backend Lead + QA |
+| **IT/Ops**         | AuditLog formatting (2) | Webhook retry + circuit breaker (1) | Audit trail export + monitoring (1) | <30s export  | DevOps + QA       |
 
 **Total Tests by Layer:**
+
 - 🟢 **Unit:** 16 tests (mocked, fast, <5s total)
 - 🟡 **Integration:** 6 tests (real DB, <2min total)
 - 🔴 **E2E:** 5 tests (full stack, <10min total)
@@ -549,12 +580,14 @@ test('L&D Manager sees synced course within 5 minutes (user perspective)', async
 ## 🚀 6. IMPLEMENTATION ROADMAP
 
 ### Phase 1: Spike (Week 2026-04-15, 48 hours)
+
 - [ ] Define 2-3 core personas (L&D Manager + CHRO)
 - [ ] Write 2 Gherkin stories (LMS sync + Dashboard)
 - [ ] Build proof-of-concept: 1 Unit + 1 Integration + 1 E2E test
 - [ ] Document approach in this file
 
 ### Phase 2: MVP Narrative Tests (Sprint C, 2026-04-26, 1 week)
+
 - [ ] All 5 personas fully defined (this section)
 - [ ] 10-15 core stories written (Gherkin format)
 - [ ] Tests implemented: 16 Unit + 6 Integration + 5 E2E
@@ -562,6 +595,7 @@ test('L&D Manager sees synced course within 5 minutes (user perspective)', async
 - [ ] Dashboard: % passing tests per persona (visual + KPI)
 
 ### Phase 3: Scale (Sprint D-E, ongoing)
+
 - [ ] Expand to 20+ stories (edge cases, error scenarios)
 - [ ] Integrate coverage metrics (Clover + LCOV)
 - [ ] Post-GA: Use test results for NPS validation

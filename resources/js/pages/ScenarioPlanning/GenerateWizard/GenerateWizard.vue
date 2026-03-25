@@ -1,3 +1,1021 @@
+<script setup lang="ts">
+import ErrorModal from '@/components/Ui/ErrorModal.vue';
+import {
+    normalizeLlMResponse,
+    useScenarioGenerationStore,
+} from '@/stores/scenarioGenerationStore';
+import { usePage } from '@inertiajs/vue3';
+import axios from 'axios';
+import { computed, onMounted, ref } from 'vue';
+import PreviewConfirm from './PreviewConfirm.vue';
+import StepHorizon from './StepHorizon.vue';
+import StepIdentity from './StepIdentity.vue';
+import StepIntent from './StepIntent.vue';
+import StepResources from './StepResources.vue';
+import StepSituation from './StepSituation.vue';
+
+const store = useScenarioGenerationStore();
+const page = usePage();
+
+const isAutoAcceptImportEnabled = computed(() => {
+    return !!(page.props as any)?.features?.auto_accept_import_generation;
+});
+
+const stepComponents: Record<number, any> = {
+    1: StepIdentity,
+    2: StepSituation,
+    3: StepIntent,
+    4: StepResources,
+    5: StepHorizon,
+};
+
+const currentStepComponent = computed(() => stepComponents[store.step]);
+
+onMounted(() => {
+    loadInstruction(instructionLang.value);
+});
+
+// (step completion logic moved to computed helpers)
+
+// finer-grained progress with critical vs optional weighting
+const criticalFields = [
+    'company_name',
+    'industry',
+    'company_size',
+    'current_challenges',
+    'current_capabilities',
+    'strategic_goal',
+    'key_initiatives',
+    'time_horizon',
+];
+
+const allFields = [
+    ...criticalFields,
+    'current_gaps',
+    'budget_level',
+    'talent_availability',
+    'milestones',
+];
+
+const totalWeight =
+    criticalFields.length * 2 + (allFields.length - criticalFields.length) * 1;
+
+const filledWeight = computed(() => {
+    const d = store.data as any;
+    let w = 0;
+    allFields.forEach((f) => {
+        if (d[f]) w += criticalFields.includes(f) ? 2 : 1;
+    });
+    return w;
+});
+
+const filledFields = computed(() => {
+    // keep simple count of filled field items for display
+    const d = store.data as any;
+    return allFields.reduce((acc, f) => (d[f] ? acc + 1 : acc), 0);
+});
+
+const progress = computed(() =>
+    Math.round((filledWeight.value / totalWeight) * 100),
+);
+
+function getProgressColor(value: number): string {
+    if (value < 40) return 'error';
+    if (value < 80) return 'warning';
+    return 'success';
+}
+
+const progressColor = computed(() => getProgressColor(progress.value));
+
+// fields per step to compute critical missing count
+const stepFieldKeys: Record<number, string[]> = {
+    1: ['company_name', 'industry', 'company_size'],
+    2: ['current_challenges', 'current_capabilities', 'current_gaps'],
+    3: ['strategic_goal', 'key_initiatives'],
+    4: ['budget_level', 'talent_availability'],
+    5: ['time_horizon', 'milestones'],
+};
+
+const missingCriticalCount = computed(() => {
+    const keys = stepFieldKeys[store.step] || [];
+    const d = store.data as any;
+    return keys.filter((k) => criticalFields.includes(k) && !d[k]).length;
+});
+
+const getProgressLabel = (value: number): string => {
+    if (value < 40) return 'Insuficiente';
+    if (value < 80) return 'Parcial';
+    return 'Completado';
+};
+
+const progressLabel = computed(() => getProgressLabel(progress.value));
+
+const stepMissingFieldsMap: Record<
+    number,
+    Array<{ field: string; label: string }>
+> = {
+    1: [
+        { field: 'company_name', label: 'Nombre de la organización' },
+        { field: 'industry', label: 'Industria' },
+        { field: 'company_size', label: 'Tamaño (personas)' },
+    ],
+    2: [
+        { field: 'current_challenges', label: 'Desafíos' },
+        { field: 'current_capabilities', label: 'Capacidades existentes' },
+        { field: 'current_gaps', label: 'Brechas' },
+    ],
+    3: [
+        { field: 'strategic_goal', label: 'Objetivo principal' },
+        { field: 'key_initiatives', label: 'Iniciativas clave' },
+    ],
+    4: [
+        { field: 'budget_level', label: 'Nivel de presupuesto' },
+        { field: 'talent_availability', label: 'Disponibilidad de talento' },
+    ],
+    5: [
+        { field: 'time_horizon', label: 'Plazo' },
+        { field: 'milestones', label: 'Hitos' },
+    ],
+};
+
+const missingFieldsForStep = (step: number) => {
+    const d = store.data as any;
+    const fields = stepMissingFieldsMap[step] || [];
+    return fields.filter(({ field }) => !d[field]).map(({ label }) => label);
+};
+
+const missingForCurrent = computed(() => missingFieldsForStep(store.step));
+
+// expose filled/total for template (use `allFields.length` and `filledFields`)
+
+function next() {
+    store.next();
+}
+function prev() {
+    store.prev();
+}
+
+const showPreview = ref(false);
+
+// Error modal state
+const instructionLang = ref('es');
+const errorModalShow = ref(false);
+const errorModalTitle = ref('');
+const errorModalMessages = ref<string[]>([]);
+
+function showError(messages: string[] | string, title = 'Error') {
+    errorModalTitle.value = title;
+    errorModalMessages.value = Array.isArray(messages) ? messages : [messages];
+    errorModalShow.value = true;
+}
+const instructionContent = ref('');
+const instructionEditable = ref(false);
+const instructionLoading = ref(false);
+const instructionItems = ref<any[]>([]);
+const selectedInstructionIndex = ref<number | null>(null);
+const instructionChoice = ref<'db' | 'client'>('db');
+
+// Client-side compatibility helpers
+function containsMarkdownDirective(text: string) {
+    if (!text) return false;
+    const lower = text.toLowerCase();
+    return (
+        lower.includes('formato: markdown') ||
+        lower.includes('format: markdown') ||
+        lower.includes('markdown.') ||
+        lower.includes('\nmarkdown')
+    );
+}
+
+function clientInstructionIsCompatible() {
+    // If operator is using a custom/client instruction, check for obvious conflicts
+    if (instructionChoice.value === 'client' && instructionContent.value) {
+        if (containsMarkdownDirective(instructionContent.value)) {
+            return {
+                valid: false,
+                message:
+                    'La instrucción contiene indicaciones para formato Markdown. Cambie la instrucción a salida JSON única, o seleccione una instrucción de la base de datos.',
+            };
+        }
+    }
+    return { valid: true };
+}
+// reactive validation object for template binding
+const instructionValidation = computed(() => clientInstructionIsCompatible());
+async function loadInstruction(lang = 'es') {
+    instructionLoading.value = true;
+    try {
+        const res = await axios.get(
+            '/api/strategic-planning/scenarios/instructions',
+            { params: { language: lang } },
+        );
+        const items = res.data.data || [];
+        instructionItems.value = items;
+        if (items.length) {
+            // default select first item (editable if present)
+            selectedInstructionIndex.value = 0;
+            instructionContent.value = items[0].content || '';
+            instructionEditable.value = !!items[0].editable;
+            instructionLang.value = items[0].language || lang;
+            instructionChoice.value = 'db';
+        } else {
+            instructionItems.value = [];
+            selectedInstructionIndex.value = null;
+            instructionContent.value = '';
+            instructionEditable.value = false;
+            instructionLang.value = lang;
+            instructionChoice.value = 'client';
+        }
+    } catch (e) {
+        console.error('Failed loading instruction', e);
+    } finally {
+        instructionLoading.value = false;
+    }
+}
+
+function selectInstruction(idx: number | null) {
+    selectedInstructionIndex.value = idx;
+    if (idx === null) {
+        // custom
+        instructionChoice.value = 'client';
+        instructionEditable.value = true;
+        return;
+    }
+    const item = instructionItems.value[idx];
+    instructionContent.value = item?.content || '';
+    instructionEditable.value = !!item?.editable;
+    instructionChoice.value = 'db';
+}
+
+async function saveInstruction() {
+    instructionLoading.value = true;
+    try {
+        const payload = {
+            language: instructionLang.value,
+            content: instructionContent.value,
+            editable: !!instructionEditable.value,
+        };
+        const res = await axios.post(
+            '/api/strategic-planning/scenarios/instructions',
+            payload,
+        );
+        if (res.data && res.data.success) {
+            // reload latest
+            await loadInstruction(instructionLang.value);
+        }
+    } catch (e) {
+        console.error('Save instruction failed', e);
+        showError(
+            'No se pudo guardar la instrucción: ' +
+                ((e as any)?.response?.data?.message || (e as any)?.message),
+        );
+    } finally {
+        instructionLoading.value = false;
+    }
+}
+
+async function restoreDefault() {
+    if (
+        !confirm(
+            '¿Restablecer la instrucción por defecto? Esto creará una nueva versión editable con el contenido por defecto.',
+        )
+    )
+        return;
+    instructionLoading.value = true;
+    try {
+        const res = await axios.post(
+            '/api/strategic-planning/scenarios/instructions/restore-default',
+            {
+                language: instructionLang.value,
+            },
+        );
+        if (res.data && res.data.success) {
+            await loadInstruction(instructionLang.value);
+        } else {
+            showError('No se pudo restaurar la instrucción por defecto');
+        }
+    } catch (e) {
+        console.error('Restore default failed', e);
+        showError(
+            (e as any)?.response?.data?.message ||
+                (e as any)?.message ||
+                'Error al restaurar por defecto',
+        );
+    } finally {
+        instructionLoading.value = false;
+    }
+}
+
+async function onGenerate() {
+    try {
+        // validate required fields before contacting server
+        const validation = await store.validate();
+        if (!validation.valid) {
+            showError(validation.errors, 'Faltan campos críticos');
+            return;
+        }
+
+        // Client-side instruction compatibility check to avoid server 422s
+        const compat = clientInstructionIsCompatible();
+        if (!compat.valid) {
+            showError(
+                compat.message || 'Instrucción incompatible',
+                'Instrucción incompatible',
+            );
+            // open editor so operator can fix
+            instructionEditable.value = true;
+            return;
+        }
+
+        // Persist instruction selection and language so preview uses the chosen instruction
+        if (instructionChoice.value === 'client' && instructionContent.value) {
+            store.setField('instruction', instructionContent.value);
+            store.setField('instruction_id', null);
+        } else if (
+            instructionChoice.value === 'db' &&
+            selectedInstructionIndex.value !== null
+        ) {
+            const it = instructionItems.value[selectedInstructionIndex.value];
+            const id = it?.id ?? null;
+            store.setField('instruction', null);
+            store.setField('instruction_id', id);
+        } else {
+            store.setField('instruction', null);
+            store.setField('instruction_id', null);
+        }
+        store.setField('instruction_language', instructionLang.value);
+
+        // First get prompt preview from server
+        await store.preview();
+
+        showPreview.value = true;
+    } catch (e) {
+        const error = e as any;
+        console.error('Preview failed', e);
+        if (error?.response?.status === 422) {
+            const d = error.response.data || {};
+            const messages = d.errors
+                ? Object.entries(d.errors).map(
+                      ([k, v]) =>
+                          `${k}: ${Array.isArray(v) ? v.join(', ') : v}`,
+                  )
+                : [d.message || JSON.stringify(d)];
+            // allow operator to edit instruction
+            instructionEditable.value = true;
+            showError(messages, 'Validación de instrucción (422)');
+            return;
+        }
+        const errMsg = formatAxiosError(e);
+        showError(errMsg.split('\n'), 'Error al generar preview');
+    }
+}
+
+async function persistInstructionSelection() {
+    store.importAfterAccept = false;
+    if (instructionChoice.value === 'client' && instructionContent.value) {
+        store.setField('instruction', instructionContent.value);
+        store.setField('instruction_id', null);
+    } else if (
+        instructionChoice.value === 'db' &&
+        selectedInstructionIndex.value !== null
+    ) {
+        const it = instructionItems.value[selectedInstructionIndex.value];
+        const id = it?.id ?? null;
+        store.setField('instruction', null);
+        store.setField('instruction_id', id);
+    } else {
+        store.setField('instruction', null);
+        store.setField('instruction_id', null);
+    }
+}
+
+async function validateBeforeGenerate() {
+    const validation = await store.validate();
+    if (!validation.valid) {
+        showError(validation.errors, 'Faltan campos críticos');
+        return false;
+    }
+
+    const compat = clientInstructionIsCompatible();
+    if (!compat.valid) {
+        showError(
+            compat.message || 'Instrucción incompatible',
+            'Instrucción incompatible',
+        );
+        instructionEditable.value = true;
+        return false;
+    }
+
+    return true;
+}
+
+async function pollGenerationCompletion(
+    timeoutMs: number,
+): Promise<'complete' | 'timeout'> {
+    const start = Date.now();
+    let lastReceivedChunks: number | null = null;
+
+    try {
+        const p0 = await store.fetchProgress();
+        lastReceivedChunks =
+            p0?.progress?.received_chunks ??
+            (Array.isArray(p0?.recent_chunks) ? p0.recent_chunks.length : null);
+    } catch {
+        // ignore
+    }
+
+    openResponseModal();
+
+    while (
+        store.generationStatus !== 'complete' &&
+        Date.now() - start < timeoutMs
+    ) {
+        await new Promise((r) => setTimeout(r, 2000));
+        try {
+            await store.fetchStatus();
+            await fetchChunkCount();
+
+            if (!responseModalOpen.value) responseModalOpen.value = true;
+
+            const p = store.generationProgress as any;
+            const received =
+                p?.progress?.received_chunks ??
+                (store.recentChunks ? store.recentChunks.length : null);
+
+            if (
+                received !== null &&
+                lastReceivedChunks !== null &&
+                received > lastReceivedChunks
+            ) {
+                lastReceivedChunks = received;
+            }
+        } catch {
+            // ignore intermittent errors
+        }
+    }
+
+    return store.generationStatus === 'complete' ? 'complete' : 'timeout';
+}
+
+async function handleGenerationCompletion() {
+    await triggerValidation();
+    if (
+        isAutoAcceptImportEnabled.value &&
+        store.importAfterAccept &&
+        !store.importAutoAccepted
+    ) {
+        console.log('Auto-accept triggered from main flow');
+        await onModalAccept(true, true);
+    }
+}
+
+async function onConfirmGenerate(importAfter = false) {
+    showPreview.value = false;
+    try {
+        if (!(await validateBeforeGenerate())) {
+            return;
+        }
+
+        store.importAfterAccept = !!importAfter;
+        persistInstructionSelection();
+
+        await store.generate();
+        try {
+            await store.fetchStatus();
+        } catch {
+            // ignore fetch errors for now
+        }
+
+        const timeoutMs = 600000; // 10 minutes
+        const result = await pollGenerationCompletion(timeoutMs);
+
+        if (result === 'complete') {
+            await handleGenerationCompletion();
+        } else {
+            showError(
+                'Generación encolada. Verifique el estado en la sección de generación.',
+                'Encolada',
+            );
+        }
+    } catch (e) {
+        const error = e as any;
+        console.error('Generate failed', e);
+        if (error?.response?.status === 422) {
+            const d = error.response.data || {};
+            const messages = d.errors
+                ? Object.entries(d.errors).map(
+                      ([k, v]) =>
+                          `${k}: ${Array.isArray(v) ? v.join(', ') : v}`,
+                  )
+                : [d.message || JSON.stringify(d)];
+            instructionEditable.value = true;
+            showError(messages, 'Validación de instrucción (422)');
+            return;
+        }
+        const errMsg = formatAxiosError(e);
+        showError(errMsg.split('\n'), 'Error al generar escenario');
+    }
+}
+
+function formatAxiosError(e: any) {
+    if (!e) return 'Unknown error';
+    if (e.response && e.response.data) {
+        const d = e.response.data;
+        if (d.errors) {
+            return Object.entries(d.errors)
+                .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+                .join('\n');
+        }
+        return d.message || JSON.stringify(d);
+    }
+    return e.message || String(e);
+}
+
+function onEditPrompt() {
+    // Close preview and allow user to edit wizard fields
+    showPreview.value = false;
+    store.step = 1;
+}
+const accepting = ref(false);
+const responseValidationErrors = ref<string[] | null>(null);
+const responseValidationTitle = ref('');
+async function acceptGeneration() {
+    if (!store.generationId) return;
+    accepting.value = true;
+    try {
+        const res = await store.accept(store.generationId);
+        // if backend returns scenario id, navigate to it
+        const sid =
+            res?.data?.scenario_id ||
+            res?.data?.id ||
+            (res?.data && res.data.id);
+        if (sid) {
+            // navigate to scenario detail
+            globalThis.location.href = `/scenario-planning/${sid}`;
+            return;
+        }
+        // fallback: close dialog by reloading page
+        globalThis.location.reload();
+    } catch (e) {
+        console.error('Accept failed', e);
+        const error = e as any;
+        showError(
+            error?.response?.data?.message || error?.message || String(e),
+            'Error al aceptar generación',
+        );
+    } finally {
+        accepting.value = false;
+    }
+}
+
+const responseModalOpen = ref(false);
+let responsePollTimer: any = null;
+const responseLoading = ref(false);
+const isVerifyingIntegrity = ref(false);
+const verificationProgress = ref(0);
+const chunkCount = ref<number | null>(null);
+
+async function triggerValidation() {
+    isVerifyingIntegrity.value = true;
+    verificationProgress.value = 0;
+
+    // Simulate validation progress over 2 seconds
+    const duration = 2000;
+    const interval = 50;
+    const steps = duration / interval;
+    const increment = 100 / steps;
+
+    for (let i = 0; i <= steps; i++) {
+        verificationProgress.value = Math.min(100, i * increment);
+        await new Promise((r) => setTimeout(r, interval));
+    }
+
+    isVerifyingIntegrity.value = false;
+}
+
+// Prefer an effective chunk count based on server-reported count or recentChunks length
+const effectiveChunkCount = computed(() => {
+    if (chunkCount.value !== null) return chunkCount.value;
+    try {
+        const len = store.recentChunks ? (store.recentChunks as any).length : 0;
+        return len > 0 ? len : null;
+    } catch {
+        return null;
+    }
+});
+
+const generationHasUsableContent = () => {
+    const r: any = store.generationResult;
+    if (!r) return false;
+    const hasContent =
+        typeof r.content === 'string' && r.content.trim().length > 0;
+    const hasMetadata =
+        r.scenario_metadata &&
+        Object.keys(r.scenario_metadata).length > 0 &&
+        (r.scenario_metadata.name || r.scenario_metadata.description);
+    const hasCapabilities =
+        Array.isArray(r.capabilities) && r.capabilities.length > 0;
+    return hasContent || hasMetadata || hasCapabilities;
+};
+
+function openResponseModal() {
+    responseModalOpen.value = true;
+    // fetch current status and if not complete start polling
+    startResponsePolling();
+}
+
+async function onModalAccept(importAfter = false, autoAccept = false) {
+    if (!store.generationId || store.importAutoAccepted) return;
+
+    if (autoAccept && !isAutoAcceptImportEnabled.value) {
+        return;
+    }
+
+    store.importAfterAccept = !!importAfter;
+    store.importAutoAccepted = true; // Guard against multiple triggers
+    // clear previous inline validation errors
+    responseValidationErrors.value = null;
+    responseValidationTitle.value = '';
+
+    // keep modal open while attempting accept so we can show inline 422 errors
+    accepting.value = true;
+    try {
+        const res = await store.accept(store.generationId, { autoAccept });
+        const sid =
+            res?.data?.scenario_id ||
+            res?.data?.id ||
+            (res?.data && res.data.id);
+        if (sid) {
+            globalThis.location.href = `/scenario-planning/${sid}`;
+            return;
+        }
+        globalThis.location.reload();
+    } catch (e) {
+        const err = e as any;
+        // If server returns 422, surface errors inline in modal so operator can edit instruction
+        if (err?.response?.status === 422) {
+            const d = err.response.data || {};
+            const messages = d.errors
+                ? Object.entries(d.errors).map(
+                      ([k, v]) =>
+                          `${k}: ${Array.isArray(v) ? v.join(', ') : v}`,
+                  )
+                : [d.message || JSON.stringify(d)];
+            responseValidationTitle.value = 'Validación del servidor (422)';
+            responseValidationErrors.value = messages;
+            // re-open modal if it was closed
+            responseModalOpen.value = true;
+            // enable instruction editing to allow operator fix
+            instructionEditable.value = true;
+            return;
+        }
+        // fallback: use global error modal
+        console.error('Accept failed', e);
+        showError(
+            err?.response?.data?.message || err?.message || String(e),
+            'Error al aceptar generación',
+        );
+    } finally {
+        accepting.value = false;
+    }
+}
+
+function closeResponseModal() {
+    responseModalOpen.value = false;
+    stopResponsePolling();
+}
+
+async function regenerateGeneration() {
+    // create a fresh generation from current payload (operator may edit instruction first)
+    responseLoading.value = true;
+    try {
+        await sendAnalytics('generation.regenerate', {
+            reason: 'operator_clicked',
+        });
+        await store.generate();
+        // fetch status and start polling for new generation
+        try {
+            await store.fetchStatus();
+        } catch {
+            // ignore
+        }
+        await fetchChunkCount();
+        startResponsePolling();
+    } catch (e) {
+        console.error('Regenerate failed', e);
+        showError(
+            (e as any)?.response?.data?.message ||
+                (e as any)?.message ||
+                String(e),
+            'Error al regenerar',
+        );
+    } finally {
+        responseLoading.value = false;
+    }
+}
+
+function stopResponsePolling() {
+    responseLoading.value = false;
+    if (responsePollTimer) {
+        clearInterval(responsePollTimer);
+        responsePollTimer = null;
+    }
+}
+
+async function startResponsePolling() {
+    // prevent double polling
+    if (responsePollTimer) return;
+    responseLoading.value = true;
+    // try immediate fetch
+    try {
+        await store.fetchStatus();
+        // also fetch chunk count immediately
+        await fetchChunkCount();
+    } catch {
+        // ignore
+    }
+
+    // If backend chunk endpoint not available but we have assembled content, show heuristic count
+    if (
+        chunkCount.value === null &&
+        store.generationResult &&
+        (store.generationResult as any).content
+    ) {
+        chunkCount.value = 1;
+    }
+
+    // Determine whether we need to assemble chunks client-side.
+    const needsAssembly =
+        (chunkCount.value || 0) > 0 &&
+        (function () {
+            const r: any = store.generationResult;
+            if (!r) return true;
+            // If no textual content and no structured scenario metadata and no capabilities, assemble
+            const hasContent =
+                typeof r.content === 'string' && r.content.trim().length > 0;
+            const hasMetadata =
+                r.scenario_metadata &&
+                Object.keys(r.scenario_metadata).length > 0;
+            const hasCapabilities =
+                Array.isArray(r.capabilities) && r.capabilities.length > 0;
+            return !(hasContent || hasMetadata || hasCapabilities);
+        })();
+
+    if (needsAssembly) {
+        await sendAnalytics('generation.assemble_attempt', {
+            phase: 'initial',
+        });
+        await fetchAndAssembleChunks();
+    }
+
+    if (store.generationStatus === 'complete') {
+        responseLoading.value = false;
+        // assemble chunks first if needed then open modal
+        const needsAssemblyComplete =
+            (chunkCount.value || 0) > 0 &&
+            (function () {
+                const r: any = store.generationResult;
+                if (!r) return true;
+                const hasContent =
+                    typeof r.content === 'string' &&
+                    r.content.trim().length > 0;
+                const hasMetadata =
+                    r.scenario_metadata &&
+                    Object.keys(r.scenario_metadata).length > 0;
+                const hasCapabilities =
+                    Array.isArray(r.capabilities) && r.capabilities.length > 0;
+                return !(hasContent || hasMetadata || hasCapabilities);
+            })();
+        if (needsAssemblyComplete) {
+            await sendAnalytics('generation.assemble_attempt', {
+                phase: 'complete',
+            });
+            await fetchAndAssembleChunks();
+        }
+        responseModalOpen.value = true;
+        await triggerValidation();
+        return;
+    }
+
+    responsePollTimer = setInterval(async () => {
+        try {
+            await store.fetchStatus();
+            await fetchChunkCount();
+            // If we have chunks but generationResult still lacks useful content, assemble them
+            const needsAssemblyInterval =
+                (chunkCount.value || 0) > 0 &&
+                (function () {
+                    const r: any = store.generationResult;
+                    if (!r) return true;
+                    const hasContent =
+                        typeof r.content === 'string' &&
+                        r.content.trim().length > 0;
+                    const hasMetadata =
+                        r.scenario_metadata &&
+                        Object.keys(r.scenario_metadata).length > 0;
+                    const hasCapabilities =
+                        Array.isArray(r.capabilities) &&
+                        r.capabilities.length > 0;
+                    return !(hasContent || hasMetadata || hasCapabilities);
+                })();
+            if (needsAssemblyInterval) {
+                await sendAnalytics('generation.assemble_attempt', {
+                    phase: 'interval',
+                });
+                await fetchAndAssembleChunks();
+            }
+            if (store.generationStatus === 'complete') {
+                // stop polling and show result
+                stopResponsePolling();
+                responseModalOpen.value = true;
+                await triggerValidation();
+
+                // Option 2: Auto-accept/import if the user checked the checkbox
+                if (
+                    isAutoAcceptImportEnabled.value &&
+                    store.importAfterAccept &&
+                    !store.importAutoAccepted
+                ) {
+                    console.log('Auto-accept triggered from interval polling');
+                    await onModalAccept(true, true);
+                }
+            }
+        } catch {
+            // ignore intermittent errors
+        }
+    }, 2000);
+}
+
+async function fetchChunkCount() {
+    try {
+        if (!store.generationId) {
+            chunkCount.value = null;
+            return;
+        }
+        // Prefer lightweight /progress endpoint to get progress and recent chunks
+        const p = await store.fetchProgress();
+        if (p) {
+            // If provider reports received_chunks use it, otherwise infer from recent_chunks
+            if (p.progress && typeof p.progress.received_chunks === 'number') {
+                chunkCount.value = p.progress.received_chunks;
+            } else if (Array.isArray(p.recent_chunks)) {
+                // recent_chunks holds only last N; fallback to its length
+                chunkCount.value = p.recent_chunks.length;
+            } else {
+                chunkCount.value = null;
+            }
+        }
+    } catch {
+        chunkCount.value = null;
+    }
+}
+
+// Lightweight client-side analytics sender
+async function sendAnalytics(
+    event: string,
+    properties: Record<string, any> = {},
+) {
+    try {
+        const payload = {
+            event,
+            properties: {
+                generationId: store.generationId,
+                chunkCount: chunkCount.value,
+                ...properties,
+            },
+        };
+        await axios.post('/api/telemetry/event', payload);
+        console.debug('analytics sent', payload);
+    } catch (e) {
+        // don't block UX
+        console.debug('analytics failed', e);
+    }
+}
+
+async function processCompactedData(data: any): Promise<any> {
+    if (Array.isArray(data) || (typeof data === 'object' && data !== null)) {
+        store.generationResult = normalizeLlMResponse(data);
+        await sendAnalytics('generation.assemble_success', {
+            method: 'compacted_obj',
+        });
+        return store.generationResult;
+    }
+
+    if (typeof data === 'string') {
+        try {
+            const parsed = JSON.parse(data);
+            store.generationResult = normalizeLlMResponse(parsed);
+            await sendAnalytics('generation.assemble_success', {
+                method: 'compacted_json',
+            });
+            return store.generationResult;
+        } catch {
+            store.generationResult = normalizeLlMResponse({ content: data });
+            await sendAnalytics('generation.assemble_success', {
+                method: 'compacted_raw',
+            });
+            return store.generationResult;
+        }
+    }
+
+    return null;
+}
+
+async function processChunksData(chunks: string, count: number): Promise<any> {
+    try {
+        const parsed = JSON.parse(chunks);
+        store.generationResult = normalizeLlMResponse(parsed);
+        await sendAnalytics('generation.assemble_success', {
+            method: 'chunks',
+            count,
+        });
+        return store.generationResult;
+    } catch {
+        store.generationResult = normalizeLlMResponse({ content: chunks });
+        await sendAnalytics('generation.assemble_success', {
+            method: 'chunks_raw',
+            count,
+        });
+        return store.generationResult;
+    }
+}
+
+async function fetchAndAssembleChunks(): Promise<any> {
+    try {
+        if (!store.generationId) return null;
+
+        // Try the compacted endpoint first
+        try {
+            const compacted = await axios.get(
+                `/api/strategic-planning/scenarios/generate/${store.generationId}/compacted`,
+            );
+            if (compacted.data?.success) {
+                const result = await processCompactedData(compacted.data.data);
+                if (result) return result;
+            }
+        } catch {
+            // ignore and fall back to chunk-by-chunk retrieval
+        }
+
+        // Fallback: request raw chunks and assemble client-side
+        const res = await axios.get(
+            `/api/strategic-planning/scenarios/generate/${store.generationId}/chunks`,
+        );
+
+        if (
+            res.data?.data &&
+            Array.isArray(res.data.data) &&
+            res.data.data.length
+        ) {
+            chunkCount.value = res.data.data.length;
+            const chunks = res.data.data
+                .slice()
+                .sort((a: any, b: any) => (a.sequence || 0) - (b.sequence || 0))
+                .map((c: any) => c.chunk || '')
+                .join('');
+
+            return await processChunksData(chunks, res.data.data.length);
+        }
+    } catch {
+        // ignore — caller will handle absence
+    }
+
+    return null;
+}
+
+async function refreshStatus() {
+    try {
+        await store.fetchStatus();
+        try {
+            await fetchChunkCount();
+        } catch {
+            // ignore
+        }
+    } catch (e) {
+        console.error('Refresh status failed', e);
+        showError(
+            (e as any)?.response?.data?.message ||
+                (e as any)?.message ||
+                'Error al actualizar estado',
+        );
+    }
+}
+
+function prefillDemo() {
+    store.prefillDemo();
+    // set a recommended instruction forcing JSON output for import integrity
+    instructionContent.value = `Por favor, genera UN SOLO objeto JSON que describa el escenario generado con las siguientes claves: \n- scenario_metadata: { name, description, scenario_type, horizon_months, fiscal_year }\n- capabilities: [ { name, competencies: [ { name, required_level } ], importance } ]\n- notes: string\nDevuelve únicamente JSON válido sin texto adicional.`;
+    instructionEditable.value = true;
+    // mark instruction as client-provided so it is sent to the server
+    instructionChoice.value = 'client';
+    selectedInstructionIndex.value = null;
+    // persist instruction into payload so generate() will include it even if operator skips preview
+    store.setField('instruction', instructionContent.value);
+    // navigate operator to final step so they can review instruction and generate immediately
+    store.step = 5;
+}
+</script>
+
 <template>
     <div class="generate-wizard">
         <h2>Generar Escenario (Asistido)</h2>
@@ -558,1002 +1576,6 @@
         />
     </div>
 </template>
-
-<script setup lang="ts">
-import ErrorModal from '@/components/Ui/ErrorModal.vue';
-import {
-    normalizeLlMResponse,
-    useScenarioGenerationStore,
-} from '@/stores/scenarioGenerationStore';
-import { usePage } from '@inertiajs/vue3';
-import axios from 'axios';
-import { computed, onMounted, ref } from 'vue';
-import PreviewConfirm from './PreviewConfirm.vue';
-import StepHorizon from './StepHorizon.vue';
-import StepIdentity from './StepIdentity.vue';
-import StepIntent from './StepIntent.vue';
-import StepResources from './StepResources.vue';
-import StepSituation from './StepSituation.vue';
-
-const store = useScenarioGenerationStore();
-const page = usePage();
-
-const isAutoAcceptImportEnabled = computed(() => {
-    return !!(page.props as any)?.features?.auto_accept_import_generation;
-});
-
-const stepComponents: Record<number, any> = {
-    1: StepIdentity,
-    2: StepSituation,
-    3: StepIntent,
-    4: StepResources,
-    5: StepHorizon,
-};
-
-const currentStepComponent = computed(() => stepComponents[store.step]);
-
-onMounted(() => {
-    loadInstruction(instructionLang.value);
-});
-
-// (step completion logic moved to computed helpers)
-
-// finer-grained progress with critical vs optional weighting
-const criticalFields = [
-    'company_name',
-    'industry',
-    'company_size',
-    'current_challenges',
-    'current_capabilities',
-    'strategic_goal',
-    'key_initiatives',
-    'time_horizon',
-];
-
-const allFields = [
-    ...criticalFields,
-    'current_gaps',
-    'budget_level',
-    'talent_availability',
-    'milestones',
-];
-
-const totalWeight =
-    criticalFields.length * 2 + (allFields.length - criticalFields.length) * 1;
-
-const filledWeight = computed(() => {
-    const d = store.data as any;
-    let w = 0;
-    allFields.forEach((f) => {
-        if (d[f]) w += criticalFields.includes(f) ? 2 : 1;
-    });
-    return w;
-});
-
-const filledFields = computed(() => {
-    // keep simple count of filled field items for display
-    const d = store.data as any;
-    return allFields.reduce((acc, f) => (d[f] ? acc + 1 : acc), 0);
-});
-
-const progress = computed(() =>
-    Math.round((filledWeight.value / totalWeight) * 100),
-);
-
-const progressColor = computed(() =>
-    progress.value < 40 ? 'error' : progress.value < 80 ? 'warning' : 'success',
-);
-
-// fields per step to compute critical missing count
-const stepFieldKeys: Record<number, string[]> = {
-    1: ['company_name', 'industry', 'company_size'],
-    2: ['current_challenges', 'current_capabilities', 'current_gaps'],
-    3: ['strategic_goal', 'key_initiatives'],
-    4: ['budget_level', 'talent_availability'],
-    5: ['time_horizon', 'milestones'],
-};
-
-const missingCriticalCount = computed(() => {
-    const keys = stepFieldKeys[store.step] || [];
-    const d = store.data as any;
-    return keys.filter((k) => criticalFields.includes(k) && !d[k]).length;
-});
-
-const progressLabel = computed(() =>
-    progress.value < 40
-        ? 'Insuficiente'
-        : progress.value < 80
-          ? 'Parcial'
-          : 'Completado',
-);
-
-const missingFieldsForStep = (step: number) => {
-    const d = store.data as any;
-    const missing: string[] = [];
-    switch (step) {
-        case 1:
-            if (!d.company_name) missing.push('Nombre de la organización');
-            if (!d.industry) missing.push('Industria');
-            if (!d.company_size) missing.push('Tamaño (personas)');
-            break;
-        case 2:
-            if (!d.current_challenges) missing.push('Desafíos');
-            if (!d.current_capabilities) missing.push('Capacidades existentes');
-            if (!d.current_gaps) missing.push('Brechas');
-            break;
-        case 3:
-            if (!d.strategic_goal) missing.push('Objetivo principal');
-            if (!d.key_initiatives) missing.push('Iniciativas clave');
-            break;
-        case 4:
-            if (!d.budget_level) missing.push('Nivel de presupuesto');
-            if (!d.talent_availability)
-                missing.push('Disponibilidad de talento');
-            break;
-        case 5:
-            if (!d.time_horizon) missing.push('Plazo');
-            if (!d.milestones) missing.push('Hitos');
-            break;
-    }
-    return missing;
-};
-
-const missingForCurrent = computed(() => missingFieldsForStep(store.step));
-
-// expose filled/total for template (use `allFields.length` and `filledFields`)
-
-function next() {
-    store.next();
-}
-function prev() {
-    store.prev();
-}
-
-const showPreview = ref(false);
-
-// Error modal state
-const instructionLang = ref('es');
-const errorModalShow = ref(false);
-const errorModalTitle = ref('');
-const errorModalMessages = ref<string[]>([]);
-
-function showError(messages: string[] | string, title = 'Error') {
-    errorModalTitle.value = title;
-    errorModalMessages.value = Array.isArray(messages) ? messages : [messages];
-    errorModalShow.value = true;
-}
-const instructionContent = ref('');
-const instructionEditable = ref(false);
-const instructionLoading = ref(false);
-const instructionItems = ref<any[]>([]);
-const selectedInstructionIndex = ref<number | null>(null);
-const instructionChoice = ref<'db' | 'client'>('db');
-
-// Client-side compatibility helpers
-function containsMarkdownDirective(text: string) {
-    if (!text) return false;
-    const lower = text.toLowerCase();
-    return (
-        lower.includes('formato: markdown') ||
-        lower.includes('format: markdown') ||
-        lower.includes('markdown.') ||
-        lower.includes('\nmarkdown')
-    );
-}
-
-function clientInstructionIsCompatible() {
-    // If operator is using a custom/client instruction, check for obvious conflicts
-    if (instructionChoice.value === 'client' && instructionContent.value) {
-        if (containsMarkdownDirective(instructionContent.value)) {
-            return {
-                valid: false,
-                message:
-                    'La instrucción contiene indicaciones para formato Markdown. Cambie la instrucción a salida JSON única, o seleccione una instrucción de la base de datos.',
-            };
-        }
-    }
-    return { valid: true };
-}
-// reactive validation object for template binding
-const instructionValidation = computed(() => clientInstructionIsCompatible());
-async function loadInstruction(lang = 'es') {
-    instructionLoading.value = true;
-    try {
-        const res = await axios.get(
-            '/api/strategic-planning/scenarios/instructions',
-            { params: { language: lang } },
-        );
-        const items = res.data.data || [];
-        instructionItems.value = items;
-        if (items.length) {
-            // default select first item (editable if present)
-            selectedInstructionIndex.value = 0;
-            instructionContent.value = items[0].content || '';
-            instructionEditable.value = !!items[0].editable;
-            instructionLang.value = items[0].language || lang;
-            instructionChoice.value = 'db';
-        } else {
-            instructionItems.value = [];
-            selectedInstructionIndex.value = null;
-            instructionContent.value = '';
-            instructionEditable.value = false;
-            instructionLang.value = lang;
-            instructionChoice.value = 'client';
-        }
-    } catch (e) {
-        console.error('Failed loading instruction', e);
-    } finally {
-        instructionLoading.value = false;
-    }
-}
-
-function selectInstruction(idx: number | null) {
-    selectedInstructionIndex.value = idx;
-    if (idx === null) {
-        // custom
-        instructionChoice.value = 'client';
-        instructionEditable.value = true;
-        return;
-    }
-    const item = instructionItems.value[idx];
-    instructionContent.value = item?.content || '';
-    instructionEditable.value = !!item?.editable;
-    instructionChoice.value = 'db';
-}
-
-async function saveInstruction() {
-    instructionLoading.value = true;
-    try {
-        const payload = {
-            language: instructionLang.value,
-            content: instructionContent.value,
-            editable: !!instructionEditable.value,
-        };
-        const res = await axios.post(
-            '/api/strategic-planning/scenarios/instructions',
-            payload,
-        );
-        if (res.data && res.data.success) {
-            // reload latest
-            await loadInstruction(instructionLang.value);
-        }
-    } catch (e) {
-        console.error('Save instruction failed', e);
-        showError(
-            'No se pudo guardar la instrucción: ' +
-                ((e as any)?.response?.data?.message || (e as any)?.message),
-        );
-    } finally {
-        instructionLoading.value = false;
-    }
-}
-
-async function restoreDefault() {
-    if (
-        !confirm(
-            '¿Restablecer la instrucción por defecto? Esto creará una nueva versión editable con el contenido por defecto.',
-        )
-    )
-        return;
-    instructionLoading.value = true;
-    try {
-        const res = await axios.post(
-            '/api/strategic-planning/scenarios/instructions/restore-default',
-            {
-                language: instructionLang.value,
-            },
-        );
-        if (res.data && res.data.success) {
-            await loadInstruction(instructionLang.value);
-        } else {
-            showError('No se pudo restaurar la instrucción por defecto');
-        }
-    } catch (e) {
-        console.error('Restore default failed', e);
-        showError(
-            (e as any)?.response?.data?.message ||
-                (e as any)?.message ||
-                'Error al restaurar por defecto',
-        );
-    } finally {
-        instructionLoading.value = false;
-    }
-}
-
-async function onGenerate() {
-    try {
-        // validate required fields before contacting server
-        const validation = await store.validate();
-        if (!validation.valid) {
-            showError(validation.errors, 'Faltan campos críticos');
-            return;
-        }
-
-        // Client-side instruction compatibility check to avoid server 422s
-        const compat = clientInstructionIsCompatible();
-        if (!compat.valid) {
-            showError(
-                compat.message || 'Instrucción incompatible',
-                'Instrucción incompatible',
-            );
-            // open editor so operator can fix
-            instructionEditable.value = true;
-            return;
-        }
-
-        // Persist instruction selection and language so preview uses the chosen instruction
-        if (instructionChoice.value === 'client' && instructionContent.value) {
-            store.setField('instruction', instructionContent.value);
-            store.setField('instruction_id', null);
-        } else if (
-            instructionChoice.value === 'db' &&
-            selectedInstructionIndex.value !== null
-        ) {
-            const it = instructionItems.value[selectedInstructionIndex.value];
-            const id = it?.id ?? null;
-            store.setField('instruction', null);
-            store.setField('instruction_id', id);
-        } else {
-            store.setField('instruction', null);
-            store.setField('instruction_id', null);
-        }
-        store.setField('instruction_language', instructionLang.value);
-
-        // First get prompt preview from server
-        await store.preview();
-
-        showPreview.value = true;
-    } catch (e) {
-        const error = e as any;
-        console.error('Preview failed', e);
-        if (error?.response?.status === 422) {
-            const d = error.response.data || {};
-            const messages = d.errors
-                ? Object.entries(d.errors).map(
-                      ([k, v]) =>
-                          `${k}: ${Array.isArray(v) ? v.join(', ') : v}`,
-                  )
-                : [d.message || JSON.stringify(d)];
-            // allow operator to edit instruction
-            instructionEditable.value = true;
-            showError(messages, 'Validación de instrucción (422)');
-            return;
-        }
-        const errMsg = formatAxiosError(e);
-        showError(errMsg.split('\n'), 'Error al generar preview');
-    }
-}
-
-async function onConfirmGenerate(importAfter = false) {
-    showPreview.value = false;
-    try {
-        // validate again before final generate
-        const validation = await store.validate();
-        if (!validation.valid) {
-            showError(validation.errors, 'Faltan campos críticos');
-            return;
-        }
-
-        // Client-side instruction compatibility check before final submit
-        const compat = clientInstructionIsCompatible();
-        if (!compat.valid) {
-            showError(
-                compat.message || 'Instrucción incompatible',
-                'Instrucción incompatible',
-            );
-            instructionEditable.value = true;
-            return;
-        }
-
-        // persist operator choice to the generation store so accept flow can include it
-        store.importAfterAccept = !!importAfter;
-        // If operator edited/entered a custom instruction, send it in payload
-        if (instructionChoice.value === 'client' && instructionContent.value) {
-            store.setField('instruction', instructionContent.value);
-            store.setField('instruction_id', null);
-        } else if (
-            instructionChoice.value === 'db' &&
-            selectedInstructionIndex.value !== null
-        ) {
-            // operator selected a DB instruction version: send the explicit id so server uses it
-            const it = instructionItems.value[selectedInstructionIndex.value];
-            const id = it?.id ?? null;
-            store.setField('instruction', null);
-            store.setField('instruction_id', id);
-        } else {
-            // fallback: clear both and let server choose default behavior
-            store.setField('instruction', null);
-            store.setField('instruction_id', null);
-        }
-
-        await store.generate();
-        // provide immediate feedback and start polling for completion
-        try {
-            await store.fetchStatus();
-        } catch {
-            // ignore fetch errors for now
-        }
-
-        // If not complete, poll until completion. Prefer lightweight `/progress`
-        // endpoint (reports received_chunks) so the UI can detect streaming
-        // activity and wait long enough for slow responses. Increase timeout
-        // to 600s to accommodate long-running model responses similar to CLI.
-        const start = Date.now();
-        const timeoutMs = 600000; // 10 minutes
-        let lastReceivedChunks = null;
-        try {
-            const p0 = await store.fetchProgress();
-            lastReceivedChunks =
-                p0?.progress?.received_chunks ??
-                (Array.isArray(p0?.recent_chunks)
-                    ? p0.recent_chunks.length
-                    : lastReceivedChunks);
-        } catch {
-            // ignore
-        }
-
-        // Open modal and start polling immediately after generation started
-        openResponseModal();
-
-        while (
-            store.generationStatus !== 'complete' &&
-            Date.now() - start < timeoutMs
-        ) {
-            // wait a bit then refresh progress/status
-            await new Promise((r) => setTimeout(r, 2000));
-            try {
-                await store.fetchStatus();
-                await fetchChunkCount();
-
-                // Keep modal open and updated
-                if (!responseModalOpen.value) responseModalOpen.value = true;
-
-                const p = store.generationProgress as any;
-                const received =
-                    p?.progress?.received_chunks ??
-                    (store.recentChunks ? store.recentChunks.length : null);
-                // if we detect new chunks arriving, extend waiting window implicitly
-                if (
-                    received !== null &&
-                    lastReceivedChunks !== null &&
-                    received > lastReceivedChunks
-                ) {
-                    // refresh lastReceivedChunks to the new value
-                    lastReceivedChunks = received;
-                }
-            } catch {
-                // ignore intermittent errors
-            }
-        }
-
-        // If generation completed, modal is already open, just trigger validation
-        if (store.generationStatus === 'complete') {
-            await triggerValidation();
-            // Option 2: Auto-accept/import if the user checked the checkbox
-            if (
-                isAutoAcceptImportEnabled.value &&
-                store.importAfterAccept &&
-                !store.importAutoAccepted
-            ) {
-                console.log('Auto-accept triggered from main flow');
-                await onModalAccept(true, true);
-            }
-        } else {
-            // not completed within timeout: notify operator to monitor status
-            showError(
-                'Generación encolada. Verifique el estado en la sección de generación.',
-                'Encolada',
-            );
-        }
-    } catch (e) {
-        const error = e as any;
-        console.error('Generate failed', e);
-        if (error?.response?.status === 422) {
-            const d = error.response.data || {};
-            const messages = d.errors
-                ? Object.entries(d.errors).map(
-                      ([k, v]) =>
-                          `${k}: ${Array.isArray(v) ? v.join(', ') : v}`,
-                  )
-                : [d.message || JSON.stringify(d)];
-            instructionEditable.value = true;
-            showError(messages, 'Validación de instrucción (422)');
-            return;
-        }
-        const errMsg = formatAxiosError(e);
-        showError(errMsg.split('\n'), 'Error al generar escenario');
-    }
-}
-
-function formatAxiosError(e: any) {
-    if (!e) return 'Unknown error';
-    if (e.response && e.response.data) {
-        const d = e.response.data;
-        if (d.errors) {
-            return Object.entries(d.errors)
-                .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
-                .join('\n');
-        }
-        return d.message || JSON.stringify(d);
-    }
-    return e.message || String(e);
-}
-
-function onEditPrompt() {
-    // Close preview and allow user to edit wizard fields
-    showPreview.value = false;
-    store.step = 1;
-}
-const accepting = ref(false);
-const responseValidationErrors = ref<string[] | null>(null);
-const responseValidationTitle = ref('');
-async function acceptGeneration() {
-    if (!store.generationId) return;
-    accepting.value = true;
-    try {
-        const res = await store.accept(store.generationId);
-        // if backend returns scenario id, navigate to it
-        const sid =
-            res?.data?.scenario_id ||
-            res?.data?.id ||
-            (res?.data && res.data.id);
-        if (sid) {
-            // navigate to scenario detail
-            window.location.href = `/scenario-planning/${sid}`;
-            return;
-        }
-        // fallback: close dialog by reloading page
-        window.location.reload();
-    } catch (e) {
-        console.error('Accept failed', e);
-        const error = e as any;
-        showError(
-            error?.response?.data?.message || error?.message || String(e),
-            'Error al aceptar generación',
-        );
-    } finally {
-        accepting.value = false;
-    }
-}
-
-const responseModalOpen = ref(false);
-let responsePollTimer: any = null;
-const responseLoading = ref(false);
-const isVerifyingIntegrity = ref(false);
-const verificationProgress = ref(0);
-const chunkCount = ref<number | null>(null);
-
-async function triggerValidation() {
-    isVerifyingIntegrity.value = true;
-    verificationProgress.value = 0;
-
-    // Simulate validation progress over 2 seconds
-    const duration = 2000;
-    const interval = 50;
-    const steps = duration / interval;
-    const increment = 100 / steps;
-
-    for (let i = 0; i <= steps; i++) {
-        verificationProgress.value = Math.min(100, i * increment);
-        await new Promise((r) => setTimeout(r, interval));
-    }
-
-    isVerifyingIntegrity.value = false;
-}
-
-// Prefer an effective chunk count based on server-reported count or recentChunks length
-const effectiveChunkCount = computed(() => {
-    if (chunkCount.value !== null) return chunkCount.value;
-    try {
-        const len = store.recentChunks ? (store.recentChunks as any).length : 0;
-        return len > 0 ? len : null;
-    } catch {
-        return null;
-    }
-});
-
-const generationHasUsableContent = () => {
-    const r: any = store.generationResult;
-    if (!r) return false;
-    const hasContent =
-        typeof r.content === 'string' && r.content.trim().length > 0;
-    const hasMetadata =
-        r.scenario_metadata &&
-        Object.keys(r.scenario_metadata).length > 0 &&
-        (r.scenario_metadata.name || r.scenario_metadata.description);
-    const hasCapabilities =
-        Array.isArray(r.capabilities) && r.capabilities.length > 0;
-    return hasContent || hasMetadata || hasCapabilities;
-};
-
-function openResponseModal() {
-    responseModalOpen.value = true;
-    // fetch current status and if not complete start polling
-    startResponsePolling();
-}
-
-async function onModalAccept(importAfter = false, autoAccept = false) {
-    if (!store.generationId || store.importAutoAccepted) return;
-
-    if (autoAccept && !isAutoAcceptImportEnabled.value) {
-        return;
-    }
-
-    store.importAfterAccept = !!importAfter;
-    store.importAutoAccepted = true; // Guard against multiple triggers
-    // clear previous inline validation errors
-    responseValidationErrors.value = null;
-    responseValidationTitle.value = '';
-
-    // keep modal open while attempting accept so we can show inline 422 errors
-    accepting.value = true;
-    try {
-        const res = await store.accept(store.generationId, { autoAccept });
-        const sid =
-            res?.data?.scenario_id ||
-            res?.data?.id ||
-            (res?.data && res.data.id);
-        if (sid) {
-            window.location.href = `/scenario-planning/${sid}`;
-            return;
-        }
-        window.location.reload();
-    } catch (e) {
-        const err = e as any;
-        // If server returns 422, surface errors inline in modal so operator can edit instruction
-        if (err?.response?.status === 422) {
-            const d = err.response.data || {};
-            const messages = d.errors
-                ? Object.entries(d.errors).map(
-                      ([k, v]) =>
-                          `${k}: ${Array.isArray(v) ? v.join(', ') : v}`,
-                  )
-                : [d.message || JSON.stringify(d)];
-            responseValidationTitle.value = 'Validación del servidor (422)';
-            responseValidationErrors.value = messages;
-            // re-open modal if it was closed
-            responseModalOpen.value = true;
-            // enable instruction editing to allow operator fix
-            instructionEditable.value = true;
-            return;
-        }
-        // fallback: use global error modal
-        console.error('Accept failed', e);
-        showError(
-            err?.response?.data?.message || err?.message || String(e),
-            'Error al aceptar generación',
-        );
-    } finally {
-        accepting.value = false;
-    }
-}
-
-function closeResponseModal() {
-    responseModalOpen.value = false;
-    stopResponsePolling();
-}
-
-async function regenerateGeneration() {
-    // create a fresh generation from current payload (operator may edit instruction first)
-    responseLoading.value = true;
-    try {
-        await sendAnalytics('generation.regenerate', {
-            reason: 'operator_clicked',
-        });
-        await store.generate();
-        // fetch status and start polling for new generation
-        try {
-            await store.fetchStatus();
-        } catch {
-            // ignore
-        }
-        await fetchChunkCount();
-        startResponsePolling();
-    } catch (e) {
-        console.error('Regenerate failed', e);
-        showError(
-            (e as any)?.response?.data?.message ||
-                (e as any)?.message ||
-                String(e),
-            'Error al regenerar',
-        );
-    } finally {
-        responseLoading.value = false;
-    }
-}
-
-function stopResponsePolling() {
-    responseLoading.value = false;
-    if (responsePollTimer) {
-        clearInterval(responsePollTimer);
-        responsePollTimer = null;
-    }
-}
-
-async function startResponsePolling() {
-    // prevent double polling
-    if (responsePollTimer) return;
-    responseLoading.value = true;
-    // try immediate fetch
-    try {
-        await store.fetchStatus();
-        // also fetch chunk count immediately
-        await fetchChunkCount();
-    } catch {
-        // ignore
-    }
-
-    // If backend chunk endpoint not available but we have assembled content, show heuristic count
-    if (
-        chunkCount.value === null &&
-        store.generationResult &&
-        (store.generationResult as any).content
-    ) {
-        chunkCount.value = 1;
-    }
-
-    // Determine whether we need to assemble chunks client-side.
-    const needsAssembly =
-        (chunkCount.value || 0) > 0 &&
-        (function () {
-            const r: any = store.generationResult;
-            if (!r) return true;
-            // If no textual content and no structured scenario metadata and no capabilities, assemble
-            const hasContent =
-                typeof r.content === 'string' && r.content.trim().length > 0;
-            const hasMetadata =
-                r.scenario_metadata &&
-                Object.keys(r.scenario_metadata).length > 0;
-            const hasCapabilities =
-                Array.isArray(r.capabilities) && r.capabilities.length > 0;
-            return !(hasContent || hasMetadata || hasCapabilities);
-        })();
-
-    if (needsAssembly) {
-        await sendAnalytics('generation.assemble_attempt', {
-            phase: 'initial',
-        });
-        await fetchAndAssembleChunks();
-    }
-
-    if (store.generationStatus === 'complete') {
-        responseLoading.value = false;
-        // assemble chunks first if needed then open modal
-        const needsAssemblyComplete =
-            (chunkCount.value || 0) > 0 &&
-            (function () {
-                const r: any = store.generationResult;
-                if (!r) return true;
-                const hasContent =
-                    typeof r.content === 'string' &&
-                    r.content.trim().length > 0;
-                const hasMetadata =
-                    r.scenario_metadata &&
-                    Object.keys(r.scenario_metadata).length > 0;
-                const hasCapabilities =
-                    Array.isArray(r.capabilities) && r.capabilities.length > 0;
-                return !(hasContent || hasMetadata || hasCapabilities);
-            })();
-        if (needsAssemblyComplete) {
-            await sendAnalytics('generation.assemble_attempt', {
-                phase: 'complete',
-            });
-            await fetchAndAssembleChunks();
-        }
-        responseModalOpen.value = true;
-        await triggerValidation();
-        return;
-    }
-
-    responsePollTimer = setInterval(async () => {
-        try {
-            await store.fetchStatus();
-            await fetchChunkCount();
-            // If we have chunks but generationResult still lacks useful content, assemble them
-            const needsAssemblyInterval =
-                (chunkCount.value || 0) > 0 &&
-                (function () {
-                    const r: any = store.generationResult;
-                    if (!r) return true;
-                    const hasContent =
-                        typeof r.content === 'string' &&
-                        r.content.trim().length > 0;
-                    const hasMetadata =
-                        r.scenario_metadata &&
-                        Object.keys(r.scenario_metadata).length > 0;
-                    const hasCapabilities =
-                        Array.isArray(r.capabilities) &&
-                        r.capabilities.length > 0;
-                    return !(hasContent || hasMetadata || hasCapabilities);
-                })();
-            if (needsAssemblyInterval) {
-                await sendAnalytics('generation.assemble_attempt', {
-                    phase: 'interval',
-                });
-                await fetchAndAssembleChunks();
-            }
-            if (store.generationStatus === 'complete') {
-                // stop polling and show result
-                stopResponsePolling();
-                responseModalOpen.value = true;
-                await triggerValidation();
-
-                // Option 2: Auto-accept/import if the user checked the checkbox
-                if (
-                    isAutoAcceptImportEnabled.value &&
-                    store.importAfterAccept &&
-                    !store.importAutoAccepted
-                ) {
-                    console.log('Auto-accept triggered from interval polling');
-                    await onModalAccept(true, true);
-                }
-            }
-        } catch {
-            // ignore intermittent errors
-        }
-    }, 2000);
-}
-
-async function fetchChunkCount() {
-    try {
-        if (!store.generationId) {
-            chunkCount.value = null;
-            return;
-        }
-        // Prefer lightweight /progress endpoint to get progress and recent chunks
-        const p = await store.fetchProgress();
-        if (p) {
-            // If provider reports received_chunks use it, otherwise infer from recent_chunks
-            if (p.progress && typeof p.progress.received_chunks === 'number') {
-                chunkCount.value = p.progress.received_chunks;
-            } else if (Array.isArray(p.recent_chunks)) {
-                // recent_chunks holds only last N; fallback to its length
-                chunkCount.value = p.recent_chunks.length;
-            } else {
-                chunkCount.value = null;
-            }
-        }
-    } catch {
-        chunkCount.value = null;
-    }
-}
-
-// Lightweight client-side analytics sender
-async function sendAnalytics(
-    event: string,
-    properties: Record<string, any> = {},
-) {
-    try {
-        const payload = {
-            event,
-            properties: {
-                generationId: store.generationId,
-                chunkCount: chunkCount.value,
-                ...properties,
-            },
-        };
-        await axios.post('/api/telemetry/event', payload);
-        console.debug('analytics sent', payload);
-    } catch (e) {
-        // don't block UX
-        console.debug('analytics failed', e);
-    }
-}
-
-async function fetchAndAssembleChunks() {
-    try {
-        if (!store.generationId) return null;
-        // First, try the compacted endpoint which returns assembled blob if available
-        try {
-            const compacted = await axios.get(
-                `/api/strategic-planning/scenarios/generate/${store.generationId}/compacted`,
-            );
-            if (compacted.data && compacted.data.success) {
-                const d = compacted.data.data;
-                if (Array.isArray(d) || (typeof d === 'object' && d !== null)) {
-                    store.generationResult = normalizeLlMResponse(d);
-                    await sendAnalytics('generation.assemble_success', {
-                        method: 'compacted_obj',
-                    });
-                    return store.generationResult;
-                }
-                if (typeof d === 'string') {
-                    // try to parse JSON string
-                    try {
-                        const parsed = JSON.parse(d);
-                        store.generationResult = normalizeLlMResponse(parsed);
-                        await sendAnalytics('generation.assemble_success', {
-                            method: 'compacted_json',
-                        });
-                        return store.generationResult;
-                    } catch {
-                        store.generationResult = normalizeLlMResponse({
-                            content: d,
-                        });
-                        await sendAnalytics('generation.assemble_success', {
-                            method: 'compacted_raw',
-                        });
-                        return store.generationResult;
-                    }
-                }
-            }
-        } catch {
-            // ignore and fall back to chunk-by-chunk retrieval
-        }
-
-        // Fallback: request raw chunks and assemble client-side
-        const res = await axios.get(
-            `/api/strategic-planning/scenarios/generate/${store.generationId}/chunks`,
-        );
-        if (res.data && Array.isArray(res.data.data) && res.data.data.length) {
-            // update chunkCount from server data
-            chunkCount.value = res.data.data.length;
-            // concatenate chunks in sequence order
-            const chunks = res.data.data
-                .slice()
-                .sort((a: any, b: any) => (a.sequence || 0) - (b.sequence || 0))
-                .map((c: any) => c.chunk || '')
-                .join('');
-
-            // try to parse as JSON; if parseable, normalize and set into store
-            try {
-                const parsed = JSON.parse(chunks);
-                store.generationResult = normalizeLlMResponse(parsed);
-                await sendAnalytics('generation.assemble_success', {
-                    method: 'chunks',
-                    count: res.data.data.length,
-                });
-                return store.generationResult;
-            } catch {
-                // not JSON — set as content
-                store.generationResult = normalizeLlMResponse({
-                    content: chunks,
-                });
-                await sendAnalytics('generation.assemble_success', {
-                    method: 'chunks_raw',
-                    count: res.data.data.length,
-                });
-                return store.generationResult;
-            }
-        }
-    } catch {
-        // ignore — caller will handle absence
-    }
-    return null;
-}
-
-async function refreshStatus() {
-    try {
-        await store.fetchStatus();
-        try {
-            await fetchChunkCount();
-        } catch {
-            // ignore
-        }
-    } catch (e) {
-        console.error('Refresh status failed', e);
-        showError(
-            (e as any)?.response?.data?.message ||
-                (e as any)?.message ||
-                'Error al actualizar estado',
-        );
-    }
-}
-
-function prefillDemo() {
-    store.prefillDemo();
-    // set a recommended instruction forcing JSON output for import integrity
-    instructionContent.value = `Por favor, genera UN SOLO objeto JSON que describa el escenario generado con las siguientes claves: \n- scenario_metadata: { name, description, scenario_type, horizon_months, fiscal_year }\n- capabilities: [ { name, competencies: [ { name, required_level } ], importance } ]\n- notes: string\nDevuelve únicamente JSON válido sin texto adicional.`;
-    instructionEditable.value = true;
-    // mark instruction as client-provided so it is sent to the server
-    instructionChoice.value = 'client';
-    selectedInstructionIndex.value = null;
-    // persist instruction into payload so generate() will include it even if operator skips preview
-    store.setField('instruction', instructionContent.value);
-    // navigate operator to final step so they can review instruction and generate immediately
-    store.step = 5;
-}
-</script>
 
 <style scoped>
 .generate-wizard {

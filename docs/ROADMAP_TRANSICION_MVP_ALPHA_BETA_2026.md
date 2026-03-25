@@ -2853,6 +2853,7 @@ Sin strategy = comms scattered, inconsistent, missed opportunities.
 ### A) Testing en 3 Capas (Persona → Story → Test)
 
 #### Layer 1: Unit Tests
+
 - [x] Componente aislado (mocked)
 - [x] Latency tests (LMS sync < 100ms)
 - [x] Rule engine logic (all conditions match)
@@ -2860,6 +2861,7 @@ Sin strategy = comms scattered, inconsistent, missed opportunities.
 - [ ] Timeline: Continuous (every PR)
 
 #### Layer 2: Integration Tests
+
 - [x] Full workflow (no UI)
 - [x] Real DB, job execution
 - [x] End-to-end latency (5min SLA for LMS sync)
@@ -2867,6 +2869,7 @@ Sin strategy = comms scattered, inconsistent, missed opportunities.
 - [ ] Timeline: Continuous (before merge)
 
 #### Layer 3: E2E + User Journey Tests
+
 - [x] Full stack (UI + API + DB + jobs)
 - [x] Real user scenario (Maria sees synced course)
 - [x] Performance measurement (LCP < 2s)
@@ -2880,12 +2883,14 @@ Sin strategy = comms scattered, inconsistent, missed opportunities.
 **Story:** María configures LMS rule once → new courses auto-sync → 100 staff see it in 5 minutes.
 
 **acceptance_criteria:**
+
 - ✅ Sync latency < 5 minutes
 - ✅ 100% assignment success (no gaps)
 - ✅ Audit log of each sync event
 - ✅ Email notification to team lead (auto)
 
 **Tests:**
+
 - Unit: LMSSyncEngine.evaluate() (100ms)
 - Integration: LMSSyncJob full 100-person workflow (5min SLA)
 - E2E: Playwright flow (UI + webhook + verification)
@@ -2895,12 +2900,14 @@ Sin strategy = comms scattered, inconsistent, missed opportunities.
 **Story:** CHRO logs in before board meeting → dashboards load in <2s → sees 3 KPIs (leadership readiness, adoption, turnover risk) → confidently answers board.
 
 **Acceptance_criteria:**
+
 - ✅ Dashboard loads in < 2 seconds
 - ✅ Data accuracy ≥ 99% vs. source
 - ✅ All 3 KPIs visible above the fold
 - ✅ "Drill in" to anomalies < 1s
 
 **Tests:**
+
 - Unit: KPICalculator.calculateLeadershipReadiness() (accuracy)
 - Integration: DashboardMetrics aggregation (completeness)
 - E2E: Playwright performance + accuracy (Lighthouse + data spot-checks)
@@ -2910,12 +2917,14 @@ Sin strategy = comms scattered, inconsistent, missed opportunities.
 **Story:** Talent Ops creates rule in 10-min UI wizard (no code) → test send → rule goes active → execution log shows every event.
 
 **Acceptance_criteria:**
+
 - ✅ Setup < 10 minutes (UI wizard)
 - ✅ Rule execution triggers correctly
 - ✅ Audit log 100% complete (immutable)
 - ✅ Failed delivery has retry option
 
 **Tests:**
+
 - Unit: RuleEngine.evaluateConditions() (trigger matching)
 - Integration: MessagingRuleJob full execution
 - E2E: Rule wizard UI + audit log validation
@@ -2925,12 +2934,14 @@ Sin strategy = comms scattered, inconsistent, missed opportunities.
 **Story:** Manager opens dashboard → scans 12 reports → sees who's ready for promo, who needs help → prepares for 1:1s.
 
 **Acceptance_criteria:**
+
 - ✅ Dashboard loads < 2s
 - ✅ Readiness % visible per person
 - ✅ Top 2 gaps per person shown
 - ✅ "Generate talking points" takes < 2s
 
 **Tests:**
+
 - Unit: TeamGapAggregator.calculateReadiness()
 - Integration: PeopleManager API fetch + aggregate
 - E2E: Dashboard interactions + AI generation
@@ -2940,6 +2951,7 @@ Sin strategy = comms scattered, inconsistent, missed opportunities.
 **Story:** Auditor runs compliance query → sees all data movements Q4 + signed PDF in < 30s. Ops detects Cornerstone webhook failure → alerts team → retries → verified recovered.
 
 **Acceptance_criteria:**
+
 - ✅ Audit export < 30s (10K+ rows)
 - ✅ Cryptographic signature verified
 - ✅ Integration health monitoring 24/7
@@ -2947,29 +2959,32 @@ Sin strategy = comms scattered, inconsistent, missed opportunities.
 - ✅ Manual retry + audit log of recovery
 
 **Tests:**
+
 - Unit: AuditLogGenerator.formatForExport()
 - Integration: IntegrationHealth webhook retry logic
 - E2E + Security: Audit immutability + webhook simulation
 
 ### C) Coverage Matrix (Sprint C-D, 1 week)
 
-| Persona | Unit Tests | Integration Tests | E2E Tests | SLA | Owner |
-|:--------|:-----------|:-----------------|:----------|:----|:------|
-| L&D Manager | 3 | 1 | 1 | <5min | Backend + QA |
-| CHRO | 3 | 1 | 1 | <2s | Analytics + QA |
-| Talent Ops | 5 | 2 | 1 | <10min | Backend + QA |
-| People Manager | 3 | 1 | 1 | <2s | Backend + QA |
-| IT/Ops | 2 | 1 | 1 | <30s | DevOps + QA |
-| **TOTAL** | **16** | **6** | **5** | — | — |
+| Persona        | Unit Tests | Integration Tests | E2E Tests | SLA    | Owner          |
+| :------------- | :--------- | :---------------- | :-------- | :----- | :------------- |
+| L&D Manager    | 3          | 1                 | 1         | <5min  | Backend + QA   |
+| CHRO           | 3          | 1                 | 1         | <2s    | Analytics + QA |
+| Talent Ops     | 5          | 2                 | 1         | <10min | Backend + QA   |
+| People Manager | 3          | 1                 | 1         | <2s    | Backend + QA   |
+| IT/Ops         | 2          | 1                 | 1         | <30s   | DevOps + QA    |
+| **TOTAL**      | **16**     | **6**             | **5**     | —      | —              |
 
 ### D) Timeline & Roadmap Integration
 
 **Phase 1: Spike (Week 2026-04-15, 48 hours)**
+
 - [ ] Define 2-3 personas in detail
 - [ ] Write 2 Gherkin stories
 - [ ] Build 1 Unit + 1 Integration + 1 E2E proof-of-concept
 
 **Phase 2: MVP (Sprint C, 2026-04-26 to 2026-05-10)**
+
 - [ ] All 5 personas documented + reviewed
 - [ ] 10+ stories in Gherkin format (readable by product)
 - [ ] 27 tests (16 Unit + 6 Integration + 5 E2E) passing
@@ -2977,6 +2992,7 @@ Sin strategy = comms scattered, inconsistent, missed opportunities.
 - [ ] Dashboard: % passing tests per persona (visual)
 
 **Phase 3: Scale (Sprint D-E)**
+
 - [ ] 20+ stories (add edge cases, error paths)
 - [ ] Code coverage metrics (Clover + LCOV) integrated
 - [ ] Post-GA: Use test results for NPS validation
@@ -2984,20 +3000,24 @@ Sin strategy = comms scattered, inconsistent, missed opportunities.
 ### E) Entregables
 
 **Documentación:**
+
 - [ ] `docs/NARRATIVE_TESTING_STRATEGY.md` (este documento, completo)
 - [ ] `tests/Narrative/personas.json` (5 personas structured)
 - [ ] `tests/Narrative/stories/*.gherkin` (10+ stories in Gherkin)
 
 **Código:**
+
 - [ ] `tests/Unit/Services/*Test.php` (16 unit tests)
 - [ ] `tests/Feature/Api/*Test.php` (6 integration tests)
 - [ ] `tests/e2e/stories/*.spec.ts` (5 E2E tests)
 
 **CI/CD:**
+
 - [ ] GitHub Action: Run all 27 tests (< 5min total)
 - [ ] Slack notification: % passing per persona + SLA status
 
 **Métricas Visibles:**
+
 - [ ] Test dashboard showing: % passing per persona, SLA status (🟢 green, 🟡 yellow, 🔴 red)
 - [ ] Post-GA: Correlation between test pass rate + NPS
 
