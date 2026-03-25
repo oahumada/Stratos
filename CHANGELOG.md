@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0](https://github.com/oahumada/Strato/compare/v0.3.0...v0.4.0) (2026-03-25)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **alpha-1-phase-2:** Add Admin Operations route + ControlCenter landing link ([5da4930](https://github.com/oahumada/Strato/commit/5da49307ab728cec9076bbf5328b5999cb6c603c))
+* **alpha-1-phase-2:** Implement operation callbacks + factory + tests ([4d2e3b7](https://github.com/oahumada/Strato/commit/4d2e3b772e350b87fb76ea04cae686955fa0d5a4))
+* **alpha-1:** Admin Operations infrastructure - Phase 1 base ([03fde6c](https://github.com/oahumada/Strato/commit/03fde6c76c6cdef297dfac0e06210a777642e0b6))
+* **alpha-1:** Frontend build + Admin Operations components ([5957648](https://github.com/oahumada/Strato/commit/595764899f26282d18245c4db61f860a5fd6343c))
+
 ## [0.3.0](https://github.com/oahumada/Strato/compare/v1.0.0-mvp...v0.3.0) (2026-03-25)
 
 
