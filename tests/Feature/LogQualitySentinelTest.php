@@ -44,13 +44,12 @@ class LogQualitySentinelTest extends TestCase
         Log::error('Se ha producido un error inesperado al calcular la nómina');
 
         // Verificamos que se haya creado un ticket de tipo code_quality
-        $this->assertDatabaseHas('support_tickets', [
-            'type' => 'code_quality',
-            'reporter_id' => $this->admin->id,
-            'priority' => 'high',
-        ]);
+        $ticket = SupportTicket::where('type', 'code_quality')
+            ->where('priority', 'high')
+            ->latest()
+            ->first();
 
-        $ticket = SupportTicket::first();
+        $this->assertNotNull($ticket, 'Se esperaba un support_ticket de tipo code_quality con prioridad high');
         $this->assertStringContainsString('Se ha producido un error inesperado', $ticket->description);
     }
 

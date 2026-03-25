@@ -2,25 +2,25 @@
 
 namespace Tests\Feature\Api;
 
-use Tests\TestCase;
 use App\Models\User;
-use App\Models\TalentVerification;
 use App\Models\VerificationAudit;
-use Laravel\Sanctum\Sanctum;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
+use Tests\TestCase;
 
 class AnalyticsTest extends TestCase
 {
     use RefreshDatabase;
 
     protected User $user;
+
     protected string $organizationId;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->for(\App\Models\Organization::factory()->create())->create();
         $this->organizationId = $this->user->organization_id;
 
         // Seed verification data
@@ -263,7 +263,7 @@ class AnalyticsTest extends TestCase
      */
     public function test_multi_tenant_isolation(): void
     {
-        $userOtherOrg = User::factory()->create();
+        $userOtherOrg = User::factory()->for(\App\Models\Organization::factory()->create())->create();
         Sanctum::actingAs($userOtherOrg);
 
         $response = $this->getJson('/api/analytics/anomalies');
@@ -294,7 +294,7 @@ class AnalyticsTest extends TestCase
         $this->assertIsArray($recommendations);
 
         foreach ($recommendations as $rec) {
-            $this->assertIn($rec['priority'], ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']);
+            $this->assertContains($rec['priority'], ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']);
             $this->assertNotEmpty($rec['title']);
             $this->assertNotEmpty($rec['description']);
         }

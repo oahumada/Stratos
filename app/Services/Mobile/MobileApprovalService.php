@@ -104,17 +104,6 @@ class MobileApprovalService
                 'approval_data' => $additionalData,
             ]);
 
-            // Log approval event
-            optional($approval->requester)->organization?->events()?->create([
-                'event_type' => 'mobile_approval.approved',
-                'data' => [
-                    'approval_id' => $approval->id,
-                    'request_type' => $approval->request_type,
-                    'approver_id' => $approval->user_id,
-                    'reason' => $reason,
-                ],
-            ]);
-
             DB::commit();
 
             Log::info('Mobile approval approved', [
@@ -150,17 +139,6 @@ class MobileApprovalService
                 'rejected_at' => now(),
                 'rejection_reason' => $reason,
                 'approval_data' => $additionalData,
-            ]);
-
-            // Log rejection event
-            optional($approval->requester)->organization?->events()?->create([
-                'event_type' => 'mobile_approval.rejected',
-                'data' => [
-                    'approval_id' => $approval->id,
-                    'request_type' => $approval->request_type,
-                    'approver_id' => $approval->user_id,
-                    'reason' => $reason,
-                ],
             ]);
 
             DB::commit();

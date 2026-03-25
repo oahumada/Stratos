@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Deployment;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\VerificationNotification;
 use App\Services\VerificationMetricsService;
 use App\Services\VerificationNotificationService;
 use Cache;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Log;
 
 class VerificationHubController extends Controller
@@ -131,46 +131,23 @@ class VerificationHubController extends Controller
      */
     public function testNotification(Request $request): JsonResponse
     {
-        $orgId = auth()->user()->organization_id;
-        $channel = $request->string('channel'); // slack, email, database, log
+        $request->validate([
+            'channel' => ['required', 'in:slack,email,database,log'],
+            'recipient' => ['nullable', 'string'],
+        ]);
 
-        if (!in_array($channel, ['slack', 'email', 'database', 'log'])) {
-            return response()->json(['error' => 'Invalid channel'], 422);
-        }
+        $orgId = auth()->user()->organization_id;
+        $channel = $request->input('channel');
+        $recipient = $request->input('recipient');
 
         try {
-            $testMessage = "🧪 Verification System Test Notification from {$orgId}";
-
-            match ($channel) {
-                'slack' => $this->notificationService->sendToSlack([
-                    'type' => 'test',
-                    'title' => 'Test Notification',
-                    'message' => $testMessage,
-                    'severity' => 'info',
-                ], $orgId),
-                'email' => $this->notificationService->sendToEmail([
-                    'type' => 'test',
-                    'title' => 'Test Notification',
-                    'message' => $testMessage,
-                    'severity' => 'info',
-                ], $orgId),
-                'database' => VerificationNotification::create([
-                    'organization_id' => $orgId,
-                    'type' => 'test',
-                    'severity' => 'info',
-                    'data' => [
-                        'title' => 'Test Notification',
-                        'message' => $testMessage,
-                    ],
-                ]),
-                'log' => Log::info($testMessage),
-            };
+            $result = $this->notificationService->sendTestNotification($orgId, $channel, $recipient);
 
             return response()->json([
-                'success' => true,
-                'message' => "Test notification sent to {$channel}",
+                'success' => $result['success'],
+                'message' => $result['message'],
                 'channel' => $channel,
-            ]);
+            ], $result['success'] ? 200 : 500);
         } catch (\Exception $e) {
             Log::error("Test notification failed for {$channel}", ['error' => $e->getMessage()]);
 
@@ -267,11 +244,11 @@ class VerificationHubController extends Controller
     public function dryRunSimulation(Request $request): JsonResponse
     {
         $orgId = auth()->user()->organization_id;
-        
+
         // Get current metrics
         $hours = $request->integer('hours', 24);
         $metrics = $this->metricsService->getOrganizationMetrics($orgId, $hours);
-        
+
         // Get current thresholds
         $thresholds = [
             'error_rate' => $request->integer('error_rate_threshold', config('verification-deployment.error_rate_threshold', 40)),
@@ -287,7 +264,7 @@ class VerificationHubController extends Controller
 
         // Determine next phase
         $currentPhase = Cache::get("verification_current_phase_{$orgId}", 'silent');
-        $nextPhase = match($currentPhase) {
+        $nextPhase = match ($currentPhase) {
             'silent' => $wouldTransition ? 'flagging' : 'silent',
             'flagging' => $wouldTransition ? 'reject' : 'flagging',
             'reject' => $wouldTransition ? 'tuning' : 'reject',
@@ -303,7 +280,7 @@ class VerificationHubController extends Controller
                 'current' => round($metrics['avg_confidence_score'], 1),
                 'required' => $thresholds['confidence'],
                 'gap' => $thresholds['confidence'] - round($metrics['avg_confidence_score'], 1),
-                'days_to_meet' => ceil(($thresholds['confidence'] - $metrics['avg_confidence_score']) / 0.5)
+                'days_to_meet' => ceil(($thresholds['confidence'] - $metrics['avg_confidence_score']) / 0.5),
             ];
         }
         if ($metrics['error_rate'] > $thresholds['error_rate']) {
@@ -312,7 +289,7 @@ class VerificationHubController extends Controller
                 'current' => round($metrics['error_rate'], 1),
                 'required' => $thresholds['error_rate'],
                 'gap' => $metrics['error_rate'] - $thresholds['error_rate'],
-                'needs_improvement' => true
+                'needs_improvement' => true,
             ];
         }
         if ($metrics['retry_rate'] > $thresholds['retry_rate']) {
@@ -321,7 +298,7 @@ class VerificationHubController extends Controller
                 'current' => round($metrics['retry_rate'], 1),
                 'required' => $thresholds['retry_rate'],
                 'gap' => $metrics['retry_rate'] - $thresholds['retry_rate'],
-                'needs_improvement' => true
+                'needs_improvement' => true,
             ];
         }
 
@@ -329,9 +306,9 @@ class VerificationHubController extends Controller
             'current_phase' => $currentPhase,
             'would_transition' => $wouldTransition,
             'next_phase' => $nextPhase,
-            'reason' => $wouldTransition 
+            'reason' => $wouldTransition
                 ? "All metrics meet transition criteria for phase: $nextPhase"
-                : "Some metrics do not meet criteria. See gaps below.",
+                : 'Some metrics do not meet criteria. See gaps below.',
             'metrics' => [
                 'confidence_score' => round($metrics['avg_confidence_score'], 1),
                 'error_rate' => round($metrics['error_rate'], 1),
@@ -398,7 +375,7 @@ class VerificationHubController extends Controller
         return response()->json([
             'data' => $report,
             'format' => $format,
-            'filename' => "compliance-report-{$dateFrom->format('Y-m-d')}-to-{$dateTo->format('Y-m-d')}.json"
+            'filename' => "compliance-report-{$dateFrom->format('Y-m-d')}-to-{$dateTo->format('Y-m-d')}.json",
         ]);
     }
 
@@ -407,7 +384,7 @@ class VerificationHubController extends Controller
      */
     private function getChangeSummary(\App\Models\VerificationAuditLog $log): string
     {
-        return match($log->action) {
+        return match ($log->action) {
             'phase_transition' => "Phase transitioned from {$log->phase_from} to {$log->phase_to}",
             'config_change' => 'Configuration updated',
             'manual_override' => "Manual override: {$log->reason}",

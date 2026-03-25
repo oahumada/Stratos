@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('verification_notifications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('organization_id')->constrained('organizations')->cascadeOnDelete();
-            $table->string('type');  // 'phase_transition', 'alert_threshold', 'violation_detected'
-            $table->json('data');    // Full notification payload
-            $table->enum('severity', ['info', 'warning', 'critical'])->default('info');
+            $table->string('type');  // 'phase_transition', 'alert_threshold', 'violation_detected', 'config_change'
+            $table->string('message');
+            $table->json('data')->nullable();    // Additional notification payload
+            $table->enum('severity', ['info', 'warning', 'error', 'critical'])->default('info');
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
 

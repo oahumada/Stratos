@@ -2,10 +2,8 @@
 
 namespace App\Services\Analytics;
 
-use App\Models\TalentVerification;
 use App\Models\VerificationAudit;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 /**
  * AnomalyDetectionService
@@ -62,10 +60,9 @@ class AnomalyDetectionService
     public function analyzeTalentAnomalies(string $organizationId): array
     {
         $currentYear = now()->year;
-        $audit = TalentVerification::where('organization_id', $organizationId)
-            ->max('verification_year');
+        $hasData = VerificationAudit::where('organization_id', $organizationId)->exists();
 
-        if (!$audit) {
+        if (! $hasData) {
             return [];
         }
 
@@ -161,7 +158,7 @@ class AnomalyDetectionService
         }
 
         $statusTrend = $recentAudits->pluck('status')->toArray();
-        $failureRate = count(array_filter($statusTrend, fn($s) => $s === 'failed')) / count($statusTrend);
+        $failureRate = count(array_filter($statusTrend, fn ($s) => $s === 'failed')) / count($statusTrend);
 
         $anomalies = [];
 
@@ -225,7 +222,7 @@ class AnomalyDetectionService
         }
 
         $mean = $values->avg();
-        $variance = $values->map(fn($v) => pow($v - $mean, 2))->avg();
+        $variance = $values->map(fn ($v) => pow($v - $mean, 2))->avg();
 
         return sqrt($variance);
     }

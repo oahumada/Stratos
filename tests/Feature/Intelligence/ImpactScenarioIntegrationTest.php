@@ -20,7 +20,7 @@ class ImpactScenarioIntegrationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Mock de IA usando Mockery para evitar TypeErrors y llamadas reales
         $orchestrator = \Mockery::mock(\App\Services\AiOrchestratorService::class);
         $orchestrator->shouldReceive('agentThink')
@@ -29,33 +29,33 @@ class ImpactScenarioIntegrationTest extends TestCase
                     'logic_narrative' => 'Mock logic',
                     'correlations' => [],
                     'insight_summary' => 'Mock insight',
-                    'recommendations' => []
-                ])
+                    'recommendations' => [],
+                ]),
             ]);
-        
+
         $this->app->instance(\App\Services\AiOrchestratorService::class, $orchestrator);
-        
+
         $this->scenarioService = app(AgenticScenarioService::class);
     }
 
     /** @test */
-    public function testCalculatesScenarioCostsBasedOnDynamicImpactBenchmarks()
+    public function test_calculates_scenario_costs_based_on_dynamic_impact_benchmarks()
     {
         // 1. Setup Data
         $org = Organizations::factory()->create(['size' => 'medium']);
         $user = User::factory()->create(['organization_id' => $org->id]);
-        
+
         $scenario = Scenario::factory()->create([
             'organization_id' => $org->id,
             'created_by' => $user->id,
             'owner_user_id' => $user->id,
-            'status' => 'draft'
+            'status' => 'draft',
         ]);
 
         // Crear departamentos y empleados
-        $deptA = \App\Models\Departments::create(['organization_id' => $org->id, 'name' => 'IT Dept ' . uniqid()]);
-        $deptB = \App\Models\Departments::create(['organization_id' => $org->id, 'name' => 'Sales Dept ' . uniqid()]);
-        
+        $deptA = \App\Models\Departments::create(['organization_id' => $org->id, 'name' => 'IT Dept '.uniqid()]);
+        $deptB = \App\Models\Departments::create(['organization_id' => $org->id, 'name' => 'Sales Dept '.uniqid()]);
+
         People::factory()->count(5)->create(['organization_id' => $org->id, 'department_id' => $deptA->id]);
         People::factory()->count(5)->create(['organization_id' => $org->id, 'department_id' => $deptB->id]);
 
@@ -64,21 +64,21 @@ class ImpactScenarioIntegrationTest extends TestCase
             'organization_id' => $org->id,
             'indicator_type' => 'avg_annual_salary',
             'value' => 50000,
-            'reference_date' => now()
+            'reference_date' => now(),
         ]);
 
         FinancialIndicator::create([
             'organization_id' => $org->id,
             'indicator_type' => 'avg_recruitment_cost',
             'value' => 2000,
-            'reference_date' => now()
+            'reference_date' => now(),
         ]);
 
         // 3. Run simulation (Expansion 20% -> 10 * 0.2 = 2 new positions)
         // Recruitment cost should be 2 * 2000 = 4000
         $result1 = $this->scenarioService->runAgenticSimulation($scenario->id, [
             'change_type' => 'expansion',
-            'growth_percentage' => 20
+            'growth_percentage' => 20,
         ]);
 
         // Verificamos que se calculó con el benchmark (2 * 2000)
@@ -86,13 +86,14 @@ class ImpactScenarioIntegrationTest extends TestCase
 
         // 4. Update benchmarks (Costo de reclutamiento sube a 10k)
         FinancialIndicator::where('indicator_type', 'avg_recruitment_cost')
+            ->where('organization_id', $org->id)
             ->update(['value' => 10000]);
 
         // 5. Run simulation again
         // Recruitment cost should be 2 * 10000 = 20000
         $result2 = $this->scenarioService->runAgenticSimulation($scenario->id, [
             'change_type' => 'expansion',
-            'growth_percentage' => 20
+            'growth_percentage' => 20,
         ]);
 
         $this->assertEquals(20000, abs($result2['kpi_impact']['cost_impact_usd']));
@@ -104,7 +105,7 @@ class ImpactScenarioIntegrationTest extends TestCase
             'change_type' => 'team_merge',
             'team_a_department_id' => $deptA->id,
             'team_b_department_id' => $deptB->id,
-            'expected_redundancy_rate' => 20
+            'expected_redundancy_rate' => 20,
         ]);
 
         // En team_merge, 2 personas de redundancia * 50000 = 100000 de ahorro

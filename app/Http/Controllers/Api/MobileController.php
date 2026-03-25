@@ -240,7 +240,7 @@ class MobileController extends Controller
                 'data' => [
                     'approval_id' => $approval->id,
                     'status' => 'approved',
-                    'approved_at' => $approval->fresh()->approved_at->toIso8601String(),
+                    'approved_at' => $approval->fresh()->approved_at?->toIso8601String(),
                 ],
             ]);
         } catch (\Exception $e) {
@@ -309,7 +309,7 @@ class MobileController extends Controller
                 'data' => [
                     'approval_id' => $approval->id,
                     'status' => 'rejected',
-                    'rejected_at' => $approval->fresh()->rejected_at->toIso8601String(),
+                    'rejected_at' => $approval->fresh()->rejected_at?->toIso8601String(),
                 ],
             ]);
         } catch (\Exception $e) {
@@ -440,8 +440,8 @@ class MobileController extends Controller
     public function getDeviceStats(Request $request): JsonResponse
     {
         try {
-            // Verify user has admin/manager role
-            if (! in_array($request->user()->role, ['admin', 'manager'])) {
+            // Verify user has admin role
+            if ($request->user()->role !== 'admin') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized',

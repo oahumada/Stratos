@@ -9,10 +9,10 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-uses(RefreshDatabase::class);
-
 class MobileControllerTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected Organization $organization;
 
     protected User $user;
@@ -417,12 +417,11 @@ class MobileControllerTest extends TestCase
 
         $response->assertStatus(403);
 
-        // Manager should have access
-        $token = $this->manager->createToken('test')->plainTextToken;
+        // Admin should have access
+        $admin = User::factory()->for($this->organization)->admin()->create();
 
-        $response = $this->withHeaders([
-            'Authorization' => "Bearer {$token}",
-        ])->getJson('/api/mobile/stats/devices');
+        $response = $this->actingAs($admin, 'sanctum')
+            ->getJson('/api/mobile/stats/devices');
 
         $response->assertSuccessful()
             ->assertJsonPath('success', true);

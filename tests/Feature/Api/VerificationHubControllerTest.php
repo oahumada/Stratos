@@ -16,7 +16,7 @@ class VerificationHubControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->admin = User::factory()->admin()->create();
+        $this->admin = User::factory()->for(\App\Models\Organization::factory()->create())->admin()->create();
     }
 
     // ============================================================================
@@ -39,9 +39,9 @@ class VerificationHubControllerTest extends TestCase
                     'next_run',
                     'seconds_until_next',
                     'recent_executions' => [
-                        '*' => ['id', 'started_at', 'ended_at', 'status']
-                    ]
-                ]
+                        '*' => ['id', 'started_at', 'ended_at', 'status'],
+                    ],
+                ],
             ]);
     }
 
@@ -57,7 +57,7 @@ class VerificationHubControllerTest extends TestCase
     public function scheduler_status_requires_admin_role()
     {
         $user = User::factory()->create();
-        
+
         $response = $this->actingAs($user)
             ->getJson('/api/deployment/verification/scheduler-status');
 
@@ -82,15 +82,15 @@ class VerificationHubControllerTest extends TestCase
                         'from_phase',
                         'to_phase',
                         'timestamp',
-                        'reason'
-                    ]
+                        'reason',
+                    ],
                 ],
                 'pagination' => [
                     'total',
                     'count',
                     'per_page',
-                    'current_page'
-                ]
+                    'current_page',
+                ],
             ]);
     }
 
@@ -101,7 +101,7 @@ class VerificationHubControllerTest extends TestCase
             ->getJson('/api/deployment/verification/transitions?limit=5');
 
         $data = $response->json('data');
-        
+
         $this->assertLessThanOrEqual(5, count($data));
     }
 
@@ -133,10 +133,10 @@ class VerificationHubControllerTest extends TestCase
                         'severity',
                         'message',
                         'read',
-                        'created_at'
-                    ]
+                        'created_at',
+                    ],
                 ],
-                'pagination'
+                'pagination',
             ]);
     }
 
@@ -147,7 +147,7 @@ class VerificationHubControllerTest extends TestCase
             ->getJson('/api/deployment/verification/notifications?severity=error');
 
         $response->assertStatus(200);
-        
+
         // Verify all returned notifications have severity=error
         $notifications = $response->json('data');
         foreach ($notifications as $notification) {
@@ -162,7 +162,7 @@ class VerificationHubControllerTest extends TestCase
             ->getJson('/api/deployment/verification/notifications?read=false');
 
         $response->assertStatus(200);
-        
+
         $notifications = $response->json('data');
         foreach ($notifications as $notification) {
             $this->assertFalse($notification['read']);
@@ -178,14 +178,14 @@ class VerificationHubControllerTest extends TestCase
     {
         $response = $this->actingAs($this->admin)
             ->postJson('/api/deployment/verification/test-notification', [
-                'channel' => 'slack'
+                'channel' => 'slack',
             ]);
 
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'success',
                 'message',
-                'channel'
+                'channel',
             ]);
     }
 
@@ -194,7 +194,7 @@ class VerificationHubControllerTest extends TestCase
     {
         $response = $this->actingAs($this->admin)
             ->postJson('/api/deployment/verification/test-notification', [
-                'channel' => 'invalid_channel'
+                'channel' => 'invalid_channel',
             ]);
 
         $response->assertStatus(422)
@@ -230,15 +230,15 @@ class VerificationHubControllerTest extends TestCase
                         'slack',
                         'email',
                         'database',
-                        'log'
+                        'log',
                     ],
                     'thresholds' => [
                         'confidence_min',
                         'error_rate_max',
                         'retry_rate_max',
-                        'sample_size_min'
-                    ]
-                ]
+                        'sample_size_min',
+                    ],
+                ],
             ]);
     }
 
@@ -249,7 +249,7 @@ class VerificationHubControllerTest extends TestCase
             ->getJson('/api/deployment/verification/configuration');
 
         $channels = $response->json('data.channels');
-        
+
         $this->assertArrayHasKey('slack', $channels);
         $this->assertArrayHasKey('enabled', $channels['slack']);
     }
@@ -271,11 +271,11 @@ class VerificationHubControllerTest extends TestCase
                         'id',
                         'action',
                         'user_id',
-                        'created_at'
-                    ]
+                        'created_at',
+                    ],
                 ],
                 'pagination',
-                'summary'
+                'summary',
             ]);
     }
 
@@ -286,7 +286,7 @@ class VerificationHubControllerTest extends TestCase
             ->getJson('/api/deployment/verification/audit-logs');
 
         $summary = $response->json('data.summary');
-        
+
         $this->assertArrayHasKey('total_events', $summary ?? response()->json('summary'));
     }
 
@@ -311,10 +311,10 @@ class VerificationHubControllerTest extends TestCase
                         'confidence',
                         'error_rate',
                         'retry_rate',
-                        'sample_size'
+                        'sample_size',
                     ],
-                    'gaps'
-                ]
+                    'gaps',
+                ],
             ]);
     }
 
@@ -325,7 +325,7 @@ class VerificationHubControllerTest extends TestCase
             ->postJson('/api/deployment/verification/dry-run', [
                 'confidence_threshold' => 85,
                 'error_rate_threshold' => 45,
-                'retry_rate_threshold' => 25
+                'retry_rate_threshold' => 25,
             ]);
 
         $response->assertStatus(200)
@@ -348,14 +348,14 @@ class VerificationHubControllerTest extends TestCase
                     'report_period' => [
                         'from',
                         'to',
-                        'days'
+                        'days',
                     ],
                     'summary' => [
                         'total_events',
-                        'phase_transitions'
+                        'phase_transitions',
                     ],
-                    'events'
-                ]
+                    'events',
+                ],
             ]);
     }
 
@@ -367,7 +367,7 @@ class VerificationHubControllerTest extends TestCase
 
         $data = $response->json('data');
         $daysDifference = (strtotime($data['report_period']['to']) - strtotime($data['report_period']['from'])) / 86400;
-        
+
         $this->assertLessThanOrEqual(5, $daysDifference);
     }
 
@@ -386,13 +386,13 @@ class VerificationHubControllerTest extends TestCase
         // Both should get 200 but different data
         $response1 = $this->actingAs($this->admin)
             ->getJson('/api/deployment/verification/scheduler-status');
-        
+
         $response2 = $this->actingAs($otherAdmin)
             ->getJson('/api/deployment/verification/scheduler-status');
 
         $response1->assertStatus(200);
         $response2->assertStatus(200);
-        
+
         // Data should be scoped to their org
         $this->assertNotEquals(
             $response1->json('data.organization_id'),

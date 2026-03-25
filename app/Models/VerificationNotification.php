@@ -19,15 +19,26 @@ class VerificationNotification extends Model
     protected $fillable = [
         'organization_id',
         'type',
+        'message',
         'data',
         'severity',
         'read_at',
+        'created_at',
+        'updated_at',
     ];
 
     protected $casts = [
         'data' => 'array',
         'read_at' => 'datetime',
     ];
+
+    /**
+     * Whether this notification has been read.
+     */
+    public function getReadAttribute(): bool
+    {
+        return $this->read_at !== null;
+    }
 
     /**
      * Relationship: belongs to organization

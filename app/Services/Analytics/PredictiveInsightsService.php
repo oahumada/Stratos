@@ -2,10 +2,7 @@
 
 namespace App\Services\Analytics;
 
-use App\Models\VerificationAudit;
 use App\Models\EventStore;
-use Illuminate\Support\Collection;
-use Carbon\Carbon;
 
 /**
  * PredictiveInsightsService
@@ -57,7 +54,9 @@ class PredictiveInsightsService
                 'avg' => array_sum($forecast) / count($forecast),
             ],
             'trend' => $forecast[count($forecast) - 1] > $scores[count($scores) - 1] ? 'IMPROVING' : 'DECLINING',
-            'trend_confidence' => round(($forecast[count($forecast) - 1] - end($scores)) / end($scores) * 100, 1),
+            'trend_confidence' => end($scores) != 0
+                ? round(($forecast[count($forecast) - 1] - end($scores)) / end($scores) * 100, 1)
+                : 0.0,
             'predicted_breach_date' => $this->predictBreachDate($scores, $forecast, threshold: 0.75),
         ];
     }
@@ -94,7 +93,7 @@ class PredictiveInsightsService
 
         // Find optimal window
         $optimalDays = collect($predictions)
-            ->filter(fn($p) => $p['recommendation'] === 'OPTIMAL')
+            ->filter(fn ($p) => $p['recommendation'] === 'OPTIMAL')
             ->keys()
             ->toArray();
 
@@ -155,8 +154,8 @@ class PredictiveInsightsService
     {
         $anomalies = $this->anomalyService->analyzeVerificationMetrics($organizationId);
         $recentEvents = EventStore::where('organization_id', $organizationId)
-            ->whereJsonContains('data->role_id', $roleId)
-            ->orderByDesc('created_at')
+            ->whereJsonContains('payload->role_id', $roleId)
+            ->orderByDesc('occurred_at')
             ->limit(20)
             ->get();
 
@@ -192,8 +191,8 @@ class PredictiveInsightsService
         $x = range(0, $n - 1);
         $sumX = array_sum($x);
         $sumY = array_sum($values);
-        $sumXY = array_sum(array_map(fn($xi, $yi) => $xi * $yi, $x, $values));
-        $sumX2 = array_sum(array_map(fn($xi) => $xi * $xi, $x));
+        $sumXY = array_sum(array_map(fn ($xi, $yi) => $xi * $yi, $x, $values));
+        $sumX2 = array_sum(array_map(fn ($xi) => $xi * $xi, $x));
 
         $slope = ($n * $sumXY - $sumX * $sumY) / ($n * $sumX2 - $sumX * $sumX);
         $intercept = ($sumY - $slope * $sumX) / $n;
@@ -213,7 +212,7 @@ class PredictiveInsightsService
      */
     private function predictBreachDate(?array $scores, array $forecast, float $threshold): ?string
     {
-        if (!$scores) {
+        if (! $scores) {
             return null;
         }
 

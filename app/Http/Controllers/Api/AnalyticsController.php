@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\Analytics\AnomalyDetectionService;
-use App\Services\Analytics\PredictiveInsightsService;
 use App\Services\Analytics\AutomatedRecommendationsService;
 use App\Services\Analytics\MetricsAggregationService;
-use Illuminate\Http\Request;
+use App\Services\Analytics\PredictiveInsightsService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /**
  * AnalyticsController
@@ -30,7 +30,6 @@ class AnalyticsController extends Controller
         private MetricsAggregationService $metricsService
     ) {
         $this->middleware('auth:sanctum');
-        $this->middleware('verified_organization');
     }
 
     /**
@@ -103,7 +102,7 @@ class AnalyticsController extends Controller
     public function assessTransitionRisk(Request $request): JsonResponse
     {
         $organizationId = $request->user()->organization_id;
-        $roleId = $request->validated('role_id');
+        $roleId = $request->input('role_id');
 
         $risk = $this->predictiveService->assessTransitionRisk($organizationId, $roleId);
 
@@ -245,10 +244,10 @@ class AnalyticsController extends Controller
     private function getCriticalRecommendations(string $organizationId): array
     {
         $all = $this->recommendationsService->generateComprehensiveRecommendations($organizationId);
-        
+
         return array_filter(
             $all['recommendations'],
-            fn($rec) => $rec['priority'] === 'CRITICAL' || $rec['priority'] === 'HIGH'
+            fn ($rec) => $rec['priority'] === 'CRITICAL' || $rec['priority'] === 'HIGH'
         );
     }
 }

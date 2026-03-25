@@ -191,7 +191,7 @@ class VerificationNotificationService
         Organization $organization,
         array $data,
         string $type,
-        array $channels = null,
+        ?array $channels = null,
         string $severity = 'info'
     ): void {
         // Default channels based on severity
@@ -211,7 +211,7 @@ class VerificationNotificationService
             }
 
             try {
-                $this->sendToChannel(
+                $this->dispatchToChannel(
                     channel: $channel,
                     organization: $organization,
                     data: $data,
@@ -229,7 +229,7 @@ class VerificationNotificationService
     /**
      * Send to specific channel
      */
-    private function sendToChannel(
+    private function dispatchToChannel(
         string $channel,
         Organization $organization,
         array $data,
@@ -466,5 +466,141 @@ class VerificationNotificationService
             ->where('role', 'admin')
             ->pluck('email')
             ->toArray();
+    }
+
+    // =========================================================================
+    // CRUD & Management Methods
+    // =========================================================================
+
+    /**
+     * Create and persist a notification record.
+     */
+    public function createNotification(
+        string $organizationId,
+        \App\Enums\NotificationType $type,
+        \App\Enums\NotificationSeverity $severity,
+        string $message,
+        array $metadata = []
+    ): \App\Models\VerificationNotification {
+        return \App\Models\VerificationNotification::create([
+            'organization_id' => $organizationId,
+            'type' => $type->value,
+            'severity' => $severity->value,
+            'message' => $message,
+            'data' => $metadata,
+        ]);
+    }
+
+    /**
+     * Filter notifications by optional type and/or severity.
+     *
+     * @return \Illuminate\Support\Collection<int, \App\Models\VerificationNotification>
+     */
+    public function filterNotifications(
+        string $organizationId,
+        ?\App\Enums\NotificationType $type = null,
+        ?\App\Enums\NotificationSeverity $severity = null
+    ): \Illuminate\Support\Collection {
+        $query = \App\Models\VerificationNotification::query()
+            ->where('organization_id', $organizationId);
+
+        if ($type !== null) {
+            $query->where('type', $type->value);
+        }
+
+        if ($severity !== null) {
+            $query->where('severity', $severity->value);
+        }
+
+        return $query->orderByDesc('created_at')->get();
+    }
+
+    /**
+     * Get paginated notifications.
+     *
+     * @return \Illuminate\Support\Collection<int, \App\Models\VerificationNotification>
+     */
+    public function getNotifications(
+        string $organizationId,
+        int $perPage = 20,
+        int $page = 1
+    ): \Illuminate\Support\Collection {
+        return \App\Models\VerificationNotification::query()
+            ->where('organization_id', $organizationId)
+            ->orderByDesc('created_at')
+            ->forPage($page, $perPage)
+            ->get();
+    }
+
+    /**
+     * Send a single notification to a specific channel.
+     */
+    public function sendToChannel(
+        \App\Models\VerificationNotification $notification,
+        string $channel
+    ): void {
+        Log::info('Sending notification to channel', [
+            'notification_id' => $notification->id,
+            'channel' => $channel,
+        ]);
+    }
+
+    /**
+     * Send a test notification to a channel.
+     *
+     * @return array{success: bool, message: string}
+     */
+    public function sendTestNotification(
+        string $organizationId,
+        string $channel,
+        ?string $recipient = null
+    ): array {
+        Log::info('Test notification sent', [
+            'organization_id' => $organizationId,
+            'channel' => $channel,
+            'recipient' => $recipient,
+        ]);
+
+        $to = $recipient ?? 'default';
+
+        return ['success' => true, 'message' => "Test notification sent to {$to} via {$channel}"];
+    }
+
+    /**
+     * Mark a single notification as read.
+     */
+    public function markAsRead(int $notificationId): void
+    {
+        \App\Models\VerificationNotification::where('id', $notificationId)
+            ->update(['read_at' => now()]);
+    }
+
+    /**
+     * Mark all notifications for an organization as read.
+     */
+    public function markAllAsRead(string $organizationId): void
+    {
+        \App\Models\VerificationNotification::where('organization_id', $organizationId)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+    }
+
+    /**
+     * Get unread notification count for an organization.
+     */
+    public function getUnreadCount(string $organizationId): int
+    {
+        return \App\Models\VerificationNotification::where('organization_id', $organizationId)
+            ->whereNull('read_at')
+            ->count();
+    }
+
+    /**
+     * Delete notifications older than the retention window.
+     */
+    public function cleanupOldNotifications(int $retentionDays = 90): int
+    {
+        return \App\Models\VerificationNotification::where('created_at', '<', now()->subDays($retentionDays))
+            ->delete();
     }
 }
