@@ -52,6 +52,11 @@ class HandleInertiaRequests extends Middleware
                 'permissions' => $request->user()?->getPermissions()?->values()?->toArray() ?? [],
                 'active_modules' => $request->user()?->organization?->active_modules ?? ['core'],
             ],
+            'features' => [
+                'auto_accept_import_generation' => (bool) config('features.auto_accept_import_generation', false),
+                'import_generation' => (bool) config('features.import_generation', true),
+                'validate_llm_response' => (bool) config('features.validate_llm_response', true),
+            ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

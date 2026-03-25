@@ -541,6 +541,7 @@
             <div class="preview-modal">
                 <PreviewConfirm
                     :promptPreview="store.previewPrompt || ''"
+                    :autoAcceptEnabled="isAutoAcceptImportEnabled"
                     @confirm="onConfirmGenerate"
                     @edit="onEditPrompt"
                 />
@@ -564,6 +565,7 @@ import {
     normalizeLlMResponse,
     useScenarioGenerationStore,
 } from '@/stores/scenarioGenerationStore';
+import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 import PreviewConfirm from './PreviewConfirm.vue';
@@ -574,6 +576,11 @@ import StepResources from './StepResources.vue';
 import StepSituation from './StepSituation.vue';
 
 const store = useScenarioGenerationStore();
+const page = usePage();
+
+const isAutoAcceptImportEnabled = computed(() => {
+    return !!(page.props as any)?.features?.auto_accept_import_generation;
+});
 
 const stepComponents: Record<number, any> = {
     1: StepIdentity,
@@ -1023,9 +1030,13 @@ async function onConfirmGenerate(importAfter = false) {
         if (store.generationStatus === 'complete') {
             await triggerValidation();
             // Option 2: Auto-accept/import if the user checked the checkbox
-            if (store.importAfterAccept && !store.importAutoAccepted) {
+            if (
+                isAutoAcceptImportEnabled.value &&
+                store.importAfterAccept &&
+                !store.importAutoAccepted
+            ) {
                 console.log('Auto-accept triggered from main flow');
-                await onModalAccept(true);
+                await onModalAccept(true, true);
             }
         } else {
             // not completed within timeout: notify operator to monitor status
@@ -1161,8 +1172,13 @@ function openResponseModal() {
     startResponsePolling();
 }
 
-async function onModalAccept(importAfter = false) {
+async function onModalAccept(importAfter = false, autoAccept = false) {
     if (!store.generationId || store.importAutoAccepted) return;
+
+    if (autoAccept && !isAutoAcceptImportEnabled.value) {
+        return;
+    }
+
     store.importAfterAccept = !!importAfter;
     store.importAutoAccepted = true; // Guard against multiple triggers
     // clear previous inline validation errors
@@ -1172,7 +1188,7 @@ async function onModalAccept(importAfter = false) {
     // keep modal open while attempting accept so we can show inline 422 errors
     accepting.value = true;
     try {
-        const res = await store.accept(store.generationId);
+        const res = await store.accept(store.generationId, { autoAccept });
         const sid =
             res?.data?.scenario_id ||
             res?.data?.id ||
@@ -1363,9 +1379,13 @@ async function startResponsePolling() {
                 await triggerValidation();
 
                 // Option 2: Auto-accept/import if the user checked the checkbox
-                if (store.importAfterAccept && !store.importAutoAccepted) {
+                if (
+                    isAutoAcceptImportEnabled.value &&
+                    store.importAfterAccept &&
+                    !store.importAutoAccepted
+                ) {
                     console.log('Auto-accept triggered from interval polling');
-                    await onModalAccept(true);
+                    await onModalAccept(true, true);
                 }
             }
         } catch {

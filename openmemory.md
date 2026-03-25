@@ -4791,9 +4791,12 @@ expect($result['valid'])->toBeTrue();
 
 #### Auto-accept / Auto-import tras generación LLM
 
-- Flujo: `ScenarioGenerationController::accept()` ya creado
-- Pendiente: activar detrás de feature flag con validación JSON Schema y auditoría
-- Documentado en `GenerateWizard.vue` flow
+- Completado 2026-03-25 ✅
+- Activado detrás de feature flag `FEATURE_AUTO_ACCEPT_IMPORT_GENERATION`
+- Frontend (`GenerateWizard` + `PreviewConfirm`) respeta el flag para disparo automático
+- Backend (`ScenarioGenerationController::accept`) enforcea el flag para `auto_accept=true`
+- Validación JSON Schema y auditoría de import se mantienen activas en flujo `accept/import`
+- Auditoría específica añadida en metadata: `auto_accept_audit`
 
 #### Backfill staging: scenario_id en scenario_generations
 

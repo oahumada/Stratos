@@ -15,9 +15,13 @@
             <v-row class="mt-3" align="center">
                 <v-col cols="12" md="8">
                     <v-checkbox
+                        v-if="autoAcceptEnabled"
                         v-model="importAfterAccept"
                         label="Importar entidades incubadas automáticamente al aceptar"
                     />
+                    <div v-else class="text-caption text-medium-emphasis">
+                        Importación automática desactivada por feature flag.
+                    </div>
                 </v-col>
                 <v-col cols="12" md="4" class="d-flex justify-end">
                     <v-btn text color="primary" @click="$emit('edit')"
@@ -43,6 +47,7 @@ import { ref } from 'vue';
 defineProps({
     promptPreview: { type: String, required: true },
     loading: { type: Boolean, default: false },
+    autoAcceptEnabled: { type: Boolean, default: false },
 });
 const importAfterAccept = ref(false);
 </script>

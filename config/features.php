@@ -1,6 +1,10 @@
 <?php
 
 return [
+    // Toggle auto-accept + auto-import after generation completion in GenerateWizard
+    // Can be set via env: FEATURE_AUTO_ACCEPT_IMPORT_GENERATION=true|false
+    'auto_accept_import_generation' => (bool) env('FEATURE_AUTO_ACCEPT_IMPORT_GENERATION', false),
+
     // Toggle automatic import of LLM-generated capabilities/competencies/skills
     // Can be set via env: IMPORT_GENERATION=true
     'import_generation' => (bool) env('IMPORT_GENERATION', true),

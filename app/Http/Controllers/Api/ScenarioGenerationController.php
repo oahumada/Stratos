@@ -220,6 +220,19 @@ class ScenarioGenerationController extends Controller
             return response()->json(['success' => false, 'message' => 'Generation not complete'], 422);
         }
 
+        $isAutoAccept = $request->boolean('auto_accept', false);
+
+        if ($isAutoAccept && ! config('features.auto_accept_import_generation', false)) {
+            $generation->metadata = array_merge($generation->metadata ?? [], ['auto_accept_audit' => array_merge($generation->metadata['auto_accept_audit'] ?? [], [[
+                'attempted_by' => $user->id,
+                'attempted_at' => now()->toDateTimeString(),
+                'result' => 'skipped_feature_flag',
+            ]])]);
+            $generation->save();
+
+            return response()->json(['success' => false, 'message' => 'Auto-accept feature disabled'], 403);
+        }
+
         // llm_response is stored redacted array
         $llm = $generation->llm_response ?? null;
         if (! is_array($llm)) {
@@ -253,6 +266,16 @@ class ScenarioGenerationController extends Controller
 
         // record acceptance on generation metadata
         $generation->metadata = array_merge($generation->metadata ?? [], ['accepted_by' => $user->id, 'accepted_at' => now()->toDateTimeString(), 'created_scenario_id' => $scenario->id]);
+
+        if ($isAutoAccept) {
+            $generation->metadata = array_merge($generation->metadata ?? [], ['auto_accept_audit' => array_merge($generation->metadata['auto_accept_audit'] ?? [], [[
+                'attempted_by' => $user->id,
+                'attempted_at' => now()->toDateTimeString(),
+                'result' => 'accepted',
+                'scenario_id' => $scenario->id,
+            ]])]);
+        }
+
         $generation->save();
 
         // Optional: import capabilities/competencies/skills from the LLM JSON

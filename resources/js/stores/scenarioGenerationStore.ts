@@ -365,7 +365,10 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
 
             return res.data;
         },
-        async accept(generationId?: number) {
+        async accept(
+            generationId?: number,
+            options?: { autoAccept?: boolean },
+        ) {
             const id = generationId || this.generationId;
             if (!id) throw new Error('No generation id provided');
             try {
@@ -373,6 +376,7 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
                     `/api/strategic-planning/scenarios/generate/${id}/accept`,
                     {
                         import: !!this.importAfterAccept,
+                        auto_accept: !!options?.autoAccept,
                     },
                 );
                 return res.data;
