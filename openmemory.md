@@ -4685,7 +4685,7 @@ expect($result['valid'])->toBeTrue();
 
 **Remaining Optional Phases:**
 
-- Phase 12: Enterprise Security (not started)
+- Phase 12: Enterprise Security ✅ (completed 2026-03-25, commit `de6c5f68`)
 
 ---
 
@@ -4760,11 +4760,24 @@ expect($result['valid'])->toBeTrue();
 
 ### 🟡 Media Prioridad
 
-#### Phase 12: Enterprise Security (No iniciada)
+#### Phase 12: Enterprise Security (Completada ✅)
 
-- Scope: RBAC avanzado, auditoría de acceso, MFA obligatorio, compliance GDPR/CCPA
-- Estimado: 1,000-1,500 LOC
-- Estado: Planificada, pendiente de inicio
+- Completado: 2026-03-25 | Commit: `de6c5f68`
+- Auditoría de acceso implementada con tabla `security_access_logs`
+    - Eventos: `login`, `logout`, `login_failed`
+    - Metadatos: `ip_address`, `user_agent`, `role`, `mfa_used`, `occurred_at`
+- API de auditoría de seguridad (admin-only):
+    - `GET /api/security/access-logs` (paginado + filtros por evento/usuario/email/fechas)
+    - `GET /api/security/access-logs/summary` (métricas: total, fallidos, MFA %, top IPs)
+- MFA obligatorio implementado para roles privilegiados:
+    - Middleware `mfa.required` (`EnsureMfaEnrolled`)
+    - Enforced para `admin` y `hr_leader` cuando no tienen 2FA habilitado
+- Auth event listeners registrados:
+    - `LogSuccessfulLogin`, `LogSuccessfulLogout`, `LogFailedLogin`
+- Cobertura de pruebas:
+    - `tests/Feature/Api/SecurityAccessLogTest.php` (9 tests)
+    - `tests/Feature/Middleware/EnsureMfaEnrolledTest.php` (7 tests)
+    - Resultado: 16/16 tests pasando ✅
 
 #### DRY Refactoring `Index.vue` (Competency Map)
 
