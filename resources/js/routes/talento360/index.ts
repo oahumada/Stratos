@@ -2,7 +2,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 import bars from './bars'
 import qb from './qb'
 /**
-* @see routes/web.php:172
+* @see [serialized-closure]:2
 * @route '/talento360'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:172
+* @see [serialized-closure]:2
 * @route '/talento360'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -24,7 +24,7 @@ index.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:172
+* @see [serialized-closure]:2
 * @route '/talento360'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -33,7 +33,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:172
+* @see [serialized-closure]:2
 * @route '/talento360'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -42,7 +42,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:172
+* @see [serialized-closure]:2
 * @route '/talento360'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -51,7 +51,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:172
+* @see [serialized-closure]:2
 * @route '/talento360'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -60,7 +60,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:172
+* @see [serialized-closure]:2
 * @route '/talento360'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -76,7 +76,7 @@ indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 index.form = indexForm
 
 /**
-* @see routes/web.php:176
+* @see [serialized-closure]:2
 * @route '/talento360/results/{id}'
 */
 export const results = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -90,7 +90,7 @@ results.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:176
+* @see [serialized-closure]:2
 * @route '/talento360/results/{id}'
 */
 results.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -116,7 +116,7 @@ results.url = (args: { id: string | number } | [id: string | number ] | string |
 }
 
 /**
-* @see routes/web.php:176
+* @see [serialized-closure]:2
 * @route '/talento360/results/{id}'
 */
 results.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -125,7 +125,7 @@ results.get = (args: { id: string | number } | [id: string | number ] | string |
 })
 
 /**
-* @see routes/web.php:176
+* @see [serialized-closure]:2
 * @route '/talento360/results/{id}'
 */
 results.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -134,7 +134,7 @@ results.head = (args: { id: string | number } | [id: string | number ] | string 
 })
 
 /**
-* @see routes/web.php:176
+* @see [serialized-closure]:2
 * @route '/talento360/results/{id}'
 */
 const resultsForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -143,7 +143,7 @@ const resultsForm = (args: { id: string | number } | [id: string | number ] | st
 })
 
 /**
-* @see routes/web.php:176
+* @see [serialized-closure]:2
 * @route '/talento360/results/{id}'
 */
 resultsForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -152,7 +152,7 @@ resultsForm.get = (args: { id: string | number } | [id: string | number ] | stri
 })
 
 /**
-* @see routes/web.php:176
+* @see [serialized-closure]:2
 * @route '/talento360/results/{id}'
 */
 resultsForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -168,7 +168,7 @@ resultsForm.head = (args: { id: string | number } | [id: string | number ] | str
 results.form = resultsForm
 
 /**
-* @see routes/web.php:180
+* @see [serialized-closure]:2
 * @route '/talento360/map'
 */
 export const map = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -182,7 +182,7 @@ map.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:180
+* @see [serialized-closure]:2
 * @route '/talento360/map'
 */
 map.url = (options?: RouteQueryOptions) => {
@@ -190,7 +190,7 @@ map.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:180
+* @see [serialized-closure]:2
 * @route '/talento360/map'
 */
 map.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -199,7 +199,7 @@ map.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:180
+* @see [serialized-closure]:2
 * @route '/talento360/map'
 */
 map.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -208,7 +208,7 @@ map.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:180
+* @see [serialized-closure]:2
 * @route '/talento360/map'
 */
 const mapForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -217,7 +217,7 @@ const mapForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:180
+* @see [serialized-closure]:2
 * @route '/talento360/map'
 */
 mapForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -226,7 +226,7 @@ mapForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:180
+* @see [serialized-closure]:2
 * @route '/talento360/map'
 */
 mapForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -242,7 +242,7 @@ mapForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 map.form = mapForm
 
 /**
-* @see routes/web.php:184
+* @see [serialized-closure]:2
 * @route '/talento360/triangulation/{id}'
 */
 export const triangulation = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -256,7 +256,7 @@ triangulation.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:184
+* @see [serialized-closure]:2
 * @route '/talento360/triangulation/{id}'
 */
 triangulation.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -282,7 +282,7 @@ triangulation.url = (args: { id: string | number } | [id: string | number ] | st
 }
 
 /**
-* @see routes/web.php:184
+* @see [serialized-closure]:2
 * @route '/talento360/triangulation/{id}'
 */
 triangulation.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -291,7 +291,7 @@ triangulation.get = (args: { id: string | number } | [id: string | number ] | st
 })
 
 /**
-* @see routes/web.php:184
+* @see [serialized-closure]:2
 * @route '/talento360/triangulation/{id}'
 */
 triangulation.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -300,7 +300,7 @@ triangulation.head = (args: { id: string | number } | [id: string | number ] | s
 })
 
 /**
-* @see routes/web.php:184
+* @see [serialized-closure]:2
 * @route '/talento360/triangulation/{id}'
 */
 const triangulationForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -309,7 +309,7 @@ const triangulationForm = (args: { id: string | number } | [id: string | number 
 })
 
 /**
-* @see routes/web.php:184
+* @see [serialized-closure]:2
 * @route '/talento360/triangulation/{id}'
 */
 triangulationForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -318,7 +318,7 @@ triangulationForm.get = (args: { id: string | number } | [id: string | number ] 
 })
 
 /**
-* @see routes/web.php:184
+* @see [serialized-closure]:2
 * @route '/talento360/triangulation/{id}'
 */
 triangulationForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -334,7 +334,7 @@ triangulationForm.head = (args: { id: string | number } | [id: string | number ]
 triangulation.form = triangulationForm
 
 /**
-* @see routes/web.php:188
+* @see [serialized-closure]:2
 * @route '/talento360/relationships'
 */
 export const relationships = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -348,7 +348,7 @@ relationships.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:188
+* @see [serialized-closure]:2
 * @route '/talento360/relationships'
 */
 relationships.url = (options?: RouteQueryOptions) => {
@@ -356,7 +356,7 @@ relationships.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:188
+* @see [serialized-closure]:2
 * @route '/talento360/relationships'
 */
 relationships.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -365,7 +365,7 @@ relationships.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:188
+* @see [serialized-closure]:2
 * @route '/talento360/relationships'
 */
 relationships.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -374,7 +374,7 @@ relationships.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 })
 
 /**
-* @see routes/web.php:188
+* @see [serialized-closure]:2
 * @route '/talento360/relationships'
 */
 const relationshipsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -383,7 +383,7 @@ const relationshipsForm = (options?: RouteQueryOptions): RouteFormDefinition<'ge
 })
 
 /**
-* @see routes/web.php:188
+* @see [serialized-closure]:2
 * @route '/talento360/relationships'
 */
 relationshipsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -392,7 +392,7 @@ relationshipsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 })
 
 /**
-* @see routes/web.php:188
+* @see [serialized-closure]:2
 * @route '/talento360/relationships'
 */
 relationshipsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -408,7 +408,7 @@ relationshipsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get
 relationships.form = relationshipsForm
 
 /**
-* @see routes/web.php:200
+* @see [serialized-closure]:2
 * @route '/talento360/comando'
 */
 export const comando = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -422,7 +422,7 @@ comando.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:200
+* @see [serialized-closure]:2
 * @route '/talento360/comando'
 */
 comando.url = (options?: RouteQueryOptions) => {
@@ -430,7 +430,7 @@ comando.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:200
+* @see [serialized-closure]:2
 * @route '/talento360/comando'
 */
 comando.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -439,7 +439,7 @@ comando.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:200
+* @see [serialized-closure]:2
 * @route '/talento360/comando'
 */
 comando.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -448,7 +448,7 @@ comando.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:200
+* @see [serialized-closure]:2
 * @route '/talento360/comando'
 */
 const comandoForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -457,7 +457,7 @@ const comandoForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 })
 
 /**
-* @see routes/web.php:200
+* @see [serialized-closure]:2
 * @route '/talento360/comando'
 */
 comandoForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -466,7 +466,7 @@ comandoForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:200
+* @see [serialized-closure]:2
 * @route '/talento360/comando'
 */
 comandoForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -482,7 +482,7 @@ comandoForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => 
 comando.form = comandoForm
 
 /**
-* @see routes/web.php:204
+* @see [serialized-closure]:2
 * @route '/talento360/war-room'
 */
 export const warRoom = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -496,7 +496,7 @@ warRoom.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:204
+* @see [serialized-closure]:2
 * @route '/talento360/war-room'
 */
 warRoom.url = (options?: RouteQueryOptions) => {
@@ -504,7 +504,7 @@ warRoom.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:204
+* @see [serialized-closure]:2
 * @route '/talento360/war-room'
 */
 warRoom.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -513,7 +513,7 @@ warRoom.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:204
+* @see [serialized-closure]:2
 * @route '/talento360/war-room'
 */
 warRoom.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -522,7 +522,7 @@ warRoom.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:204
+* @see [serialized-closure]:2
 * @route '/talento360/war-room'
 */
 const warRoomForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -531,7 +531,7 @@ const warRoomForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 })
 
 /**
-* @see routes/web.php:204
+* @see [serialized-closure]:2
 * @route '/talento360/war-room'
 */
 warRoomForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -540,7 +540,7 @@ warRoomForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:204
+* @see [serialized-closure]:2
 * @route '/talento360/war-room'
 */
 warRoomForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

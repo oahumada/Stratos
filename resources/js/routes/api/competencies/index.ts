@@ -1,6 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
-* @see routes/form-schema-complete.php:52
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 export const show = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +14,7 @@ show.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/form-schema-complete.php:52
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 show.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -40,7 +40,7 @@ show.url = (args: { id: string | number } | [id: string | number ] | string | nu
 }
 
 /**
-* @see routes/form-schema-complete.php:52
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 show.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -49,7 +49,7 @@ show.get = (args: { id: string | number } | [id: string | number ] | string | nu
 })
 
 /**
-* @see routes/form-schema-complete.php:52
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 show.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -58,7 +58,7 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 })
 
 /**
-* @see routes/form-schema-complete.php:52
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -67,7 +67,7 @@ const showForm = (args: { id: string | number } | [id: string | number ] | strin
 })
 
 /**
-* @see routes/form-schema-complete.php:52
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -76,7 +76,7 @@ showForm.get = (args: { id: string | number } | [id: string | number ] | string 
 })
 
 /**
-* @see routes/form-schema-complete.php:52
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -92,7 +92,7 @@ showForm.head = (args: { id: string | number } | [id: string | number ] | string
 show.form = showForm
 
 /**
-* @see routes/form-schema-complete.php:45
+* @see [serialized-closure]:2
 * @route '/api/competencies'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -106,7 +106,7 @@ store.definition = {
 } satisfies RouteDefinition<["post"]>
 
 /**
-* @see routes/form-schema-complete.php:45
+* @see [serialized-closure]:2
 * @route '/api/competencies'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -114,7 +114,7 @@ store.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/form-schema-complete.php:45
+* @see [serialized-closure]:2
 * @route '/api/competencies'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -123,7 +123,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 })
 
 /**
-* @see routes/form-schema-complete.php:45
+* @see [serialized-closure]:2
 * @route '/api/competencies'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -132,7 +132,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 })
 
 /**
-* @see routes/form-schema-complete.php:45
+* @see [serialized-closure]:2
 * @route '/api/competencies'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -143,7 +143,7 @@ storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => (
 store.form = storeForm
 
 /**
-* @see routes/form-schema-complete.php:73
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 export const destroy = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -157,7 +157,7 @@ destroy.definition = {
 } satisfies RouteDefinition<["delete"]>
 
 /**
-* @see routes/form-schema-complete.php:73
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 destroy.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -183,7 +183,7 @@ destroy.url = (args: { id: string | number } | [id: string | number ] | string |
 }
 
 /**
-* @see routes/form-schema-complete.php:73
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 destroy.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -192,7 +192,7 @@ destroy.delete = (args: { id: string | number } | [id: string | number ] | strin
 })
 
 /**
-* @see routes/form-schema-complete.php:73
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 const destroyForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -206,7 +206,7 @@ const destroyForm = (args: { id: string | number } | [id: string | number ] | st
 })
 
 /**
-* @see routes/form-schema-complete.php:73
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 destroyForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -222,7 +222,7 @@ destroyForm.delete = (args: { id: string | number } | [id: string | number ] | s
 destroy.form = destroyForm
 
 /**
-* @see routes/form-schema-complete.php:66
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 export const patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -236,7 +236,7 @@ patch.definition = {
 } satisfies RouteDefinition<["patch"]>
 
 /**
-* @see routes/form-schema-complete.php:66
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 patch.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -262,7 +262,7 @@ patch.url = (args: { id: string | number } | [id: string | number ] | string | n
 }
 
 /**
-* @see routes/form-schema-complete.php:66
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 patch.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -271,7 +271,7 @@ patch.patch = (args: { id: string | number } | [id: string | number ] | string |
 })
 
 /**
-* @see routes/form-schema-complete.php:66
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 const patchForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -285,7 +285,7 @@ const patchForm = (args: { id: string | number } | [id: string | number ] | stri
 })
 
 /**
-* @see routes/form-schema-complete.php:66
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 patchForm.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -301,7 +301,7 @@ patchForm.patch = (args: { id: string | number } | [id: string | number ] | stri
 patch.form = patchForm
 
 /**
-* @see routes/form-schema-complete.php:38
+* @see [serialized-closure]:2
 * @route '/api/competencies'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -315,7 +315,7 @@ index.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/form-schema-complete.php:38
+* @see [serialized-closure]:2
 * @route '/api/competencies'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -323,7 +323,7 @@ index.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/form-schema-complete.php:38
+* @see [serialized-closure]:2
 * @route '/api/competencies'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -332,7 +332,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/form-schema-complete.php:38
+* @see [serialized-closure]:2
 * @route '/api/competencies'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -341,7 +341,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/form-schema-complete.php:38
+* @see [serialized-closure]:2
 * @route '/api/competencies'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -350,7 +350,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/form-schema-complete.php:38
+* @see [serialized-closure]:2
 * @route '/api/competencies'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -359,7 +359,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see routes/form-schema-complete.php:38
+* @see [serialized-closure]:2
 * @route '/api/competencies'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -375,7 +375,7 @@ indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 index.form = indexForm
 
 /**
-* @see routes/form-schema-complete.php:59
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 export const update = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -389,7 +389,7 @@ update.definition = {
 } satisfies RouteDefinition<["put"]>
 
 /**
-* @see routes/form-schema-complete.php:59
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 update.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -415,7 +415,7 @@ update.url = (args: { id: string | number } | [id: string | number ] | string | 
 }
 
 /**
-* @see routes/form-schema-complete.php:59
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 update.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -424,7 +424,7 @@ update.put = (args: { id: string | number } | [id: string | number ] | string | 
 })
 
 /**
-* @see routes/form-schema-complete.php:59
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 const updateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -438,7 +438,7 @@ const updateForm = (args: { id: string | number } | [id: string | number ] | str
 })
 
 /**
-* @see routes/form-schema-complete.php:59
+* @see [serialized-closure]:2
 * @route '/api/competencies/{id}'
 */
 updateForm.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -454,7 +454,7 @@ updateForm.put = (args: { id: string | number } | [id: string | number ] | strin
 update.form = updateForm
 
 /**
-* @see routes/form-schema-complete.php:80
+* @see [serialized-closure]:2
 * @route '/api/competencies/search'
 */
 export const search = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -468,7 +468,7 @@ search.definition = {
 } satisfies RouteDefinition<["post"]>
 
 /**
-* @see routes/form-schema-complete.php:80
+* @see [serialized-closure]:2
 * @route '/api/competencies/search'
 */
 search.url = (options?: RouteQueryOptions) => {
@@ -476,7 +476,7 @@ search.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/form-schema-complete.php:80
+* @see [serialized-closure]:2
 * @route '/api/competencies/search'
 */
 search.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -485,7 +485,7 @@ search.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 })
 
 /**
-* @see routes/form-schema-complete.php:80
+* @see [serialized-closure]:2
 * @route '/api/competencies/search'
 */
 const searchForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -494,7 +494,7 @@ const searchForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =>
 })
 
 /**
-* @see routes/form-schema-complete.php:80
+* @see [serialized-closure]:2
 * @route '/api/competencies/search'
 */
 searchForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -505,7 +505,7 @@ searchForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 search.form = searchForm
 
 /**
-* @see routes/form-schema-complete.php:87
+* @see [serialized-closure]:2
 * @route '/api/competencies/search-with-paciente'
 */
 export const searchWithPaciente = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -519,7 +519,7 @@ searchWithPaciente.definition = {
 } satisfies RouteDefinition<["post"]>
 
 /**
-* @see routes/form-schema-complete.php:87
+* @see [serialized-closure]:2
 * @route '/api/competencies/search-with-paciente'
 */
 searchWithPaciente.url = (options?: RouteQueryOptions) => {
@@ -527,7 +527,7 @@ searchWithPaciente.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/form-schema-complete.php:87
+* @see [serialized-closure]:2
 * @route '/api/competencies/search-with-paciente'
 */
 searchWithPaciente.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -536,7 +536,7 @@ searchWithPaciente.post = (options?: RouteQueryOptions): RouteDefinition<'post'>
 })
 
 /**
-* @see routes/form-schema-complete.php:87
+* @see [serialized-closure]:2
 * @route '/api/competencies/search-with-paciente'
 */
 const searchWithPacienteForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -545,7 +545,7 @@ const searchWithPacienteForm = (options?: RouteQueryOptions): RouteFormDefinitio
 })
 
 /**
-* @see routes/form-schema-complete.php:87
+* @see [serialized-closure]:2
 * @route '/api/competencies/search-with-paciente'
 */
 searchWithPacienteForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

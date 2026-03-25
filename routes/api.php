@@ -1388,6 +1388,15 @@ Route::middleware(['auth:sanctum'])->prefix('messaging')->group(function () {
     Route::get('metrics', [\App\Http\Controllers\Api\Messaging\MessagingSettingsController::class, 'getMetrics'])->name('messaging.metrics.summary');
 });
 
+// ── Admin Operations: Critical Operational Tasks (Alpha-1) ──
+Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
+    // Operations audit trail & management
+    Route::get('operations', [\App\Http\Controllers\Api\AdminOperationsController::class, 'index'])->name('admin.operations.index');
+    Route::post('operations/{operation}/preview', [\App\Http\Controllers\Api\AdminOperationsController::class, 'preview'])->name('admin.operations.preview');
+    Route::post('operations/{operation}/execute', [\App\Http\Controllers\Api\AdminOperationsController::class, 'execute'])->name('admin.operations.execute');
+    Route::post('operations/{operation}/cancel', [\App\Http\Controllers\Api\AdminOperationsController::class, 'cancel'])->name('admin.operations.cancel');
+});
+
 // ── Inbound n8n Webhooks (Unauthenticated, secured via X-N8n-Secret header) ──
 Route::post('/webhooks/n8n', [\App\Http\Controllers\Api\Automation\N8nController::class, 'handleWebhook'])->name('webhooks.n8n');
 
