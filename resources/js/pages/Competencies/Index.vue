@@ -26,6 +26,8 @@ import {
     PhSealCheck,
 } from '@phosphor-icons/vue';
 import SkillMaterializationWizard from '@/components/Competencies/SkillMaterializationWizard.vue';
+import { useCompetencyCrud } from '@/composables/useCompetencyCrud';
+import { useSkillCrud } from '@/composables/useSkillCrud';
 import { computed, onMounted, reactive, ref } from 'vue';
 
 defineOptions({ layout: AppLayout });
@@ -79,6 +81,9 @@ const skillForm = reactive({
     scope_type: 'domain',
     is_critical: false,
 });
+
+const competencyCrud = useCompetencyCrud();
+const skillCrud = useSkillCrud();
 
 // ─── Computed ─────────────────────────────────────────────────────────────────
 const filteredCompetencies = computed(() => {
@@ -159,7 +164,7 @@ const saveCompetency = async () => {
     saving.value = true;
     try {
         if (compEditing.value) {
-            await axios.patch(`/api/competencies/${compEditing.value.id}`, compForm);
+            await competencyCrud.updateCompetency(compEditing.value.id, compForm);
         } else {
             await axios.post('/api/competencies', compForm);
         }
@@ -176,7 +181,7 @@ const saveCompetency = async () => {
 const deleteCompetency = async (id: number) => {
     if (!confirm('¿Eliminar esta competencia?')) return;
     try {
-        await axios.delete(`/api/competencies/${id}`);
+        await competencyCrud.deleteCompetency(id);
         delete skillsCache.value[id];
         expandedCompetencies.value.delete(id);
         await loadCompetencies();
@@ -214,7 +219,7 @@ const saveSkill = async () => {
     saving.value = true;
     try {
         if (skillEditing.value) {
-            await axios.patch(`/api/skills/${skillEditing.value.id}`, skillForm);
+            await skillCrud.updateSkill(skillEditing.value.id, skillForm);
         } else {
             // Create skill then attach to competency
             const res = await axios.post('/api/skills', skillForm);
@@ -273,8 +278,7 @@ const curateSkill = async (skillId: number, competencyId: number) => {
         await loadSkillsForCompetency(competencyId);
         // Refresh detail if open
         if (detailSkill.value?.id === skillId) {
-            const res = await axios.get(`/api/skills/${skillId}`);
-            detailSkill.value = res.data?.data || res.data;
+            detailSkill.value = await skillCrud.fetchSkill(skillId);
         }
     } catch (e) {
         console.error('Error curating skill', e);
@@ -288,8 +292,7 @@ const generateQuestions = async (skillId: number, _competencyId: number) => {
     try {
         await axios.post(`/api/strategic-planning/assessments/curator/skills/${skillId}/generate-questions`);
         if (detailSkill.value?.id === skillId) {
-            const res = await axios.get(`/api/skills/${skillId}`);
-            detailSkill.value = res.data?.data || res.data;
+            detailSkill.value = await skillCrud.fetchSkill(skillId);
         }
     } catch (e) {
         console.error('Error generating questions', e);
@@ -344,8 +347,7 @@ const submitApprovalRequest = async () => {
 const openSkillDetail = async (skill: any) => {
     detailTab.value = 'info';
     try {
-        const res = await axios.get(`/api/skills/${skill.id}`);
-        detailSkill.value = res.data?.data || res.data || skill;
+        detailSkill.value = (await skillCrud.fetchSkill(skill.id)) || skill;
     } catch {
         detailSkill.value = skill;
     }

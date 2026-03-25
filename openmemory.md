@@ -4781,10 +4781,13 @@ expect($result['valid'])->toBeTrue();
 
 #### DRY Refactoring `Index.vue` (Competency Map)
 
-- `Index.vue` tiene ~5,478 líneas (UI + CRUD + layout + error handling mezclados)
+- `Index.vue` tiene ~1,300 líneas (UI + CRUD + layout + error handling mezclados)
 - Composables ya creados: `useNodeCrud`, `useCapabilityCrud`, `useSkillCrud`, `useCompetencyCrud`
-- **Pendiente:** aplicar composables al componente real (refactorización no completada)
-- Estado: composables creados ✅ — refactorización pendiente 📋
+- **Avance 2026-03-25:** integración parcial aplicada en `resources/js/pages/Competencies/Index.vue`
+    - `useCompetencyCrud`: update/delete de competencias
+    - `useSkillCrud`: update/fetch de skills y refresh de detalle
+- **Pendiente:** migrar flujos de creación/attach y consolidar estados de carga/errores para cierre total
+- Estado: en progreso 🟡
 
 #### Auto-accept / Auto-import tras generación LLM
 
