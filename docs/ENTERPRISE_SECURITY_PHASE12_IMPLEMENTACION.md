@@ -191,6 +191,8 @@ Tras cerrar Phase 12, el backlog inmediato queda así:
 - `app/Providers/EventServiceProvider.php`
 - `bootstrap/app.php`
 - `routes/api.php`
+- `routes/settings.php`
+- `resources/js/pages/settings/Security.vue`
 - `openmemory.md`
 
 ---
@@ -201,14 +203,14 @@ Tras cerrar Phase 12, el backlog inmediato queda así:
 
 - La cobertura actual se centra en eventos de autenticación base (login/logout/failed).
 - El enforcement MFA aplica por rol estático (`admin`, `hr_leader`) en middleware.
-- No se incluyó (en esta fase) UI web dedicada para visualizar logs de seguridad.
+- La UI de monitoreo está en MVP (resumen + filtros + tabla), sin alerting automático aún.
 
 ### Recomendado para iteración siguiente
 
-1. **UI en Settings > Security** para consumo del API de access logs.
-2. **Alerting proactivo** (ej. umbral de `login_failed` por IP en ventana temporal).
-3. **Catálogo de eventos expandido** (password reset, 2FA challenge failed, token revoked).
-4. **Retención/archivo** de logs de seguridad con política configurable por compliance.
+1. **Alerting proactivo** (ej. umbral de `login_failed` por IP en ventana temporal).
+2. **Catálogo de eventos expandido** (password reset, 2FA challenge failed, token revoked).
+3. **Retención/archivo** de logs de seguridad con política configurable por compliance.
+4. **Exportación y reportes** (CSV/PDF) para auditoría operativa.
 
 ---
 

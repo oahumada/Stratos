@@ -263,6 +263,26 @@ const formatDateTime = (value: string) => {
     });
 };
 
+const eventLabel = (event: string) => {
+    const labels: Record<string, string> = {
+        login: 'Inicio de sesión',
+        logout: 'Cierre de sesión',
+        login_failed: 'Intento fallido',
+    };
+
+    return labels[event] ?? event;
+};
+
+const eventColor = (event: string) => {
+    const colors: Record<string, string> = {
+        login: 'success',
+        logout: 'info',
+        login_failed: 'error',
+    };
+
+    return colors[event] ?? 'primary';
+};
+
 onMounted(async () => {
     await fetchRbac();
     await fetchSecurityData();
@@ -645,12 +665,12 @@ defineOptions({ layout: SettingsLayout });
                             >
                                 <thead>
                                     <tr>
-                                        <th>Fecha</th>
-                                        <th>Evento</th>
-                                        <th>Usuario / Email</th>
-                                        <th>Rol</th>
-                                        <th>IP</th>
-                                        <th>MFA</th>
+                                        <th scope="col">Fecha</th>
+                                        <th scope="col">Evento</th>
+                                        <th scope="col">Usuario / Email</th>
+                                        <th scope="col">Rol</th>
+                                        <th scope="col">IP</th>
+                                        <th scope="col">MFA</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -675,14 +695,10 @@ defineOptions({ layout: SettingsLayout });
                                         <td>
                                             <v-chip
                                                 size="small"
-                                                :color="
-                                                    log.event === 'login_failed'
-                                                        ? 'error'
-                                                        : 'primary'
-                                                "
+                                                :color="eventColor(log.event)"
                                                 variant="tonal"
                                             >
-                                                {{ log.event }}
+                                                {{ eventLabel(log.event) }}
                                             </v-chip>
                                         </td>
                                         <td>
