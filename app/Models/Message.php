@@ -15,8 +15,11 @@ class Message extends Model
     use HasFactory, SoftDeletes;
 
     protected $guarded = [];
+
     protected $keyType = 'string';
+
     public $incrementing = false;
+
     protected $casts = [
         'id' => 'string',
         'conversation_id' => 'string',
@@ -42,6 +45,11 @@ class Message extends Model
     }
 
     public function sender(): BelongsTo
+    {
+        return $this->belongsTo(People::class, 'people_id');
+    }
+
+    public function people(): BelongsTo
     {
         return $this->belongsTo(People::class, 'people_id');
     }

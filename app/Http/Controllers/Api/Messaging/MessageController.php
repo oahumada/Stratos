@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Messaging;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreMessageRequest;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Services\Messaging\MessagingService;
@@ -67,10 +66,17 @@ class MessageController extends Controller
         ]);
 
         try {
+            $user = $request->user();
+            $people = $user->people;
+
+            if (! $people) {
+                return response()->json(['message' => 'User profile not found'], 422);
+            }
+
             $message = $this->messagingService->sendMessage(
                 conversationId: $conversation->id,
-                organizationId: $request->user()->organization_id,
-                senderPeopleId: $request->user()->people->id,
+                organizationId: $user->organization_id,
+                senderPeopleId: $people->id,
                 body: $validated['body'],
                 replyToMessageId: $validated['reply_to_message_id'] ?? null,
             );

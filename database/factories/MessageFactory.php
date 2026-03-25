@@ -2,6 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Enums\MessageState;
+use App\Models\Conversation;
+use App\Models\Organization;
+use App\Models\People;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +21,11 @@ class MessageFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'body' => $this->faker->text(100),
+            'people_id' => People::factory(),
+            'conversation_id' => Conversation::factory(),
+            'organization_id' => Organization::factory(),
+            'state' => MessageState::SENT,
         ];
     }
 }
