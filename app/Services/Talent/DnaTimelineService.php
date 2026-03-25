@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * DnaTimelineService — Generador del Timeline Evolutivo (D6).
- * 
+ *
  * Agrega hitos de desarrollo de un colaborador a lo largo del tiempo:
  * - Cambios en niveles de habilidades (Evaluaciones).
  * - Puntos de XP ganados.
@@ -43,9 +43,9 @@ class DnaTimelineService
                 'icon' => 'mdi-trending-up',
                 'meta' => [
                     'skill_id' => $eval->skill_id,
-                    'current_level' => (float)$eval->current_level,
-                    'gap' => (float)$eval->gap
-                ]
+                    'current_level' => (float) $eval->current_level,
+                    'gap' => (float) $eval->gap,
+                ],
             ];
         }
 
@@ -64,7 +64,7 @@ class DnaTimelineService
                 'description' => $point->reason,
                 'status' => 'info',
                 'icon' => 'mdi-flash',
-                'meta' => json_decode($point->meta, true)
+                'meta' => json_decode($point->meta, true),
             ];
         }
 
@@ -82,13 +82,13 @@ class DnaTimelineService
                 'timestamp' => $badge->awarded_at,
                 'type' => 'badge_award',
                 'title' => "Medalla Obtenida: {$badge->name}",
-                'description' => "Reconocimiento otorgado por logros destacados.",
+                'description' => 'Reconocimiento otorgado por logros destacados.',
                 'status' => 'success',
                 'icon' => $badge->icon ?? 'mdi-medal',
                 'color' => $badge->color,
                 'meta' => [
-                    'badge_id' => $badge->badge_id
-                ]
+                    'badge_id' => $badge->badge_id,
+                ],
             ];
         }
 
@@ -110,8 +110,8 @@ class DnaTimelineService
                 'icon' => 'mdi-check-decagram',
                 'meta' => [
                     'quest_id' => $pq->quest_id,
-                    'points' => $pq->quest->points_reward
-                ]
+                    'points' => $pq->quest->points_reward,
+                ],
             ];
         }
 
@@ -132,7 +132,7 @@ class DnaTimelineService
                 'skills_analyzed' => $evaluations->unique('skill_id')->count(),
                 'badges_count' => $badges->count(),
                 'quests_completed' => $quests->count(),
-            ]
+            ],
         ];
     }
 }

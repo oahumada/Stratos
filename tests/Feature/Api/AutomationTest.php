@@ -5,14 +5,15 @@ namespace Tests\Feature\Api;
 use App\Models\Organizations;
 use App\Models\User;
 use App\Models\WebhookRegistry;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class AutomationTest extends TestCase
 {
     use RefreshDatabase;
 
     protected Organizations $organization;
+
     protected User $user;
 
     protected function setUp(): void

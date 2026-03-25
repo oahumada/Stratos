@@ -2,12 +2,9 @@
 
 namespace Tests\Feature\Verification;
 
-use App\Events\VerificationPhaseTransitioned;
 use App\Jobs\ProcessVerificationPhaseTransition;
 use App\Models\Organization;
-use App\Models\VerificationNotification;
 use App\Services\VerificationMetricsService;
-use App\Services\VerificationNotificationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;

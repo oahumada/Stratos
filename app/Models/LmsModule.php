@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class LmsModule extends Model
 {
-protected $fillable = [
+    protected $fillable = [
         'lms_course_id',
         'title',
         'order',

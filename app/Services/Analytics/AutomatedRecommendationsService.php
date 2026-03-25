@@ -5,7 +5,6 @@ namespace App\Services\Analytics;
 use App\Models\LLMEvaluation;
 use App\Services\LLMClient;
 use App\Services\RedactionService;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -43,7 +42,7 @@ class AutomatedRecommendationsService
         $recommendations = [];
 
         // System Performance Recommendations
-        if (!empty($anomalies)) {
+        if (! empty($anomalies)) {
             $recommendations = array_merge(
                 $recommendations,
                 $this->generatePerformanceRecommendations($anomalies, $currentMetrics)
@@ -60,7 +59,7 @@ class AutomatedRecommendationsService
 
         // Risk Mitigation Recommendations
         $talentAnomalies = $this->anomalyService->analyzeTalentAnomalies($organizationId);
-        if (!empty($talentAnomalies)) {
+        if (! empty($talentAnomalies)) {
             $recommendations = array_merge(
                 $recommendations,
                 $this->generateRiskRecommendations($talentAnomalies)
@@ -68,7 +67,7 @@ class AutomatedRecommendationsService
         }
 
         // Sort by priority
-        usort($recommendations, fn($a, $b) => $this->priorityScore($b) <=> $this->priorityScore($a));
+        usort($recommendations, fn ($a, $b) => $this->priorityScore($b) <=> $this->priorityScore($a));
 
         // Store in database
         $this->storeRecommendations($organizationId, $recommendations);
@@ -78,9 +77,9 @@ class AutomatedRecommendationsService
             'generated_at' => now()->toIso8601String(),
             'total_recommendations' => count($recommendations),
             'by_priority' => [
-                'critical' => count(array_filter($recommendations, fn($r) => $r['priority'] === 'CRITICAL')),
-                'high' => count(array_filter($recommendations, fn($r) => $r['priority'] === 'HIGH')),
-                'medium' => count(array_filter($recommendations, fn($r) => $r['priority'] === 'MEDIUM')),
+                'critical' => count(array_filter($recommendations, fn ($r) => $r['priority'] === 'CRITICAL')),
+                'high' => count(array_filter($recommendations, fn ($r) => $r['priority'] === 'HIGH')),
+                'medium' => count(array_filter($recommendations, fn ($r) => $r['priority'] === 'MEDIUM')),
             ],
             'recommendations' => $recommendations,
         ];
@@ -99,8 +98,8 @@ class AutomatedRecommendationsService
                 'category' => 'PERFORMANCE',
                 'priority' => 'HIGH',
                 'title' => 'Latency Spike Detected',
-                'description' => 'Current latency exceeds historical average by ' .
-                    $anomalies['avg_latency'][0]['z_score'] . 'σ',
+                'description' => 'Current latency exceeds historical average by '.
+                    $anomalies['avg_latency'][0]['z_score'].'σ',
                 'impact' => 'Slower verification transitions',
                 'suggested_actions' => [
                     'Check database query performance',
@@ -119,9 +118,9 @@ class AutomatedRecommendationsService
             $recommendations[] = [
                 'category' => 'COMPLIANCE',
                 'priority' => $deviation['severity'],
-                'title' => 'Compliance Score Trending ' . $deviation['direction'],
-                'description' => 'Compliance score changed from ' .
-                    round($deviation['old_average'], 2) . ' to ' .
+                'title' => 'Compliance Score Trending '.$deviation['direction'],
+                'description' => 'Compliance score changed from '.
+                    round($deviation['old_average'], 2).' to '.
                     round($deviation['new_average'], 2),
                 'impact' => 'Audit readiness risk',
                 'suggested_actions' => [
@@ -142,7 +141,7 @@ class AutomatedRecommendationsService
                 'category' => 'SYSTEM',
                 'priority' => $health['severity'],
                 'title' => 'System Health Degradation',
-                'description' => 'Verification failure rate: ' . $health['failure_rate'] . '%',
+                'description' => 'Verification failure rate: '.$health['failure_rate'].'%',
                 'impact' => 'Production reliability at risk',
                 'suggested_actions' => [
                     $health['recommendation'],
@@ -196,7 +195,7 @@ class AutomatedRecommendationsService
                     'category' => 'CAPACITY',
                     'priority' => $priority,
                     'title' => 'Projected Capacity Saturation',
-                    'description' => 'System will reach capacity in approximately ' . $daysUntilFull . ' days',
+                    'description' => 'System will reach capacity in approximately '.$daysUntilFull.' days',
                     'impact' => 'Service disruption risk',
                     'suggested_actions' => [
                         'Plan infrastructure scaling',
@@ -226,7 +225,7 @@ class AutomatedRecommendationsService
                 'category' => 'TALENT',
                 'priority' => 'HIGH',
                 'title' => 'Critical Skill Gaps Detected',
-                'description' => 'Identified ' . count($anomalies['skill_gaps']) . ' critical skill deficiencies',
+                'description' => 'Identified '.count($anomalies['skill_gaps']).' critical skill deficiencies',
                 'impact' => 'Project delivery risk',
                 'suggested_actions' => [
                     'Launch targeted recruitment',
@@ -244,7 +243,7 @@ class AutomatedRecommendationsService
                 'category' => 'TALENT',
                 'priority' => 'HIGH',
                 'title' => 'Role Vacancy Risk',
-                'description' => 'Potential vacancies in ' . count($anomalies['role_vacancies']) . ' critical roles',
+                'description' => 'Potential vacancies in '.count($anomalies['role_vacancies']).' critical roles',
                 'impact' => 'Organizational continuity risk',
                 'suggested_actions' => [
                     'Develop succession plans',
@@ -292,7 +291,7 @@ class AutomatedRecommendationsService
                 'tags' => ['recommendations', 'ai_generated', 'system_insights'],
             ]);
         } catch (\Exception $e) {
-            Log::warning('Failed to store recommendations: ' . $e->getMessage());
+            Log::warning('Failed to store recommendations: '.$e->getMessage());
         }
     }
 
@@ -304,7 +303,7 @@ class AutomatedRecommendationsService
         array $recommendation,
         bool $useLLM = false
     ): array {
-        if (!$useLLM) {
+        if (! $useLLM) {
             return $recommendation;
         }
 
@@ -322,7 +321,7 @@ class AutomatedRecommendationsService
 
             $recommendation['llm_explanation'] = $response['response']['raw_text'] ?? null;
         } catch (\Exception $e) {
-            Log::error('LLM explanation generation failed: ' . $e->getMessage());
+            Log::error('LLM explanation generation failed: '.$e->getMessage());
         }
 
         return $recommendation;
@@ -334,11 +333,11 @@ class AutomatedRecommendationsService
     private function buildExplanationPrompt(array $recommendation): string
     {
         return sprintf(
-            'Provide a detailed technical explanation for this recommendation:\n\n' .
-            'Category: %s\n' .
-            'Title: %s\n' .
-            'Description: %s\n' .
-            'Impact: %s\n\n' .
+            'Provide a detailed technical explanation for this recommendation:\n\n'.
+            'Category: %s\n'.
+            'Title: %s\n'.
+            'Description: %s\n'.
+            'Impact: %s\n\n'.
             'Include: root cause analysis, implementation steps, and success metrics.',
             $recommendation['category'],
             $recommendation['title'],

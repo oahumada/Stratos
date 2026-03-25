@@ -39,7 +39,7 @@ class MockLmsProvider implements LmsProviderInterface
             return $mockCatalog;
         }
 
-        return array_values(array_filter($mockCatalog, function($c) use ($query) {
+        return array_values(array_filter($mockCatalog, function ($c) use ($query) {
             return stripos($c['title'], $query) !== false;
         }));
     }

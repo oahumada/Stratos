@@ -18,7 +18,7 @@ class AgentController extends Controller
         $agents = Agent::withoutGlobalScope('organization')
             ->where(function ($query) {
                 $query->whereNull('organization_id')
-                      ->orWhere('organization_id', auth()->user()->organization_id);
+                    ->orWhere('organization_id', auth()->user()->organization_id);
             })
             ->where('is_active', true)
             ->get();

@@ -12,12 +12,12 @@ beforeEach(function () {
 test('role hierarchy and permissions', function ($role, $permission, $shouldHave) {
     $user = User::factory()->create([
         'organization_id' => $this->org->id,
-        'role' => $role
+        'role' => $role,
     ]);
 
     $has = $user->hasPermission($permission);
 
-    expect($has)->toBe($shouldHave, "Role '{$role}' should " . ($shouldHave ? '' : 'NOT ') . "have '{$permission}'");
+    expect($has)->toBe($shouldHave, "Role '{$role}' should ".($shouldHave ? '' : 'NOT ')."have '{$permission}'");
 })->with([
     'Admin scenarios' => ['admin', 'scenarios.create', true],
     'Admin settings' => ['admin', 'settings.manage', true],

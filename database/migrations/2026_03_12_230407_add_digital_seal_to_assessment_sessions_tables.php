@@ -14,7 +14,7 @@ return new class extends Migration
         $tables = [
             'assessment_requests',
             'assessment_sessions',
-            'psychometric_profiles'
+            'psychometric_profiles',
         ];
 
         foreach ($tables as $tableName) {
@@ -36,7 +36,7 @@ return new class extends Migration
         $tables = [
             'assessment_requests',
             'assessment_sessions',
-            'psychometric_profiles'
+            'psychometric_profiles',
         ];
 
         foreach ($tables as $tableName) {

@@ -17,7 +17,7 @@ class OrganizationSnapshot extends Model
         'total_people',
         'learning_velocity',
         'stratos_iq',
-        'metadata'
+        'metadata',
     ];
 
     protected $casts = [

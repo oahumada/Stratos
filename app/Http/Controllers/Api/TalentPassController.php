@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
 use App\Models\People;
 use App\Models\VerifiableCredential;
 use App\Traits\ApiResponses;
-use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class TalentPassController extends Controller
 {
@@ -25,13 +24,13 @@ class TalentPassController extends Controller
             'skills' => function ($query) {
                 // Return active skills up to date
                 $query->wherePivot('is_active', true)
-                      ->wherePivot('current_level', '>=', 1);
+                    ->wherePivot('current_level', '>=', 1);
             },
-            'badges'
+            'badges',
         ])->findOrFail($people_id);
 
         $wallet = [
-            'did' => 'did:stratos:' . Str::uuid(), // Mock Decentralized Identifier
+            'did' => 'did:stratos:'.Str::uuid(), // Mock Decentralized Identifier
             'holder_name' => $person->full_name,
             'department' => $person->department->name ?? 'N/A',
             'role' => $person->role->name ?? 'N/A',
@@ -52,7 +51,7 @@ class TalentPassController extends Controller
                     return [
                         'skill_name' => $s->name,
                         'level' => $s->pivot->current_level,
-                        'verified' => (bool)$s->pivot->verified,
+                        'verified' => (bool) $s->pivot->verified,
                     ];
                 }),
                 'badges' => $person->badges->map(function ($b) {
@@ -60,8 +59,8 @@ class TalentPassController extends Controller
                         'badge_name' => $b->name,
                         'awarded_at' => $b->pivot->awarded_at,
                     ];
-                })
-            ]
+                }),
+            ],
         ];
 
         return $this->successResponse($wallet, 'Talent Pass retrieved successfully');
@@ -75,7 +74,7 @@ class TalentPassController extends Controller
     {
         $request->validate([
             'type' => 'required|string',
-            'payload' => 'required|array'
+            'payload' => 'required|array',
         ]);
 
         $person = People::findOrFail($people_id);
@@ -84,11 +83,11 @@ class TalentPassController extends Controller
             'people_id' => $person->id,
             'type' => $request->type, // e.g., 'SkillAssessment', 'QuestCompletion'
             'issuer_name' => 'Stratos Platform',
-            'issuer_did' => 'did:stratos:issuer:' . config('app.url'),
+            'issuer_did' => 'did:stratos:issuer:'.config('app.url'),
             'credential_data' => $request->payload,
-            'cryptographic_signature' => '0x' . bin2hex(random_bytes(32)), // Mock signature
+            'cryptographic_signature' => '0x'.bin2hex(random_bytes(32)), // Mock signature
             'issued_at' => Carbon::now(),
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         return $this->successResponse($vc, 'Verifiable Credential issued successfully', 201);

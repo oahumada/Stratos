@@ -164,6 +164,7 @@ class StratosIntelligenceController extends Controller
             return $this->error('Error: '.$e->getMessage(), 500);
         }
     }
+
     /**
      * POST /api/intelligence/nudges/run
      */

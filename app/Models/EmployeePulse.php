@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\HasDigitalSeal;
+use Illuminate\Database\Eloquent\Model;
 
 class EmployeePulse extends Model
 {
     use HasDigitalSeal;
+
     protected $table = 'employee_pulses';
 
     protected $fillable = [

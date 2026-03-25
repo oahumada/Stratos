@@ -31,23 +31,24 @@ class ProactiveNudgeCommand extends Command
 
         $this->info('🚀 Iniciando Stratos Proactive Nudge...');
 
-        $organizations = $orgId 
-            ? Organizations::where('id', $orgId)->get() 
+        $organizations = $orgId
+            ? Organizations::where('id', $orgId)->get()
             : Organizations::all();
 
         if ($organizations->isEmpty()) {
             $this->error('No se encontraron organizaciones.');
+
             return;
         }
 
         foreach ($organizations as $org) {
             $this->comment("Analizando organización: {$org->name} (ID: {$org->id})");
-            
+
             try {
                 $result = $orchestrator->orchestrate($org->id);
                 $this->info("✅ Generados {$result['total_nudges_generated']} nudges para {$org->name}.");
             } catch (\Exception $e) {
-                $this->error("❌ Error en {$org->name}: " . $e->getMessage());
+                $this->error("❌ Error en {$org->name}: ".$e->getMessage());
             }
         }
 

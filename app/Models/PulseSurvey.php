@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasDigitalSeal;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\HasDigitalSeal;
 
 class PulseSurvey extends Model
 {
-    use HasFactory, HasDigitalSeal;
+    use HasDigitalSeal, HasFactory;
 
     protected $fillable = [
         'title',

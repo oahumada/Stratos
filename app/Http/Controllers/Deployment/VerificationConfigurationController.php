@@ -78,7 +78,7 @@ class VerificationConfigurationController extends Controller
     private function saveConfiguration(array $config): void
     {
         $configPath = config_path('verification-deployment.php');
-        $content = "<?php\n\nreturn " . var_export($config, true) . ";\n";
+        $content = "<?php\n\nreturn ".var_export($config, true).";\n";
 
         File::put($configPath, $content);
     }
@@ -87,8 +87,9 @@ class VerificationConfigurationController extends Controller
     {
         $envFile = base_path('.env');
 
-        if (!File::exists($envFile)) {
+        if (! File::exists($envFile)) {
             File::put($envFile, "{$key}={$value}\n");
+
             return;
         }
 

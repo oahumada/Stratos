@@ -19,15 +19,17 @@ class CrisisSimulatorServiceTest extends TestCase
     use RefreshDatabase;
 
     protected CrisisSimulatorService $service;
+
     protected $org;
+
     protected $scenario;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->org = Organization::factory()->create();
-        
+
         // Mocking dependencies
         $orchestrator = Mockery::mock(AiOrchestratorService::class);
         $this->instance(AiOrchestratorService::class, $orchestrator);
@@ -46,7 +48,7 @@ class CrisisSimulatorServiceTest extends TestCase
             'end_date' => now()->addYear()->toDateString(),
             'horizon_months' => 12,
             'fiscal_year' => 2026,
-            'scope_type' => 'organization_wide'
+            'scope_type' => 'organization_wide',
         ]);
     }
 
@@ -57,12 +59,12 @@ class CrisisSimulatorServiceTest extends TestCase
         $people = People::factory()->count(10)->create([
             'organization_id' => $this->org->id,
             'role_id' => $role->id,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $params = [
             'attrition_rate' => 20, // 2 people should leave
-            'timeframe_months' => 6
+            'timeframe_months' => 6,
         ];
 
         // 2. Act
@@ -80,20 +82,20 @@ class CrisisSimulatorServiceTest extends TestCase
         // 1. Arrange: Create skills and people having them
         $skill = Skill::factory()->create(['organization_id' => $this->org->id]);
         $role = Roles::factory()->create(['organization_id' => $this->org->id]);
-        
+
         $person = People::factory()->create(['organization_id' => $this->org->id, 'role_id' => $role->id]);
         PeopleRoleSkills::create([
             'people_id' => $person->id,
             'skill_id' => $skill->id,
             'role_id' => $role->id,
             'current_level' => 3,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $params = [
             'obsolete_skill_ids' => [$skill->id],
             'emerging_skills' => ['AI Tools'],
-            'horizon_months' => 12
+            'horizon_months' => 12,
         ];
 
         // 2. Act

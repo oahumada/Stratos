@@ -149,7 +149,8 @@ const modules = computed(() => [
     },
     {
         title: 'Admin Operations',
-        description: 'Manage system operations: backfill metrics, generate scenarios, cleanup data, rebuild indexes',
+        description:
+            'Manage system operations: backfill metrics, generate scenarios, cleanup data, rebuild indexes',
         icon: PhGear,
         href: '/admin/operations',
         iconColor: 'text-slate-300',

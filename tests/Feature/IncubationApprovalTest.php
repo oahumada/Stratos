@@ -15,13 +15,15 @@ class IncubationApprovalTest extends TestCase
     use RefreshDatabase;
 
     protected $org;
+
     protected $user;
+
     protected $scenario;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->org = Organization::factory()->create();
         $this->user = User::factory()->create(['organization_id' => $this->org->id]);
 
@@ -36,7 +38,7 @@ class IncubationApprovalTest extends TestCase
             'end_date' => now()->addMonths(6)->toDateString(),
             'horizon_months' => 6,
             'fiscal_year' => 2026,
-            'scope_type' => 'organization_wide'
+            'scope_type' => 'organization_wide',
         ]);
     }
 
@@ -46,20 +48,20 @@ class IncubationApprovalTest extends TestCase
             'organization_id' => $this->org->id,
             'name' => 'AI Prompting',
             'status' => 'in_incubation',
-            'discovered_in_scenario_id' => $this->scenario->id
+            'discovered_in_scenario_id' => $this->scenario->id,
         ]);
 
         $response = $this->actingAs($this->user, 'sanctum')
             ->postJson("/api/strategic-planning/scenarios/{$this->scenario->id}/incubated-items/approve", [
                 'items' => [
-                    ['type' => 'competency', 'id' => $competency->id]
-                ]
+                    ['type' => 'competency', 'id' => $competency->id],
+                ],
             ]);
 
         $response->assertStatus(200);
         $this->assertDatabaseHas('competencies', [
             'id' => $competency->id,
-            'status' => 'active'
+            'status' => 'active',
         ]);
     }
 
@@ -75,27 +77,27 @@ class IncubationApprovalTest extends TestCase
             'human_leverage' => 80,
             'synthetic_leverage' => 20,
             'recommended_strategy' => 'augment',
-            'agent_specs' => ['type' => 'analyst']
+            'agent_specs' => ['type' => 'analyst'],
         ]);
 
         $response = $this->actingAs($this->user, 'sanctum')
             ->postJson("/api/strategic-planning/scenarios/{$this->scenario->id}/incubated-items/approve", [
                 'items' => [
-                    ['type' => 'role', 'id' => $blueprint->id]
-                ]
+                    ['type' => 'role', 'id' => $blueprint->id],
+                ],
             ]);
 
         $response->assertStatus(200);
-        
+
         $this->assertDatabaseHas('talent_blueprints', [
             'id' => $blueprint->id,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $this->assertDatabaseHas('roles', [
             'organization_id' => $this->org->id,
             'name' => 'AI Engineer',
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $role = \App\Models\Roles::where('name', 'AI Engineer')->first();
@@ -104,7 +106,7 @@ class IncubationApprovalTest extends TestCase
         $this->assertDatabaseHas('scenario_roles', [
             'scenario_id' => $this->scenario->id,
             'role_id' => $role->id,
-            'archetype' => 'E'
+            'archetype' => 'E',
         ]);
     }
 }

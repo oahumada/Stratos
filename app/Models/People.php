@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use App\Traits\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,11 +10,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-use App\Traits\BelongsToOrganization;
-
 class People extends Model
 {
-    use HasFactory, SoftDeletes, BelongsToOrganization;
+    use BelongsToOrganization, HasFactory, SoftDeletes;
 
     protected $table = 'people';
 
@@ -40,7 +38,6 @@ class People extends Model
         'hire_date' => 'date',
         'is_high_potential' => 'boolean',
     ];
-
 
     public function organization(): BelongsTo
     {

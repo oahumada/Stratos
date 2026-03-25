@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Log;
 class UdemyBusinessProvider implements LmsProviderInterface
 {
     protected string $accountName;
+
     protected string $clientId;
+
     protected string $clientSecret;
 
     public function __construct()
@@ -20,13 +22,13 @@ class UdemyBusinessProvider implements LmsProviderInterface
 
     public function getLaunchUrl(string $courseId, ?string $userId = null): string
     {
-        return "https://" . $this->accountName . ".udemy.com/courses/" . $courseId;
+        return 'https://'.$this->accountName.'.udemy.com/courses/'.$courseId;
     }
 
     public function enrollUser(string $courseId, string $userId): string
     {
         // Udemy suele registrar la inscripción vía SSO (SAML)
-        return "udemy_" . $courseId . "_" . $userId;
+        return 'udemy_'.$courseId.'_'.$userId;
     }
 
     public function getProgress(string $enrollmentId): float
@@ -55,11 +57,12 @@ class UdemyBusinessProvider implements LmsProviderInterface
                     'id' => 'ud-001',
                     'title' => 'Especialista en Mantenimiento Industrial y Robótica',
                     'description' => 'Curso integral de Udemy Business sobre automatización de planta.',
-                    'provider' => 'udemy'
-                ]
+                    'provider' => 'udemy',
+                ],
             ];
         } catch (\Exception $e) {
-            Log::error("Error searching Udemy Business: " . $e->getMessage());
+            Log::error('Error searching Udemy Business: '.$e->getMessage());
+
             return [];
         }
     }

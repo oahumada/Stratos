@@ -135,7 +135,7 @@ class VerificationDashboardController extends Controller
                     ];
 
                     echo "event: verification-update\n";
-                    echo 'data: ' . json_encode($data) . "\n\n";
+                    echo 'data: '.json_encode($data)."\n\n";
                     $lastEventId = $event->created_at->toIso8601String();
                 }
 
@@ -180,7 +180,7 @@ class VerificationDashboardController extends Controller
             return response()->json([
                 'format' => 'csv',
                 'data' => $csv,
-                'filename' => 'verification-metrics-' . now()->format('Y-m-d-H-i-s') . '.csv',
+                'filename' => 'verification-metrics-'.now()->format('Y-m-d-H-i-s').'.csv',
             ]);
         }
 
@@ -194,7 +194,7 @@ class VerificationDashboardController extends Controller
                 'retryRate' => $d->retry_rate,
                 'sampleSize' => $d->sample_size,
             ]),
-            'filename' => 'verification-metrics-' . now()->format('Y-m-d-H-i-s') . '.json',
+            'filename' => 'verification-metrics-'.now()->format('Y-m-d-H-i-s').'.json',
         ]);
     }
 

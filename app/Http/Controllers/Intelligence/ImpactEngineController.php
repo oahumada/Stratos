@@ -21,11 +21,11 @@ class ImpactEngineController extends Controller
     {
         $orgId = $request->header('X-Organization-ID') ?? Organization::first()?->id;
 
-        if (!$orgId) {
+        if (! $orgId) {
             return response()->json(['error' => 'Organization not found'], 404);
         }
 
-        $kpis = $this->impactEngine->calculateFinancialKPIs((int)$orgId);
+        $kpis = $this->impactEngine->calculateFinancialKPIs((int) $orgId);
 
         return response()->json($kpis);
     }

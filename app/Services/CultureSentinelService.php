@@ -58,7 +58,7 @@ class CultureSentinelService
     protected function calculateCVFRadar(array $signals): array
     {
         $traits = $signals['trait_distribution'];
-        
+
         // Mapeo lógico de rasgos a cuadrantes CVF
         $clan = (($traits['Empatía'] ?? 50) + ($traits['Cooperación'] ?? 50)) / 2;
         $adhocracy = (($traits['Creatividad'] ?? 50) + ($traits['Apertura'] ?? 50)) / 2;
@@ -82,12 +82,12 @@ class CultureSentinelService
         // Simulamos una fricción basada en la varianza de los cuadrantes y el sentimiento bajo.
         $avgCVF = array_sum($cvfRadar) / 4;
         $variance = 0;
-        foreach($cvfRadar as $val) {
+        foreach ($cvfRadar as $val) {
             $variance += abs($val - $avgCVF);
         }
-        
+
         $friction = ($variance / 2) + (100 - $signals['avg_sentiment']) * 0.3;
-        
+
         return (int) max(5, min(95, round($friction)));
     }
 

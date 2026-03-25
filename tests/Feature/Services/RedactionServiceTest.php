@@ -205,7 +205,7 @@ describe('RedactionAuditTrail Models', function () {
 
 describe('RedactionMetricsService', function () {
     beforeEach(function () {
-        $this->service = new RedactionMetricsService();
+        $this->service = new RedactionMetricsService;
     });
 
     it('gets organization metrics', function () {

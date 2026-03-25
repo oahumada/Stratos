@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\VerificationEvent;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -22,8 +21,8 @@ class VerificationMetricsService
     /**
      * Get metrics for an organization in a time window
      *
-     * @param int $organizationId Organization to analyze
-     * @param int $windowHours Time window in hours (default: 24)
+     * @param  int  $organizationId  Organization to analyze
+     * @param  int  $windowHours  Time window in hours (default: 24)
      * @return array Metrics with statistics
      */
     public function getOrganizationMetrics(
@@ -69,9 +68,7 @@ class VerificationMetricsService
     /**
      * Aggregate event statistics
      *
-     * @param \Illuminate\Database\Eloquent\Collection $events
-     * @param int $organizationId
-     * @param int $windowHours
+     * @param  \Illuminate\Database\Eloquent\Collection  $events
      * @return array Aggregated metrics
      */
     private function aggregateEventMetrics(
@@ -173,8 +170,6 @@ class VerificationMetricsService
     /**
      * Get detailed metrics by verification type
      *
-     * @param int $organizationId
-     * @param int $windowHours
      * @return array Metrics broken down by agent/type
      */
     public function getDetailedMetricsByType(

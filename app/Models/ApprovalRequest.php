@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 
 class ApprovalRequest extends Model
 {
-    use SoftDeletes, HasDigitalSeal;
+    use HasDigitalSeal, SoftDeletes;
 
     protected $fillable = [
         'token',

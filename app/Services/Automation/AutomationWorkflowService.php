@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 class AutomationWorkflowService
 {
     protected int $maxRetries = 3;
+
     protected int $retryDelaySeconds = 60;
 
     public function __construct(private HybridGatewayService $gatewayService) {}
@@ -156,7 +157,7 @@ class AutomationWorkflowService
     {
         $cached = Cache::get("automation:execution:{$executionId}");
 
-        if (!$cached) {
+        if (! $cached) {
             return [
                 'execution_id' => $executionId,
                 'status' => 'not_found',
@@ -249,7 +250,7 @@ class AutomationWorkflowService
         $pattern = "automation:execution:{$organizationId}:*";
         $keys = Cache::many(array_keys(array_flip(
             collect(Cache::store('array')->getPrefix())
-                ->filter(fn($key) => str_contains($key, $pattern))
+                ->filter(fn ($key) => str_contains($key, $pattern))
                 ->toArray()
         )));
 

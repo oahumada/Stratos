@@ -12,11 +12,17 @@ abstract class DomainEvent
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public string $eventId;
+
     public string $occurredAt;
+
     public string $aggregateId;
+
     public string $aggregateType;
+
     public int $organizationId;
+
     public ?int $actorId;
+
     public array $payload;
 
     /**

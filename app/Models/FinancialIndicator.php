@@ -13,12 +13,12 @@ class FinancialIndicator extends Model
         'indicator_type',
         'value',
         'currency',
-        'reference_date'
+        'reference_date',
     ];
 
     protected $casts = [
         'value' => 'decimal:2',
-        'reference_date' => 'date'
+        'reference_date' => 'date',
     ];
 
     public function organization(): BelongsTo

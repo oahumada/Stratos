@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Messaging;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\GetMessagingSettingsRequest;
 use App\Http\Requests\UpdateMessagingSettingsRequest;
 use App\Models\Conversation;
 use App\Models\Message;
@@ -26,7 +25,7 @@ class MessagingSettingsController extends Controller
             'enable_read_receipts' => true,
             'enable_typing_indicators' => true,
             'allowed_context_types' => [
-                'scenario', 'learning_path', 'project', 'evaluation', 'alert', 'general'
+                'scenario', 'learning_path', 'project', 'evaluation', 'alert', 'general',
             ],
         ];
 
@@ -41,7 +40,7 @@ class MessagingSettingsController extends Controller
     public function updateSettings(UpdateMessagingSettingsRequest $request): JsonResponse
     {
         $orgId = $request->user()->people?->organization_id;
-        
+
         // In real implementation, these would be stored in a settings table
         $settings = [
             'organization_id' => $orgId,
@@ -50,7 +49,7 @@ class MessagingSettingsController extends Controller
             'enable_read_receipts' => $request->boolean('enable_read_receipts', true),
             'enable_typing_indicators' => $request->boolean('enable_typing_indicators', true),
             'allowed_context_types' => $request->input('allowed_context_types', [
-                'scenario', 'learning_path', 'project', 'evaluation', 'alert', 'general'
+                'scenario', 'learning_path', 'project', 'evaluation', 'alert', 'general',
             ]),
             'updated_at' => now()->toIso8601String(),
         ];
@@ -73,7 +72,7 @@ class MessagingSettingsController extends Controller
         $totalMessages = Message::whereHas('conversation', function ($q) use ($orgId) {
             $q->where('organization_id', $orgId);
         })->count();
-        
+
         $unreadMessages = Message::whereHas('conversation', function ($q) use ($orgId) {
             $q->where('organization_id', $orgId);
         })->where('state', '!=', 'read')->count();

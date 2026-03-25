@@ -2,13 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\CulturalBlueprint;
 use App\Models\People;
+use App\Models\PsychometricProfile;
 use App\Models\PulseResponse;
 use App\Models\PulseSurvey;
-use App\Models\PsychometricProfile;
-use App\Models\CulturalBlueprint;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class CultureDemoSeeder extends Seeder
 {
@@ -26,12 +25,12 @@ class CultureDemoSeeder extends Seeder
                     'Innovación Radical (Adhocracia)',
                     'Meritocracia Basada en Datos (Mercado)',
                     'Bienestar del Colaborador (Clan)',
-                    'Integridad Criptográfica (Jerarquía)'
+                    'Integridad Criptográfica (Jerarquía)',
                 ],
                 'principles' => [
                     'Transparencia Algorítmica',
                     'Human-in-the-loop',
-                    'Privacidad por Diseño'
+                    'Privacidad por Diseño',
                 ],
             ]
         );
@@ -68,7 +67,7 @@ class CultureDemoSeeder extends Seeder
             'Empatía', 'Cooperación', // Clan
             'Creatividad', 'Apertura', // Adhocracia
             'Ambición', 'Persistencia', // Mercado
-            'Orden', 'Responsabilidad' // Jerarquía
+            'Orden', 'Responsabilidad', // Jerarquía
         ];
 
         foreach ($people as $person) {
@@ -76,7 +75,7 @@ class CultureDemoSeeder extends Seeder
                 PsychometricProfile::updateOrCreate(
                     [
                         'people_id' => $person->id,
-                        'trait_name' => $trait
+                        'trait_name' => $trait,
                     ],
                     [
                         'score' => rand(600, 950) / 1000,

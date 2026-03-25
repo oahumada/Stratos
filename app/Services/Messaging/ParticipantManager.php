@@ -12,10 +12,6 @@ class ParticipantManager
     /**
      * Add multiple participants to a conversation in one transaction.
      *
-     * @param Conversation $conversation
-     * @param array $peopleIds
-     * @param bool $canSend
-     * @param bool $canRead
      * @return Collection of ConversationParticipant
      */
     public function addMultiple(
@@ -45,6 +41,7 @@ class ParticipantManager
                         ]);
                     }
                     $participants[] = $existing;
+
                     continue;
                 }
 
@@ -69,9 +66,6 @@ class ParticipantManager
     /**
      * Validate that all people IDs exist and belong to the given organization.
      *
-     * @param int $organizationId
-     * @param array $peopleIds
-     * @return void
      *
      * @throws \Exception if any people not found or not in organization
      */
@@ -91,8 +85,7 @@ class ParticipantManager
     /**
      * Get count of active (non-removed) participants in a conversation.
      *
-     * @param string $conversationId   (UUID)
-     * @return int
+     * @param  string  $conversationId  (UUID)
      */
     public function getActiveCount(string $conversationId): int
     {

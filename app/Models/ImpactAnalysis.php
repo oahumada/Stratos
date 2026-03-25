@@ -20,13 +20,13 @@ class ImpactAnalysis extends Model
         'recommendations',
         'digital_signature',
         'signed_at',
-        'signature_version'
+        'signature_version',
     ];
 
     protected $casts = [
         'correlations' => 'array',
         'recommendations' => 'array',
-        'signed_at' => 'datetime'
+        'signed_at' => 'datetime',
     ];
 
     public function organization(): BelongsTo

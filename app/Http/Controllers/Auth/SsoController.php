@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Laravel\Socialite\Facades\Socialite;
-use Illuminate\Support\Str;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 
 class SsoController extends Controller
 {
@@ -16,7 +16,7 @@ class SsoController extends Controller
      */
     public function redirect(string $provider): RedirectResponse
     {
-        if (!in_array($provider, ['google', 'microsoft'])) {
+        if (! in_array($provider, ['google', 'microsoft'])) {
             return redirect('/login')->with('error', 'Proveedor no soportado.');
         }
 
@@ -31,8 +31,9 @@ class SsoController extends Controller
         try {
             $socialUser = Socialite::driver($provider)->user();
         } catch (\Exception $e) {
-            \Log::error("SSO Error with $provider: " . $e->getMessage());
-            return redirect('/login')->with('error', 'Error al autenticar con ' . ucfirst($provider));
+            \Log::error("SSO Error with $provider: ".$e->getMessage());
+
+            return redirect('/login')->with('error', 'Error al autenticar con '.ucfirst($provider));
         }
 
         // 1. Buscar usuario por ID de proveedor
@@ -40,7 +41,7 @@ class SsoController extends Controller
             ->where('provider_name', $provider)
             ->first();
 
-        if (!$user) {
+        if (! $user) {
             // 2. Si no existe por ID, buscar por email (vincular cuenta)
             $user = User::where('email', $socialUser->getEmail())->first();
 
@@ -66,7 +67,7 @@ class SsoController extends Controller
 
         // Actualizar último login
         $user->update(['last_login_at' => now()]);
-        
+
         Auth::login($user);
 
         return redirect()->intended('/dashboard');

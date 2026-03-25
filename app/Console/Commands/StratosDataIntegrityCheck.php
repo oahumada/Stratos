@@ -6,7 +6,6 @@ use App\Models\BusinessMetric;
 use App\Models\Departments;
 use App\Models\Organization;
 use App\Models\People;
-use App\Models\Scenario;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -33,34 +32,36 @@ class StratosDataIntegrityCheck extends Command
     {
         $orgId = $this->option('org') ?? Organization::first()?->id;
 
-        if (!$orgId) {
+        if (! $orgId) {
             $this->error('No organization specified and none found in DB.');
+
             return 1;
         }
 
         $this->info("=== Stratos Data Integrity Check: Organization #{$orgId} ===");
-        
+
         $this->checkOrphanedPeople($orgId);
         $this->checkFinancialGaps($orgId);
         $this->checkSkillGaps($orgId);
         $this->checkGravitationalNodes($orgId);
 
-        $this->info("=== End of Check ===");
+        $this->info('=== End of Check ===');
+
         return 0;
     }
 
     protected function checkOrphanedPeople($orgId)
     {
         $orphaned = People::where('organization_id', $orgId)
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->whereNull('department_id')
-                  ->orWhereNull('role_id');
+                    ->orWhereNull('role_id');
             })->count();
 
         if ($orphaned > 0) {
             $this->warn("⚠️ Found {$orphaned} people without Department or Role assigned. These will not contribute to HCVA accurately.");
         } else {
-            $this->info("✅ All people are correctly linked to Departments and Roles.");
+            $this->info('✅ All people are correctly linked to Departments and Roles.');
         }
     }
 
@@ -73,14 +74,16 @@ class StratosDataIntegrityCheck extends Command
             $exists = BusinessMetric::where('organization_id', $orgId)
                 ->where('metric_name', $metric)
                 ->exists();
-            
-            if (!$exists) $missing[] = $metric;
+
+            if (! $exists) {
+                $missing[] = $metric;
+            }
         }
 
         if (count($missing) > 0) {
-            $this->error("❌ Missing critical financial metrics: " . implode(', ', $missing) . ". Impact Engine will use fallback/zero values.");
+            $this->error('❌ Missing critical financial metrics: '.implode(', ', $missing).'. Impact Engine will use fallback/zero values.');
         } else {
-            $this->info("✅ Found all core financial metrics needed for HCVA calculation.");
+            $this->info('✅ Found all core financial metrics needed for HCVA calculation.');
         }
     }
 
@@ -96,17 +99,17 @@ class StratosDataIntegrityCheck extends Command
         if ($peopleWithoutSkills > 0) {
             $this->warn("⚠️ Found {$peopleWithoutSkills} people without skill assessments. Competency Mesh analysis will be incomplete.");
         } else {
-            $this->info("✅ All people have at least one skill assessment recorded.");
+            $this->info('✅ All people have at least one skill assessment recorded.');
         }
     }
 
     protected function checkGravitationalNodes($orgId)
     {
         $emptyNodes = Departments::where('organization_id', $orgId)
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->whereNull('aliases')
-                  ->orWhere(DB::raw('CAST(aliases AS TEXT)'), '[]')
-                  ->orWhere(DB::raw('CAST(aliases AS TEXT)'), '');
+                    ->orWhere(DB::raw('CAST(aliases AS TEXT)'), '[]')
+                    ->orWhere(DB::raw('CAST(aliases AS TEXT)'), '');
             })->count();
 
         if ($emptyNodes > 0) {

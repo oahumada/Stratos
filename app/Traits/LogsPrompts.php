@@ -32,7 +32,7 @@ trait LogsPrompts
      * @param  string  $prompt  The original prompt (not stored in plaintext)
      * @param  mixed  $output  The LLM output (can be trimmed/redacted if needed)
      * @param  array  $metadata  Additional context (agent, model, org_id, etc.)
-     * @return string  Hash of the prompt for correlation tracking
+     * @return string Hash of the prompt for correlation tracking
      */
     public static function logPrompt(
         string $prompt,
@@ -71,7 +71,7 @@ trait LogsPrompts
      * @param  string  $prompt  The original prompt
      * @param  \Throwable  $exception  The exception that occurred
      * @param  array  $metadata  Additional context
-     * @return string  Hash of the prompt for correlation
+     * @return string Hash of the prompt for correlation
      */
     public static function logPromptError(
         string $prompt,
@@ -103,7 +103,6 @@ trait LogsPrompts
      * @param  string  $promptHash  The hash returned by logPrompt()
      * @param  string  $feedbackType  Type of feedback (e.g., 'hallucination', 'relevant', 'irrelevant')
      * @param  mixed  $feedbackData  Structured feedback
-     * @return void
      */
     public static function correlatePromptFeedback(
         string $promptHash,

@@ -26,7 +26,7 @@ class CaptureOrganizationSnapshots extends Command
     public function handle(\App\Services\Talent\StratosIqService $iqService)
     {
         $this->info('Starting snapshot capture for all organizations...');
-        
+
         $organizations = \App\Models\Organizations::all();
         $count = 0;
 
@@ -35,7 +35,7 @@ class CaptureOrganizationSnapshots extends Command
                 $iqService->captureSnapshot($org, ['triggered_by' => 'cron']);
                 $count++;
             } catch (\Exception $e) {
-                $this->error("Failed to capture snapshot for Org ID {$org->id}: " . $e->getMessage());
+                $this->error("Failed to capture snapshot for Org ID {$org->id}: ".$e->getMessage());
             }
         }
 

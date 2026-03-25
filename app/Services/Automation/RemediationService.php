@@ -218,7 +218,7 @@ class RemediationService
     ): array {
         // Default: escalate for human review
         return [
-            $this->notifyOpsTeam($organization, 'unknown_anomaly', $anomaly)
+            $this->notifyOpsTeam($organization, 'unknown_anomaly', $anomaly),
         ];
     }
 
@@ -230,7 +230,7 @@ class RemediationService
         string $actionType,
         array $data = []
     ): array {
-        if (!in_array($actionType, self::ACTION_TYPES)) {
+        if (! in_array($actionType, self::ACTION_TYPES)) {
             return [
                 'type' => $actionType,
                 'status' => 'failed',

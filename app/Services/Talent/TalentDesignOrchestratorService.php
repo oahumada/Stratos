@@ -225,7 +225,7 @@ class TalentDesignOrchestratorService
                             'description' => $proposal['proposed_description'] ?? null,
                             'purpose' => $proposal['proposed_purpose'] ?? null,
                             'expected_results' => $proposal['expected_results'] ?? null,
-                            'status' => 'in_incubation'
+                            'status' => 'in_incubation',
                         ]
                     );
 

@@ -3,6 +3,21 @@
 Este documento actúa como índice vivo (openmemory) del repositorio `oahumada/Stratos`.
 Se creó/actualizó automáticamente para registrar decisiones, implementaciones y referencias útiles.
 
+### [Implementation] Operation Completion Notifications (2026-03-25)
+
+- **Files added**: `app/Events/OperationCompleted.php`, `app/Notifications/OperationCompletedNotification.php`, `app/Listeners/SendOperationCompletedNotification.php`, `resources/views/emails/admin_operation_completed.blade.php`
+- **Files modified**: `app/Providers/EventServiceProvider.php`, `app/Services/AdminOperationsService.php`
+- **Purpose**: Emitir un evento `OperationCompleted` cuando una auditoría de operación administrativa finaliza (éxito o fallo). Un listener encolado envía `OperationCompletedNotification` (vías: `mail`, `database`, `broadcast`) a usuarios `admin` de la misma `organization_id`.
+- **Decisiones clave**:
+    - Canal broadcast: `organization.{organization_id}.operations` para aislamiento multitenant.
+    - Vías de notificación: `mail`, `database`, `broadcast` para persistencia y experiencia en UI.
+    - Listener y notificaciones encoladas para no bloquear la ejecución de la operación.
+- **Pruebas manuales recomendadas**:
+    1. `php artisan queue:work --tries=1`
+    2. Disparar una operación desde la UI o via API.
+    3. Verificar: email en entorno dev, fila en `notifications` y broadcast recibido por cliente suscrito.
+
+
 ### Protocolos y Acuerdos Vivos
 
 - **Cierre de Sesión:** Si el usuario olvida cerrar la sesión explícitamente ("terminamos por ahora"), el asistente DEBE recordarlo para asegurar el registro en la memoria del proyecto.

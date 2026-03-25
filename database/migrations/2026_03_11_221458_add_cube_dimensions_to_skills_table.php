@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('skills', function (Blueprint $table) {
-            if (!Schema::hasColumn('skills', 'cube_dimensions')) {
+            if (! Schema::hasColumn('skills', 'cube_dimensions')) {
                 $table->json('cube_dimensions')->nullable()->after('embedding');
             }
         });

@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\HasDigitalSeal;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\HasDigitalSeal;
 
 // app/Models/TalentBlueprint.php
 // Une el escenario con la estrategia de ingeniería
 class TalentBlueprint extends Model
 {
-    use HasFactory, HasDigitalSeal;
+    use HasDigitalSeal, HasFactory;
 
     // Support both legacy service attribute names and the actual DB columns.
     protected $fillable = [

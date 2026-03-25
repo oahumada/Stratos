@@ -50,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Gate::policy(\App\Models\ScenarioComparison::class, \App\Policies\ScenarioComparisonPolicy::class);
 
         // --- Stratos Security: Rate Limiting ---
-        
+
         // 1. AI Generation (Heavy tokens)
         \Illuminate\Support\Facades\RateLimiter::for('ai_generation', function (\Illuminate\Http\Request $request) {
             return \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by($request->user()?->id ?: $request->ip());

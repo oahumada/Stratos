@@ -72,7 +72,7 @@ class DepartmentController extends Controller
         // Retornar el departamento actualizado
         return response()->json([
             'message' => 'Jerarquía actualizada exitosamente',
-            'department' => $department->load('manager', 'parent', 'children')
+            'department' => $department->load('manager', 'parent', 'children'),
         ]);
     }
 
@@ -81,12 +81,14 @@ class DepartmentController extends Controller
      */
     private function hasDescendant($departmentId, $targetId): bool
     {
-        if (!$targetId) return false; // null parent is always valid
+        if (! $targetId) {
+            return false;
+        } // null parent is always valid
 
         $queue = [$targetId];
         $visited = [];
 
-        while (!empty($queue)) {
+        while (! empty($queue)) {
             $current = array_pop($queue);
             if ($current == $departmentId) {
                 return true; // Found circular reference

@@ -9,7 +9,6 @@ use App\Models\Conversation;
 use App\Services\Messaging\ConversationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 
 class ConversationController extends Controller
 {

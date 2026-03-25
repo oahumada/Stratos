@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         $tables = [
-            'applications', 
-            'job_openings', 
-            'evaluations', 
-            'llm_evaluations', 
-            'px_campaigns', 
-            'pulse_surveys', 
-            'employee_pulses', 
-            'pulse_responses'
+            'applications',
+            'job_openings',
+            'evaluations',
+            'llm_evaluations',
+            'px_campaigns',
+            'pulse_surveys',
+            'employee_pulses',
+            'pulse_responses',
         ];
 
         foreach ($tables as $tableName) {
@@ -39,14 +39,14 @@ return new class extends Migration
     public function down(): void
     {
         $tables = [
-            'applications', 
-            'job_openings', 
-            'evaluations', 
-            'llm_evaluations', 
-            'px_campaigns', 
-            'pulse_surveys', 
-            'employee_pulses', 
-            'pulse_responses'
+            'applications',
+            'job_openings',
+            'evaluations',
+            'llm_evaluations',
+            'px_campaigns',
+            'pulse_surveys',
+            'employee_pulses',
+            'pulse_responses',
         ];
 
         foreach ($tables as $tableName) {

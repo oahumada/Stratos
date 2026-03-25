@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Models\Departments;
 use App\Models\EventStore;
 use App\Models\Organization;
 use App\Models\People;
 use App\Models\PeopleRoleSkills;
 use App\Models\Roles;
 use App\Models\Skill;
-use App\Models\Departments;
 use App\Models\User;
 use App\Models\VerifiableCredential;
 use Illuminate\Database\Seeder;
@@ -28,10 +28,15 @@ use Illuminate\Support\Str;
 class ComplianceDemoSeeder extends Seeder
 {
     private Organization $org;
+
     private User $adminUser;
+
     private array $departments = [];
+
     private array $roles = [];
+
     private array $skills = [];
+
     private array $people = [];
 
     public function run(): void
@@ -59,10 +64,10 @@ class ComplianceDemoSeeder extends Seeder
 
         $this->command->info('✅ ComplianceDemoSeeder completed successfully!');
         $this->command->info("📊 Organization: {$this->org->name}");
-        $this->command->info("👥 People: " . count($this->people));
-        $this->command->info("💼 Roles: " . count($this->roles));
-        $this->command->info("📋 Skills: " . count($this->skills));
-        $this->command->info("📝 Events: " . EventStore::where('organization_id', $this->org->id)->count());
+        $this->command->info('👥 People: '.count($this->people));
+        $this->command->info('💼 Roles: '.count($this->roles));
+        $this->command->info('📋 Skills: '.count($this->skills));
+        $this->command->info('📝 Events: '.EventStore::where('organization_id', $this->org->id)->count());
     }
 
     private function setupOrganization(): void
@@ -167,7 +172,7 @@ class ComplianceDemoSeeder extends Seeder
                 'organization_id' => $this->org->id,
                 'name' => $roleName,
                 'department_id' => $this->departments[$deptName]->id,
-                'digital_signature' => $sigStatus !== 'missing' ? 'sig_' . Str::random(16) : null,
+                'digital_signature' => $sigStatus !== 'missing' ? 'sig_'.Str::random(16) : null,
                 'signed_at' => $signedAt,
                 'signature_version' => $sigStatus !== 'missing' ? 'v1.0' : null,
                 'status' => 'active',
@@ -194,7 +199,7 @@ class ComplianceDemoSeeder extends Seeder
                     'organization_id' => $this->org->id,
                     'first_name' => $firstName,
                     'last_name' => $lastName,
-                    'email' => strtolower($firstName . '.' . $lastName . '@demo.local'),
+                    'email' => strtolower($firstName.'.'.$lastName.'@demo.local'),
                 ]);
 
                 $this->people[$person->id] = $person;
@@ -268,7 +273,7 @@ class ComplianceDemoSeeder extends Seeder
                     'entity_type' => $aggregateType,
                     'timestamp' => $occurredAt->toIso8601String(),
                     'metadata' => [
-                        'ip' => '192.168.' . rand(1, 255) . '.' . rand(1, 255),
+                        'ip' => '192.168.'.rand(1, 255).'.'.rand(1, 255),
                         'user_agent' => 'Mozilla/5.0 (Demo)',
                     ],
                 ],
@@ -328,7 +333,7 @@ class ComplianceDemoSeeder extends Seeder
                         'issuer' => ['id' => 'did:web:stratos.local', 'name' => 'Stratos AI'],
                         'issuanceDate' => $role->signed_at->toIso8601String(),
                         'credentialSubject' => [
-                            'id' => 'did:web:stratos.local#' . $role->id,
+                            'id' => 'did:web:stratos.local#'.$role->id,
                             'role' => [
                                 'id' => $role->id,
                                 'name' => $role->name,

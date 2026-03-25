@@ -17,6 +17,7 @@ class N8nController extends Controller
         $secret = config('services.n8n.secret');
         if ($secret && $request->header('X-N8n-Secret') !== $secret) {
             Log::warning('Unauthorized n8n webhook attempt', ['header' => $request->header('X-N8n-Secret')]);
+
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
@@ -48,6 +49,7 @@ class N8nController extends Controller
     protected function handleUnknownEvent(string $event, array $payload)
     {
         Log::info("Unhandled n8n event: $event");
+
         return response()->json(['message' => 'Event received but not processed'], 202);
     }
 }

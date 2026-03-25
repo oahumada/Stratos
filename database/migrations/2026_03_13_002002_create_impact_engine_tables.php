@@ -36,12 +36,12 @@ return new class extends Migration
             $table->text('logic_narrative')->nullable(); // El "Por qué" (Logic de LAMP)
             $table->text('insight_summary');
             $table->json('recommendations')->nullable();
-            
+
             // Stratos Sentinel Signature (SSS)
             $table->string('digital_signature')->nullable();
             $table->timestamp('signed_at')->nullable();
             $table->string('signature_version')->nullable();
-            
+
             $table->timestamps();
         });
 

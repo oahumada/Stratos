@@ -26,7 +26,7 @@ class PxController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $campaigns
+            'data' => $campaigns,
         ]);
     }
 
@@ -42,17 +42,17 @@ class PxController extends Controller
         $orgId = auth()->user()->organization_id;
         $campaign = $this->pxService->triggerEventCampaign($orgId, $validated['event_type']);
 
-        if (!$campaign) {
+        if (! $campaign) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to trigger campaign. Event type may be invalid.'
+                'message' => 'Failed to trigger campaign. Event type may be invalid.',
             ], 400);
         }
 
         return response()->json([
             'status' => 'success',
             'message' => "Campaign '{$campaign->name}' triggered successfully.",
-            'data' => $campaign
+            'data' => $campaign,
         ]);
     }
 }

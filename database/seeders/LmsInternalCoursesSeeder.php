@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\LmsCourse;
+use Illuminate\Database\Seeder;
 
 class LmsInternalCoursesSeeder extends Seeder
 {

@@ -56,7 +56,7 @@ class StratosSignatureService
             'signature_version',
             'created_at',
             'updated_at',
-            'deleted_at'
+            'deleted_at',
         ];
 
         $payload = array_diff_key($attributes, array_flip($excluded));

@@ -39,7 +39,7 @@ class VerificationIntegrationService
         $organizationId = $context['organization_id'] ?? null;
         if (auth()->check() && auth()->user()->organization_id !== $organizationId) {
             throw new UnauthorizedTenantException(
-                "Organization mismatch: authenticated user org != verification context org"
+                'Organization mismatch: authenticated user org != verification context org'
             );
         }
 
@@ -48,6 +48,7 @@ class VerificationIntegrationService
             $validator = ValidatorFactory::make($agentName);
         } catch (\Exception $e) {
             Log::warning('Validator not found for agent', ['agent' => $agentName]);
+
             // Fallback: if no validator, accept output (graceful degradation)
             return $this->createNeutralResult($agentName);
         }

@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\DTOs\VerificationAction;
 use App\Exceptions\VerificationFailedException;
 use App\Models\Agent;
 use App\Models\AgentInteraction;
@@ -61,7 +60,7 @@ class AiOrchestratorService
             // NEW: Verify agent output against business rules
             if (config('verification.enabled', true)) {
                 $verificationIntegration = $this->verificationIntegration ?? app(VerificationIntegrationService::class);
-                
+
                 $verificationResult = $verificationIntegration->verifyAgentOutput(
                     agentName: $agentName,
                     output: $output,

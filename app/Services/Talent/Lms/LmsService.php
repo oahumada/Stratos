@@ -81,7 +81,7 @@ class LmsService
                         ['total_xp' => 0, 'level' => 1, 'current_points' => 0]
                     );
                     $gamification->addExperience($xp);
-                    
+
                     Log::info("User {$action->person_id} awarded {$xp} XP for completing course {$course->title}");
                 }
 
@@ -100,7 +100,7 @@ class LmsService
     public function searchCourses(string $query): array
     {
         $allResults = [];
-        
+
         foreach ($this->providers as $provider) {
             $allResults = array_merge($allResults, $provider->searchCourses($query));
         }

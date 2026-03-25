@@ -36,16 +36,17 @@ class VerificationMetricsCommand extends Command
 
         if ($isJson) {
             $this->line(json_encode($metrics, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
             return 0;
         }
 
         // Display as table
         $this->info('════════════════════════════════════════════');
-        $this->info('Verification Metrics - Last ' . $window . ' hours');
+        $this->info('Verification Metrics - Last '.$window.' hours');
         $this->info('════════════════════════════════════════════');
         $this->line('');
-        $this->line('Current Phase: <info>' . strtoupper($phase) . '</info>');
-        $this->line('Timestamp: <fg=gray>' . now() . '</>');
+        $this->line('Current Phase: <info>'.strtoupper($phase).'</info>');
+        $this->line('Timestamp: <fg=gray>'.now().'</>');
         $this->line('');
 
         $this->info('Summary');
@@ -54,10 +55,10 @@ class VerificationMetricsCommand extends Command
             'Value',
         ], [
             ['Total Events', number_format($metrics['total_events'])],
-            ['Period', $metrics['period_hours'] . ' hours'],
+            ['Period', $metrics['period_hours'].' hours'],
         ]);
 
-        if (!empty($metrics['events_by_type'])) {
+        if (! empty($metrics['events_by_type'])) {
             $this->info('');
             $this->info('Events by Type');
             $eventRows = collect($metrics['events_by_type'])
@@ -68,6 +69,7 @@ class VerificationMetricsCommand extends Command
         }
 
         $this->line('');
+
         return 0;
     }
 }

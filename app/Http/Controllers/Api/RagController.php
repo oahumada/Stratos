@@ -21,8 +21,6 @@ class RagController extends Controller
      * Ask a question using RAG (Retrieval Augmented Generation)
      *
      * POST /api/rag/ask
-     *
-     * @return JsonResponse
      */
     public function ask(RagAskRequest $request): JsonResponse
     {

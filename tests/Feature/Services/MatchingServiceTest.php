@@ -9,7 +9,6 @@ use App\Models\PeopleRoleSkills;
 use App\Models\Roles;
 use App\Models\Skill;
 use App\Services\MatchingService;
-;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -18,6 +17,7 @@ class MatchingServiceTest extends TestCase
     use RefreshDatabase;
 
     protected MatchingService $service;
+
     protected $org;
 
     protected function setUp(): void
@@ -44,7 +44,7 @@ class MatchingServiceTest extends TestCase
             'title' => 'Senior Developer',
             'role_id' => $role->id,
             'status' => 'open',
-            'created_by' => $user->id
+            'created_by' => $user->id,
         ]);
 
         // Candidate A: Perfect Match
@@ -67,7 +67,7 @@ class MatchingServiceTest extends TestCase
 
         // 3. Assert
         $this->assertCount(3, $results);
-        
+
         // Ranking order
         $this->assertEquals($candidateA->id, $results[0]['people_id']);
         $this->assertEquals($candidateB->id, $results[1]['people_id']);

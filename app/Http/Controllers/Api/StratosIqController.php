@@ -29,7 +29,7 @@ class StratosIqController extends Controller
 
             return $this->success($trends, 'Stratos IQ trends retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->error('Error retrieving Stratos IQ: ' . $e->getMessage(), 500);
+            return $this->error('Error retrieving Stratos IQ: '.$e->getMessage(), 500);
         }
     }
 
@@ -42,12 +42,12 @@ class StratosIqController extends Controller
         try {
             $org = Organizations::findOrFail($organizationId);
             $metadata = $request->input('metadata', []);
-            
+
             $snapshot = $this->stratosIqService->captureSnapshot($org, $metadata);
 
             return $this->success($snapshot, 'Snapshot captured successfully.');
         } catch (\Exception $e) {
-            return $this->error('Error capturing snapshot: ' . $e->getMessage(), 500);
+            return $this->error('Error capturing snapshot: '.$e->getMessage(), 500);
         }
     }
 }

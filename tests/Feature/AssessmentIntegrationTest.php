@@ -16,7 +16,9 @@ class AssessmentIntegrationTest extends TestCase
     use RefreshDatabase;
 
     protected $org;
+
     protected $user;
+
     protected $person;
 
     protected function setUp(): void
@@ -24,14 +26,14 @@ class AssessmentIntegrationTest extends TestCase
         parent::setUp();
         $this->org = Organization::factory()->create();
         $this->user = User::factory()->create(['organization_id' => $this->org->id]);
-        
+
         $role = Roles::factory()->create(['organization_id' => $this->org->id]);
         $this->person = People::factory()->create([
             'organization_id' => $this->org->id,
             'role_id' => $role->id,
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ]);
-        
+
         $this->user->update(['person_id' => $this->person->id]);
     }
 
@@ -39,14 +41,14 @@ class AssessmentIntegrationTest extends TestCase
     {
         // 1. Arrange: Create a person with a manager
         $manager = People::factory()->create(['organization_id' => $this->org->id]);
-        
+
         // Use a direct DB insert for relationship if relationship methods are read-only
         \DB::table('people_relationships')->insert([
             'person_id' => $this->person->id,
             'related_person_id' => $manager->id,
             'relationship_type' => 'manager',
             'created_at' => now(),
-            'updated_at' => now()
+            'updated_at' => now(),
         ]);
 
         $session = AssessmentSession::create([
@@ -66,8 +68,8 @@ class AssessmentIntegrationTest extends TestCase
             '*/interview/analyze' => Http::response([
                 'traits' => [['name' => 'Resilience', 'score' => 0.8]],
                 'overall_potential' => 0.8,
-                'summary_report' => 'Good'
-            ], 200)
+                'summary_report' => 'Good',
+            ], 200),
         ]);
 
         // 2. Act
@@ -80,7 +82,7 @@ class AssessmentIntegrationTest extends TestCase
         $this->assertDatabaseHas('assessment_requests', [
             'subject_id' => $this->person->id,
             'evaluator_id' => $manager->id,
-            'relationship' => 'manager'
+            'relationship' => 'manager',
         ]);
     }
 }

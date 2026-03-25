@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 class MobilitySimulationController extends Controller
 {
     protected $simulationService;
+
     protected $aiAdvisor;
 
     public function __construct(
@@ -36,13 +37,13 @@ class MobilitySimulationController extends Controller
 
         try {
             // Complex planned movements (Multiple roles)
-            if ($request->has('movements') && !empty($request->movements)) {
+            if ($request->has('movements') && ! empty($request->movements)) {
                 $result = $this->simulationService->simulatePlannedMovements(
                     $request->movements
                 );
             }
             // Mass simulation (Single role)
-            elseif ($request->has('person_ids') && !empty($request->person_ids)) {
+            elseif ($request->has('person_ids') && ! empty($request->person_ids)) {
                 $result = $this->simulationService->simulateMassMovement(
                     $request->person_ids,
                     (int) $request->target_role_id
@@ -57,18 +58,18 @@ class MobilitySimulationController extends Controller
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Debe proporcionar person_id, person_ids o movements.'
+                    'message' => 'Debe proporcionar person_id, person_ids o movements.',
                 ], 400);
             }
 
             return response()->json([
                 'success' => true,
-                'data' => $result
+                'data' => $result,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al ejecutar la simulación: ' . $e->getMessage()
+                'message' => 'Error al ejecutar la simulación: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -85,12 +86,12 @@ class MobilitySimulationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $impact
+                'data' => $impact,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al obtener impacto organizacional: ' . $e->getMessage()
+                'message' => 'Error al obtener impacto organizacional: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -108,7 +109,7 @@ class MobilitySimulationController extends Controller
 
         try {
             $user = $request->user();
-            
+
             // Create a Scenario record
             $scenario = \App\Models\Scenario::create([
                 'organization_id' => $user->organization_id,
@@ -120,18 +121,18 @@ class MobilitySimulationController extends Controller
                     'type' => 'mobility_simulation',
                     'target_role_id' => $request->target_role_id,
                     'simulation_payload' => $request->simulation_data,
-                ]
+                ],
             ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Escenario guardado correctamente.',
-                'data' => $scenario
+                'data' => $scenario,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al guardar el escenario: ' . $e->getMessage()
+                'message' => 'Error al guardar el escenario: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -143,19 +144,19 @@ class MobilitySimulationController extends Controller
     {
         $scenario = \App\Models\Scenario::findOrFail($id);
         $user = auth()->user();
-        
+
         try {
             $changeSet = $this->simulationService->materializeChangeSet($scenario, $user);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Escenario materializado exitosamente.',
-                'change_set_id' => $changeSet->id
+                'change_set_id' => $changeSet->id,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al materializar: ' . $e->getMessage()
+                'message' => 'Error al materializar: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -163,7 +164,7 @@ class MobilitySimulationController extends Controller
     public function getExecutionTracking()
     {
         $orgId = auth()->user()->organization_id;
-        
+
         // Fetch ChangeSets created from mobility scenarios
         $changeSets = \App\Models\ChangeSet::where('organization_id', $orgId)
             ->whereNotNull('scenario_id')
@@ -191,13 +192,14 @@ class MobilitySimulationController extends Controller
                 'development_progress' => $devPlans->map(function ($dp) {
                     $total = $dp->actions->count();
                     $completed = $dp->actions->where('status', 'completed')->count();
+
                     return [
                         'person_name' => $dp->people->full_name ?? 'N/A',
                         'title' => $dp->title,
                         'progress' => $total > 0 ? round(($completed / $total) * 100) : 0,
-                        'status' => $dp->status
+                        'status' => $dp->status,
                     ];
-                })
+                }),
             ];
         });
 

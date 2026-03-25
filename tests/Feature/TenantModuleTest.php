@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Route;
 beforeEach(function () {
     $this->orgWithModule = Organization::factory()->create([
         'name' => 'Org With Module',
-        'active_modules' => ['strategic_simulation']
+        'active_modules' => ['strategic_simulation'],
     ]);
-    
+
     $this->orgWithoutModule = Organization::factory()->create([
         'name' => 'Org Without Module',
-        'active_modules' => ['core']
+        'active_modules' => ['core'],
     ]);
 
     $this->userWith = User::factory()->create(['organization_id' => $this->orgWithModule->id]);

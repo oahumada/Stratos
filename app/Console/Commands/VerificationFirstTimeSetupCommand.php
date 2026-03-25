@@ -102,9 +102,9 @@ class VerificationFirstTimeSetupCommand extends Command
         $timestamp = now()->toIso8601String();
         $orgId = auth()->user()?->organization_id ?? 1;
 
-        $php = "<?php\n\nreturn " . var_export($config, true) . ";\n";
+        $php = "<?php\n\nreturn ".var_export($config, true).";\n";
         File::put(config_path('verification-deployment.php'), $php);
 
-        $this->line("Configuration saved to config/verification-deployment.php");
+        $this->line('Configuration saved to config/verification-deployment.php');
     }
 }

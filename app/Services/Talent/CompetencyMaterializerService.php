@@ -2,9 +2,9 @@
 
 namespace App\Services\Talent;
 
+use App\Models\BarsLevel;
 use App\Models\Competency;
 use App\Models\Skill;
-use App\Models\BarsLevel;
 use App\Services\AiOrchestratorService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -75,9 +75,10 @@ class CompetencyMaterializerService
 
         try {
             $result = $this->orchestrator->agentThink('Arquitecto de Talento Híbrido', $prompt);
+
             return $result['response'];
         } catch (\Exception $e) {
-            Log::error("Blueprint Generation Error: " . $e->getMessage());
+            Log::error('Blueprint Generation Error: '.$e->getMessage());
             throw $e;
         }
     }
@@ -94,7 +95,7 @@ class CompetencyMaterializerService
                 $skill = Skill::updateOrCreate(
                     [
                         'organization_id' => $competency->organization_id,
-                        'name' => $skillData['name']
+                        'name' => $skillData['name'],
                     ],
                     [
                         'description' => $skillData['description'],
@@ -103,8 +104,8 @@ class CompetencyMaterializerService
                         'cube_dimensions' => [
                             'talent_mode' => $skillData['talent_mode'] ?? 'human_centric',
                             'ai_fluency' => $skillData['ai_fluency'] ?? null,
-                            'hybrid_dna' => true
-                        ]
+                            'hybrid_dna' => true,
+                        ],
                     ]
                 );
 
@@ -116,7 +117,7 @@ class CompetencyMaterializerService
                     BarsLevel::updateOrCreate(
                         [
                             'skill_id' => $skill->id,
-                            'level' => $lvl['level']
+                            'level' => $lvl['level'],
                         ],
                         [
                             'level_name' => $lvl['level_name'] ?? "Nivel {$lvl['level']}",
@@ -134,10 +135,12 @@ class CompetencyMaterializerService
             $competency->save();
 
             DB::commit();
+
             return ['status' => 'success', 'message' => 'Competencia materializada correctamente'];
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Materialization Error: " . $e->getMessage());
+            Log::error('Materialization Error: '.$e->getMessage());
+
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
     }

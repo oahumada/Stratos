@@ -12,7 +12,7 @@ class AssessmentCycleFactory extends Factory
     {
         return [
             'organization_id' => Organization::factory(),
-            'name' => 'Annual Review ' . $this->faker->year(),
+            'name' => 'Annual Review '.$this->faker->year(),
             'description' => $this->faker->paragraph(),
             'mode' => 'specific_date',
             'status' => 'scheduled',

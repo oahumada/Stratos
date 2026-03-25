@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasDigitalSeal;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Traits\HasDigitalSeal;
 
 class PxCampaign extends Model
 {
-    use HasFactory, HasDigitalSeal;
+    use HasDigitalSeal, HasFactory;
 
     protected $fillable = [
         'organization_id',

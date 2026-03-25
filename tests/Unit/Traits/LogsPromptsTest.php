@@ -15,7 +15,8 @@ class LogsPromptsTest extends TestCase
         parent::setUp();
 
         // Create an anonymous class using the trait
-        $this->class = new class {
+        $this->class = new class
+        {
             use LogsPrompts;
         };
     }
@@ -23,7 +24,7 @@ class LogsPromptsTest extends TestCase
     /**
      * Test logPrompt creates proper hash and logs to llm_prompts channel
      */
-    public function test_logPrompt_hashes_prompt_safely(): void
+    public function test_log_prompt_hashes_prompt_safely(): void
     {
         Log::shouldReceive('channel')
             ->with('llm_prompts')
@@ -31,7 +32,7 @@ class LogsPromptsTest extends TestCase
             ->shouldReceive('info')
             ->once()
             ->with('LLM Call', \Mockery::on(function ($arg) {
-                return isset($arg['prompt_hash']) && 
+                return isset($arg['prompt_hash']) &&
                        isset($arg['output_hash']) &&
                        strlen($arg['prompt_hash']) === 64 && // SHA-256 is 64 chars
                        strlen($arg['output_hash']) === 64;
@@ -51,7 +52,7 @@ class LogsPromptsTest extends TestCase
     /**
      * Test logPrompt includes metadata
      */
-    public function test_logPrompt_includes_metadata(): void
+    public function test_log_prompt_includes_metadata(): void
     {
         Log::shouldReceive('channel')
             ->with('llm_prompts')
@@ -77,7 +78,7 @@ class LogsPromptsTest extends TestCase
     /**
      * Test logPromptError logs exceptions safely
      */
-    public function test_logPromptError_logs_exception_safely(): void
+    public function test_log_prompt_error_logs_exception_safely(): void
     {
         $exception = new \RuntimeException('API timeout');
 
@@ -105,7 +106,7 @@ class LogsPromptsTest extends TestCase
     /**
      * Test correlatePromptFeedback correlates feedback with prompt
      */
-    public function test_correlatePromptFeedback_logs_feedback(): void
+    public function test_correlate_prompt_feedback_logs_feedback(): void
     {
         $promptHash = hash('sha256', 'test prompt');
 
@@ -128,7 +129,7 @@ class LogsPromptsTest extends TestCase
     /**
      * Test that no sensitive data is stored in logs
      */
-    public function test_logPrompt_never_stores_plaintext_prompt(): void
+    public function test_log_prompt_never_stores_plaintext_prompt(): void
     {
         $sensitivePrompt = 'User email: john@example.com, SSN: 123-45-6789';
 
@@ -137,10 +138,10 @@ class LogsPromptsTest extends TestCase
             ->andReturnSelf()
             ->shouldReceive('info')
             ->once()
-            ->with('LLM Call', \Mockery::on(function ($arg) use ($sensitivePrompt) {
+            ->with('LLM Call', \Mockery::on(function ($arg) {
                 // Assert that the plaintext prompt is NOT in the logged data
                 $loggedString = json_encode($arg);
-                
+
                 return ! str_contains($loggedString, 'john@example.com') &&
                        ! str_contains($loggedString, '123-45-6789') &&
                        isset($arg['prompt_hash']);

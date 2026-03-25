@@ -39,13 +39,14 @@ class ExecutionTrackingController extends Controller
                 'development_progress' => $devPlans->map(function ($dp) {
                     $total = $dp->actions->count();
                     $completed = $dp->actions->where('status', 'completed')->count();
+
                     return [
                         'id' => $dp->id,
                         'person_name' => $dp->people->full_name ?? 'N/A',
                         'progress' => $total > 0 ? round(($completed / $total) * 100) : 0,
-                        'status' => $dp->status
+                        'status' => $dp->status,
                     ];
-                })
+                }),
             ];
         });
 
@@ -58,7 +59,7 @@ class ExecutionTrackingController extends Controller
     public function show(int $id)
     {
         $cs = \App\Models\ChangeSet::with(['scenario', 'creator'])->findOrFail($id);
-        
+
         // Find development paths created related to this simulation/scenario
         $devPaths = \App\Models\DevelopmentPath::where('organization_id', $cs->organization_id)
             ->where('metadata->source', 'mobility_simulation')
@@ -67,7 +68,7 @@ class ExecutionTrackingController extends Controller
 
         return response()->json([
             'changeset' => $cs,
-            'development_paths' => $devPaths
+            'development_paths' => $devPaths,
         ]);
     }
 
@@ -77,10 +78,10 @@ class ExecutionTrackingController extends Controller
     public function launchLms(int $actionId, \App\Services\Talent\Lms\LmsService $lmsService)
     {
         $action = \App\Models\DevelopmentAction::findOrFail($actionId);
-        
+
         try {
             $url = $lmsService->launchAction($action);
-            
+
             // Mark as in_progress if it was pending
             if ($action->status === 'pending') {
                 $action->update(['status' => 'in_progress', 'started_at' => now()]);
@@ -88,12 +89,12 @@ class ExecutionTrackingController extends Controller
 
             return response()->json([
                 'success' => true,
-                'launch_url' => $url
+                'launch_url' => $url,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -104,13 +105,13 @@ class ExecutionTrackingController extends Controller
     public function syncProgress(int $actionId, \App\Services\Talent\Lms\LmsService $lmsService)
     {
         $action = \App\Models\DevelopmentAction::findOrFail($actionId);
-        
+
         $changed = $lmsService->syncProgress($action);
 
         return response()->json([
             'success' => true,
             'status' => $action->status,
-            'completed' => $changed
+            'completed' => $changed,
         ]);
     }
 }

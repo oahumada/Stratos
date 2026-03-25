@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasDigitalSeal;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\HasDigitalSeal;
 use Illuminate\Support\Facades\Crypt;
 
 class ScenarioGeneration extends Model
 {
-    use HasFactory, HasDigitalSeal;
+    use HasDigitalSeal, HasFactory;
 
     protected $table = 'scenario_generations';
 

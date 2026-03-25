@@ -5,7 +5,6 @@ namespace App\Services\Automation;
 use App\Models\EventStore;
 use App\Services\Analytics\AnomalyDetectionService;
 use App\Services\Analytics\PredictiveInsightsService;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -210,7 +209,7 @@ class EventTriggerService
     ): EventStore {
         return EventStore::create([
             'organization_id' => $organizationId,
-            'event_name' => 'automation.trigger.' . $triggerType,
+            'event_name' => 'automation.trigger.'.$triggerType,
             'aggregate_type' => 'automation',
             'aggregate_id' => $organizationId,
             'data' => array_merge($triggerData, ['status' => $status]),

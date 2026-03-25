@@ -6,7 +6,6 @@ use App\Jobs\ProcessVerificationPhaseTransition;
 use App\Models\Organization;
 use App\Services\VerificationMetricsService;
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
 
 /**
  * VerificationProcessTransitionCommand - Manual trigger for phase transition evaluation

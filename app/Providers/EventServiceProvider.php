@@ -42,6 +42,11 @@ class EventServiceProvider extends ServiceProvider
             SendViolationDetectedNotification::class,
         ],
 
+        // Admin operation notifications
+        \App\Events\OperationCompleted::class => [
+            \App\Listeners\SendOperationCompletedNotification::class,
+        ],
+
         // ── Security access audit events ───────────────────────────────────
         Login::class => [LogSuccessfulLogin::class],
         Logout::class => [LogSuccessfulLogout::class],

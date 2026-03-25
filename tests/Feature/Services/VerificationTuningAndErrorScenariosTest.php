@@ -20,7 +20,9 @@ class VerificationTuningAndErrorScenariosTest extends TestCase
     use RefreshDatabase;
 
     protected Organization $organization;
+
     protected Agent $agent;
+
     protected VerificationIntegrationService $integration;
 
     protected function setUp(): void
@@ -81,7 +83,7 @@ class VerificationTuningAndErrorScenariosTest extends TestCase
         );
 
         $errors = $result->getHumanReadableErrors();
-        
+
         // Should mention top 3 and indicate "more"
         expect($errors)->toContain('Critical issue 1');
         expect($errors)->toContain('2 more');

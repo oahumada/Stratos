@@ -58,7 +58,7 @@ class AssessmentController extends Controller
         }, 'person', 'psychometricProfiles'])->findOrFail($id);
 
         $sessionArray = $session->toArray();
-        
+
         // Incluir impacto individual si ya está completada
         if ($session->status === 'completed') {
             $sessionArray['individual_roi'] = $this->roiService->calculateIndividualRoi($session->people_id);

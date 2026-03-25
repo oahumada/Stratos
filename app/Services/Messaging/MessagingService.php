@@ -6,7 +6,6 @@ use App\Enums\MessageState;
 use App\Models\Conversation;
 use App\Models\ConversationParticipant;
 use App\Models\Message;
-use App\Models\Organization;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -19,12 +18,9 @@ class MessagingService
     /**
      * Send a message within a conversation.
      *
-     * @param string $conversationId (UUID)
-     * @param int $organizationId (for multi-tenant validation)
-     * @param int $senderPeopleId
-     * @param string $body
-     * @param string|null $replyToMessageId (UUID, optional)
-     * @return Message
+     * @param  string  $conversationId  (UUID)
+     * @param  int  $organizationId  (for multi-tenant validation)
+     * @param  string|null  $replyToMessageId  (UUID, optional)
      *
      * @throws \Exception if conversation not found, sender not participant, or lacks permission
      */
@@ -87,10 +83,8 @@ class MessagingService
     /**
      * Mark all messages in a conversation as read for a participant.
      *
-     * @param string $conversationId (UUID)
-     * @param int $organizationId (for multi-tenant validation)
-     * @param int $readerPeopleId
-     * @return void
+     * @param  string  $conversationId  (UUID)
+     * @param  int  $organizationId  (for multi-tenant validation)
      *
      * @throws \Exception if conversation or participant not found
      */
@@ -106,7 +100,7 @@ class MessagingService
             ->firstOrFail();
 
         // Start transaction
-        DB::transaction(function () use ($participant, $conversationId) {
+        DB::transaction(function () use ($participant) {
             // Update all unread messages to READ state for this participant
             // (This assumes we track read status per-participant; if not, adjust)
             // For now, we just reset unread_count and update last_read_at
@@ -130,10 +124,6 @@ class MessagingService
 
     /**
      * Get total unread message count for a person across all conversations.
-     *
-     * @param int $organizationId
-     * @param int $peopleId
-     * @return int
      */
     public function getUnreadTotalCount(int $organizationId, int $peopleId): int
     {
@@ -147,10 +137,8 @@ class MessagingService
      * Validate that a person is a participant in a conversation and can send messages.
      * Throws exception if not allowed.
      *
-     * @param string $conversationId (UUID)
-     * @param int $organizationId (for multi-tenant validation)
-     * @param int $peoplePeopleId
-     * @return void
+     * @param  string  $conversationId  (UUID)
+     * @param  int  $organizationId  (for multi-tenant validation)
      *
      * @throws \Exception if not a participant or lacks send permission
      */
@@ -173,7 +161,7 @@ class MessagingService
         }
 
         if ($participant->left_at) {
-            throw new \Exception('Unauthorized: no longer a participant (left at ' . $participant->left_at . ')');
+            throw new \Exception('Unauthorized: no longer a participant (left at '.$participant->left_at.')');
         }
     }
 }

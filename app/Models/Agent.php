@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Traits\BelongsToOrganization;
-
 class Agent extends Model
 {
-    use HasFactory;
     use BelongsToOrganization;
+    use HasFactory;
+
     protected $fillable = [
         'name',
         'role_description',

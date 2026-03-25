@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Log;
 class LinkedInLearningProvider implements LmsProviderInterface
 {
     protected string $clientId;
+
     protected string $clientSecret;
+
     protected string $accessToken;
 
     public function __construct()
@@ -20,14 +22,14 @@ class LinkedInLearningProvider implements LmsProviderInterface
     public function getLaunchUrl(string $courseId, ?string $userId = null): string
     {
         // LinkedIn Learning suele usar URNs para los cursos
-        return "https://www.linkedin.com/learning/courses/" . $courseId;
+        return 'https://www.linkedin.com/learning/courses/'.$courseId;
     }
 
     public function enrollUser(string $courseId, string $userId): string
     {
         // LinkedIn suele manejar la inscripción automática vía SSO (SAML/OIDC)
         // Pero aquí podríamos registrar el intento en una tabla de auditoría
-        return "li_learning_" . $courseId . "_" . $userId;
+        return 'li_learning_'.$courseId.'_'.$userId;
     }
 
     public function getProgress(string $enrollmentId): float
@@ -50,17 +52,18 @@ class LinkedInLearningProvider implements LmsProviderInterface
         try {
             // Ejemplo de llamada a la API de búsqueda de contenido de LinkedIn
             // $response = Http::withToken($this->accessToken)->get('https://api.linkedin.com/v2/learningAssets', [...]);
-            
+
             return [
                 [
                     'id' => 'li-001',
                     'title' => 'Liderazgo en la Industria 4.0: Sector Automotriz',
                     'description' => 'Curso especializado de LinkedIn Learning sobre transformación digital.',
-                    'provider' => 'linkedin'
-                ]
+                    'provider' => 'linkedin',
+                ],
             ];
         } catch (\Exception $e) {
-            Log::error("Error searching LinkedIn Learning: " . $e->getMessage());
+            Log::error('Error searching LinkedIn Learning: '.$e->getMessage());
+
             return [];
         }
     }

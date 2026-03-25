@@ -22,16 +22,16 @@ class SuccessionController extends Controller
     {
         try {
             $successors = $this->service->getSuccessorsForRole((int) $roleId);
-            
+
             return response()->json([
                 'success' => true,
                 'role_id' => $roleId,
-                'candidates' => $successors
+                'candidates' => $successors,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al calcular sucesores: ' . $e->getMessage()
+                'message' => 'Error al calcular sucesores: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -43,23 +43,23 @@ class SuccessionController extends Controller
     {
         $request->validate([
             'person_id' => 'required|exists:people,id',
-            'role_id' => 'required|exists:roles,id'
+            'role_id' => 'required|exists:roles,id',
         ]);
 
         try {
             $person = \App\Models\People::findOrFail($request->person_id);
             $role = \App\Models\Roles::findOrFail($request->role_id);
-            
+
             $analysis = $this->service->analyzeSuccessionReadiness($person, $role);
 
             return response()->json([
                 'success' => true,
-                'analysis' => $analysis
+                'analysis' => $analysis,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error en el análisis de sucesión: ' . $e->getMessage()
+                'message' => 'Error en el análisis de sucesión: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -76,7 +76,7 @@ class SuccessionController extends Controller
 
         return response()->json([
             'success' => true,
-            'plans' => $plans
+            'plans' => $plans,
         ]);
     }
 
@@ -92,7 +92,7 @@ class SuccessionController extends Controller
             'readiness_level' => 'required|string',
             'estimated_months' => 'nullable|integer',
             'metrics' => 'nullable|array',
-            'gaps' => 'nullable|array'
+            'gaps' => 'nullable|array',
         ]);
 
         try {
@@ -101,12 +101,12 @@ class SuccessionController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Plan de sucesión formalizado correctamente',
-                'plan' => $plan
+                'plan' => $plan,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al formalizar el plan: ' . $e->getMessage()
+                'message' => 'Error al formalizar el plan: '.$e->getMessage(),
             ], 500);
         }
     }

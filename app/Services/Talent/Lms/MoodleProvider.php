@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 class MoodleProvider implements LmsProviderInterface
 {
     protected string $baseUrl;
+
     protected string $token;
 
     public function __construct()
@@ -19,19 +20,20 @@ class MoodleProvider implements LmsProviderInterface
     public function getLaunchUrl(string $courseId, ?string $userId = null): string
     {
         // Moodle suele usar una URL base + el ID del curso
-        return $this->baseUrl . "/course/view.php?id=" . $courseId;
+        return $this->baseUrl.'/course/view.php?id='.$courseId;
     }
 
     public function enrollUser(string $courseId, string $userId): string
     {
         if (empty($this->token)) {
-            Log::warning("Moodle Token no configurado. Simulando inscripción.");
-            return "moodle_mock_enroll_" . uniqid();
+            Log::warning('Moodle Token no configurado. Simulando inscripción.');
+
+            return 'moodle_mock_enroll_'.uniqid();
         }
 
         // Llamada a enrol_manual_enrol_users de Moodle
         try {
-            Http::get($this->baseUrl . "/webservice/rest/server.php", [
+            Http::get($this->baseUrl.'/webservice/rest/server.php', [
                 'wstoken' => $this->token,
                 'wsfunction' => 'enrol_manual_enrol_users',
                 'moodlewsrestformat' => 'json',
@@ -40,10 +42,11 @@ class MoodleProvider implements LmsProviderInterface
                 'enrolments[0][courseid]' => $courseId,
             ]);
 
-            return "moodle_" . $courseId . "_" . $userId;
+            return 'moodle_'.$courseId.'_'.$userId;
         } catch (\Exception $e) {
-            Log::error("Error enrolling in Moodle: " . $e->getMessage());
-            return "error_moodle";
+            Log::error('Error enrolling in Moodle: '.$e->getMessage());
+
+            return 'error_moodle';
         }
     }
 
@@ -65,7 +68,7 @@ class MoodleProvider implements LmsProviderInterface
         }
 
         try {
-            $response = Http::get($this->baseUrl . "/webservice/rest/server.php", [
+            $response = Http::get($this->baseUrl.'/webservice/rest/server.php', [
                 'wstoken' => $this->token,
                 'wsfunction' => 'core_course_search_courses',
                 'moodlewsrestformat' => 'json',
@@ -76,15 +79,16 @@ class MoodleProvider implements LmsProviderInterface
             $data = $response->json();
             $courses = $data['courses'] ?? [];
 
-            return array_map(fn($c) => [
+            return array_map(fn ($c) => [
                 'id' => $c['id'],
                 'title' => $c['fullname'],
                 'description' => $c['summary'],
-                'provider' => 'moodle'
+                'provider' => 'moodle',
             ], $courses);
-            
+
         } catch (\Exception $e) {
-            Log::error("Error searching Moodle courses: " . $e->getMessage());
+            Log::error('Error searching Moodle courses: '.$e->getMessage());
+
             return [];
         }
     }

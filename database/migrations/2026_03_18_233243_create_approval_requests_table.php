@@ -26,7 +26,7 @@ return new class extends Migration
         });
 
         Schema::table('roles', function (Blueprint $table) {
-            if (!Schema::hasColumn('roles', 'digital_signature')) {
+            if (! Schema::hasColumn('roles', 'digital_signature')) {
                 $table->text('digital_signature')->nullable();
                 $table->timestamp('signed_at')->nullable();
                 $table->string('signature_version')->nullable();
@@ -34,7 +34,7 @@ return new class extends Migration
         });
 
         Schema::table('skills', function (Blueprint $table) {
-            if (!Schema::hasColumn('skills', 'digital_signature')) {
+            if (! Schema::hasColumn('skills', 'digital_signature')) {
                 $table->text('digital_signature')->nullable();
                 $table->timestamp('signed_at')->nullable();
                 $table->string('signature_version')->nullable();
@@ -49,10 +49,10 @@ return new class extends Migration
     {
         Schema::dropIfExists('approval_requests');
         Schema::table('roles', function (Blueprint $table) {
-             $table->dropColumn(['digital_signature', 'signed_at', 'signature_version']);
+            $table->dropColumn(['digital_signature', 'signed_at', 'signature_version']);
         });
         Schema::table('skills', function (Blueprint $table) {
-             $table->dropColumn(['digital_signature', 'signed_at', 'signature_version']);
+            $table->dropColumn(['digital_signature', 'signed_at', 'signature_version']);
         });
     }
 };

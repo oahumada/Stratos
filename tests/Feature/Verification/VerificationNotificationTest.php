@@ -8,7 +8,6 @@ use App\Events\VerificationViolationDetected;
 use App\Models\Organization;
 use App\Models\VerificationNotification;
 use App\Services\VerificationNotificationService;
-use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 /**

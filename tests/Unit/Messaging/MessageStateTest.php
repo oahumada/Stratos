@@ -20,7 +20,7 @@ describe('MessageState Enum', function () {
     it('allows valid state transitions', function () {
         // SENT → DELIVERED
         expect(MessageState::SENT->canTransition(MessageState::DELIVERED))->toBeTrue();
-        
+
         // SENT → FAILED
         expect(MessageState::SENT->canTransition(MessageState::FAILED))->toBeTrue();
 

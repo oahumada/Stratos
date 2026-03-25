@@ -16,6 +16,7 @@ class MentorMatchingServiceTest extends TestCase
     use RefreshDatabase;
 
     protected MentorMatchingService $service;
+
     protected $org;
 
     protected function setUp(): void
@@ -35,7 +36,7 @@ class MentorMatchingServiceTest extends TestCase
         $expert1 = People::factory()->create([
             'organization_id' => $this->org->id,
             'role_id' => $role->id,
-            'status' => 'active'
+            'status' => 'active',
         ]);
         PeopleRoleSkills::create([
             'people_id' => $expert1->id,
@@ -43,14 +44,14 @@ class MentorMatchingServiceTest extends TestCase
             'role_id' => $role->id,
             'current_level' => 5,
             'verified' => true,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         // Expert 2: Level 4, Verified
         $expert2 = People::factory()->create([
             'organization_id' => $this->org->id,
             'role_id' => $role->id,
-            'status' => 'active'
+            'status' => 'active',
         ]);
         PeopleRoleSkills::create([
             'people_id' => $expert2->id,
@@ -58,14 +59,14 @@ class MentorMatchingServiceTest extends TestCase
             'role_id' => $role->id,
             'current_level' => 4,
             'verified' => true,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         // Non-Expert: Level 2
         $lowLevel = People::factory()->create([
             'organization_id' => $this->org->id,
             'role_id' => $role->id,
-            'status' => 'active'
+            'status' => 'active',
         ]);
         PeopleRoleSkills::create([
             'people_id' => $lowLevel->id,
@@ -73,14 +74,14 @@ class MentorMatchingServiceTest extends TestCase
             'role_id' => $role->id,
             'current_level' => 2,
             'verified' => true,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         // Inactive Expert: Level 5, Verified BUT inactive
         $inactive = People::factory()->create([
             'organization_id' => $this->org->id,
             'role_id' => $role->id,
-            'status' => 'inactive'
+            'status' => 'inactive',
         ]);
         PeopleRoleSkills::create([
             'people_id' => $inactive->id,
@@ -88,7 +89,7 @@ class MentorMatchingServiceTest extends TestCase
             'role_id' => $role->id,
             'current_level' => 5,
             'verified' => true,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         // 2. Act

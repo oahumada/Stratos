@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 class RoleDesignerService
 {
     protected AiOrchestratorService $orchestrator;
+
     protected \App\Services\Competency\CompetencyCuratorService $competencyCurator;
 
     public function __construct(
@@ -258,8 +259,8 @@ class RoleDesignerService
         ]);
 
         // URL format: /approve/{token}
-        $magicLink = config('app.url') . "/approve/" . $approval->token;
-        
+        $magicLink = config('app.url').'/approve/'.$approval->token;
+
         return [
             'status' => 'success',
             'message' => 'Solicitud de aprobación enviada exitosamente.',
@@ -310,7 +311,7 @@ class RoleDesignerService
         $request->status = 'approved';
         $request->signature_data = array_merge($request->signature_data ?? [], [
             'approved_at' => now(),
-            'final_data' => $data
+            'final_data' => $data,
         ]);
         $request->seal();
         $request->save();
@@ -321,7 +322,7 @@ class RoleDesignerService
         // Sign the role and its skills
         $role->seal();
         $role->save();
-        
+
         foreach ($role->skills as $skill) {
             $skill->status = 'active';
             $skill->seal();
@@ -341,9 +342,9 @@ class RoleDesignerService
                 'digital_signature' => $role->digital_signature,
                 'signed_at' => $role->signed_at,
                 'approver_id' => $request->approver_id,
-                'role_snapshot' => $role->toArray()
+                'role_snapshot' => $role->toArray(),
             ],
-            'created_by' => $request->approver_id
+            'created_by' => $request->approver_id,
         ]);
 
         // Registrar Log de Auditoría (Evento de Dominio) para ISO
@@ -358,7 +359,7 @@ class RoleDesignerService
                 'digital_signature' => $role->digital_signature,
                 'signed_at' => $role->signed_at,
                 'version_id' => $roleVersion->id,
-                'audit_standard' => 'ISO/IEC-9001:2015-Traceability'
+                'audit_standard' => 'ISO/IEC-9001:2015-Traceability',
             ],
             'occurred_at' => now(),
         ]);
@@ -367,7 +368,7 @@ class RoleDesignerService
             'status' => 'success',
             'message' => 'Rol aprobado, firmado y materializado exitosamente.',
             'role' => $role->name,
-            'materialized' => $materializeResult['materialized'] ?? []
+            'materialized' => $materializeResult['materialized'] ?? [],
         ];
     }
 
@@ -384,7 +385,7 @@ class RoleDesignerService
         return [
             'status' => 'success',
             'token' => $approval->token,
-            'magic_link' => config('app.url') . "/approve/" . $approval->token,
+            'magic_link' => config('app.url').'/approve/'.$approval->token,
         ];
     }
 
@@ -432,9 +433,9 @@ class RoleDesignerService
                 'digital_signature' => $competency->digital_signature,
                 'signed_at' => $competency->signed_at,
                 'approver_id' => $request->approver_id,
-                'competency_snapshot' => $competency->toArray()
+                'competency_snapshot' => $competency->toArray(),
             ],
-            'created_by' => $request->approver_id
+            'created_by' => $request->approver_id,
         ]);
 
         // Registrar Log de Auditoría (Evento de Dominio) para ISO
@@ -449,7 +450,7 @@ class RoleDesignerService
                 'digital_signature' => $competency->digital_signature,
                 'signed_at' => $competency->signed_at,
                 'version_id' => $compVersion->id,
-                'audit_standard' => 'ISO/IEC-9001:2015-Traceability'
+                'audit_standard' => 'ISO/IEC-9001:2015-Traceability',
             ],
             'occurred_at' => now(),
         ]);
@@ -517,6 +518,7 @@ class RoleDesignerService
 
         try {
             $result = $this->orchestrator->agentThink('Diseñador de Roles', $prompt);
+
             return $result['response'];
         } catch (\Exception $e) {
             Log::error('Error generando Skill Blueprint: '.$e->getMessage());

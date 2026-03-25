@@ -33,13 +33,15 @@ class IngestBusinessMetrics extends Command
         $filePath = $this->argument('file');
         $orgId = $this->option('org') ?? Organization::first()?->id;
 
-        if (!$orgId) {
+        if (! $orgId) {
             $this->error('No organization found. Please provide --org ID.');
+
             return 1;
         }
 
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
             $this->error("File not found: {$filePath}");
+
             return 1;
         }
 
@@ -48,8 +50,9 @@ class IngestBusinessMetrics extends Command
         $file = fopen($filePath, 'r');
         $header = fgetcsv($file);
 
-        if (!$header) {
-            $this->error("Empty or invalid CSV file.");
+        if (! $header) {
+            $this->error('Empty or invalid CSV file.');
+
             return 1;
         }
 
@@ -63,18 +66,19 @@ class IngestBusinessMetrics extends Command
 
             // Validation according to Data Dictionary
             $validator = Validator::make($data, [
-                'metric_name'  => 'required|string',
+                'metric_name' => 'required|string',
                 'metric_value' => 'required|numeric',
-                'period_date'  => 'required|date_format:Y-m-d',
-                'source'       => 'required|string',
-                'unit'         => 'nullable|string',
-                'department'   => 'nullable|string', // Can be ID or Alias
-                'metadata'     => 'nullable|string', // Expecting JSON string or empty
+                'period_date' => 'required|date_format:Y-m-d',
+                'source' => 'required|string',
+                'unit' => 'nullable|string',
+                'department' => 'nullable|string', // Can be ID or Alias
+                'metadata' => 'nullable|string', // Expecting JSON string or empty
             ]);
 
             if ($validator->fails()) {
-                $this->warn("Row #{$rowCount} failed validation: " . implode(', ', $validator->errors()->all()));
+                $this->warn("Row #{$rowCount} failed validation: ".implode(', ', $validator->errors()->all()));
                 $errorCount++;
+
                 continue;
             }
 
@@ -83,36 +87,36 @@ class IngestBusinessMetrics extends Command
                     $departmentId = $this->resolveDepartment($data['department'] ?? null, $orgId);
 
                     $metadata = [];
-                    if (!empty($data['metadata'])) {
+                    if (! empty($data['metadata'])) {
                         $metadata = json_decode($data['metadata'], true) ?? [];
                     }
 
                     BusinessMetric::updateOrCreate(
                         [
                             'organization_id' => $orgId,
-                            'metric_name'     => $data['metric_name'],
-                            'period_date'     => $data['period_date'],
-                            'department_id'   => $departmentId,
+                            'metric_name' => $data['metric_name'],
+                            'period_date' => $data['period_date'],
+                            'department_id' => $departmentId,
                         ],
                         [
                             'metric_value' => $data['metric_value'],
-                            'unit'         => $data['unit'] ?? null,
-                            'source'       => $data['source'],
-                            'metadata'     => $metadata,
+                            'unit' => $data['unit'] ?? null,
+                            'source' => $data['source'],
+                            'metadata' => $metadata,
                         ]
                     );
 
                     $successCount++;
                 });
             } catch (\Exception $e) {
-                $this->error("Row #{$rowCount} error: " . $e->getMessage());
+                $this->error("Row #{$rowCount} error: ".$e->getMessage());
                 $errorCount++;
             }
         }
 
         fclose($file);
 
-        $this->info("Ingestion complete!");
+        $this->info('Ingestion complete!');
         $this->table(
             ['Total Rows', 'Success', 'Errors'],
             [[$rowCount, $successCount, $errorCount]]

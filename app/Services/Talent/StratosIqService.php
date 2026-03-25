@@ -5,9 +5,8 @@ namespace App\Services\Talent;
 use App\Models\Organizations;
 use App\Models\OrganizationSnapshot;
 use App\Models\People;
-use App\Models\PeopleRoleSkill;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class StratosIqService
 {
@@ -29,7 +28,7 @@ class StratosIqService
         $averageGap = $averageGapQuery ? $averageGapQuery->total_gap : 0;
 
         $averageGap = $averageGap ?? 0;
-        
+
         // 2. Total People
         $totalPeople = $org->People()->count();
 
@@ -38,7 +37,7 @@ class StratosIqService
             ->where('snapshot_date', $snapshotDate)
             ->first();
 
-        if (!$snapshot) {
+        if (! $snapshot) {
             $snapshot = new OrganizationSnapshot([
                 'organizations_id' => $org->id,
                 'snapshot_date' => $snapshotDate,
@@ -68,7 +67,7 @@ class StratosIqService
         $last90DaysMovements = \App\Models\PersonMovement::where('organization_id', $org->id)
             ->where('movement_date', '>=', now()->subDays(90))
             ->get();
-        
+
         $exitsCount = $last90DaysMovements->where('type', 'exit')->count();
         $promotionsCount = $last90DaysMovements->where('type', 'promotion')->count();
         $hiresCount = $last90DaysMovements->where('type', 'hire')->count();
@@ -95,7 +94,7 @@ class StratosIqService
         $mobilityBonus = $mobilityEfficiency * 20;
 
         $iq = $baseIq - $gapPenalty + $velocityBonus + $stabilityImpact + $mobilityBonus;
-        
+
         // Final normalization and save
         $snapshot->stratos_iq = max(0, min(200, round($iq, 2)));
         $snapshot->metadata = array_merge($metadata, [
@@ -104,14 +103,14 @@ class StratosIqService
             'captured_metrics' => [
                 'exits_90d' => $exitsCount,
                 'promotions_90d' => $promotionsCount,
-                'hires_90d' => $hiresCount
-            ]
+                'hires_90d' => $hiresCount,
+            ],
         ]);
         $snapshot->save();
 
         return $snapshot;
     }
-    
+
     /**
      * Retrieve the trend of Stratos IQ over the last N months.
      */
@@ -121,7 +120,7 @@ class StratosIqService
             ->orderBy('snapshot_date', 'asc')
             ->take($months)
             ->get();
-            
+
         return [
             'trends' => $snapshots,
             'current_iq' => $snapshots->last()->stratos_iq ?? 0,

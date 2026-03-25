@@ -7,10 +7,10 @@ use App\Models\AdminOperationAudit;
 use App\Services\AdminOperationsService;
 use App\Services\IntelligenceMetricsAggregator;
 use App\Services\ScenarioGenerationService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class AdminOperationsController extends Controller
 {
@@ -27,8 +27,8 @@ class AdminOperationsController extends Controller
     public function index(Request $request): JsonResponse
     {
         $organization = $request->user()->people?->organization;
-        
-        if (!$organization) {
+
+        if (! $organization) {
             return response()->json(['message' => 'Organization not found'], 422);
         }
 
@@ -60,10 +60,10 @@ class AdminOperationsController extends Controller
         try {
             // Get the preview data based on operation type
             $previewData = $this->generatePreview($operation);
-            
+
             $operation = $this->operationsService->previewOperation(
                 $operation,
-                fn() => $previewData
+                fn () => $previewData
             );
 
             return response()->json([
@@ -89,7 +89,7 @@ class AdminOperationsController extends Controller
             'confirmed' => 'required|boolean|accepted',
         ]);
 
-        if (!$validated['confirmed']) {
+        if (! $validated['confirmed']) {
             return response()->json([
                 'message' => 'Operation must be confirmed',
             ], 422);
@@ -98,7 +98,7 @@ class AdminOperationsController extends Controller
         try {
             $operation = $this->operationsService->executeOperation(
                 $operation,
-                fn() => $this->performOperation($operation)
+                fn () => $this->performOperation($operation)
             );
 
             return response()->json([
@@ -176,7 +176,7 @@ class AdminOperationsController extends Controller
         $orgId = $params['organization_id'] ?? null;
 
         $sourceCount = \App\Models\IntelligenceMetric::query()
-            ->when($orgId, fn($q) => $q->where('organization_id', $orgId))
+            ->when($orgId, fn ($q) => $q->where('organization_id', $orgId))
             ->whereBetween('created_at', [
                 Carbon::createFromFormat('Y-m-d', $fromDate)->startOfDay(),
                 Carbon::createFromFormat('Y-m-d', $toDate)->endOfDay(),
@@ -230,7 +230,7 @@ class AdminOperationsController extends Controller
     private function previewGenerateOperation(AdminOperationAudit $operation): array
     {
         $params = $operation->parameters ?? [];
-        
+
         return [
             'operation_type' => 'generate',
             'scenario_name' => $params['scenario_name'] ?? 'New Scenario',
@@ -281,7 +281,7 @@ class AdminOperationsController extends Controller
                 'records_affected' => 1,
             ];
         } catch (\Exception $e) {
-            throw new \Exception('Failed to queue generation: ' . $e->getMessage());
+            throw new \Exception('Failed to queue generation: '.$e->getMessage());
         }
     }
 
@@ -304,7 +304,7 @@ class AdminOperationsController extends Controller
         $params = $operation->parameters ?? [];
         $importType = $params['import_type'] ?? null;
 
-        if (!$importType) {
+        if (! $importType) {
             throw new \Exception('Import type not specified');
         }
 

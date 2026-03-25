@@ -13,8 +13,11 @@ class ConversationParticipant extends Model
     use HasFactory;
 
     protected $guarded = [];
+
     protected $keyType = 'string';
+
     public $incrementing = false;
+
     protected $casts = [
         'id' => 'string',
         'conversation_id' => 'string',

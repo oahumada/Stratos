@@ -27,14 +27,14 @@ class UserGamification extends Model
     {
         $this->total_xp += $amount;
         $this->current_points += $amount;
-        
+
         // Lógica simple de nivel: cada 1000 XP sube un nivel
         $newLevel = (int) floor($this->total_xp / 1000) + 1;
-        
+
         if ($newLevel > $this->level) {
             $this->level = $newLevel;
         }
-        
+
         $this->save();
     }
 }

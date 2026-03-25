@@ -16,20 +16,20 @@ return new class extends Migration
             $table->uuid('conversation_id');
             $table->unsignedBigInteger('organization_id');
             $table->unsignedBigInteger('people_id');
-            
+
             // Permissions
             $table->boolean('can_send')->default(true);
             $table->boolean('can_read')->default(true);
-            
+
             // Tracking
             $table->timestamp('joined_at');
             $table->timestamp('left_at')->nullable();
             $table->timestamp('last_read_at')->nullable();
             $table->integer('unread_count')->default(0);
-            
+
             // Audit
             $table->timestamps();
-            
+
             // Constraints & Indexes
             $table->foreign('conversation_id')->references('id')->on('conversations')->onDelete('cascade');
             $table->foreign('organization_id')->references('id')->on('organizations')->onDelete('cascade');

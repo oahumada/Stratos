@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\ApprovalRequest;
 use App\Services\Talent\RoleDesignerService;
-use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class RoleDesignerController extends Controller
 {
@@ -93,9 +93,9 @@ class RoleDesignerController extends Controller
 
         $approvable = $request->approvable;
         $component = ($approvable instanceof \App\Models\Roles) ? 'Roles/Approval' : 'Competencies/Approval';
-            
+
         return Inertia::render($component, [
-            'token' => $token
+            'token' => $token,
         ]);
     }
 
@@ -109,7 +109,7 @@ class RoleDesignerController extends Controller
             ->firstOrFail();
 
         $request->load(['approver']);
-        
+
         $approvable = $request->approvable;
         if ($approvable instanceof \App\Models\Roles) {
             $approvable->load(['competencies.skills']);
@@ -119,7 +119,7 @@ class RoleDesignerController extends Controller
             'success' => true,
             'approval' => $request,
             'approvable' => $approvable,
-            'approver' => $request->approver
+            'approver' => $request->approver,
         ]);
     }
 
@@ -177,11 +177,12 @@ class RoleDesignerController extends Controller
 
         try {
             $result = $this->designerService->generateSkillBlueprint($request->input('competencies'));
+
             return response()->json($result);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Error generando el blueprint: ' . $e->getMessage(),
+                'message' => 'Error generando el blueprint: '.$e->getMessage(),
             ], 500);
         }
     }

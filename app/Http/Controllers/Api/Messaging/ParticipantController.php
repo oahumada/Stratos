@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Messaging;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AddParticipantRequest;
 use App\Models\Conversation;
 use App\Models\ConversationParticipant;
 use App\Services\Messaging\ConversationService;

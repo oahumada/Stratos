@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('competencies', function (Blueprint $table) {
-            if (!Schema::hasColumn('competencies', 'digital_signature')) {
+            if (! Schema::hasColumn('competencies', 'digital_signature')) {
                 $table->text('digital_signature')->nullable();
                 $table->timestamp('signed_at')->nullable();
                 $table->string('signature_version')->nullable();

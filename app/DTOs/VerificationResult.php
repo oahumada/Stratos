@@ -67,7 +67,7 @@ class VerificationResult
         $messages = array_map(fn ($v) => $this->getViolationMessage($v) ?? $v['rule'] ?? 'Unknown error', $this->violations);
 
         return implode('; ', array_slice($messages, 0, 3)).
-            (count($messages) > 3 ? " (+ ".( count($messages) - 3)." more)" : '');
+            (count($messages) > 3 ? ' (+ '.(count($messages) - 3).' more)' : '');
     }
 
     /**

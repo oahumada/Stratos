@@ -17,7 +17,7 @@ class DepartmentsFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->word . ' Department',
+            'name' => $this->faker->word.' Department',
             'description' => $this->faker->sentence,
             'organization_id' => \App\Models\Organizations::factory(),
         ];

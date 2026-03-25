@@ -3,16 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Departments;
-use App\Models\People;
-use App\Models\Roles;
 use App\Models\ChangeSet;
+use App\Models\Departments;
 use App\Models\OrganizationSnapshot;
+use App\Models\People;
 use App\Models\PersonMovement;
+use App\Models\Roles;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class BulkPeopleImportController extends Controller
 {
@@ -47,22 +46,22 @@ class BulkPeopleImportController extends Controller
         // 2. Analyze Individual Movements (Talent Flow)
         $analysis['movements'] = $this->detectMovements($rows, $existingPeople);
 
-        Log::info("BULK_IMPORT_ANALYZE: Detection results", [
+        Log::info('BULK_IMPORT_ANALYZE: Detection results', [
             'rows_count' => count($rows),
             'depts_count' => count($analysis['detected_departments']),
             'roles_count' => count($analysis['detected_roles']),
-            'hires_count' => count($analysis['movements']['hires'])
+            'hires_count' => count($analysis['movements']['hires']),
         ]);
 
         return response()->json([
             'success' => true,
-            'analysis' => $analysis
+            'analysis' => $analysis,
         ]);
     }
 
     private function detectDepartments(array $rows, $existingDepts): array
     {
-        $deptNames = collect($rows)->map(fn($r) => \App\Services\Talent\TalentDataSanitizer::getHRValue($r, 'department'))->unique()->filter();
+        $deptNames = collect($rows)->map(fn ($r) => \App\Services\Talent\TalentDataSanitizer::getHRValue($r, 'department'))->unique()->filter();
         $detected = [];
 
         foreach ($deptNames as $name) {
@@ -78,16 +77,17 @@ class BulkPeopleImportController extends Controller
                 'suggested_name' => $match ? $match->name : $name,
             ];
         }
+
         return $detected;
     }
 
     private function detectRoles(array $rows, $existingRoles): array
     {
-        $roleNames = collect($rows)->map(fn($r) => \App\Services\Talent\TalentDataSanitizer::getHRValue($r, 'role'))->unique()->filter();
+        $roleNames = collect($rows)->map(fn ($r) => \App\Services\Talent\TalentDataSanitizer::getHRValue($r, 'role'))->unique()->filter();
         $detected = [];
 
         foreach ($roleNames as $name) {
-            $match = $existingRoles->first(fn($r) => mb_strtolower($r->name) === mb_strtolower($name));
+            $match = $existingRoles->first(fn ($r) => mb_strtolower($r->name) === mb_strtolower($name));
 
             $detected[] = [
                 'raw_name' => $name,
@@ -96,6 +96,7 @@ class BulkPeopleImportController extends Controller
                 'suggested_name' => $match ? $match->name : $name,
             ];
         }
+
         return $detected;
     }
 
@@ -108,22 +109,22 @@ class BulkPeopleImportController extends Controller
             // Sanitización de Datos (Chilean Context)
             $sanitizedName = \App\Services\Talent\TalentDataSanitizer::sanitizeNames($row);
             $sanitizedRut = \App\Services\Talent\TalentDataSanitizer::sanitizeRut(\App\Services\Talent\TalentDataSanitizer::getHRValue($row, 'rut'));
-            
-            $email = mb_strtolower(\App\Services\Talent\TalentDataSanitizer::getHRValue($row, 'email') ?? ($sanitizedRut ? $sanitizedRut . '@stratos.ai' : null));
-            if (!$email) {
+
+            $email = mb_strtolower(\App\Services\Talent\TalentDataSanitizer::getHRValue($row, 'email') ?? ($sanitizedRut ? $sanitizedRut.'@stratos.ai' : null));
+            if (! $email) {
                 continue;
             }
 
             $uploadedEmails[] = $email;
-            $person = $existingPeople->first(fn($p) => mb_strtolower($p->email) === $email);
+            $person = $existingPeople->first(fn ($p) => mb_strtolower($p->email) === $email);
 
-            if (!$person) {
+            if (! $person) {
                 $movements['hires'][] = [
-                    'name' => $sanitizedName['first_name'] . ' ' . $sanitizedName['last_name'],
+                    'name' => $sanitizedName['first_name'].' '.$sanitizedName['last_name'],
                     'email' => $email,
                     'rut' => $sanitizedRut,
                     'department' => \App\Services\Talent\TalentDataSanitizer::getHRValue($row, 'department') ?? '?',
-                    'role' => \App\Services\Talent\TalentDataSanitizer::getHRValue($row, 'role') ?? '?'
+                    'role' => \App\Services\Talent\TalentDataSanitizer::getHRValue($row, 'role') ?? '?',
                 ];
             } else {
                 $this->checkIfTransfer($row, $person, $movements);
@@ -131,16 +132,16 @@ class BulkPeopleImportController extends Controller
         }
 
         // Detect Exits
-        $existingEmails = $existingPeople->pluck('email')->map(fn($e) => mb_strtolower($e))->toArray();
+        $existingEmails = $existingPeople->pluck('email')->map(fn ($e) => mb_strtolower($e))->toArray();
         $diff = array_diff($existingEmails, $uploadedEmails);
 
         foreach ($diff as $email) {
-            $person = $existingPeople->first(fn($p) => mb_strtolower($p->email) === $email);
+            $person = $existingPeople->first(fn ($p) => mb_strtolower($p->email) === $email);
             $movements['exits'][] = [
                 'name' => $person->full_name,
                 'email' => $email,
                 'department' => $person->department->name ?? '?',
-                'role' => $person->role->name ?? '?'
+                'role' => $person->role->name ?? '?',
             ];
         }
 
@@ -168,6 +169,7 @@ class BulkPeopleImportController extends Controller
             ];
         }
     }
+
     /**
      * Crea un ChangeSet con el estado de la importación para su revisión y firma.
      */
@@ -178,36 +180,36 @@ class BulkPeopleImportController extends Controller
 
         $changeSet = ChangeSet::create([
             'organization_id' => $user->organization_id,
-            'title' => 'Importación Masiva de Talento - ' . now()->format('d/m/Y'),
+            'title' => 'Importación Masiva de Talento - '.now()->format('d/m/Y'),
             'description' => 'Carga de nómina para validación organizacional.',
             'status' => 'draft',
             'created_by' => $user->id,
             'diff' => [
                 'type' => 'bulk_people_import',
                 'rows' => $data['rows'],
-                'mapping' => $data['mapping']
+                'mapping' => $data['mapping'],
             ],
             'metadata' => [
                 'source' => 'bulk_upload',
-                'ip_address' => $request->ip()
-            ]
+                'ip_address' => $request->ip(),
+            ],
         ]);
 
         return response()->json([
             'success' => true,
-            'change_set_id' => $changeSet->id
+            'change_set_id' => $changeSet->id,
         ]);
     }
 
     /**
      * Firma digitalmente y aplica los cambios, creando el baseline.
      */
-   public function approveAndCommit(Request $request, $id)
+    public function approveAndCommit(Request $request, $id)
     {
         $user = auth()->user();
         $orgId = $user->organization_id;
         $changeSet = ChangeSet::findOrFail($id);
-        
+
         $diff = $changeSet->diff;
         $mapping = $request->input('mapping', $diff['mapping'] ?? []);
         $rows = $request->input('rows', $diff['rows'] ?? []);
@@ -235,10 +237,12 @@ class BulkPeopleImportController extends Controller
             $this->createBaselineSnapshot($orgId, count($mapping['movements']['hires'] ?? []));
 
             DB::commit();
+
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Bulk Import Commit Error: ' . $e->getMessage());
+            Log::error('Bulk Import Commit Error: '.$e->getMessage());
+
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
@@ -251,7 +255,7 @@ class BulkPeopleImportController extends Controller
                 $dept = Departments::create([
                     'organization_id' => $orgId,
                     'name' => $dMap['suggested_name'],
-                    'status' => 'active'
+                    'status' => 'active',
                 ]);
                 $deptMap[$dMap['raw_name']] = $dept->id;
             } else {
@@ -260,7 +264,7 @@ class BulkPeopleImportController extends Controller
                 $dept = Departments::find($dMap['matched_id']);
                 if ($dept) {
                     $aliases = $dept->aliases ?: [];
-                    if (!in_array($dMap['raw_name'], $aliases)) {
+                    if (! in_array($dMap['raw_name'], $aliases)) {
                         $aliases[] = $dMap['raw_name'];
                         $dept->aliases = $aliases;
                         $dept->save();
@@ -268,13 +272,14 @@ class BulkPeopleImportController extends Controller
                 }
             }
         }
+
         return $deptMap;
     }
 
     private function syncRoles($orgId, array $roles, array $rows = [], array $deptMap = []): array
     {
-        Log::info("SYNC_ROLES: Starting sync", [
-            'roles_count' => count($roles)
+        Log::info('SYNC_ROLES: Starting sync', [
+            'roles_count' => count($roles),
         ]);
         $roleMap = [];
         foreach ($roles as $rMap) {
@@ -291,10 +296,10 @@ class BulkPeopleImportController extends Controller
                         break;
                     }
                 }
-                Log::info("SYNC_ROLES: Creating new role", [
+                Log::info('SYNC_ROLES: Creating new role', [
                     'name' => $rMap['suggested_name'],
                     'dept_id' => $deptId,
-                    'dept_name' => $deptNameStr
+                    'dept_name' => $deptNameStr,
                 ]);
 
                 $role = Roles::create([
@@ -302,15 +307,16 @@ class BulkPeopleImportController extends Controller
                     'department_id' => $deptId,
                     'department' => $deptNameStr,
                     'name' => $rMap['suggested_name'],
-                    'status' => 'proposed'
+                    'status' => 'proposed',
                 ]);
-                
+
                 $roleMap[$rMap['raw_name']] = $role->id;
-                Log::info("SYNC_ROLES: Role created successfully", ['id' => $role->id]);
+                Log::info('SYNC_ROLES: Role created successfully', ['id' => $role->id]);
             } else {
                 $roleMap[$rMap['raw_name']] = $rMap['matched_id'];
             }
         }
+
         return $roleMap;
     }
 
@@ -319,15 +325,15 @@ class BulkPeopleImportController extends Controller
         foreach ($rows as $row) {
             $sanitizedName = \App\Services\Talent\TalentDataSanitizer::sanitizeNames($row);
             $sanitizedRut = \App\Services\Talent\TalentDataSanitizer::sanitizeRut(\App\Services\Talent\TalentDataSanitizer::getHRValue($row, 'rut'));
-            
+
             $emailRaw = \App\Services\Talent\TalentDataSanitizer::getHRValue($row, 'email');
-            $email = $emailRaw ?? ($sanitizedRut ? $sanitizedRut . '@stratos.ai' : null);
-            if (!$email) {
+            $email = $emailRaw ?? ($sanitizedRut ? $sanitizedRut.'@stratos.ai' : null);
+            if (! $email) {
                 continue;
             }
 
             $person = People::where('organization_id', $orgId)->where('email', $email)->first();
-            
+
             $oldDeptId = $person ? $person->department_id : null;
             $oldRoleId = $person ? $person->role_id : null;
 
@@ -382,7 +388,7 @@ class BulkPeopleImportController extends Controller
                     'from_department_id' => $personToExit->department_id,
                     'from_role_id' => $personToExit->role_id,
                     'movement_date' => now(),
-                    'change_set_id' => $cs->id
+                    'change_set_id' => $cs->id,
                 ]);
                 $personToExit->delete();
             }
@@ -391,7 +397,7 @@ class BulkPeopleImportController extends Controller
 
     private function trackMovement($person, $oldDeptId, $newDeptId, $oldRoleId, $newRoleId, $csId)
     {
-        if (!$oldDeptId && !$oldRoleId) {
+        if (! $oldDeptId && ! $oldRoleId) {
             $type = 'hire';
         } elseif ($oldRoleId != $newRoleId) {
             $type = 'promotion';
@@ -410,7 +416,7 @@ class BulkPeopleImportController extends Controller
             'from_role_id' => $oldRoleId,
             'to_role_id' => $newRoleId,
             'movement_date' => now(),
-            'change_set_id' => $csId
+            'change_set_id' => $csId,
         ]);
     }
 
@@ -428,8 +434,8 @@ class BulkPeopleImportController extends Controller
                 'description' => 'Sincronización mensual de nómina.',
                 'total_roles' => $totalRoles,
                 'new_hires' => $newHiresCount,
-                'captured_at' => now()->toDateTimeString()
-            ]
+                'captured_at' => now()->toDateTimeString(),
+            ],
         ]);
     }
 }

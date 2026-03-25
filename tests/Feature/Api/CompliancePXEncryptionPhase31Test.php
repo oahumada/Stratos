@@ -1,8 +1,6 @@
 <?php
 
-use App\Models\AssessmentSession;
 use App\Models\Organization;
-use App\Models\People;
 use App\Models\PsychometricProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Crypt;

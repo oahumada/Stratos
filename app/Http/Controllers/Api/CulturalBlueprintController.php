@@ -18,14 +18,14 @@ class CulturalBlueprintController extends Controller
                 'mission' => '',
                 'vision' => '',
                 'values' => [],
-                'principles' => []
+                'principles' => [],
             ]
         );
 
         return response()->json([
-            'success' => true, 
+            'success' => true,
             'data' => $blueprint,
-            'is_verified' => $blueprint->isVerified()
+            'is_verified' => $blueprint->isVerified(),
         ]);
     }
 
@@ -45,9 +45,9 @@ class CulturalBlueprintController extends Controller
         );
 
         return response()->json([
-            'success' => true, 
-            'data' => $blueprint, 
-            'message' => 'Blueprint actualizado correctamente'
+            'success' => true,
+            'data' => $blueprint,
+            'message' => 'Blueprint actualizado correctamente',
         ]);
     }
 
@@ -59,9 +59,9 @@ class CulturalBlueprintController extends Controller
         $blueprint->seal();
 
         return response()->json([
-            'success' => true, 
-            'data' => $blueprint, 
-            'message' => 'Blueprint firmado digitalmente con Sello Stratos'
+            'success' => true,
+            'data' => $blueprint,
+            'message' => 'Blueprint firmado digitalmente con Sello Stratos',
         ]);
     }
 }

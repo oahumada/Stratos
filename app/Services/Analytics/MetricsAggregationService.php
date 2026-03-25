@@ -3,8 +3,8 @@
 namespace App\Services\Analytics;
 
 use App\Models\VerificationAudit;
-use Illuminate\Support\Collection;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 /**
  * MetricsAggregationService
@@ -48,7 +48,7 @@ class MetricsAggregationService
         foreach ($audits as $audit) {
             $key = $this->getIntervalKey($audit->created_at, $interval);
 
-            if (!isset($grouped[$key])) {
+            if (! isset($grouped[$key])) {
                 $grouped[$key] = [];
             }
 
@@ -72,16 +72,19 @@ class MetricsAggregationService
         // Extract JSON data safely
         $latencies = $audits->map(function ($audit) {
             $data = is_array($audit->data) ? $audit->data : json_decode($audit->data, true) ?? [];
+
             return $data['latency_ms'] ?? 0;
         })->filter();
 
         $throughputData = $audits->map(function ($audit) {
             $data = is_array($audit->data) ? $audit->data : json_decode($audit->data, true) ?? [];
+
             return $data['throughput'] ?? 0;
         })->filter();
 
         $transitionTimes = $audits->map(function ($audit) {
             $data = is_array($audit->data) ? $audit->data : json_decode($audit->data, true) ?? [];
+
             return $data['transition_time_seconds'] ?? 0;
         })->filter();
 
@@ -195,7 +198,7 @@ class MetricsAggregationService
             ? $currentPeriod->last()
             : [];
 
-        $previousMetrics = !$previousPeriod->isEmpty()
+        $previousMetrics = ! $previousPeriod->isEmpty()
             ? $this->calculateMetricsForGroup($previousPeriod)
             : [];
 
@@ -218,10 +221,10 @@ class MetricsAggregationService
         $history = $this->getMetricsHistory($organizationId, $days, 'daily');
 
         return [
-            'p50' => $history->map(fn($m) => $m['avg_latency'])->median() ?? 0,
-            'p95' => $history->map(fn($m) => $m['p95_latency'])->max() ?? 0,
-            'p99' => $history->map(fn($m) => $m['p99_latency'])->max() ?? 0,
-            'max' => $history->map(fn($m) => $m['max_latency'])->max() ?? 0,
+            'p50' => $history->map(fn ($m) => $m['avg_latency'])->median() ?? 0,
+            'p95' => $history->map(fn ($m) => $m['p95_latency'])->max() ?? 0,
+            'p99' => $history->map(fn ($m) => $m['p99_latency'])->max() ?? 0,
+            'max' => $history->map(fn ($m) => $m['max_latency'])->max() ?? 0,
         ];
     }
 }

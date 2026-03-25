@@ -2,16 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToOrganization;
+use App\Traits\HasDigitalSeal;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 
-use App\Traits\BelongsToOrganization;
-use App\Traits\HasDigitalSeal;
-
 class Competency extends Model
 {
-    use HasFactory, BelongsToOrganization, HasDigitalSeal;
+    use BelongsToOrganization, HasDigitalSeal, HasFactory;
 
     protected $table = 'competencies';
 

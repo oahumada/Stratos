@@ -1,14 +1,13 @@
 <?php
 
-use App\Models\User;
 use App\Models\Organization;
-use Database\Factories\UserFactory;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 describe('Verification Hub E2E Tests', function () {
-    
+
     // ========================================================================
     // Setup & Fixtures
     // ========================================================================
@@ -42,7 +41,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->assertSee('Scheduler Status');
         // Should display time like "55m 30s until next run"
         $page->assertSee('until next run');
@@ -52,7 +51,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@run-now-button')
             ->waitFor('@success-message', seconds: 5)
             ->assertSee('Scheduler executed');
@@ -62,7 +61,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->assertSee('Recent Executions');
         // Table should have headers
         $page->assertSee('Started At')
@@ -74,7 +73,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@expand-execution-1')
             ->waitFor('@execution-details-1', seconds: 3)
             ->assertSee('Execution Details');
@@ -88,7 +87,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@notifications-tab')
             ->waitFor('@notifications-table', seconds: 2)
             ->assertSee('Notifications')
@@ -100,7 +99,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@notifications-tab')
             ->select('@type-filter', 'phase_transition')
             ->waitFor('@filtered-notifications', seconds: 2)
@@ -111,7 +110,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@notifications-tab')
             ->select('@severity-filter', 'error')
             ->waitFor('@severity-filtered', seconds: 2);
@@ -121,7 +120,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@notifications-tab')
             ->click('@test-notification-button')
             ->fill('@test-recipient', 'admin@company.com')
@@ -134,7 +133,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@notifications-tab')
             ->click('@mark-read-notification-1')
             ->waitFor('@notification-read', seconds: 2);
@@ -144,7 +143,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@notifications-tab')
             ->click('@expand-notification-1')
             ->waitFor('@notification-details-1', seconds: 2)
@@ -161,7 +160,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@config-tab')
             ->waitFor('@channel-list', seconds: 2)
             ->assertSee('Slack')
@@ -174,7 +173,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@config-tab')
             ->click('@slack-toggle')
             ->waitFor('@channel-updated', seconds: 2)
@@ -185,7 +184,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@config-tab')
             ->fill('@slack-webhook-input', 'https://hooks.slack.com/services/INVALID')
             ->click('@validate-webhook')
@@ -197,7 +196,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@config-tab')
             ->click('@test-slack-button')
             ->waitFor('@test-success', seconds: 5)
@@ -208,7 +207,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@config-tab')
             ->assertSee('Confidence Threshold')
             ->assertSee('Error Rate Maximum')
@@ -219,7 +218,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@config-tab')
             ->click('@email-toggle')
             ->fill('@email-recipients', 'admin@company.com,ops@company.com')
@@ -236,7 +235,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@readiness-tab')
             ->assertSee('Transition Readiness')
             ->assertSee('Confidence')
@@ -249,7 +248,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@readiness-tab')
             ->assertSee('Ready')
             ->assertSee('Not Ready');
@@ -259,7 +258,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@readiness-tab')
             ->assertSee('Days to Ready');
     });
@@ -268,9 +267,9 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@readiness-tab');
-        
+
         // If there are blockers, they should be labeled
         if ($page->has('@blockers-list')) {
             $page->assertSee('Blockers')
@@ -283,9 +282,9 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@readiness-tab');
-        
+
         if ($page->has('@recommendations-list')) {
             $page->assertSee('Recommendations');
         }
@@ -299,7 +298,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@dry-run-tab')
             ->assertSee('Dry-Run Simulator')
             ->assertSee('Confidence Threshold')
@@ -311,7 +310,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@dry-run-tab')
             ->click('@run-simulation-button')
             ->waitFor('@simulation-results', seconds: 5)
@@ -322,7 +321,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@dry-run-tab')
             ->click('@run-simulation-button')
             ->waitFor('@simulation-results', seconds: 5)
@@ -334,11 +333,11 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@dry-run-tab')
             ->click('@run-simulation-button')
             ->waitFor('@simulation-results', seconds: 5);
-        
+
         if ($page->has('@gaps-list')) {
             $page->assertSee('Gap Analysis')
                 ->assertSee('Days to Meet');
@@ -349,12 +348,12 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@dry-run-tab')
             ->click('@run-simulation-button')
             ->waitFor('@simulation-results', seconds: 5)
             ->click('@export-pdf-button');
-        
+
         // PDF should be downloaded
         expect(true)->toBeTrue();
     });
@@ -367,7 +366,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@config-tab')
             ->click('@launch-setup-wizard')
             ->waitFor('@wizard-modal', seconds: 2)
@@ -378,7 +377,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@config-tab')
             ->click('@launch-setup-wizard')
             ->waitFor('@wizard-modal', seconds: 2)
@@ -392,16 +391,16 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@config-tab')
             ->click('@launch-setup-wizard')
             ->waitFor('@wizard-modal', seconds: 2);
-        
+
         // Navigate through all steps
         for ($i = 0; $i < 4; $i++) {
             $page->click('@next-button')->waitFor($i === 3 ? '@complete-button' : '@next-button', seconds: 1);
         }
-        
+
         $page->click('@complete-button')
             ->waitFor('@wizard-close', seconds: 2)
             ->assertSee('Configuration complete');
@@ -415,7 +414,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@audit-tab')
             ->assertSee('Audit Log')
             ->assertSee('Action')
@@ -427,7 +426,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@audit-tab')
             ->select('@action-filter', 'phase_transition')
             ->waitFor('@filtered-logs', seconds: 2);
@@ -437,7 +436,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@audit-tab')
             ->fill('@from-date', '2026-03-01')
             ->fill('@to-date', '2026-03-31')
@@ -449,7 +448,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@audit-tab')
             ->click('@expand-log-1')
             ->waitFor('@log-details-1', seconds: 2)
@@ -461,10 +460,10 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@audit-tab')
             ->click('@export-csv-button');
-        
+
         // CSV should be downloaded
         expect(true)->toBeTrue();
     });
@@ -473,7 +472,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@audit-tab')
             ->assertSee('Total Events')
             ->assertSee('Phase Transitions')
@@ -488,7 +487,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@compliance-tab')
             ->assertSee('Compliance Report')
             ->assertSee('Generate Report');
@@ -498,7 +497,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@compliance-tab')
             ->fill('@report-from-date', '2026-03-01')
             ->fill('@report-to-date', '2026-03-31')
@@ -511,7 +510,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@compliance-tab')
             ->fill('@report-from-date', '2026-03-01')
             ->fill('@report-to-date', '2026-03-31')
@@ -526,7 +525,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@compliance-tab')
             ->fill('@report-from-date', '2026-03-01')
             ->fill('@report-to-date', '2026-03-31')
@@ -534,7 +533,7 @@ describe('Verification Hub E2E Tests', function () {
             ->waitFor('@report-generated', seconds: 5)
             ->click('@export-report-pdf')
             ->pause(1000);
-        
+
         // PDF should be downloaded
         expect(true)->toBeTrue();
     });
@@ -553,14 +552,14 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         // Get IDs or identifiable data from current org
         $currentOrgData = $page->text();
 
         // Log out and log in as other org admin
         $this->actingAs($otherAdmin);
         $page = visit('/verification-hub');
-        
+
         // Data should be different
         expect($page->text())->not->toBe($currentOrgData);
     });
@@ -592,11 +591,11 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         // Click dark mode toggle
         $page->click('@dark-mode-toggle')
             ->waitFor('@dark-mode-applied', seconds: 1);
-        
+
         // Component should have dark class
         expect($page->has('.dark'))->toBeTrue();
     });
@@ -605,7 +604,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         // Switch to Spanish
         $page->select('@language-select', 'es')
             ->waitFor('@language-changed', seconds: 1)
@@ -620,12 +619,12 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $initialText = $page->text();
-        
+
         // Wait 5+ minutes (simulated with pause in testing context)
         $page->pause(5 * 60 * 1000);
-        
+
         // Data should have refreshed
         // (In real testing, this would be validated differently)
         expect(true)->toBeTrue();
@@ -635,7 +634,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         $page->click('@refresh-button')
             ->waitFor('@data-refreshed', seconds: 3)
             ->assertSee('Data refreshed');
@@ -655,7 +654,7 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         if ($page->has('@error-message')) {
             $page->click('@retry-button')
                 ->waitFor('@data-loaded', seconds: 3);
@@ -670,24 +669,24 @@ describe('Verification Hub E2E Tests', function () {
         $this->actingAs($this->admin);
 
         $page = visit('/verification-hub');
-        
+
         // Step 1: Configure channels
         $page->click('@config-tab')
             ->click('@email-toggle')
             ->fill('@email-recipients', 'admin@company.com')
             ->click('@save-config')
             ->waitFor('@config-saved', seconds: 3);
-        
+
         // Step 2: Run simulation
         $page->click('@dry-run-tab')
             ->click('@run-simulation-button')
             ->waitFor('@simulation-results', seconds: 5);
-        
+
         // Step 3: Review audit log
         $page->click('@audit-tab')
             ->assertSee('Configuration changed')
             ->assertSee('Simulation executed');
-        
+
         // Step 4: Generate compliance report
         $page->click('@compliance-tab')
             ->fill('@report-from-date', now()->subDays(7)->format('Y-m-d'))
@@ -697,4 +696,3 @@ describe('Verification Hub E2E Tests', function () {
             ->assertSee('Compliance Score');
     });
 });
-?>

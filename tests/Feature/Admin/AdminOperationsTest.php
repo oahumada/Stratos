@@ -9,7 +9,7 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->org = Organization::factory()->create();
-    
+
     // Create admin user directly
     $this->admin = User::factory()->create(['organization_id' => $this->org->id]);
 

@@ -23,8 +23,11 @@ class VerificationDeploymentValidationTest extends TestCase
     use RefreshDatabase;
 
     protected Organization $organization;
+
     protected Agent $agent;
+
     protected VerificationIntegrationService $integration;
+
     protected AiOrchestratorService $orchestrator;
 
     protected function setUp(): void
@@ -51,7 +54,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function verification_config_exists_and_valid(): void
     {
         $config = config('verification');
-        
+
         expect($config)->not->toBeNull();
         expect($config)->toHaveKey('enabled');
         expect($config)->toHaveKey('phase');
@@ -62,7 +65,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function all_required_phases_configured(): void
     {
         $phases = config('verification.phases');
-        
+
         expect($phases)->toHaveKey('silent');
         expect($phases)->toHaveKey('flagging');
         expect($phases)->toHaveKey('reject');
@@ -73,7 +76,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function phase_configurations_have_required_keys(): void
     {
         $phases = config('verification.phases');
-        
+
         foreach ($phases as $phaseName => $config) {
             expect($config)->toHaveKey('description');
             expect($config)->toHaveKey('log_violations');
@@ -86,11 +89,11 @@ class VerificationDeploymentValidationTest extends TestCase
     public function confidence_thresholds_configured(): void
     {
         $thresholds = config('verification.thresholds');
-        
+
         expect($thresholds)->toHaveKey('confidence_high');
-        expect($thresholds)->toHaveKey('confidence_medium');  
+        expect($thresholds)->toHaveKey('confidence_medium');
         expect($thresholds)->toHaveKey('confidence_low');
-        
+
         // Verify hierarchy: low < medium < high
         expect($thresholds['confidence_low'])
             ->toBeLessThan($thresholds['confidence_medium'])
@@ -113,7 +116,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function verification_enabled_respects_env_variable(): void
     {
         config(['verification.enabled' => env('VERIFICATION_ENABLED', true)]);
-        
+
         $enabled = config('verification.enabled');
         expect(is_bool($enabled))->toBeTrue();
     }
@@ -122,7 +125,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function verification_phase_respects_env_variable(): void
     {
         config(['verification.phase' => env('VERIFICATION_PHASE', 'silent')]);
-        
+
         $phase = config('verification.phase');
         expect(['silent', 'flagging', 'reject', 'tuning'])->toContain($phase);
     }
@@ -131,7 +134,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function invalid_phase_env_variable_handled(): void
     {
         config(['verification.phase' => 'invalid_phase']);
-        
+
         // Should not crash, but could be handled gracefully
         $phase = config('verification.phase');
         expect($phase)->toBe('invalid_phase');
@@ -145,7 +148,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function verification_integration_service_resolves_from_container(): void
     {
         $service = app(VerificationIntegrationService::class);
-        
+
         expect($service)->toBeInstanceOf(VerificationIntegrationService::class);
     }
 
@@ -153,7 +156,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function orchestrator_service_has_verification_integration(): void
     {
         $orchestrator = app(AiOrchestratorService::class);
-        
+
         expect($orchestrator)->toBeInstanceOf(AiOrchestratorService::class);
     }
 
@@ -161,7 +164,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function audit_service_is_available(): void
     {
         $auditService = app(\App\Services\AuditService::class);
-        
+
         expect($auditService)->not->toBeNull();
     }
 
@@ -173,7 +176,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function agent_factory_creates_valid_agent(): void
     {
         $agent = Agent::factory()->create(['organization_id' => $this->organization->id]);
-        
+
         expect($agent->id)->not->toBeNull();
         expect($agent->name)->not->toBeEmpty();
         expect($agent->organization_id)->toBe($this->organization->id);
@@ -183,7 +186,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function multiple_agents_can_be_created(): void
     {
         $agents = Agent::factory(5)->create(['organization_id' => $this->organization->id]);
-        
+
         expect($agents)->toHaveCount(5);
         foreach ($agents as $agent) {
             expect($agent->organization_id)->toBe($this->organization->id);
@@ -198,7 +201,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function orchestrator_silent_mode_accepts_and_continues(): void
     {
         config(['verification.enabled' => true, 'verification.phase' => 'silent']);
-        
+
         // In silent mode, even with invalid verification, output should be accepted
         $phase = $this->integration->getCurrentPhase();
         expect($phase)->toBe('silent');
@@ -208,7 +211,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function orchestrator_can_switch_phases(): void
     {
         $phases = ['silent', 'flagging', 'reject', 'tuning'];
-        
+
         foreach ($phases as $phase) {
             config(['verification.phase' => $phase]);
             $currentPhase = $this->integration->getCurrentPhase();
@@ -220,7 +223,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function verification_can_be_disabled_globally(): void
     {
         config(['verification.enabled' => false]);
-        
+
         $enabled = config('verification.enabled');
         expect($enabled)->toBeFalse();
     }
@@ -233,7 +236,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function orchestrator_works_without_verification(): void
     {
         config(['verification.enabled' => false]);
-        
+
         // Should not crash or throw errors when verification is disabled
         expect($this->orchestrator)->toBeInstanceOf(AiOrchestratorService::class);
     }
@@ -242,7 +245,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function existing_agent_interfaces_unchanged(): void
     {
         $agent = $this->agent;
-        
+
         // Verify core agent attributes still exist and accessible
         expect($agent->name)->not->toBeEmpty();
         expect($agent->provider)->not->toBeEmpty();
@@ -255,7 +258,7 @@ class VerificationDeploymentValidationTest extends TestCase
     {
         // Even if verification fails, orchestrator should handle gracefully
         config(['verification.enabled' => true, 'verification.phase' => 'silent']);
-        
+
         expect(config('verification.enabled'))->toBeTrue();
     }
 
@@ -268,7 +271,7 @@ class VerificationDeploymentValidationTest extends TestCase
     {
         $org2 = Organization::factory()->create(['name' => 'Org Two']);
         $agent2 = Agent::factory()->create(['organization_id' => $org2->id]);
-        
+
         expect($this->agent->organization_id)->not->toBe($agent2->organization_id);
         expect($this->agent->id)->not->toBe($agent2->id);
     }
@@ -278,7 +281,7 @@ class VerificationDeploymentValidationTest extends TestCase
     {
         $org2 = Organization::factory()->create(['name' => 'Org Two']);
         $agent2 = Agent::factory()->create(['organization_id' => $org2->id]);
-        
+
         // Each agent belongs to specific org
         expect($this->agent->organization_id)->toBe($this->organization->id);
         expect($agent2->organization_id)->toBe($org2->id);
@@ -294,11 +297,11 @@ class VerificationDeploymentValidationTest extends TestCase
         // Start enabled
         config(['verification.enabled' => true]);
         expect(config('verification.enabled'))->toBeTrue();
-        
+
         // Disable (rollback)
         config(['verification.enabled' => false]);
         expect(config('verification.enabled'))->toBeFalse();
-        
+
         // Re-enable
         config(['verification.enabled' => true]);
         expect(config('verification.enabled'))->toBeTrue();
@@ -308,11 +311,11 @@ class VerificationDeploymentValidationTest extends TestCase
     public function phase_can_be_rolled_back(): void
     {
         $originalPhase = config('verification.phase');
-        
+
         // Switch to reject
         config(['verification.phase' => 'reject']);
         expect($this->integration->getCurrentPhase())->toBe('reject');
-        
+
         // Rollback to original
         config(['verification.phase' => $originalPhase]);
         expect($this->integration->getCurrentPhase())->toBe($originalPhase);
@@ -322,7 +325,7 @@ class VerificationDeploymentValidationTest extends TestCase
     public function offline_fallback_when_verification_disabled(): void
     {
         config(['verification.enabled' => false]);
-        
+
         // Should behave as if verification doesn't exist
         expect(config('verification.enabled'))->toBeFalse();
     }
@@ -339,7 +342,7 @@ class VerificationDeploymentValidationTest extends TestCase
             AiOrchestratorService::class,
             \App\Services\AuditService::class,
         ];
-        
+
         foreach ($services as $service) {
             expect(app($service))->not->toBeNull();
         }
@@ -368,7 +371,7 @@ class VerificationDeploymentValidationTest extends TestCase
             \App\Exceptions\VerificationFailedException::class,
             \App\Exceptions\UnauthorizedTenantException::class,
         ];
-        
+
         foreach ($exceptions as $exception) {
             expect(class_exists($exception))->toBeTrue();
         }
@@ -381,7 +384,7 @@ class VerificationDeploymentValidationTest extends TestCase
             \App\DTOs\VerificationResult::class,
             \App\DTOs\VerificationAction::class,
         ];
-        
+
         foreach ($dtos as $dto) {
             expect(class_exists($dto))->toBeTrue();
         }

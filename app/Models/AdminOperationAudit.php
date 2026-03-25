@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class AdminOperationAudit extends Model
 {
     use HasFactory;
-    
+
     protected $table = 'admin_operations_audit';
+
     protected $guarded = [];
-    
+
     protected $casts = [
         'parameters' => 'array',
         'dry_run_preview' => 'array',
@@ -114,10 +115,10 @@ class AdminOperationAudit extends Model
 
     private function calculateDuration(): float
     {
-        if (!$this->started_at) {
+        if (! $this->started_at) {
             return 0;
         }
+
         return $this->started_at->diffInSeconds(now());
     }
 }
-

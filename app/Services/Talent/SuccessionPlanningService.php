@@ -3,14 +3,13 @@
 namespace App\Services\Talent;
 
 use App\Models\People;
-use App\Models\Roles;
-use App\Models\PersonMovement;
 use App\Models\PeopleRoleSkills;
+use App\Models\PersonMovement;
+use App\Models\Roles;
 use App\Models\SuccessionPlan;
 use App\Models\User;
 use App\Services\Scenario\CareerPathService;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 /**
  * SuccessionPlanningService
@@ -24,11 +23,13 @@ use Illuminate\Support\Facades\DB;
 class SuccessionPlanningService
 {
     protected CareerPathService $careerService;
+
     protected MobilitySimulationService $mobilityService;
+
     protected \App\Services\Talent\Lms\LmsService $lmsService;
 
     public function __construct(
-        CareerPathService $careerService,        MobilitySimulationService $mobilityService,
+        CareerPathService $careerService, MobilitySimulationService $mobilityService,
         \App\Services\Talent\Lms\LmsService $lmsService
     ) {
         $this->careerService = $careerService;
@@ -53,9 +54,9 @@ class SuccessionPlanningService
             /** @var People $person */
             return $this->analyzeSuccessionReadiness($person, $role);
         })
-        ->sortByDesc('readiness_score')
-        ->take($limit)
-        ->values();
+            ->sortByDesc('readiness_score')
+            ->take($limit)
+            ->values();
     }
 
     /**
@@ -107,12 +108,12 @@ class SuccessionPlanningService
                 'stability' => $stabilityScore,
                 'learning_velocity' => $velocityScore,
                 'trajectory_fit' => $trajectoryScore,
-                'legacy_risk' => round($legacyRisk * 100, 2)
+                'legacy_risk' => round($legacyRisk * 100, 2),
             ],
             'gaps' => $careerEval['gaps_to_close'],
             'trajectory_summary' => $this->summarizeTrajectory($person->id),
             'potential_replacements' => $this->getReplacementsForPerson($person),
-            'recommended_courses' => $this->getRecommendedCoursesForGaps($careerEval['gaps_to_close'])
+            'recommended_courses' => $this->getRecommendedCoursesForGaps($careerEval['gaps_to_close']),
         ];
     }
 
@@ -122,17 +123,17 @@ class SuccessionPlanningService
     protected function getRecommendedCoursesForGaps(array $gaps): array
     {
         $recommendations = [];
-        
+
         // Tomamos los 2-3 gaps más críticos
         $criticalGaps = array_slice($gaps, 0, 3);
-        
+
         foreach ($criticalGaps as $gap) {
             $courses = $this->lmsService->searchCourses($gap['skill_name']);
-            if (!empty($courses)) {
+            if (! empty($courses)) {
                 // Tomar el primer mejor resultado de cada skill
                 $recommendations[] = [
                     'skill' => $gap['skill_name'],
-                    'course' => $courses[0]
+                    'course' => $courses[0],
                 ];
             }
         }
@@ -145,7 +146,7 @@ class SuccessionPlanningService
      */
     protected function getReplacementsForPerson(People $person): Collection
     {
-        if (!$person->role_id) {
+        if (! $person->role_id) {
             return collect();
         }
 
@@ -157,7 +158,7 @@ class SuccessionPlanningService
                     'name' => $candidate['person']['name'],
                     'photo_url' => $candidate['person']['photo_url'],
                     'readiness_score' => $candidate['readiness_score'],
-                    'readiness_level' => $candidate['readiness_level']
+                    'readiness_level' => $candidate['readiness_level'],
                 ];
             });
     }
@@ -255,7 +256,7 @@ class SuccessionPlanningService
         return [
             'total_movements' => $movements->count(),
             'last_movement' => $movements->first()->type ?? 'none',
-            'years_in_org' => People::find($personId)->hire_date?->diffInYears(now()) ?? 0
+            'years_in_org' => People::find($personId)->hire_date?->diffInYears(now()) ?? 0,
         ];
     }
 
@@ -290,7 +291,7 @@ class SuccessionPlanningService
             'gaps' => $data['gaps'] ?? [],
             'suggested_courses' => $data['suggested_courses'] ?? [],
             'created_by' => $actor->id,
-            'status' => 'active'
+            'status' => 'active',
         ]);
     }
 }

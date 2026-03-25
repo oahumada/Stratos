@@ -2,7 +2,6 @@
 
 namespace App\Services\Talent;
 
-use App\Helpers\RutGenerator;
 use Illuminate\Support\Str;
 
 class TalentDataSanitizer
@@ -18,13 +17,13 @@ class TalentDataSanitizer
         if ($rut) {
             // Limpiar puntos y guiones, dejar solo números y K
             $clean = strtoupper(preg_replace('/[^0-9Kk]/', '', $rut));
-            
-            if (!empty($clean)) {
+
+            if (! empty($clean)) {
                 // Si tiene longitud suficiente para ser un RUT (7-9 caracteres)
                 if (strlen($clean) >= 7) {
                     $body = substr($clean, 0, -1);
                     $dv = substr($clean, -1);
-                    $result = $body . '-' . $dv;
+                    $result = $body.'-'.$dv;
                 } else {
                     $result = $clean;
                 }
@@ -42,9 +41,9 @@ class TalentDataSanitizer
     {
         $firstName = $row['first_name'] ?? ($row['nombres'] ?? '');
         $lastName = $row['last_name'] ?? ($row['apellidos'] ?? '');
-        
+
         // Si no hay apellidos pero el nombre parece contenerlos (espacios)
-        if (empty($lastName) && !empty($firstName)) {
+        if (empty($lastName) && ! empty($firstName)) {
             $parts = explode(' ', trim($firstName));
             if (count($parts) > 1) {
                 // Asumimos que los últimos 2 son apellidos (Paterno + Materno)
@@ -95,7 +94,7 @@ class TalentDataSanitizer
         ];
 
         $keys = $map[$type] ?? [$type];
-        
+
         foreach ($keys as $key) {
             $variants = [$key, Str::slug($key, '_'), mb_strtolower($key)];
             foreach (array_unique($variants) as $v) {

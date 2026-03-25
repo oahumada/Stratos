@@ -16,13 +16,13 @@ class BusinessMetric extends Model
         'source',
         'department_id',
         'people_id',
-        'metadata'
+        'metadata',
     ];
 
     protected $casts = [
         'metric_value' => 'decimal:2',
         'period_date' => 'date',
-        'metadata' => 'array'
+        'metadata' => 'array',
     ];
 
     public function organization(): BelongsTo

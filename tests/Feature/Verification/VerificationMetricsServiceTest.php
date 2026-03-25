@@ -255,7 +255,7 @@ class VerificationMetricsServiceTest extends TestCase
      */
     private function createEvents(
         int $count,
-        int $organizationId = null,
+        ?int $organizationId = null,
         float $confidenceScore = 85,
         int $violationCount = 0
     ): void {

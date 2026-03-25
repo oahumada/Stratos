@@ -17,14 +17,14 @@ trait HasDigitalSeal
     public function seal(): void
     {
         $signer = app(StratosSignatureService::class);
-        
+
         $this->digital_signature = $signer->sign($this);
         $this->signed_at = now();
         $this->signature_version = 'v1.0';
-        
+
         $this->save();
-        
-        Log::info("Model [" . get_class($this) . " ID: {$this->id}] sealed with Stratos Sentinel Signature.");
+
+        Log::info('Model ['.get_class($this)." ID: {$this->id}] sealed with Stratos Sentinel Signature.");
     }
 
     /**
@@ -33,6 +33,7 @@ trait HasDigitalSeal
     public function isVerified(): bool
     {
         $signer = app(StratosSignatureService::class);
+
         return $signer->verify($this);
     }
 }

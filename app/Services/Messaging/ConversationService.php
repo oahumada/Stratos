@@ -6,7 +6,6 @@ use App\Models\Conversation;
 use App\Models\ConversationParticipant;
 use App\Models\Organization;
 use App\Models\People;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -19,14 +18,8 @@ class ConversationService
     /**
      * Create a new conversation within an organization.
      *
-     * @param int $organizationId
-     * @param int $createdByPeopleId
-     * @param array $participantPeopleIds (including creator if not already present)
-     * @param string|null $title
-     * @param string|null $description
-     * @param string $contextType (none, learning_assignment, performance_review, etc.)
-     * @param string|null $contextId
-     * @return Conversation
+     * @param  array  $participantPeopleIds  (including creator if not already present)
+     * @param  string  $contextType  (none, learning_assignment, performance_review, etc.)
      *
      * @throws \Exception if organization or people don't exist
      */
@@ -89,10 +82,8 @@ class ConversationService
     /**
      * Get conversation with paginated messages and participant details.
      *
-     * @param string $conversationId (UUID)
-     * @param int $organizationId (for multi-tenant validation)
-     * @param int $page
-     * @param int $perPage
+     * @param  string  $conversationId  (UUID)
+     * @param  int  $organizationId  (for multi-tenant validation)
      * @return array with keys: conversation, messages, participants, meta
      *
      * @throws \Exception if conversation not found or org_id mismatch
@@ -141,9 +132,8 @@ class ConversationService
     /**
      * Archive a conversation (soft delete behavior).
      *
-     * @param string $conversationId (UUID)
-     * @param int $organizationId (for multi-tenant validation)
-     * @return bool
+     * @param  string  $conversationId  (UUID)
+     * @param  int  $organizationId  (for multi-tenant validation)
      *
      * @throws \Exception if conversation not found or org_id mismatch
      */
@@ -156,7 +146,7 @@ class ConversationService
         $result = $conversation->update([
             'is_active' => false,
         ]);
-        
+
         // Soft delete for archival
         $conversation->delete();
 
@@ -171,12 +161,8 @@ class ConversationService
     /**
      * Add a participant to an existing conversation.
      *
-     * @param string $conversationId (UUID)
-     * @param int $organizationId (for multi-tenant validation)
-     * @param int $peopleId
-     * @param bool $canSend
-     * @param bool $canRead
-     * @return ConversationParticipant
+     * @param  string  $conversationId  (UUID)
+     * @param  int  $organizationId  (for multi-tenant validation)
      *
      * @throws \Exception if conversation or people not found
      */
@@ -211,6 +197,7 @@ class ConversationService
                     'can_read' => $canRead,
                 ]);
             }
+
             return $existing;
         }
 
@@ -237,10 +224,8 @@ class ConversationService
     /**
      * Remove a participant from a conversation (soft-remove via left_at).
      *
-     * @param string $conversationId (UUID)
-     * @param int $organizationId (for multi-tenant validation)
-     * @param int $peopleId
-     * @return bool
+     * @param  string  $conversationId  (UUID)
+     * @param  int  $organizationId  (for multi-tenant validation)
      *
      * @throws \Exception if participant not found
      */
@@ -267,10 +252,6 @@ class ConversationService
 
     /**
      * Get total unread message count for a participant across all conversations.
-     *
-     * @param int $organizationId
-     * @param int $peopleId
-     * @return int
      */
     public function getUnreadCount(int $organizationId, int $peopleId): int
     {

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\OperationCompleted;
 use App\Exceptions\InvalidOperationStatusException;
 use App\Models\AdminOperationAudit;
 use App\Models\Organization;
@@ -40,6 +41,7 @@ class AdminOperationsService
         try {
             $preview = $previewCallback();
             $audit->markAsDryRun($preview);
+
             return $audit;
         } catch (\Exception $e) {
             $audit->markAsFailed("Preview failed: {$e->getMessage()}");
@@ -54,7 +56,7 @@ class AdminOperationsService
         AdminOperationAudit $audit,
         callable $executionCallback
     ): AdminOperationAudit {
-        if (!in_array($audit->status, ['pending', 'dry_run'])) {
+        if (! in_array($audit->status, ['pending', 'dry_run'])) {
             throw new InvalidOperationStatusException($audit->status);
         }
 
@@ -72,10 +74,15 @@ class AdminOperationsService
             );
 
             DB::commit();
+            // Dispatch operation completed event (broadcast + notifications)
+            event(new OperationCompleted($audit->id, $audit->toArray(), $audit->organization_id));
+
             return $audit;
         } catch (\Exception $e) {
             DB::rollBack();
             $audit->markAsFailed($e->getMessage());
+            // Dispatch event for failed operation so listeners can notify
+            event(new OperationCompleted($audit->id, $audit->toArray(), $audit->organization_id));
             throw $e;
         }
     }

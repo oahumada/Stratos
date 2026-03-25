@@ -14,7 +14,9 @@ class MiStratosControllerTest extends TestCase
     use RefreshDatabase;
 
     protected $org;
+
     protected $user;
+
     protected $person;
 
     protected function setUp(): void
@@ -22,12 +24,12 @@ class MiStratosControllerTest extends TestCase
         parent::setUp();
         $this->org = Organization::factory()->create();
         $this->user = User::factory()->create(['organization_id' => $this->org->id]);
-        
+
         $role = Roles::factory()->create(['organization_id' => $this->org->id]);
         $this->person = People::factory()->create([
             'organization_id' => $this->org->id,
             'role_id' => $role->id,
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ]);
     }
 
@@ -46,8 +48,8 @@ class MiStratosControllerTest extends TestCase
                 'competencies',
                 'learning_paths',
                 'conversations',
-                'quests'
-            ]
+                'quests',
+            ],
         ]);
 
         $this->assertEquals($this->person->id, $response->json('data.person.id'));

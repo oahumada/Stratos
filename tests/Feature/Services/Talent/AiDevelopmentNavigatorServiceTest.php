@@ -18,19 +18,21 @@ class AiDevelopmentNavigatorServiceTest extends TestCase
     use RefreshDatabase;
 
     protected $org;
+
     protected $user;
+
     protected $person;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->org = Organization::factory()->create();
-        
+
         $role = Roles::factory()->create(['organization_id' => $this->org->id]);
         $this->person = People::factory()->create([
             'organization_id' => $this->org->id,
             'role_id' => $role->id,
-            'status' => 'active'
+            'status' => 'active',
         ]);
     }
 
@@ -38,10 +40,10 @@ class AiDevelopmentNavigatorServiceTest extends TestCase
     {
         // 1. Arrange
         $skill = Skill::factory()->create(['organization_id' => $this->org->id]);
-        
+
         // Mock MentorMatchingService to return empty for now
         $mentorService = Mockery::mock(MentorMatchingService::class);
-        $mentorService->shouldReceive('findMentors')->andReturn(new \Illuminate\Database\Eloquent\Collection());
+        $mentorService->shouldReceive('findMentors')->andReturn(new \Illuminate\Database\Eloquent\Collection);
 
         // Mock AiOrchestratorService
         $orchestrator = Mockery::mock(AiOrchestratorService::class);
@@ -57,7 +59,7 @@ class AiDevelopmentNavigatorServiceTest extends TestCase
                         'strategy' => 'buy',
                         'estimated_hours' => 15,
                         'impact_weight' => 0.20,
-                        'mentor_id' => null
+                        'mentor_id' => null,
                     ],
                     [
                         'title' => 'Proyecto: Refactor de Reportes',
@@ -66,10 +68,10 @@ class AiDevelopmentNavigatorServiceTest extends TestCase
                         'strategy' => 'build',
                         'estimated_hours' => 40,
                         'impact_weight' => 0.80,
-                        'mentor_id' => null
-                    ]
-                ]
-            ])
+                        'mentor_id' => null,
+                    ],
+                ],
+            ]),
         ]);
 
         $service = new AiDevelopmentNavigatorService($orchestrator, $mentorService, app(\App\Services\GapAnalysisService::class));
@@ -82,20 +84,20 @@ class AiDevelopmentNavigatorServiceTest extends TestCase
             'id' => $path->id,
             'people_id' => $this->person->id,
             'action_title' => 'Especialista en IA Estratégica',
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $this->assertCount(2, $path->actions);
         $this->assertDatabaseHas('development_actions', [
             'development_path_id' => $path->id,
             'title' => 'Curso de Prompt Engineering',
-            'type' => 'training'
+            'type' => 'training',
         ]);
 
         $this->assertDatabaseHas('development_actions', [
             'development_path_id' => $path->id,
             'title' => 'Proyecto: Refactor de Reportes',
-            'type' => 'project'
+            'type' => 'project',
         ]);
     }
 }

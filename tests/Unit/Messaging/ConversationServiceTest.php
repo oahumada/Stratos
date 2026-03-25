@@ -5,7 +5,6 @@ use App\Models\ConversationParticipant;
 use App\Models\Organization;
 use App\Models\People;
 use App\Services\Messaging\ConversationService;
-use App\Services\Messaging\ParticipantManager;
 
 describe('ConversationService', function () {
     beforeEach(function () {
@@ -18,7 +17,7 @@ describe('ConversationService', function () {
         // Refresh people to ensure they exist in this transaction context
         $creator = $this->people[0];
         $creator->refresh();
-        
+
         // Test direct model creation (bypasses service People lookup transaction issue)
         $conversation = Conversation::create([
             'id' => \Illuminate\Support\Str::uuid(),
@@ -120,7 +119,7 @@ describe('ConversationService', function () {
             'created_by' => $this->people[0]->id,
             'title' => 'Test Conv',
         ]);
-        
+
         $participant = ConversationParticipant::factory()
             ->for($conversation)
             ->for($this->org)

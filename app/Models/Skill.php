@@ -2,19 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use App\Traits\BelongsToOrganization;
+use App\Traits\HasDigitalSeal;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-use App\Traits\BelongsToOrganization;
-use App\Traits\HasDigitalSeal;
-
 class Skill extends Model
 {
-    use HasFactory, BelongsToOrganization, HasDigitalSeal;
+    use BelongsToOrganization, HasDigitalSeal, HasFactory;
 
     protected $fillable = [
         'organization_id',
@@ -50,7 +48,6 @@ class Skill extends Model
         'llm_id' => 'string',
         'cube_dimensions' => 'array',
     ];
-
 
     public function organization(): BelongsTo
     {

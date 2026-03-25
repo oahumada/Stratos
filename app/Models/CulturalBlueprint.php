@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CulturalBlueprint extends Model
 {
-    use HasFactory, HasDigitalSeal;
+    use HasDigitalSeal, HasFactory;
 
     protected $fillable = [
         'organization_id',
@@ -19,7 +19,7 @@ class CulturalBlueprint extends Model
         'principles',
         'digital_signature',
         'signed_at',
-        'signature_version'
+        'signature_version',
     ];
 
     protected $casts = [

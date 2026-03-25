@@ -14,7 +14,7 @@ use Illuminate\Queue\SerializesModels;
  */
 class VerificationPhaseTransitioned
 {
-    use Dispatchable, SerializesModels, InteractsWithBroadcasting;
+    use Dispatchable, InteractsWithBroadcasting, SerializesModels;
 
     public function __construct(
         public int $organizationId,
@@ -22,6 +22,6 @@ class VerificationPhaseTransitioned
         public string $toPhase,
         public string $reason,
         public array $metrics = [],
-        public \DateTime $transitionedAt = new \DateTime(),
+        public \DateTime $transitionedAt = new \DateTime,
     ) {}
 }

@@ -27,7 +27,7 @@ class WebhookRegistryService
         bool $active = true
     ): WebhookRegistry {
         // Validate URL
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+        if (! filter_var($url, FILTER_VALIDATE_URL)) {
             throw new \InvalidArgumentException('Invalid webhook URL');
         }
 
@@ -96,7 +96,7 @@ class WebhookRegistryService
         array $payload,
         int $retryCount = 0
     ): array {
-        if (!$webhook->is_active) {
+        if (! $webhook->is_active) {
             return [
                 'webhook_id' => $webhook->id,
                 'status' => 'skipped',
@@ -105,7 +105,7 @@ class WebhookRegistryService
         }
 
         // Check event filters
-        if (!$this->eventMatches($payload['event'] ?? 'unknown', $webhook->event_filters)) {
+        if (! $this->eventMatches($payload['event'] ?? 'unknown', $webhook->event_filters)) {
             return [
                 'webhook_id' => $webhook->id,
                 'status' => 'skipped',
@@ -228,6 +228,7 @@ class WebhookRegistryService
     protected function generateSignature(array $payload, string $secret): string
     {
         $json = json_encode($payload);
+
         return hash_hmac('sha256', $json, $secret);
     }
 

@@ -2,11 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\ProcessVerificationPhaseTransition;
 use App\Models\Organization;
 use App\Services\VerificationMetricsService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 /**
  * VerificationDryRunCommand - Simulate phase transitions without applying changes
@@ -121,35 +119,35 @@ class VerificationDryRunCommand extends Command
         switch ($phase) {
             case 'silent':
                 if ($confidence > 90 && $errorRate < 40) {
-                    $this->line("✅ <fg=green>Ready to transition → flagging</>");
+                    $this->line('✅ <fg=green>Ready to transition → flagging</>');
                     $this->line("Reason: Confidence at {$confidence}%, errors at {$errorRate}%");
                 } else {
-                    $this->line("❌ <fg=yellow>Not ready for transition</>");
+                    $this->line('❌ <fg=yellow>Not ready for transition</>');
                     $this->line("Needs: Confidence > 90% (current: {$confidence}%), Errors < 40% (current: {$errorRate}%)");
                 }
                 break;
 
             case 'flagging':
                 if ($confidence > 95 && $errorRate < 15) {
-                    $this->line("✅ <fg=green>Ready to transition → reject</>");
+                    $this->line('✅ <fg=green>Ready to transition → reject</>');
                     $this->line("Reason: Confidence at {$confidence}%, errors at {$errorRate}%");
                 } else {
-                    $this->line("❌ <fg=yellow>Not ready for transition</>");
+                    $this->line('❌ <fg=yellow>Not ready for transition</>');
                     $this->line("Needs: Confidence > 95% (current: {$confidence}%), Errors < 15% (current: {$errorRate}%)");
                 }
                 break;
 
             case 'reject':
                 if ($confidence > 98 && $errorRate < 5) {
-                    $this->line("✅ <fg=green>Ready to transition → tuning</>");
+                    $this->line('✅ <fg=green>Ready to transition → tuning</>');
                 } else {
-                    $this->line("❌ <fg=yellow>Not ready for transition</>");
+                    $this->line('❌ <fg=yellow>Not ready for transition</>');
                     $this->line("Needs: Confidence > 98% (current: {$confidence}%), Errors < 5% (current: {$errorRate}%)");
                 }
                 break;
 
             default:
-                $this->line("✅ Already in final phase");
+                $this->line('✅ Already in final phase');
         }
 
         $this->line('');

@@ -2,17 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
+use App\Traits\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-use App\Traits\BelongsToOrganization;
-
 class DevelopmentPath extends Model
 {
-    use HasFactory, SoftDeletes, BelongsToOrganization;
+    use BelongsToOrganization, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'action_title',
@@ -34,7 +32,6 @@ class DevelopmentPath extends Model
         'steps' => 'array',
         'metadata' => 'array',
     ];
-
 
     public function organization(): BelongsTo
     {

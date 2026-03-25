@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Organization;
 use App\Models\WebhookRegistry;
-use App\Services\Automation\EventTriggerService;
 use App\Services\Automation\AutomationWorkflowService;
+use App\Services\Automation\EventTriggerService;
 use App\Services\Automation\RemediationService;
 use App\Services\Automation\WebhookRegistryService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /**
  * AutomationController
@@ -147,7 +147,7 @@ class AutomationController extends Controller
         $webhooks = WebhookRegistry::where('organization_id', $organizationId)
             ->select(['id', 'webhook_url', 'is_active', 'last_triggered_at', 'failure_count', 'event_filters'])
             ->get()
-            ->map(fn($w) => array_merge($w->toArray(), ['health' => $w->health]));
+            ->map(fn ($w) => array_merge($w->toArray(), ['health' => $w->health]));
 
         return response()->json([
             'organization_id' => $organizationId,

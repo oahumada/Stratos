@@ -93,6 +93,7 @@ class PeopleProfileController extends Controller
 
         return array_values($competencies);
     }
+
     /**
      * GET /api/people/{id}/timeline
      */

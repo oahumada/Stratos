@@ -11,7 +11,7 @@ use Laravel\Sanctum\Sanctum;
 describe('Message API', function () {
     beforeEach(function () {
         $this->org = Organization::factory()->create();
-        
+
         $this->sender = User::factory()->for($this->org)->create();
         $this->senderPeople = People::factory()
             ->for($this->org)
@@ -25,7 +25,7 @@ describe('Message API', function () {
             ->create();
 
         $this->conversation = Conversation::factory()->for($this->org)->create();
-        
+
         ConversationParticipant::factory()
             ->for($this->conversation)
             ->for($this->org)
@@ -55,9 +55,9 @@ describe('Message API', function () {
         $response->assertJsonCount(3, 'data');
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'body', 'state', 'sender', 'created_at']
+                '*' => ['id', 'body', 'state', 'sender', 'created_at'],
             ],
-            'meta' => ['total', 'per_page']
+            'meta' => ['total', 'per_page'],
         ]);
     });
 
@@ -69,7 +69,7 @@ describe('Message API', function () {
 
         $response->assertCreated();
         $response->assertJsonStructure([
-            'data' => ['id', 'body', 'state', 'people_id', 'conversation_id', 'created_at']
+            'data' => ['id', 'body', 'state', 'people_id', 'conversation_id', 'created_at'],
         ]);
 
         $message = Message::where('conversation_id', $this->conversation->id)->first();
@@ -95,7 +95,7 @@ describe('Message API', function () {
             "/api/messaging/conversations/{$this->conversation->id}/messages",
             [
                 'body' => 'Replying to this',
-                'reply_to_message_id' => $originalMessage->id
+                'reply_to_message_id' => $originalMessage->id,
             ]
         );
 

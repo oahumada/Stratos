@@ -300,7 +300,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     // Verification Hub (Phase 1 MVP) - Admin Only
     Route::inertia('/deployment/verification-hub', 'Deployment/VerificationHub')
         ->name('deployment.verification-hub');
-    
+
     // Hub API Endpoints
     Route::get('/api/deployment/verification/scheduler-status', [\App\Http\Controllers\Deployment\VerificationHubController::class, 'schedulerStatus'])
         ->name('deployment.verification.scheduler-status');

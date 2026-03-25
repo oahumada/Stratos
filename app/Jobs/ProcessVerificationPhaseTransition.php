@@ -142,9 +142,9 @@ class ProcessVerificationPhaseTransition implements ShouldQueue
     /**
      * Evaluate if transition conditions are met
      *
-     * @param array $metrics Organization metrics
-     * @param float $errorRateThreshold Maximum allowed error rate
-     * @param float $retryRateThreshold Maximum allowed retry rate
+     * @param  array  $metrics  Organization metrics
+     * @param  float  $errorRateThreshold  Maximum allowed error rate
+     * @param  float  $retryRateThreshold  Maximum allowed retry rate
      * @return array ['should_transition' => bool, 'next_phase' => string, 'reason' => string]
      */
     private function evaluateTransitionConditions(
@@ -314,7 +314,8 @@ class ProcessVerificationPhaseTransition implements ShouldQueue
      * Update phase configuration file
      * Note: In production, consider using database-backed configuration
      */
-    private function updatePhaseConfiguration(string $nextPhase): void {
+    private function updatePhaseConfiguration(string $nextPhase): void
+    {
         $deploymentConfig = config('verification-deployment');
 
         // Mark transition timestamp

@@ -4,7 +4,6 @@ namespace App\Services\Scenario;
 
 use App\Models\People;
 use App\Models\PeopleRoleSkills;
-use App\Models\Scenario;
 use App\Services\AiOrchestratorService;
 use App\Services\AuditTrailService;
 

@@ -2,17 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToOrganization;
+use App\Traits\HasDigitalSeal;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Schema;
 
-use App\Traits\BelongsToOrganization;
-use App\Traits\HasDigitalSeal;
-
 class Scenario extends Model
 {
-    use HasFactory, BelongsToOrganization, HasDigitalSeal;
+    use BelongsToOrganization, HasDigitalSeal, HasFactory;
 
     // Canonical table: `scenarios`. Legacy compatibility view `workforce_planning_scenarios` is deprecated.
     protected $table = 'scenarios';

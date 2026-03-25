@@ -21,6 +21,7 @@ class TalentRoiService
     const AVG_ANNUAL_SALARY = 45000; // USD
 
     protected ScenarioAnalyticsService $scenarioAnalytics;
+
     protected \App\Services\Intelligence\ImpactEngineService $impactEngine;
 
     public function __construct(
@@ -43,7 +44,7 @@ class TalentRoiService
 
         $avgReadiness = $this->calculateGlobalReadiness($organizationId);
         $talentRoi = $this->calculateTotalTalentRoi($organizationId);
-        
+
         // Impact Engine Metrics
         $impactKpis = $this->impactEngine->calculateFinancialKPIs($organizationId);
 

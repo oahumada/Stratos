@@ -5,8 +5,8 @@ namespace App\Models;
 use App\Enums\ContextType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -16,8 +16,11 @@ class Conversation extends Model
     use HasFactory, SoftDeletes;
 
     protected $guarded = [];
+
     protected $keyType = 'string';
+
     public $incrementing = false;
+
     protected $casts = [
         'id' => 'string',
         'organization_id' => 'integer',

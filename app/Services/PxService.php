@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use App\Models\PxCampaign;
-use App\Models\PulseSurvey;
 use App\Models\Organization;
+use App\Models\PulseSurvey;
+use App\Models\PxCampaign;
 use Illuminate\Support\Facades\Log;
 
 class PxService
@@ -50,8 +50,9 @@ class PxService
      */
     public function triggerEventCampaign(int $organizationId, string $eventType): ?PxCampaign
     {
-        if (!isset($this->templates[$eventType])) {
+        if (! isset($this->templates[$eventType])) {
             Log::warning("PX Service: No template found for event type: {$eventType}");
+
             return null;
         }
 
@@ -61,7 +62,7 @@ class PxService
             // 1. Create the Campaign
             $campaign = PxCampaign::create([
                 'organization_id' => $organizationId,
-                'name' => $template['name'] . ' - ' . now()->format('Y-m-d'),
+                'name' => $template['name'].' - '.now()->format('Y-m-d'),
                 'description' => $template['description'],
                 'mode' => 'automatic',
                 'topics' => $template['topics'],
@@ -79,8 +80,8 @@ class PxService
                 'is_active' => true,
                 'ai_report' => [
                     'event_trigger' => $eventType,
-                    'campaign_id' => $campaign->id
-                ]
+                    'campaign_id' => $campaign->id,
+                ],
             ]);
 
             Log::info("PX Service: Triggered campaign '{$campaign->name}' for event '{$eventType}'");

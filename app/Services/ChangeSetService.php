@@ -242,7 +242,7 @@ class ChangeSetService
                                 'people_id' => $personId,
                                 'action_title' => $op['title'] ?? 'Plan de Desarrollo',
                                 'status' => 'active',
-                                'metadata' => $op['metadata'] ?? ['source' => 'mobility_simulation']
+                                'metadata' => $op['metadata'] ?? ['source' => 'mobility_simulation'],
                             ]);
 
                             // Create an action for each gap
@@ -250,11 +250,11 @@ class ChangeSetService
                                 foreach ($op['gaps'] as $idx => $gap) {
                                     \App\Models\DevelopmentAction::create([
                                         'development_path_id' => $path->id,
-                                        'title' => 'Cerrar brecha: ' . ($gap['name'] ?? 'Skill'),
+                                        'title' => 'Cerrar brecha: '.($gap['name'] ?? 'Skill'),
                                         'description' => "Nivel actual: {$gap['current_level']} / Requerido: {$gap['required_level']}",
                                         'type' => 'skill',
                                         'order' => $idx + 1,
-                                        'status' => 'pending'
+                                        'status' => 'pending',
                                     ]);
                                 }
                             }
@@ -264,13 +264,13 @@ class ChangeSetService
                                 foreach ($op['suggested_courses'] as $idx => $course) {
                                     \App\Models\DevelopmentAction::create([
                                         'development_path_id' => $path->id,
-                                        'title' => 'Curso LMS: ' . ($course['title'] ?? 'Training'),
-                                        'description' => "Proveedor: " . ($course['provider'] ?? 'Internal'),
+                                        'title' => 'Curso LMS: '.($course['title'] ?? 'Training'),
+                                        'description' => 'Proveedor: '.($course['provider'] ?? 'Internal'),
                                         'type' => 'lms_course',
                                         'lms_course_id' => $course['id'] ?? ($course['course_id'] ?? null),
                                         'lms_provider' => $course['provider'] ?? 'internal',
                                         'status' => 'pending',
-                                        'order' => ($op['gaps'] ? count($op['gaps']) : 0) + $idx + 1
+                                        'order' => ($op['gaps'] ? count($op['gaps']) : 0) + $idx + 1,
                                     ]);
                                 }
                             }

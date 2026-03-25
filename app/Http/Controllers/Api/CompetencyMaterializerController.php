@@ -23,15 +23,17 @@ class CompetencyMaterializerController extends Controller
     public function generateBlueprint(Request $request, $id)
     {
         $competency = Competency::findOrFail($id);
-        
+
         try {
             $blueprint = $this->materializer->generateBlueprint($competency);
+
             return response()->json([
                 'success' => true,
-                'blueprint' => $blueprint
+                'blueprint' => $blueprint,
             ]);
         } catch (\Exception $e) {
-            Log::error("API Blueprint Error: " . $e->getMessage());
+            Log::error('API Blueprint Error: '.$e->getMessage());
+
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
@@ -44,7 +46,7 @@ class CompetencyMaterializerController extends Controller
         $competency = Competency::findOrFail($id);
         $blueprintData = $request->input('blueprint');
 
-        if (!$blueprintData) {
+        if (! $blueprintData) {
             return response()->json(['success' => false, 'message' => 'Blueprint data required'], 400);
         }
 

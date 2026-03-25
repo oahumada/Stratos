@@ -104,13 +104,14 @@ abstract class Repository implements RepositoryInterface
 
             return response()->json(['error' => 'Model not found.'], 404);
         } catch (\Exception $e) {
-            Log::error('Error updating model with ID: ' . $id . '. Error: ' . $e->getMessage(), [
+            Log::error('Error updating model with ID: '.$id.'. Error: '.$e->getMessage(), [
                 'stack' => $e->getTraceAsString(),
-                'data' => $dataToUpdate
+                'data' => $dataToUpdate,
             ]);
+
             return response()->json([
                 'error' => 'An error occurred while updating the model.',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

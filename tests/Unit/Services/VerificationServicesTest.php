@@ -2,20 +2,22 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
+use App\Enums\NotificationSeverity;
+use App\Enums\NotificationType;
 use App\Models\Organization;
 use App\Models\User;
 use App\Services\VerificationMetricsService;
 use App\Services\VerificationNotificationService;
-use App\Enums\NotificationSeverity;
-use App\Enums\NotificationType;
 use Illuminate\Support\Facades\Cache;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class VerificationMetricsServiceTest extends TestCase
 {
     private VerificationMetricsService $service;
+
     private Organization $organization;
+
     private User $user;
 
     protected function setUp(): void
@@ -248,7 +250,7 @@ class VerificationMetricsServiceTest extends TestCase
         );
 
         // If there are blockers, validate their structure
-        if (!empty($readiness['blockers'])) {
+        if (! empty($readiness['blockers'])) {
             foreach ($readiness['blockers'] as $blocker) {
                 $this->assertArrayHasKey('metric', $blocker);
                 $this->assertArrayHasKey('required_value', $blocker);
@@ -323,7 +325,9 @@ class VerificationMetricsServiceTest extends TestCase
 class VerificationNotificationServiceTest extends TestCase
 {
     private VerificationNotificationService $service;
+
     private Organization $organization;
+
     private User $user;
 
     protected function setUp(): void
@@ -349,7 +353,7 @@ class VerificationNotificationServiceTest extends TestCase
             metadata: [
                 'phase_from' => 'silent',
                 'phase_to' => 'flagging',
-                'confidence' => 92
+                'confidence' => 92,
             ]
         );
 

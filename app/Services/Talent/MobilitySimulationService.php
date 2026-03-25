@@ -4,7 +4,6 @@ namespace App\Services\Talent;
 
 use App\Models\People;
 use App\Models\Roles;
-use App\Models\PsychometricProfile;
 use App\Services\Talent\Lms\LmsService;
 use Illuminate\Support\Facades\Log;
 
@@ -16,14 +15,15 @@ class MobilitySimulationService
     {
         $this->lmsService = $lmsService;
     }
+
     /**
      * Simulate the movement of multiple people to a single target role.
      */
     public function simulateMassMovement(array $personIds, int $targetRoleId): array
     {
-        $movements = array_map(fn($id) => [
+        $movements = array_map(fn ($id) => [
             'person_id' => $id,
-            'target_role_id' => $targetRoleId
+            'target_role_id' => $targetRoleId,
         ], $personIds);
 
         return $this->simulatePlannedMovements($movements);
@@ -43,8 +43,8 @@ class MobilitySimulationService
 
         foreach ($movements as $m) {
             $suggestedCourses = $m['suggested_courses'] ?? [];
-            $simulation = $this->simulateMovement((int)$m['person_id'], (int)$m['target_role_id'], $suggestedCourses);
-            
+            $simulation = $this->simulateMovement((int) $m['person_id'], (int) $m['target_role_id'], $suggestedCourses);
+
             // Inject AI suggestions if present
             if (isset($m['suggested_courses'])) {
                 $simulation['suggested_courses'] = $m['suggested_courses'];
@@ -75,9 +75,9 @@ class MobilitySimulationService
                 'success_probability' => round($avgFit * (1 - $avgFriction), 2),
                 'total_moved' => $count,
                 'total_roi_projected' => round($totalROI, 2),
-                'total_recruitment_savings' => round($totalSavings, 2)
+                'total_recruitment_savings' => round($totalSavings, 2),
             ],
-            'group_insights' => $this->generateGroupInsights($avgFit, $avgLegacyRisk, $count)
+            'group_insights' => $this->generateGroupInsights($avgFit, $avgLegacyRisk, $count),
         ];
     }
 
@@ -88,8 +88,9 @@ class MobilitySimulationService
             $insights[] = "ALERTA: El movimiento masivo de $count personas genera una desestabilización crítica en las áreas de origen.";
         }
         if ($avgFit > 0.75) {
-            $insights[] = "El grupo seleccionado posee una alta afinidad técnica con el nuevo rol.";
+            $insights[] = 'El grupo seleccionado posee una alta afinidad técnica con el nuevo rol.';
         }
+
         return $insights;
     }
 
@@ -108,13 +109,13 @@ class MobilitySimulationService
 
         // 📚 LMS Integration: Get real courses for the gaps
         $recommendedCourses = $this->getRecommendedCoursesForGaps($skillGaps);
-        
+
         // Merge suggested courses from AI with those found in LMS
         $allSuggestedCourses = array_merge($suggestedCourses, $recommendedCourses);
 
         $overallSuccessProbability = ($fitScore * (1 - $frictionScore));
         $financialImpact = $this->calculateROI($targetRole, $frictionScore, $person, $allSuggestedCourses);
-        
+
         // Domino Effect: Suggest potential successors for the role this person is leaving
         $dominoEffect = null;
         if ($person->role) {
@@ -182,13 +183,13 @@ class MobilitySimulationService
             return [
                 'health_score' => 0,
                 'critical_roles_count' => 0,
-                'high_potential_count' => 0
+                'high_potential_count' => 0,
             ];
         }
 
         $hiPoCount = $people->where('is_high_potential', true)->count();
         $avgSkills = $people->avg('skills_count') ?? 0;
-        
+
         // Base health on talent density and skill coverage
         $healthScore = min(($avgSkills / 5) * 0.5 + ($hiPoCount / $people->count()) * 0.5, 1.0);
 
@@ -196,7 +197,7 @@ class MobilitySimulationService
             'health_score' => round($healthScore, 2),
             'critical_roles_count' => $people->count(), // Simplified: assuming all roles in small depts are critical
             'high_potential_count' => $hiPoCount,
-            'total_members' => $people->count()
+            'total_members' => $people->count(),
         ];
     }
 
@@ -204,6 +205,7 @@ class MobilitySimulationService
     {
         // Friction increases with department size and hierarchy levels (conceptual)
         $memberCount = $dept->People->count();
+
         return round(min(0.2 + ($memberCount * 0.02), 0.8), 2);
     }
 
@@ -215,6 +217,7 @@ class MobilitySimulationService
         if ($metrics['health_score'] < 0.6) {
             return 'ADVERTENCIA';
         }
+
         return 'ESTABLE';
     }
 
@@ -268,7 +271,7 @@ class MobilitySimulationService
                     'current_level' => $currentLevel,
                     'required_level' => $requiredLevel,
                     'gap' => $requiredLevel - $currentLevel,
-                    'is_critical' => (bool)($skill->pivot->is_critical ?? false)
+                    'is_critical' => (bool) ($skill->pivot->is_critical ?? false),
                 ];
             }
         }
@@ -300,7 +303,7 @@ class MobilitySimulationService
 
         if ($recentMovementsCount > 0) {
             // High turnover penalty: too many moves in short time increases cognitive load
-            $friction += ($recentMovementsCount * 0.2); 
+            $friction += ($recentMovementsCount * 0.2);
             Log::info("Friction increased for {$person->full_name} due to {$recentMovementsCount} recent movements.");
         }
 
@@ -322,11 +325,11 @@ class MobilitySimulationService
         if ($person->department) {
             $deptId = $person->department_id;
             $deptMembersCount = People::where('department_id', $deptId)->count();
-            
+
             if ($deptMembersCount <= 3) {
                 $risk += 0.3;
             }
-            
+
             // If the person is a manager, risk increases
             if ($person->department->manager_id === $person->id) {
                 $risk += 0.25;
@@ -339,7 +342,7 @@ class MobilitySimulationService
                 ->where('type', 'exit')
                 ->where('movement_date', '>=', now()->subMonths(3))
                 ->count();
-            
+
             if ($recentExits > 1) {
                 $risk += ($recentExits * 0.15); // Compounding loss effect
                 Log::info("Legacy risk increased for department {$person->department->name} due to {$recentExits} recent exits.");
@@ -357,17 +360,17 @@ class MobilitySimulationService
         $insights = [];
 
         if ($fit > 0.8) {
-            $insights[] = "Excelente alineamiento técnico detectado.";
+            $insights[] = 'Excelente alineamiento técnico detectado.';
         } elseif ($fit < 0.5) {
-            $insights[] = "Brecha significativa de habilidades detectada. Se requerirá un plan de capacitación intenso.";
+            $insights[] = 'Brecha significativa de habilidades detectada. Se requerirá un plan de capacitación intenso.';
         }
 
         if ($friction > 0.6) {
-            $insights[] = "Alta resistencia a la transición. El cambio de contexto es drástico.";
+            $insights[] = 'Alta resistencia a la transición. El cambio de contexto es drástico.';
         }
 
         if ($risk > 0.7) {
-            $insights[] = "ALERTA: El equipo de origen quedará en estado crítico tras este movimiento.";
+            $insights[] = 'ALERTA: El equipo de origen quedará en estado crítico tras este movimiento.';
         }
 
         return $insights;
@@ -380,10 +383,10 @@ class MobilitySimulationService
     {
         $targetSalary = $this->getRoleBaseSalary($targetRole);
         $currentSalary = $person?->salary ?? ($person?->role ? $this->getRoleBaseSalary($person->role) : ($targetSalary * 0.85));
-        
+
         // External Recruitment Cost (Proxy: 20% of annual salary)
         $externalRecruitmentCost = $targetSalary * 12 * 0.20;
-        
+
         // 📚 NEW: Specific Training Cost from LMS Hub
         $trainingCost = 0;
         foreach ($suggestedCourses as $course) {
@@ -399,7 +402,7 @@ class MobilitySimulationService
         // Internal Mobility Cost (Training + Friction/Productivity loss)
         // Proxy: 0.5 months for base onboarding + friction scale + specific training
         $internalOnboardingCost = ($targetSalary * (0.5 + $frictionScore)) + $trainingCost;
-        
+
         $roiProjected = $externalRecruitmentCost - $internalOnboardingCost;
 
         return [
@@ -410,7 +413,7 @@ class MobilitySimulationService
             'training_hub_cost' => round($trainingCost, 2),
             'internal_transition_cost' => round($internalOnboardingCost, 2),
             'roi_amount' => round($roiProjected, 2),
-            'roi_percentage' => round(($roiProjected / max($internalOnboardingCost, 1)) * 100, 2)
+            'roi_percentage' => round(($roiProjected / max($internalOnboardingCost, 1)) * 100, 2),
         ];
     }
 
@@ -428,7 +431,7 @@ class MobilitySimulationService
             'middle' => 3200,
             'senior' => 5500,
             'lead' => 8500,
-            'director' => 12000
+            'director' => 12000,
         ];
 
         return $levelMap[strtolower($role->level)] ?? 3000;
@@ -448,8 +451,8 @@ class MobilitySimulationService
             ],
             'succession_candidates' => $potentialSuccessors,
             'impact_description' => count($potentialSuccessors) > 0
-                ? "Se han detectado " . count($potentialSuccessors) . " candidatos internos óptimos para cubrir esta vacante."
-                : "No se detectaron candidatos internos con alto fit inmediato. Se requiere búsqueda externa o plan de desarrollo intensivo.",
+                ? 'Se han detectado '.count($potentialSuccessors).' candidatos internos óptimos para cubrir esta vacante.'
+                : 'No se detectaron candidatos internos con alto fit inmediato. Se requiere búsqueda externa o plan de desarrollo intensivo.',
         ];
     }
 
@@ -459,13 +462,13 @@ class MobilitySimulationService
     protected function getRecommendedCoursesForGaps(array $gaps): array
     {
         $recommendations = [];
-        
+
         // Take the top 3 gaps (ideally critical ones first)
         $targetGaps = array_slice($gaps, 0, 3);
-        
+
         foreach ($targetGaps as $gap) {
             $courses = $this->lmsService->searchCourses($gap['name']);
-            if (!empty($courses)) {
+            if (! empty($courses)) {
                 // Return the course data in a format compatible with the financial calculator
                 $bestCourse = $courses[0];
                 $recommendations[] = [
@@ -473,7 +476,7 @@ class MobilitySimulationService
                     'title' => $bestCourse['title'] ?? ($bestCourse['name'] ?? $gap['name']),
                     'provider' => $bestCourse['provider'] ?? 'Internal',
                     'cost' => $bestCourse['cost_per_seat'] ?? 0,
-                    'skill' => $gap['name']
+                    'skill' => $gap['name'],
                 ];
             }
         }
@@ -506,7 +509,8 @@ class MobilitySimulationService
         }
 
         // Sort by fit score descending and take top 3
-        usort($potential, fn($a, $b) => $b['fit_score'] <=> $a['fit_score']);
+        usort($potential, fn ($a, $b) => $b['fit_score'] <=> $a['fit_score']);
+
         return array_slice($potential, 0, 3);
     }
 
@@ -518,14 +522,14 @@ class MobilitySimulationService
         $nodes = [];
         $links = [];
         $processedRoles = [];
-        
+
         $queue = [[
             'role' => $initialVacantRole,
             'depth' => 0,
-            'source_node_id' => null
+            'source_node_id' => null,
         ]];
 
-        while (!empty($queue)) {
+        while (! empty($queue)) {
             $current = array_shift($queue);
             $role = $current['role'];
             $depth = $current['depth'];
@@ -535,41 +539,41 @@ class MobilitySimulationService
             }
 
             $processedRoles[] = $role->id;
-            $nodeId = "role_" . $role->id;
+            $nodeId = 'role_'.$role->id;
 
             $nodes[] = [
                 'id' => $nodeId,
                 'label' => $role->name,
                 'type' => 'vacancy',
-                'level' => $depth
+                'level' => $depth,
             ];
 
             if ($current['source_node_id']) {
                 $links[] = [
                     'source' => $nodeId,
                     'target' => $current['source_node_id'],
-                    'label' => 'Cubre a'
+                    'label' => 'Cubre a',
                 ];
             }
 
             // Find the best successor to "move" recursively
             $successors = $this->findPotentialSuccessors($role);
-            if (!empty($successors)) {
+            if (! empty($successors)) {
                 $best = $successors[0]; // Take the best fit
-                $personNodeId = "person_" . $best['id'];
-                
+                $personNodeId = 'person_'.$best['id'];
+
                 $nodes[] = [
                     'id' => $personNodeId,
                     'label' => $best['name'],
                     'type' => 'candidate',
                     'fit' => $best['fit_score'],
-                    'level' => $depth
+                    'level' => $depth,
                 ];
 
                 $links[] = [
                     'source' => $personNodeId,
                     'target' => $nodeId,
-                    'label' => 'Candidato ideal'
+                    'label' => 'Candidato ideal',
                 ];
 
                 // If this person has a role, that role will become the next vacancy in the chain
@@ -578,7 +582,7 @@ class MobilitySimulationService
                     $queue[] = [
                         'role' => $personDetails->role,
                         'depth' => $depth + 1,
-                        'source_node_id' => $personNodeId
+                        'source_node_id' => $personNodeId,
                     ];
                 }
             }
@@ -586,7 +590,7 @@ class MobilitySimulationService
 
         return [
             'nodes' => $nodes,
-            'links' => $links
+            'links' => $links,
         ];
     }
 
@@ -606,26 +610,26 @@ class MobilitySimulationService
             // Mass Movement or Strategic Plan
             foreach ($payload['individual_results'] as $res) {
                 $ops[] = $this->createMoveOp($res, $targetRoleId);
-                
+
                 // 2. Process Domino Effect (Vacancies)
                 if (isset($res['domino_effect']['vacant_role'])) {
                     $ops[] = $this->createVacancyOp($res['domino_effect']['vacant_role']);
                 }
 
                 // 3. Process Skill Gaps (Development Plans)
-                if (isset($res['skill_gaps']) && !empty($res['skill_gaps'])) {
+                if (isset($res['skill_gaps']) && ! empty($res['skill_gaps'])) {
                     $ops[] = $this->createDevelopmentPlanOp($res);
                 }
             }
         } elseif (isset($payload['person'])) {
             // Single Movement
             $ops[] = $this->createMoveOp($payload, $targetRoleId);
-            
+
             if (isset($payload['domino_effect']['vacant_role'])) {
                 $ops[] = $this->createVacancyOp($payload['domino_effect']['vacant_role']);
             }
 
-            if (isset($payload['skill_gaps']) && !empty($payload['skill_gaps'])) {
+            if (isset($payload['skill_gaps']) && ! empty($payload['skill_gaps'])) {
                 $ops[] = $this->createDevelopmentPlanOp($payload);
             }
         }
@@ -634,7 +638,7 @@ class MobilitySimulationService
         return \App\Models\ChangeSet::create([
             'organization_id' => $scenario->organization_id,
             'scenario_id' => $scenario->id,
-            'title' => 'Implementación: ' . $scenario->name,
+            'title' => 'Implementación: '.$scenario->name,
             'description' => 'Movimientos estratégicos generados desde el simulador de movilidad.',
             'status' => 'draft',
             'created_by' => $actor->id,
@@ -642,7 +646,7 @@ class MobilitySimulationService
             'metadata' => [
                 'source' => 'mobility_simulation',
                 'projected_roi' => $payload['aggregated_metrics']['total_roi_projected'] ?? ($payload['financial_impact']['roi_amount'] ?? 0),
-                'projected_savings' => $payload['aggregated_metrics']['total_recruitment_savings'] ?? ($payload['financial_impact']['recruitment_avoidance_cost'] ?? 0)
+                'projected_savings' => $payload['aggregated_metrics']['total_recruitment_savings'] ?? ($payload['financial_impact']['recruitment_avoidance_cost'] ?? 0),
             ],
         ]);
     }
@@ -651,8 +655,8 @@ class MobilitySimulationService
     {
         $targetRoleId = $res['target_role']['id'] ?? $fallbackTargetRoleId;
 
-        if (!$targetRoleId) {
-             throw new \InvalidArgumentException("No se ha proporcionado un rol de destino para el colaborador: " . ($res['person']['name'] ?? 'ID ' . $res['person']['id']));
+        if (! $targetRoleId) {
+            throw new \InvalidArgumentException('No se ha proporcionado un rol de destino para el colaborador: '.($res['person']['name'] ?? 'ID '.$res['person']['id']));
         }
 
         return [
@@ -662,7 +666,7 @@ class MobilitySimulationService
             'metadata' => [
                 'fit_score' => $res['metrics']['fit_score'] ?? 0,
                 'friction_score' => $res['metrics']['friction_score'] ?? 0,
-            ]
+            ],
         ];
     }
 
@@ -671,12 +675,12 @@ class MobilitySimulationService
         return [
             'type' => 'create_vacancy',
             'role_id' => $vacantRole['id'],
-            'title' => 'Nueva Vacante: ' . $vacantRole['name'],
+            'title' => 'Nueva Vacante: '.$vacantRole['name'],
             'status' => 'open',
             'is_external' => false, // Internal first by default
             'metadata' => [
-                'source' => 'domino_effect_simulation'
-            ]
+                'source' => 'domino_effect_simulation',
+            ],
         ];
     }
 
@@ -685,14 +689,14 @@ class MobilitySimulationService
         return [
             'type' => 'create_development_plan',
             'person_id' => $res['person']['id'],
-            'title' => 'Plan de Upskilling: Transición a ' . ($res['target_role']['name'] ?? 'Nuevo Rol'),
+            'title' => 'Plan de Upskilling: Transición a '.($res['target_role']['name'] ?? 'Nuevo Rol'),
             'gaps' => $res['skill_gaps'],
             'suggested_courses' => $res['suggested_courses'] ?? [],
             'metadata' => [
                 'source' => 'mobility_simulation',
                 'fit_score_at_simulation' => $res['metrics']['fit_score'] ?? 0,
-                'rationale' => $res['rationale'] ?? null
-            ]
+                'rationale' => $res['rationale'] ?? null,
+            ],
         ];
     }
 }

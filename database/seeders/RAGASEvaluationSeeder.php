@@ -19,17 +19,17 @@ class RAGASEvaluationSeeder extends Seeder
         $user = User::where('organization_id', $org->id)->first() ?? User::factory()->create([
             'organization_id' => $org->id,
             'name' => 'Demo User',
-            'email' => 'demo@stratos.ai'
+            'email' => 'demo@stratos.ai',
         ]);
 
         $this->command->info("Seeding evaluations for Org: {$org->name} (ID: {$org->id})");
 
         // 2. Generate varied evaluations per provider to populate the provider comparision chart
         $providers = ['deepseek', 'abacus', 'openai', 'intel'];
-        
+
         foreach ($providers as $provider) {
             $this->command->info("Generating evaluations for provider: {$provider}");
-            
+
             // Generate a mix of quality levels
             // Excellent (15%)
             LLMEvaluation::factory()->count(3)->excellent()->provider($provider)->create([

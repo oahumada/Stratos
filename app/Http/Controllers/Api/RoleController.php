@@ -79,7 +79,7 @@ class RoleController extends Controller
         try {
             return DB::transaction(function () use ($request, $id) {
                 $role = Roles::findOrFail($id);
-                
+
                 $role->update([
                     'name' => $request->name,
                     'description' => $request->description,
@@ -123,13 +123,13 @@ class RoleController extends Controller
     {
         $competenciesData = $request->input('competencies', []);
         $blueprint = $request->input('ai_archetype_config.skill_blueprint', []);
-        
+
         $roleCompetencyIds = [];
         $roleSkillIds = [];
-        
+
         foreach ($competenciesData as $compData) {
             $compName = $compData['name'] ?? $compData['competency_name'] ?? 'Nueva Competencia';
-            
+
             // 1. Create or Find the high-level Competency in the catalog (SFIA Category)
             $competency = \App\Models\Competency::updateOrCreate(
                 [
@@ -137,8 +137,8 @@ class RoleController extends Controller
                     'organization_id' => $role->organization_id,
                 ],
                 [
-                    'description' => $compData['rationale'] ?? $compData['description'] ?? "Competencia estratégica",
-                    'status' => 'pending_approval'
+                    'description' => $compData['rationale'] ?? $compData['description'] ?? 'Competencia estratégica',
+                    'status' => 'pending_approval',
                 ]
             );
 
@@ -149,9 +149,9 @@ class RoleController extends Controller
             ];
 
             // 2. Identify and Save nested Skills for this competency from the blueprint (SFIA Levels)
-            if (!empty($blueprint) && is_array($blueprint)) {
+            if (! empty($blueprint) && is_array($blueprint)) {
                 $roleSkillIds = array_merge(
-                    $roleSkillIds, 
+                    $roleSkillIds,
                     $this->processSfiaSkills($role, $competency, $compName, $blueprint, $compData['level'] ?? 3)
                 );
             }
@@ -181,7 +181,7 @@ class RoleController extends Controller
                         [
                             'category' => 'Skill',
                             'description' => $sBlue['description'] ?? null,
-                            'status' => 'pending_approval'
+                            'status' => 'pending_approval',
                         ]
                     );
 

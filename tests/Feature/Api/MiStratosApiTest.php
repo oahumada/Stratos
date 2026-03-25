@@ -15,12 +15,12 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->org = Organizations::factory()->create([
         'name' => 'Stratos HQ',
-        'subdomain' => 'hq'
+        'subdomain' => 'hq',
     ]);
 
     $this->user = User::factory()->create([
         'organization_id' => $this->org->id,
-        'role' => 'collaborator'
+        'role' => 'collaborator',
     ]);
 
     $this->role = Roles::factory()->create([
@@ -29,8 +29,8 @@ beforeEach(function () {
         'cube_dimensions' => [
             'x_archetype' => 'Tactical',
             'y_mastery_level' => 3,
-            'z_business_process' => 'Product Development'
-        ]
+            'z_business_process' => 'Product Development',
+        ],
     ]);
 
     $this->person = People::factory()->create([
@@ -38,7 +38,7 @@ beforeEach(function () {
         'user_id' => $this->user->id,
         'first_name' => 'Omar',
         'last_name' => 'Ahumada',
-        'role_id' => $this->role->id
+        'role_id' => $this->role->id,
     ]);
 });
 
@@ -46,10 +46,10 @@ it('returns dashboard data for authenticated collaborator', function () {
     // 1. Setup specific data
     $comp = Competency::factory()->create(['organization_id' => $this->org->id, 'name' => 'Critical Thinking']);
     $skill = Skill::factory()->create(['organization_id' => $this->org->id, 'name' => 'Problem Solving']);
-    
+
     $this->role->skills()->attach($skill->id, ['required_level' => 4]);
     $skill->competencies()->attach($comp->id);
-    
+
     // Attach skill to person with current level
     $this->person->skills()->attach($skill->id, ['current_level' => 3]);
 
@@ -57,14 +57,14 @@ it('returns dashboard data for authenticated collaborator', function () {
     DevelopmentPath::factory()->create([
         'people_id' => $this->person->id,
         'action_title' => 'Mastering React',
-        'status' => 'active'
+        'status' => 'active',
     ]);
 
     // Create an assessment session
     AssessmentSession::factory()->create([
         'people_id' => $this->person->id,
         'type' => 'interview',
-        'status' => 'active'
+        'status' => 'active',
     ]);
 
     // 2. Call the API
@@ -85,8 +85,8 @@ it('returns dashboard data for authenticated collaborator', function () {
                 'learning_paths',
                 'conversations',
                 'quests',
-                'evaluations'
-            ]
+                'evaluations',
+            ],
         ]);
 
     // Verify KPIs
@@ -97,7 +97,7 @@ it('returns dashboard data for authenticated collaborator', function () {
 it('returns empty state if user has no linked person', function () {
     $userWithoutPerson = User::factory()->create([
         'organization_id' => $this->org->id,
-        'role' => 'collaborator'
+        'role' => 'collaborator',
     ]);
 
     $response = $this->actingAs($userWithoutPerson, 'sanctum')

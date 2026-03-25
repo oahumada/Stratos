@@ -21,7 +21,7 @@ return new class extends Migration
             $table->float('stratos_iq')->nullable(); // Overall score based on velocity and average gap
             $table->json('metadata')->nullable(); // Extra snapshot info
             $table->timestamps();
-            
+
             $table->unique(['organizations_id', 'snapshot_date']);
         });
     }

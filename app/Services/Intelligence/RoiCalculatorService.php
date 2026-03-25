@@ -2,9 +2,8 @@
 
 namespace App\Services\Intelligence;
 
-use App\Models\Scenario;
 use App\Models\People;
-use App\Services\Intelligence\RetentionDeepPredictorService;
+use App\Models\Scenario;
 use Illuminate\Support\Facades\Log;
 
 class RoiCalculatorService
@@ -36,7 +35,7 @@ class RoiCalculatorService
         }
 
         $avgRisk = $atRiskPeople->count() > 0 ? ($totalRiskScore / $atRiskPeople->count()) : 0;
-        
+
         // Assumption: Implementing strategies reduces risk by 40%
         $efficiencyGain = 0.40;
         $potentialSavings = $totalReplacementCost * ($avgRisk / 100) * $efficiencyGain;
@@ -74,13 +73,13 @@ class RoiCalculatorService
     {
         $person = People::findOrFail($peopleId);
         $prediction = $this->retentionPredictor->predict($person->id);
-        
+
         $replacementCost = $prediction['financial_impact']['replacement_cost_usd'] ?? 45000;
         $riskScore = $prediction['flight_risk_score'] ?? 50;
-        
+
         // Potential savings if we mitigate risk
         $potentialSavings = $replacementCost * ($riskScore / 100) * 0.60; // 60% mitigation target
-        
+
         return [
             'replacement_cost' => $replacementCost,
             'flight_risk' => $riskScore,

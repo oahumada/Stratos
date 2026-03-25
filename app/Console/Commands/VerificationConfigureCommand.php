@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\File;
 class VerificationConfigureCommand extends Command
 {
     protected $signature = 'verification:configure';
+
     protected $description = 'Configure verification deployment options interactively';
 
     public function handle(): int
@@ -167,7 +168,7 @@ class VerificationConfigureCommand extends Command
 
     private function saveConfiguration(array $config, string $path): void
     {
-        $content = "<?php\n\nreturn " . var_export($config, true) . ";\n";
+        $content = "<?php\n\nreturn ".var_export($config, true).";\n";
         File::put($path, $content);
 
         // También actualizar .env
@@ -230,11 +231,11 @@ class VerificationConfigureCommand extends Command
         $this->table(
             ['Parámetro', 'Valor'],
             [
-                ['Error rate para Phase 2', $settings['error_rate_threshold_phase2'] . '%'],
-                ['Retry rate para Phase 4', $settings['retry_rate_threshold_phase4'] . '%'],
-                ['Verificación cada', $settings['check_interval_minutes'] . ' minutos'],
-                ['Ventana de datos', $settings['data_window_hours'] . ' horas'],
-                ['Notificaciones', $settings['enable_notifications'] ? 'Sí (' . $settings['notification_channel'] . ')' : 'No'],
+                ['Error rate para Phase 2', $settings['error_rate_threshold_phase2'].'%'],
+                ['Retry rate para Phase 4', $settings['retry_rate_threshold_phase4'].'%'],
+                ['Verificación cada', $settings['check_interval_minutes'].' minutos'],
+                ['Ventana de datos', $settings['data_window_hours'].' horas'],
+                ['Notificaciones', $settings['enable_notifications'] ? 'Sí ('.$settings['notification_channel'].')' : 'No'],
             ]
         );
     }
@@ -248,8 +249,8 @@ class VerificationConfigureCommand extends Command
         $this->table(
             ['Parámetro', 'Valor'],
             [
-                ['Recolectar métricas cada', $settings['metrics_collection_interval'] . ' minutos'],
-                ['Alertar si sube más del', $settings['alert_threshold_percent'] . '% en 1h'],
+                ['Recolectar métricas cada', $settings['metrics_collection_interval'].' minutos'],
+                ['Alertar si sube más del', $settings['alert_threshold_percent'].'% en 1h'],
                 ['Sugerencias automáticas', $settings['enable_suggestions'] ? 'Sí' : 'No'],
                 ['Dashboard web', $settings['enable_web_dashboard'] ? 'Sí' : 'No'],
             ]
@@ -265,8 +266,8 @@ class VerificationConfigureCommand extends Command
         $this->table(
             ['Parámetro', 'Valor'],
             [
-                ['Recolectar métricas cada', $settings['metrics_collection_interval'] . ' minutos'],
-                ['Retener datos por', $settings['metrics_retention_days'] . ' días'],
+                ['Recolectar métricas cada', $settings['metrics_collection_interval'].' minutos'],
+                ['Retener datos por', $settings['metrics_retention_days'].' días'],
             ]
         );
     }

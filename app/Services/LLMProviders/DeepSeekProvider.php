@@ -68,13 +68,14 @@ class DeepSeekProvider implements LLMProviderInterface
 
         if ($httpCode === 402) {
             Log::warning('DeepSeek API Insufficient Balance. Falling back to simulation mode.');
+
             return [
                 'response' => array_merge($this->getMockResponseForPrompt($prompt), [
                     'simulation_metadata' => [
                         'is_simulated' => true,
                         'reason' => 'insufficient_balance',
-                        'notice' => 'DeepSeek API: Saldo insuficiente. Generación simulada para fines de prueba estructural.'
-                    ]
+                        'notice' => 'DeepSeek API: Saldo insuficiente. Generación simulada para fines de prueba estructural.',
+                    ],
                 ]),
                 'confidence' => 0.5,
                 'model_version' => $model.'-simulated-balance-empty',
@@ -139,17 +140,17 @@ class DeepSeekProvider implements LLMProviderInterface
                                     ['level' => 3, 'learning_unit' => 'Análisis', 'performance_criterion' => 'Analiza resultados'],
                                     ['level' => 4, 'learning_unit' => 'Evaluación', 'performance_criterion' => 'Evalúa modelos complejos'],
                                     ['level' => 5, 'learning_unit' => 'Creación', 'performance_criterion' => 'Diseña nuevas arquitecturas'],
-                                ]
-                            ]
-                        ]
-                    ]
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
                 'bars' => [
-                   'behavior' => 'Simulando comportamiento funcional por falta de saldo en API IA.',
-                   'attitude' => 'Simulando actitud proactiva del sistema.',
-                   'responsibility' => 'Gestión de riesgos tecnológicos.',
-                   'skill' => 'Arquitectura de agentes autónomos.'
-                ]
+                    'behavior' => 'Simulando comportamiento funcional por falta de saldo en API IA.',
+                    'attitude' => 'Simulando actitud proactiva del sistema.',
+                    'responsibility' => 'Gestión de riesgos tecnológicos.',
+                    'skill' => 'Arquitectura de agentes autónomos.',
+                ],
             ];
         }
 

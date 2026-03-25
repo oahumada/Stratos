@@ -3,7 +3,6 @@
 namespace Tests\Feature\Services;
 
 use App\DTOs\VerificationResult;
-use App\Exceptions\VerificationFailedException;
 use App\Models\Agent;
 use App\Models\Organization;
 use App\Services\AiOrchestratorService;
@@ -22,7 +21,9 @@ class VerificationPhaseIntegrationTest extends TestCase
     use RefreshDatabase;
 
     protected Organization $organization;
+
     protected Agent $agent;
+
     protected AiOrchestratorService $orchestrator;
 
     protected function setUp(): void

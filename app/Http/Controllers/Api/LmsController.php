@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\Talent\Lms\LmsService;
 use App\Models\DevelopmentAction;
+use App\Services\Talent\Lms\LmsService;
 use Illuminate\Http\Request;
 
 class LmsController extends Controller
@@ -26,7 +26,7 @@ class LmsController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $courses
+            'data' => $courses,
         ]);
     }
 
@@ -40,12 +40,12 @@ class LmsController extends Controller
 
             return response()->json([
                 'success' => true,
-                'url' => $url
+                'url' => $url,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
     }
@@ -60,7 +60,7 @@ class LmsController extends Controller
         return response()->json([
             'success' => true,
             'updated' => $updated,
-            'status' => $action->status
+            'status' => $action->status,
         ]);
     }
 
@@ -72,7 +72,7 @@ class LmsController extends Controller
         $user = auth()->user();
         $person = \App\Models\People::where('user_id', $user->id)->first();
 
-        if (!$person) {
+        if (! $person) {
             return response()->json(['success' => false, 'message' => 'Colaborador no encontrado'], 404);
         }
 
@@ -89,8 +89,8 @@ class LmsController extends Controller
                 'points' => $gamification->current_points,
                 'next_level_xp' => $gamification->level * 1000,
                 'progress_percentage' => round(($gamification->total_xp % 1000) / 10, 2),
-                'rank_name' => $this->getRankName($gamification->level)
-            ]
+                'rank_name' => $this->getRankName($gamification->level),
+            ],
         ]);
     }
 
@@ -107,16 +107,25 @@ class LmsController extends Controller
 
         return response()->json([
             'success' => true,
-            'leaderboard' => $top
+            'leaderboard' => $top,
         ]);
     }
 
     private function getRankName(int $level): string
     {
-        if ($level >= 20) return 'Maestro Arquitecto';
-        if ($level >= 15) return 'Estratega Senior';
-        if ($level >= 10) return 'Líder en Desarrollo';
-        if ($level >= 5) return 'Analista Avanzado';
+        if ($level >= 20) {
+            return 'Maestro Arquitecto';
+        }
+        if ($level >= 15) {
+            return 'Estratega Senior';
+        }
+        if ($level >= 10) {
+            return 'Líder en Desarrollo';
+        }
+        if ($level >= 5) {
+            return 'Analista Avanzado';
+        }
+
         return 'Aprendiz de Talento';
     }
 }
