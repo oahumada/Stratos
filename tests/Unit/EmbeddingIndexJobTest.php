@@ -7,7 +7,7 @@ use App\Services\EmbeddingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
+// uses(TestCase::class, RefreshDatabase::class); // Global binding in tests/Pest.php
 
 it('indexes roles into embeddings table', function () {
     // Mock EmbeddingService to avoid external calls

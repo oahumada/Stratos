@@ -7,7 +7,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 
-uses(Tests\TestCase::class);
+// uses binding handled globally in tests/Pest.php
 
 test('it can generate a response', function () {
     $container = [];

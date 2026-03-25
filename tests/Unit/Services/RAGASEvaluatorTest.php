@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 
-uses(Tests\TestCase::class, RefreshDatabase::class);
+// uses binding handled globally in tests/Pest.php
 
 beforeEach(function () {
     $this->organization = Organization::factory()->create();

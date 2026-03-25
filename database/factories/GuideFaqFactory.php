@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\GuideFaq;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<GuideFaq>
@@ -19,7 +20,7 @@ class GuideFaqFactory extends Factory
     {
         return [
             'organization_id' => null,
-            'slug' => $this->faker->unique()->slug(),
+            'slug' => Str::slug($this->faker->unique()->words(3, true)),
             'category' => $this->faker->randomElement(['getting_started', 'scenario_planning', 'talent_360']),
             'title' => $this->faker->sentence(6),
             'question' => $this->faker->sentence(10).'?',

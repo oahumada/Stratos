@@ -6,8 +6,6 @@ use App\Services\RagService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
-
 it('postFilter redacts PII from answer', function () {
     $rag = new RagService(app(EmbeddingService::class), app(LLMClient::class));
 

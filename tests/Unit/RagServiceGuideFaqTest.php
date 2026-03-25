@@ -6,8 +6,7 @@ use App\Models\Organization;
 use App\Services\RagService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-
-uses(TestCase::class, RefreshDatabase::class);
+// uses binding handled globally in tests/Pest.php
 
 it('answers using guide faq context via embeddings', function () {
     // Usar proveedor mock para embeddings genéricos
