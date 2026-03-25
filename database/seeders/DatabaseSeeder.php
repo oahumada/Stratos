@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             // ScenarioTemplateSeeder::class,
             // WorkforcePlanningSeeder::class,
             \Database\Seeders\PromptInstructionsSeeder::class,
+            GuideFaqSeeder::class,
         ]);
     }
 }

@@ -166,10 +166,15 @@ class EmbeddingService
      */
     public function forScenario(\App\Models\Scenario $scenario): ?array
     {
+        $assumptions = $scenario->assumptions;
+        $assumptionsText = is_array($assumptions)
+            ? implode(', ', array_filter($assumptions))
+            : ($assumptions ?? '');
+
         $text = implode(' | ', array_filter([
             $scenario->name,
             $scenario->description,
-            $scenario->assumptions,
+            $assumptionsText,
         ]));
 
         return $this->generate($text);
