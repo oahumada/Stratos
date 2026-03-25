@@ -4804,7 +4804,21 @@ expect($result['valid'])->toBeTrue();
 php artisan backfill:scenario-generation-scenario-id
 ```
 
-- Pendiente ejecutar en staging/prod con backup validado previo
+- Validado localmente (2026-03-25): comando idempotente ✅
+    - `before_null=16`, `before_linked=2`
+    - Ejecución 1: `Backfilled 0 scenario_generations rows.`
+    - `after_null=16`, `after_linked=2`
+    - Ejecución 2: `Backfilled 0 scenario_generations rows.` (sin cambios)
+- Estado: listo para ejecutar en staging/prod con backup validado previo 📋
+- Checklist operativo recomendado (staging/prod):
+    1. Confirmar backup reciente y ventana de mantenimiento
+    2. Medir baseline:
+        - `scenario_generations where scenario_id is null`
+        - `scenarios where source_generation_id is not null`
+    3. Ejecutar comando:
+        - `php artisan backfill:scenario-generation-scenario-id`
+    4. Re-ejecutar comando para verificar idempotencia (debe backfillear 0)
+    5. Verificar muestreo de integridad entre `scenarios.source_generation_id` y `scenario_generations.scenario_id`
 
 #### Intelligence Aggregates Backfill histórico
 
