@@ -26,12 +26,12 @@ class MessagePolicy
             return false;
         }
 
-        if (! $user->people_id) {
+        if (! $user->people) {
             return false;
         }
 
         // Check if participant in the conversation
-        return $message->conversation->isParticipant($user->people_id);
+        return $message->conversation->isParticipant($user->people->id);
     }
 
     /**
@@ -40,7 +40,7 @@ class MessagePolicy
      */
     public function create(User $user): bool
     {
-        return (bool) $user->organization_id && (bool) $user->people_id;
+        return (bool) $user->organization_id && (bool) $user->people;
     }
 
     /**
@@ -56,7 +56,7 @@ class MessagePolicy
         }
 
         // Only sender can update
-        return $user->people_id === $message->people_id;
+        return $user->people && $user->people->id === $message->people_id;
     }
 
     /**

@@ -70,7 +70,7 @@ class MessageController extends Controller
             $message = $this->messagingService->sendMessage(
                 conversationId: $conversation->id,
                 organizationId: $request->user()->organization_id,
-                senderPeopleId: $request->user()->people_id,
+                senderPeopleId: $request->user()->people->id,
                 body: $validated['body'],
                 replyToMessageId: $validated['reply_to_message_id'] ?? null,
             );
@@ -96,7 +96,7 @@ class MessageController extends Controller
             $this->messagingService->markAsRead(
                 conversationId: $message->conversation_id,
                 organizationId: $request->user()->organization_id,
-                readerPeopleId: $request->user()->people_id,
+                readerPeopleId: $request->user()->people->id,
             );
 
             return response()->json(null, 204);

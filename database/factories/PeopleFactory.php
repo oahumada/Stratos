@@ -20,13 +20,13 @@ class PeopleFactory extends Factory
     public function definition(): array
     {
         return [
-            'organization_id' => 1,
-            'first_name' => $this->faker->firstName(),
-            'last_name' => $this->faker->lastName(),
+            'organization_id' => \App\Models\Organization::factory(),
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
             'department_id' => \App\Models\Departments::inRandomOrder()->first()?->id,
             'role_id' => \App\Models\Roles::inRandomOrder()->first()?->id,
-            'email' => $this->faker->unique()->safeEmail(),
-            'hire_date' => $this->faker->date(),
+            'email' => fake()->unique()->safeEmail(),
+            'hire_date' => fake()->date(),
             'photo_url' => null,
         ];
     }

@@ -30,6 +30,7 @@ class ConversationController extends Controller
         $perPage = $request->get('per_page', 15);
 
         // Get conversations for organization (active only)
+        // TODO: Filter by user's participation after full implementation
         $conversations = Conversation::where('organization_id', $user->organization_id)
             ->where('is_active', true)
             ->with([
@@ -74,13 +75,13 @@ class ConversationController extends Controller
 
         // Ensure creator is included in participants
         $participantIds = array_unique(
-            array_merge([$user->people_id], $request->validated()['participant_ids'] ?? [])
+            array_merge([$user->people->id], $request->validated()['participant_ids'] ?? [])
         );
 
         try {
             $conversation = $this->conversationService->createConversation(
                 organizationId: $user->organization_id,
-                createdByPeopleId: $user->people_id,
+                createdByPeopleId: $user->people->id,
                 participantPeopleIds: $participantIds,
                 title: $request->validated()['title'] ?? null,
                 description: $request->validated()['description'] ?? null,

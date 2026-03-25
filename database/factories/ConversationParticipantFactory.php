@@ -17,7 +17,15 @@ class ConversationParticipantFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'conversation_id' => \App\Models\Conversation::factory(),
+            'organization_id' => \App\Models\Organization::factory(),
+            'people_id' => \App\Models\People::factory(),
+            'can_send' => true,
+            'can_read' => true,
+            'joined_at' => now(),
+            'left_at' => null,
+            'last_read_at' => null,
+            'unread_count' => 0,
         ];
     }
 }

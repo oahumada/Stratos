@@ -17,10 +17,10 @@ class OrganizationFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->company(),
-            'subdomain' => $this->faker->unique()->slug(),
-            'industry' => $this->faker->randomElement(['tech', 'finance', 'healthcare', 'retail', 'manufacturing']),
-            'size' => $this->faker->randomElement(['small', 'medium', 'large', 'enterprise']),
+            'name' => fake()->name(),
+            'subdomain' => fake()->unique()->slug(),
+            'industry' => fake()->randomElement(['tech', 'finance', 'healthcare', 'retail', 'manufacturing']),
+            'size' => fake()->randomElement(['small', 'medium', 'large', 'enterprise']),
         ];
     }
 }

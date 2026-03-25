@@ -9,7 +9,7 @@ class AddParticipantRequest extends FormRequest
     public function authorize(): bool
     {
         // Authorization checked by policy in controller
-        return auth()->check();
+        return auth()->check() && auth()->user()->people;
     }
 
     public function rules(): array

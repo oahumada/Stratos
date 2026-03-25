@@ -9,7 +9,7 @@ class StoreConversationRequest extends FormRequest
     public function authorize(): bool
     {
         // Authorization will be checked by policy in controller
-        return auth()->check() && auth()->user()->people_id;
+        return auth()->check() && auth()->user()->people;
     }
 
     public function rules(): array

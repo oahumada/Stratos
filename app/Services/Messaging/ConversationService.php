@@ -155,8 +155,10 @@ class ConversationService
 
         $result = $conversation->update([
             'is_active' => false,
-            'archived_at' => now(),
         ]);
+        
+        // Soft delete for archival
+        $conversation->delete();
 
         Log::info('Conversation archived', [
             'conversation_id' => $conversationId,

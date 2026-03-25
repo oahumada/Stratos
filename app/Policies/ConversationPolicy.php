@@ -33,9 +33,9 @@ class ConversationPolicy
             return true;
         }
 
-        // Check if user (via people_id) is a participant
-        if ($user->people_id) {
-            return $conversation->isParticipant($user->people_id);
+        // Check if user (via people relationship) is a participant
+        if ($user->people) {
+            return $conversation->isParticipant($user->people->id);
         }
 
         return false;
@@ -46,7 +46,7 @@ class ConversationPolicy
      */
     public function create(User $user): bool
     {
-        return (bool) $user->organization_id && (bool) $user->people_id;
+        return (bool) $user->organization_id && (bool) $user->people;
     }
 
     /**
@@ -59,13 +59,13 @@ class ConversationPolicy
             return false;
         }
 
-        if (! $user->people_id) {
+        if (! $user->people) {
             return false;
         }
 
         // Check if participant and can_send
         $participant = $conversation->participants()
-            ->where('people_id', $user->people_id)
+            ->where('people_id', $user->people->id)
             ->first();
 
         if (! $participant) {

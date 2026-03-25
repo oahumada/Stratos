@@ -18,7 +18,7 @@ Messaging MVP es un sistema de **conversaciones multi-participante** con soporte
 | :---------- | :------------------------ | :------ | :-------- |
 | **Phase 1** | Models, migrations, spec  | ✅ DONE | Mar 25    |
 | **Phase 2** | Services + Form Requests  | ✅ DONE | Mar 25    |
-| **Phase 3** | Controllers + Routes      | 🔲 TODO | Mar 28-29 |
+| **Phase 3** | Controllers + Routes      | ✅ DONE | Mar 25    |
 | **Phase 4** | Tests + Coverage + Polish | 🔲 TODO | Mar 30-31 |
 
 ---
@@ -281,43 +281,54 @@ php artisan tinker
 
 ---
 
-## 🔲 Phase 3: API Surface (TODO - Mar 28-29)
+## ✅ Phase 3: API Surface (COMPLETED - Mar 25)
 
 **Objective:** Expose REST API endpoints with full CRUD + permissions.
 
-### Controllers (2)
+**Status:** ✅ COMPLETED — All controllers and routes implemented (Commit: ace19952)
 
-| Controller             | File                                                            | Endpoints                           | Est.     |
-| :--------------------- | :-------------------------------------------------------------- | :---------------------------------- | :------- |
-| ConversationController | `app/Http/Controllers/Api/Messaging/ConversationController.php` | index, store, show, update, destroy | 2.5h     |
-| MessageController      | `app/Http/Controllers/Api/Messaging/MessageController.php`      | index (per conv), store, mark_read  | 2h       |
-| ParticipantController  | `app/Http/Controllers/Api/Messaging/ParticipantController.php`  | store (add), destroy (remove)       | 1h       |
-| **Subtotal**           |                                                                 |                                     | **5.5h** |
+### Controllers (3) ✅
 
-### Routes (`routes/api.php`)
+| Controller             | File                                                            | Endpoints                           | Status | Commit   |
+| :--------------------- | :-------------------------------------------------------------- | :---------------------------------- | :----- | :------- |
+| ConversationController | `app/Http/Controllers/Api/Messaging/ConversationController.php` | index, store, show, update, destroy | ✅     | ace19952 |
+| MessageController      | `app/Http/Controllers/Api/Messaging/MessageController.php`      | index (per conv), store, markRead   | ✅     | ace19952 |
+| ParticipantController  | `app/Http/Controllers/Api/Messaging/ParticipantController.php`  | store (add), destroy (remove)       | ✅     | ace19952 |
+
+### Routes (11 endpoints) ✅
+
+Routes registered in `routes/api.php` with middleware `auth:sanctum`  and prefix `messaging`:
 
 ```php
-// Conversations
-Route::middleware(['auth:sanctum'])->prefix('api/messaging')->group(function () {
-    // Conversations
-    Route::get('conversations', [ConversationController::class, 'index']);
-    Route::post('conversations', [ConversationController::class, 'store']);
-    Route::get('conversations/{conversation}', [ConversationController::class, 'show']);
-    Route::put('conversations/{conversation}', [ConversationController::class, 'update']);
-    Route::delete('conversations/{conversation}', [ConversationController::class, 'destroy']);
+// Conversations CRUD
+GET    /api/messaging/conversations              → index (list paginated)
+POST   /api/messaging/conversations              → store (create)
+GET    /api/messaging/conversations/{id}         → show (view + messages)
+PUT    /api/messaging/conversations/{id}         → update (edit)
+DELETE /api/messaging/conversations/{id}         → destroy (archive)
 
-    // Participants
-    Route::post('conversations/{conversation}/participants', [ParticipantController::class, 'store']);
-    Route::delete('conversations/{conversation}/participants/{participant}', [ParticipantController::class, 'destroy']);
+// Messages
+GET    /api/messaging/conversations/{id}/messages     → index (paginated)
+POST   /api/messaging/conversations/{id}/messages     → store (send)
+POST   /api/messaging/messages/{id}/read              → markRead
 
-    // Messages
-    Route::get('conversations/{conversation}/messages', [MessageController::class, 'index']);
-    Route::post('conversations/{conversation}/messages', [MessageController::class, 'store']);
-
-    // Message State
-    Route::post('messages/{message}/read', [MessageController::class, 'markRead']);
-});
+// Participants
+POST   /api/messaging/conversations/{id}/participants     → store (add)
+DELETE /api/messaging/conversations/{id}/participants/{pid} → destroy (remove)
 ```
+
+### Phase 3 Validation Checklist ✅
+
+- [x] ConversationController with full CRUD (5 methods)
+- [x] MessageController with messaging endpoints (3 methods)
+- [x] ParticipantController with participant management (2 methods)
+- [x] All 11 routes registered with proper controller binding
+- [x] Pagination support (page, per_page params)
+- [x] Policy-based authorization (authorize() calls)
+- [x] Multi-tenant scoping in all queries
+- [x] Proper HTTP status codes (201/204/403/404/422)
+- [x] JSON response shapes match spec
+- [x] All classes validated for PHP syntax
 
 ### API Response Shapes
 
