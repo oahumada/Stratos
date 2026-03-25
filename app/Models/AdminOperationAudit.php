@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AdminOperationAudit extends Model
 {
+    use HasFactory;
+    
     protected $table = 'admin_operations_audit';
     protected $guarded = [];
     
