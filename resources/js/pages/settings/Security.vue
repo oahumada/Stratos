@@ -17,6 +17,36 @@ interface RbacData {
     mappings: Record<string, number[]>;
 }
 
+interface SecurityAccessLog {
+    id: number;
+    user_id: number | null;
+    organization_id: number | null;
+    event: string;
+    email: string | null;
+    ip_address: string | null;
+    user_agent: string | null;
+    role: string | null;
+    mfa_used: boolean;
+    occurred_at: string;
+    user?: {
+        id: number;
+        name: string;
+        email: string;
+    } | null;
+}
+
+interface SecuritySummary {
+    total_events: number;
+    events_last_24h: number;
+    successful_logins: number;
+    failed_logins: number;
+    logouts: number;
+    failed_logins_24h: number;
+    mfa_used_percentage: number;
+    top_ips: Record<string, number>;
+    events_by_type: Record<string, number>;
+}
+
 const loading = ref(true);
 const saving = ref(false);
 const data = ref<RbacData | null>(null);
@@ -32,6 +62,27 @@ const alert = ref<{
     type: 'success',
     message: '',
 });
+
+const securityLoading = ref(false);
+const securitySummary = ref<SecuritySummary | null>(null);
+const securityLogs = ref<SecurityAccessLog[]>([]);
+const securityPage = ref(1);
+const securityLastPage = ref(1);
+const securityPerPage = ref(25);
+const securityTotal = ref(0);
+const securityFilters = ref({
+    event: '',
+    email: '',
+    from: '',
+    to: '',
+});
+
+const securityEventOptions = [
+    { title: 'Todos', value: '' },
+    { title: 'Login exitoso', value: 'login' },
+    { title: 'Logout', value: 'logout' },
+    { title: 'Login fallido', value: 'login_failed' },
+];
 
 const fetchRbac = async () => {
     try {
@@ -128,7 +179,94 @@ const isModuleFullySelected = (module: string) => {
     return modulePerms.every((id) => selectedPermissions.value.includes(id));
 };
 
-onMounted(fetchRbac);
+const buildSecurityQuery = (page = 1) => {
+    const params = new URLSearchParams();
+
+    params.set('page', String(page));
+    params.set('per_page', String(securityPerPage.value));
+
+    if (securityFilters.value.event) {
+        params.set('event', securityFilters.value.event);
+    }
+
+    if (securityFilters.value.email) {
+        params.set('email', securityFilters.value.email);
+    }
+
+    if (securityFilters.value.from) {
+        params.set('from', securityFilters.value.from);
+    }
+
+    if (securityFilters.value.to) {
+        params.set('to', securityFilters.value.to);
+    }
+
+    return params.toString();
+};
+
+const fetchSecuritySummary = async () => {
+    const response = await axios.get('/api/security/access-logs/summary');
+    securitySummary.value = response.data?.data ?? null;
+};
+
+const fetchSecurityLogs = async (page = 1) => {
+    const query = buildSecurityQuery(page);
+    const response = await axios.get(`/api/security/access-logs?${query}`);
+
+    const payload = response.data?.data ?? {};
+    securityLogs.value = payload.data ?? [];
+    securityPage.value = payload.current_page ?? 1;
+    securityLastPage.value = payload.last_page ?? 1;
+    securityPerPage.value = payload.per_page ?? securityPerPage.value;
+    securityTotal.value = payload.total ?? securityLogs.value.length;
+};
+
+const fetchSecurityData = async (page = 1) => {
+    try {
+        securityLoading.value = true;
+        await Promise.all([fetchSecuritySummary(), fetchSecurityLogs(page)]);
+    } catch (error) {
+        console.error('Error loading security access logs:', error);
+        alert.value = {
+            show: true,
+            type: 'error',
+            message: 'Error al cargar el monitoreo de seguridad.',
+        };
+    } finally {
+        securityLoading.value = false;
+    }
+};
+
+const applySecurityFilters = async () => {
+    await fetchSecurityData(1);
+};
+
+const resetSecurityFilters = async () => {
+    securityFilters.value = {
+        event: '',
+        email: '',
+        from: '',
+        to: '',
+    };
+    await fetchSecurityData(1);
+};
+
+const formatDateTime = (value: string) => {
+    if (!value) return '-';
+
+    return new Date(value).toLocaleString('es-MX', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+};
+
+onMounted(async () => {
+    await fetchRbac();
+    await fetchSecurityData();
+});
 
 defineOptions({ layout: SettingsLayout });
 </script>
@@ -345,6 +483,244 @@ defineOptions({ layout: SettingsLayout });
                                         </v-hover>
                                     </v-col>
                                 </v-row>
+                            </div>
+                        </div>
+                    </v-card>
+                </v-col>
+
+                <v-col cols="12" class="mt-2">
+                    <v-card border flat class="rounded-lg">
+                        <div
+                            class="pa-4 d-flex align-center flex-wrap gap-4 border-b"
+                        >
+                            <h3 class="text-h6 font-weight-bold">
+                                Monitoreo de Accesos (Admin)
+                            </h3>
+                            <v-spacer />
+                            <v-btn
+                                color="primary"
+                                variant="tonal"
+                                prepend-icon="mdi-refresh"
+                                :loading="securityLoading"
+                                @click="fetchSecurityData(securityPage)"
+                            >
+                                Actualizar
+                            </v-btn>
+                        </div>
+
+                        <div class="pa-4">
+                            <v-progress-linear
+                                v-if="securityLoading"
+                                indeterminate
+                                color="primary"
+                                class="mb-4"
+                            />
+
+                            <v-row class="mb-2">
+                                <v-col cols="12" sm="6" md="3">
+                                    <v-card border flat class="pa-3 rounded-lg">
+                                        <div
+                                            class="text-caption text-grey-darken-1"
+                                        >
+                                            Total eventos
+                                        </div>
+                                        <div class="text-h6 font-weight-bold">
+                                            {{
+                                                securitySummary?.total_events ??
+                                                0
+                                            }}
+                                        </div>
+                                    </v-card>
+                                </v-col>
+                                <v-col cols="12" sm="6" md="3">
+                                    <v-card border flat class="pa-3 rounded-lg">
+                                        <div
+                                            class="text-caption text-grey-darken-1"
+                                        >
+                                            Logins fallidos (24h)
+                                        </div>
+                                        <div
+                                            class="text-h6 font-weight-bold text-error"
+                                        >
+                                            {{
+                                                securitySummary?.failed_logins_24h ??
+                                                0
+                                            }}
+                                        </div>
+                                    </v-card>
+                                </v-col>
+                                <v-col cols="12" sm="6" md="3">
+                                    <v-card border flat class="pa-3 rounded-lg">
+                                        <div
+                                            class="text-caption text-grey-darken-1"
+                                        >
+                                            Uso MFA en logins
+                                        </div>
+                                        <div class="text-h6 font-weight-bold">
+                                            {{
+                                                securitySummary?.mfa_used_percentage ??
+                                                0
+                                            }}%
+                                        </div>
+                                    </v-card>
+                                </v-col>
+                                <v-col cols="12" sm="6" md="3">
+                                    <v-card border flat class="pa-3 rounded-lg">
+                                        <div
+                                            class="text-caption text-grey-darken-1"
+                                        >
+                                            Eventos últimas 24h
+                                        </div>
+                                        <div class="text-h6 font-weight-bold">
+                                            {{
+                                                securitySummary?.events_last_24h ??
+                                                0
+                                            }}
+                                        </div>
+                                    </v-card>
+                                </v-col>
+                            </v-row>
+
+                            <v-row class="mb-2">
+                                <v-col cols="12" md="3">
+                                    <v-select
+                                        v-model="securityFilters.event"
+                                        :items="securityEventOptions"
+                                        label="Tipo de evento"
+                                        density="compact"
+                                        variant="outlined"
+                                        hide-details
+                                    />
+                                </v-col>
+                                <v-col cols="12" md="3">
+                                    <v-text-field
+                                        v-model="securityFilters.email"
+                                        label="Email"
+                                        density="compact"
+                                        variant="outlined"
+                                        hide-details
+                                    />
+                                </v-col>
+                                <v-col cols="12" md="2">
+                                    <v-text-field
+                                        v-model="securityFilters.from"
+                                        label="Desde"
+                                        type="date"
+                                        density="compact"
+                                        variant="outlined"
+                                        hide-details
+                                    />
+                                </v-col>
+                                <v-col cols="12" md="2">
+                                    <v-text-field
+                                        v-model="securityFilters.to"
+                                        label="Hasta"
+                                        type="date"
+                                        density="compact"
+                                        variant="outlined"
+                                        hide-details
+                                    />
+                                </v-col>
+                                <v-col cols="12" md="2" class="d-flex gap-2">
+                                    <v-btn
+                                        color="primary"
+                                        block
+                                        @click="applySecurityFilters"
+                                    >
+                                        Filtrar
+                                    </v-btn>
+                                    <v-btn
+                                        variant="tonal"
+                                        block
+                                        @click="resetSecurityFilters"
+                                    >
+                                        Limpiar
+                                    </v-btn>
+                                </v-col>
+                            </v-row>
+
+                            <v-table
+                                density="compact"
+                                class="rounded-lg border"
+                            >
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Evento</th>
+                                        <th>Usuario / Email</th>
+                                        <th>Rol</th>
+                                        <th>IP</th>
+                                        <th>MFA</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-if="!securityLogs.length">
+                                        <td
+                                            colspan="6"
+                                            class="text-grey-darken-1 py-6 text-center"
+                                        >
+                                            Sin eventos para los filtros
+                                            seleccionados.
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        v-for="log in securityLogs"
+                                        :key="log.id"
+                                    >
+                                        <td>
+                                            {{
+                                                formatDateTime(log.occurred_at)
+                                            }}
+                                        </td>
+                                        <td>
+                                            <v-chip
+                                                size="small"
+                                                :color="
+                                                    log.event === 'login_failed'
+                                                        ? 'error'
+                                                        : 'primary'
+                                                "
+                                                variant="tonal"
+                                            >
+                                                {{ log.event }}
+                                            </v-chip>
+                                        </td>
+                                        <td>
+                                            {{ log.user?.name || '-' }}<br />
+                                            {{ log.email || '-' }}
+                                        </td>
+                                        <td>{{ log.role || '-' }}</td>
+                                        <td>{{ log.ip_address || '-' }}</td>
+                                        <td>
+                                            <v-chip
+                                                size="small"
+                                                :color="
+                                                    log.mfa_used
+                                                        ? 'success'
+                                                        : 'grey'
+                                                "
+                                                variant="tonal"
+                                            >
+                                                {{ log.mfa_used ? 'Sí' : 'No' }}
+                                            </v-chip>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </v-table>
+
+                            <div
+                                class="d-flex align-center justify-space-between mt-4"
+                            >
+                                <span class="text-caption text-grey-darken-1">
+                                    Mostrando {{ securityLogs.length }} de
+                                    {{ securityTotal }} eventos
+                                </span>
+                                <v-pagination
+                                    v-model="securityPage"
+                                    :length="securityLastPage"
+                                    density="comfortable"
+                                    @update:model-value="fetchSecurityData"
+                                />
                             </div>
                         </div>
                     </v-card>

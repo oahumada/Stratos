@@ -28,5 +28,5 @@ Route::middleware('auth')->group(function () {
 
     Route::get('settings/security', function () {
         return Inertia::render('settings/Security');
-    })->name('security.edit');
+    })->middleware(['role:admin', 'mfa.required'])->name('security.edit');
 });
