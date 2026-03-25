@@ -133,9 +133,10 @@ describe('Message API', function () {
 
     it('prevents non-participant from sending message', function () {
         $nonParticipant = User::factory()->for($this->org)->create();
-        $nonParticipantPeople = People::factory()->for($this->org)->create();
-        $nonParticipant->people_id = $nonParticipantPeople->id;
-        $nonParticipant->save();
+        $nonParticipantPeople = People::factory()
+            ->for($this->org)
+            ->for($nonParticipant, 'user')
+            ->create();
 
         Sanctum::actingAs($nonParticipant);
 

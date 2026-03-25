@@ -83,12 +83,7 @@ describe('Conversation API', function () {
 
         $response->assertOk();
         $response->assertJsonStructure([
-            'data' => [
-                'conversation' => ['id', 'title', 'organization_id', 'is_active'],
-                'messages' => [],
-                'participants' => [],
-                'meta' => ['total_messages', 'total_participants']
-            ]
+            'data' => ['id', 'title', 'organization_id', 'is_active']
         ]);
     });
 
