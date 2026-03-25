@@ -17,7 +17,6 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
     2. Disparar una operación desde la UI o via API.
     3. Verificar: email en entorno dev, fila en `notifications` y broadcast recibido por cliente suscrito.
 
-
 ### Protocolos y Acuerdos Vivos
 
 - **Cierre de Sesión:** Si el usuario olvida cerrar la sesión explícitamente ("terminamos por ahora"), el asistente DEBE recordarlo para asegurar el registro en la memoria del proyecto.
@@ -5122,7 +5121,9 @@ cecd5e7b             Phase 8 Real-time WebSockets & SSE
 ## ALPHA-1 Admin Operations Dashboard (Phase 1-2a Complete)
 
 ### Overview
+
 Infrastructure for admin-driven operations in Fase 1 workforce planning. Enables:
+
 - **Backfill** intelligence metrics (aggregates past data by date range)
 - **Generate** transformation scenarios (LLM-powered background jobs)
 - **Import** bulk data (extensible framework)
@@ -5134,11 +5135,13 @@ All operations support **dry-run preview** before execution and **comprehensive 
 ### Phase 1: Infrastructure (Commit 03fde6c7)
 
 **Database Schema:**
+
 - Table: `admin_operations_audit` (21 columns)
 - Indexes: (organization_id, created_at), status
 - FKs: organization_id, user_id with cascading relationships
 
 **Backend Components:**
+
 - `AdminOperationAudit` model (HasFactory, relationships, state helpers)
 - `AdminOperationsService` (5 methods: createAudit, previewOperation, executeOperation, getHistory, getSummaryStats)
 - `AdminOperationsController` (4 REST endpoints, operation callback framework)
@@ -5146,6 +5149,7 @@ All operations support **dry-run preview** before execution and **comprehensive 
 - Routes: 4 API endpoints under `/api/admin/operations` prefix
 
 **Frontend Components (5 total):**
+
 - `Operations.vue` (Main dashboard: 50-operation table, 4 stat cards, 2 modals)
 - `StatsCard.vue` (Stat card with icon + value)
 - `StatusBadge.vue` (Status → color mapping)
@@ -5157,31 +5161,32 @@ All operations support **dry-run preview** before execution and **comprehensive 
 **10 Operation Callback Methods (2 per type: preview + execute):**
 
 1. **Backfill Intelligence Metrics**
-   - Preview: Count IntelligenceMetric records in date range, show org scope
-   - Execute: IntelligenceMetricsAggregator.aggregateMetricsForDate(), iterate CarbonPeriod, store per day
-   - Service: IntelligenceMetricsAggregator (existing)
+    - Preview: Count IntelligenceMetric records in date range, show org scope
+    - Execute: IntelligenceMetricsAggregator.aggregateMetricsForDate(), iterate CarbonPeriod, store per day
+    - Service: IntelligenceMetricsAggregator (existing)
 
 2. **Generate Scenarios**
-   - Preview: Display scenario name + LLM queue status
-   - Execute: preparePrompt() + enqueueGeneration(), return generation_id (background job)
-   - Service: ScenarioGenerationService (existing)
+    - Preview: Display scenario name + LLM queue status
+    - Execute: preparePrompt() + enqueueGeneration(), return generation_id (background job)
+    - Service: ScenarioGenerationService (existing)
 
 3. **Import Data**
-   - Preview: Show import_type + record_count from parameters
-   - Execute: Process records from parameters (extensible handler)
-   - Service: Generic framework for bulkimports
+    - Preview: Show import_type + record_count from parameters
+    - Execute: Process records from parameters (extensible handler)
+    - Service: Generic framework for bulkimports
 
 4. **Cleanup Old Data**
-   - Preview: Query old aggregates by days_threshold, show count to delete
-   - Execute: DB DELETE WHERE created_at < threshold, return records_affected
-   - Destructive ops require confirmed=true flag
+    - Preview: Query old aggregates by days_threshold, show count to delete
+    - Execute: DB DELETE WHERE created_at < threshold, return records_affected
+    - Destructive ops require confirmed=true flag
 
 5. **Rebuild Indexes**
-   - Preview: List affected tables (intelligence_metric_aggregates, intelligence_metrics, admin_operations_audit)
-   - Execute: ANALYZE TABLE + Cache::tags(['intelligence', 'aggregates'])->flush()
-   - Service: Database facades + Laravel Cache
+    - Preview: List affected tables (intelligence_metric_aggregates, intelligence_metrics, admin_operations_audit)
+    - Execute: ANALYZE TABLE + Cache::tags(['intelligence', 'aggregates'])->flush()
+    - Service: Database facades + Laravel Cache
 
 **Testing Framework:**
+
 - `AdminOperationAuditFactory` (61 lines, 3 states: success, failed, dryRun)
 - `AdminOperationsTest` (89 lines, 5 test cases)
 - Result: **5/5 PASSING ✅**
@@ -5189,35 +5194,37 @@ All operations support **dry-run preview** before execution and **comprehensive 
 ### Build & Deployment
 
 **Frontend Build:** 2m 16s ✅ (npm run build)
+
 - Operations.vue + 4 components compiled
 - Vite manifest.json updated
 - Tailwind CSS compiled (Tailwind v4)
 
 **Git Status:**
+
 - All commits pushed to `origin/feature/alpha-1-admin-ops`
 - Ready for Phase 2b (route registration + UI integration)
 
 ### Phase 2b: Next Tasks (In Order)
 
 1. **Route Registration** (~5 min)
-   - Add `/admin/operations` → `Operations.vue` route in `routes/web.php`
-   - Apply Sanctum middleware + admin policy gate
+    - Add `/admin/operations` → `Operations.vue` route in `routes/web.php`
+    - Apply Sanctum middleware + admin policy gate
 
 2. **ControlCenter Navigation** (~10 min)
-   - Add "Admin Operations" link to ControlCenter landing page
-   - Link to `/admin/operations` route
+    - Add "Admin Operations" link to ControlCenter landing page
+    - Link to `/admin/operations` route
 
 3. **E2E Testing** (~15 min)
-   - Test dry-run flow (preview operation)
-   - Test execute flow (confirm + execute)
-   - Test audit trail population
-   - Test authorization (non-admin access denied)
+    - Test dry-run flow (preview operation)
+    - Test execute flow (confirm + execute)
+    - Test audit trail population
+    - Test authorization (non-admin access denied)
 
 4. **Merge & Deploy** (~35 min)
-   - Create PR: feature/alpha-1-admin-ops → main
-   - Review + merge
-   - Tag v0.4.0
-   - Deploy to staging
+    - Create PR: feature/alpha-1-admin-ops → main
+    - Review + merge
+    - Tag v0.4.0
+    - Deploy to staging
 
 ### Architecture Notes
 
@@ -5227,4 +5234,3 @@ All operations support **dry-run preview** before execution and **comprehensive 
 **Service Integration:** Each operation type uses existing services (Aggregator, LLM Generator, etc.)
 **Audit Trail:** Every operation stored in admin_operations_audit with status, parameters, result, error_message, duration
 **Error Handling:** Custom exceptions, rollback on transaction failure, error_message populated on failure
-
