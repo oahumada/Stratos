@@ -199,6 +199,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/compliance/credentials/roles/{roleId}/verify', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'verifyRoleCredential']);
     Route::get('/compliance/internal-audit-wizard', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'internalAuditWizard']);
 
+    // Enterprise Security — Access Audit Logs (admin only)
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/security/access-logs', [\App\Http\Controllers\Api\SecurityAccessController::class, 'index']);
+        Route::get('/security/access-logs/summary', [\App\Http\Controllers\Api\SecurityAccessController::class, 'summary']);
+    });
+
     // Investor/Executive Dashboard
     Route::get('/investor/dashboard', [\App\Http\Controllers\Api\InvestorDashboardController::class, 'index'])
         ->middleware('role:admin,hr_leader,observer');

@@ -40,6 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'module' => \App\Http\Middleware\CheckTenantModule::class,
+            'mfa.required' => \App\Http\Middleware\EnsureMfaEnrolled::class,
         ]);
     })
     ->withSchedule(function (Schedule $schedule): void {
