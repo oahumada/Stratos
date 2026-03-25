@@ -1364,6 +1364,25 @@ Route::prefix('/mobile')
         Route::get('/stats/devices', [\App\Http\Controllers\Api\MobileController::class, 'getDeviceStats'])->name('mobile.device-stats');
     });
 
+// ── Messaging MVP (Conversations, Messages, Participants) ——
+Route::middleware(['auth:sanctum'])->prefix('messaging')->group(function () {
+    // Conversations CRUD
+    Route::get('conversations', [\App\Http\Controllers\Api\Messaging\ConversationController::class, 'index'])->name('messaging.conversations.index');
+    Route::post('conversations', [\App\Http\Controllers\Api\Messaging\ConversationController::class, 'store'])->name('messaging.conversations.store');
+    Route::get('conversations/{conversation}', [\App\Http\Controllers\Api\Messaging\ConversationController::class, 'show'])->name('messaging.conversations.show');
+    Route::put('conversations/{conversation}', [\App\Http\Controllers\Api\Messaging\ConversationController::class, 'update'])->name('messaging.conversations.update');
+    Route::delete('conversations/{conversation}', [\App\Http\Controllers\Api\Messaging\ConversationController::class, 'destroy'])->name('messaging.conversations.destroy');
+
+    // Messages
+    Route::get('conversations/{conversation}/messages', [\App\Http\Controllers\Api\Messaging\MessageController::class, 'index'])->name('messaging.messages.index');
+    Route::post('conversations/{conversation}/messages', [\App\Http\Controllers\Api\Messaging\MessageController::class, 'store'])->name('messaging.messages.store');
+    Route::post('messages/{message}/read', [\App\Http\Controllers\Api\Messaging\MessageController::class, 'markRead'])->name('messaging.messages.markRead');
+
+    // Participants
+    Route::post('conversations/{conversation}/participants', [\App\Http\Controllers\Api\Messaging\ParticipantController::class, 'store'])->name('messaging.participants.store');
+    Route::delete('conversations/{conversation}/participants/{participant}', [\App\Http\Controllers\Api\Messaging\ParticipantController::class, 'destroy'])->name('messaging.participants.destroy');
+});
+
 // ── Inbound n8n Webhooks (Unauthenticated, secured via X-N8n-Secret header) ──
 Route::post('/webhooks/n8n', [\App\Http\Controllers\Api\Automation\N8nController::class, 'handleWebhook'])->name('webhooks.n8n');
 
