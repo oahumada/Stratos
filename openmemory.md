@@ -8,7 +8,221 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - **Cierre de Sesión:** Si el usuario olvida cerrar la sesión explícitamente ("terminamos por ahora"), el asistente DEBE recordarlo para asegurar el registro en la memoria del proyecto.
 - **LLM Agnostic Architecture:** Stratos soporta múltiples proveedores LLM (DeepSeek, ABACUS, OpenAI, Intel, Mock) a través de `LLMClient`. Todas las evaluaciones (RAGAS, fidelidad, etc.) deben ser agnósticas de proveedor.
 
+### Roadmap Alpha/Beta Expandido (2026-03-25)
+
+- El roadmap `docs/ROADMAP_TRANSICION_MVP_ALPHA_BETA_2026.md` se expandió para convertir los frentes de LMS híbrido, mensajería y notificaciones/nudging en plan ejecutable.
+- Cada frente contempla tres superficies de producto desde MVP operativo: **operación**, **configuración** y **monitoreo**.
+- Incorpora matriz de **prioridad/esfuerzo por épica** e historias técnicas por sprint separadas en `Backend`, `Frontend` y `Testing`.
+- Patrón recomendado de UX operativa: reutilizar hubs y dashboards existentes del dominio Intelligence/Compliance para vistas de monitoreo.
+
+### Roadmap Completado con Riesgos + Timeline + Piloto (2026-03-26)
+
+- Se agregaron 6 secciones finales al roadmap MVP→Alpha→Beta:
+    - **Sección 16:** Riesgos técnicos, operativos y de capacidad, con mitigaciones y supuestos críticos.
+    - **Sección 17:** Timeline realista: Sprint A-F con hitos. Alpha gate 2026-05-30, Beta gate 2026-07-18, GA 2026-07-31.
+    - **Sección 18:** Plan de piloto controlado con 4 fases, métricas de éxito y exit criteria (≥ 90% por 4 semanas).
+    - **Sección 19:** Documentación operativa mínima (Alpha 4 docs, Beta 5 docs operativos).
+    - **Sección 20:** Criterios de v1.0.0 GA (piloto exitoso, compliance audit, marketing/sales listos, soporte 24/5).
+    - **Sección 21:** Próximos pasos inmediatos para semana 2026-03-26.
+- El roadmap ahora es **ejecutable y completo**: del MVP desagregado pasamos a plan de 6 sprints con mitigación de riesgos, cierre de criterios por fase y piloto controlado.
+- Documento listo para socialización con equipo + steering committee.
+
+### Roadmap Completado con Operaciones + Rollout + Post-GA (2026-03-27)
+
+- Se agregaron 3 secciones finales de **Production Maturity** al roadmap:
+    - **Sección 22 - Roadmap de Operaciones y Producción:**
+        - Justificación crítica: Sin infraestructura escalable, backups/DR, monitoreo 24/7 y SLAs, un producto excelente puede colapsar en producción.
+        - Componentes: Arquitectura 3-tier + replicación DB + CDN + queue service (Sprint C), Backup/DR con RTO 4h / RPO 1h (Sprint D), Auto-scaling y pooling (Sprint D), Observabilidad con dashboards + alertas críticas (Sprint C-D), Change Management formal con CAB semanal (Sprint E), Ventanas mantenimiento mensual 2am UTC (Sprint E).
+        - Owner: DevOps / Cloud Architect / SRE.
+        - Entregable: Diagrama arquitectura + IaC (Terraform) + DR runbook + load test report.
+    - **Sección 23 - Plan de Rollout y Cutover Hacia GA:**
+        - Justificación crítica: GA no es "press button and pray". Progressive delivery (canary 5% → 25% → 50% → 100%) minimiza blast radius vs big-bang deployment.
+        - Componentes: Feature flags por frente + kill switch global (Sprint D), Canary deployment 5%, ramp phases 4 (Day 1-3), progressive monitoring con SLA 95% (fase canary 2h, fase 25% 4h, fase 50% 8h business day), Rollback plan by phase, Go/No-Go criteria pre-canary.
+        - Fases de rollout: Day 1 08:00 UTC canary 5%, Day 1 14:00 UTC ramp 25%, Day 2 08:00 UTC ramp 50%, Day 3 08:00 UTC GA 100%.
+        - Validación: Error rate < 2%, latency variance < 3%, adoption indicators, success metrics P0 < 1 incident.
+        - Owner: Backend Lead / DevOps.
+        - Entregable: Feature flag configuration + rollout runbook + rollback decision matrix.
+    - **Sección 24 - Post-GA Sprint de Estabilización Intensiva:**
+        - Justificación crítica: GA no es "ship and disappear". Sprint 2 semanas (2026-08-01 a 2026-08-14) con respuesta rápida a issues, soporte 24/7, tuning operativo y data integrity checks.
+        - Componentes: Team 3.5 FTE (SRE + Backend Lead + Frontend 0.5 + QA + CustomerSuccess), Daily standup 30min, SLA de respuesta/fix/deploy escalados (P0: 15min response / 4h fix / 8h deploy; P1: 1h / 8h / 24h; P2: 4h / 24h / next sprint).
+        - Tuning operativo: Monitoreo de sync LMS (target 99%+), latencia mensajería (target < 5s), ejecución reglas nudging (target 95%+), quiet hours ajustadas por feedback usuario.
+        - Data integrity: Validación post-migración (counts, spot-checks, FK violations), auditoría de datos por DBA.
+        - Escalamiento: L1 (CustomerSuccess, < 24h) → L2 (Backend/Frontend, < 4h P1) → L3 (SRE/CTO, < 30min P0).
+        - Postmortem semanal: Categorizar incidentes (code 50%, config 20%, infra 20%, user 10%), action items a Sprint G.
+        - Transición a "Production Mature" 2026-09-01: Si métricas 30 días green (uptime 99.5%, error < 1%, NPS ≥ 8/10, P0 ≤ 1), relajar on-call a business hours, reanudar sprint regular, iniciar v1.1 roadmap.
+        - Owner: SRE / Backend Lead / DBA.
+        - Entregable: Daily incident log + tuning metrics + postmortem docs + "GA Success Report" signed by CTO + CFO.
+
+### Roadmap Completado con 12 Puntos Críticos para Production Maturity (2026-03-27)
+
+- Se agregaron 4 secciones adicionales para cerrar los **12 critical gaps** identificados:
+    - **Sección 25 - Success Metrics & Graduation to Maturity:**
+        - 7 KPIs post-GA (uptime ≥ 99.5%, error < 1%, P0 ≤ 1 en 30d, MTTR P1 ≤ 4h, adoption ≥ 50% D1, NPS ≥ 8/10, data integrity 100%).
+        - Transición a "Production Mature" 2026-09-01 si métricas green: on-call business hours, hotfix SLA < 24h, sprint regular, v1.1 roadmap.
+    - **Sección 26 - Training & Capacitación Operativa (Sprint B onwards):**
+        - Training plan por rol: Technical (Ops/DBA) 4h deep-dives, Operations (Support) customer scenarios, End-user webinars.
+        - Artifacts: Docs, videos, labs interactivos, assessments pre-GA.
+        - Success metric: 95% pass rate ops, 90% support, 70% end-users.
+        - Owner: Training Manager / Technical Writer.
+    - **Sección 27 - Financial Tracking & ROI Governance (Sprint E onwards):**
+        - Cost tracking: Infra (compute/DB/CDN/queue), Support (L1/L2/on-call), Dev (amortizado).
+        - Unit economics: ARR per tenant, COGS < 30%, CAC, LTV/CAC > 3x, breakeven < 18 months.
+        - Pricing: Per-seat/per-feature/flat, discounts piloto, upsell triggers.
+        - Monthly review: CTO, Product, Sales, CFO.
+        - Owner: CFO / Finance.
+    - **Sección 28 - Vendor Management & Third-Party SLA Governance (Sprint D onwards):**
+        - Vendor inventory: LMS, email (SendGrid), SMS (Twilio), AWS, Datadog—documentar SLAs.
+        - Contract terms: Uptime %, incident response < 1h, data residency, audit, termination/export, cost caps.
+        - Vendor monitoring: Dashboard (uptime, incidents, tickets, cost).
+        - Incident escalation: Detect → Ack (5min) → Comms (10min) → Mitigate (20min) → Resolve → Verify → Doc.
+        - Quarterly review: Uptime vs SLA, trends, support, roadmap, cost, renewal.
+        - Owner: DevOps / Vendor Manager.
+
+- **Checklist de 12 Puntos Completo:**
+    1. ✅ DevOps/Infraestructura (Sec 22.A)
+    2. ✅ Performance/Escalabilidad (Sec 22.A.3)
+    3. ✅ Data Migration (Sec 24.C)
+    4. ✅ Training & Capacitación (Sec 26 - NUEVO)
+    5. ✅ Change Management (Sec 22.C)
+    6. ✅ Support Model (Sec 24.D)
+    7. ✅ Rollout Strategy (Sec 23)
+    8. ✅ Post-GA Stabilization (Sec 24)
+    9. ✅ Financial & ROI (Sec 27 - NUEVO)
+    10. ✅ Legal/Compliance (Sec 10 + 28.A.2)
+    11. ✅ Observabilidad Producción (Sec 22.B)
+    12. ✅ Vendor Management (Sec 28 - NUEVO)
+
+- **Estado Final:** Roadmap **~2200+ líneas**, cubre desarrollo técnico + operaciones + finanzas + training + vendors. **Governance-ready** para steering committee, CFO, CRO.
+
+- **Conclusión anterior:** El roadmap ahora era **end-to-end y governance-ready** (1636 líneas) con 4 secciones operativas (22-25).
+    - **Actualización:** Ahora con 12 puntos críticos **completamente mapeados** y 4 secciones adicionales (26-28 + 25 expandida) = cobertura 360° de desarrollo a producción madura.
+
+### Roadmap Completado con 13 Pilares (Marketing & GTM) (2026-03-27)
+
+- Se agregó **Sección 29 - Estrategia de Marketing & Go-to-Market (GTM):**
+    - **Justificación:** Sin marketing/GTM, lanzas GA (99.5% uptime) pero adopción = 5%. Cada account manager cuenta historia distinta. Sin buyer personas, sales vota al aire. Sin partnerships LMS, pierdes integraciones clave.
+    - **Componentes principales:**
+        - A) Buyer Personas (5: CHRO, Talent Ops Lead, L&D Manager, People Manager, IT Ops) + segmentación (SMB/Mid-Market/Enterprise).
+        - B) Positioning & Value Props: One-liner, proof points, narratives por frente (LMS Hybrid, Messaging, Notifications).
+        - C) Messaging Framework: 3 narratives ("From Fragmentation to Integration", "Talent Transformation at Scale", "Compliance & Culture in Harmony").
+        - D) GTM Timeline: Awareness (Sprint C-D, 100K impressions), Interest (Sprint D-E, 50K reach + 5-10 partnerships), Adoption (Sprint F-G, 200K reach + 500+ trials + 100+ tenants).
+        - E) Sales Enablement: Positioning deck (20 slides), one-pagers (4 docs), objection handlers, ROI calculator, demo scripts 15/45-min, sales training 4h+2h.
+        - F) Channels: Owned (blog, LinkedIn, webinars), Earned (press, analysts, community), Paid (LinkedIn/Google ads).
+        - G) Customer Success: Onboarding Week 1 "aha moment", advocacy tiers (case studies, champions, partners).
+        - H) Pricing Communication: Starter ($1K/50-100 users), Growth ($5K/100-500 users), Enterprise (custom/500+).
+        - I) Press Kit: GA release (target 10-20 mentions), social blitz, partnerships.
+        - J) Partnerships: LMS providers (Workday, SAP, Cornerstone, LinkedIn Learning), ecosystem (HRIS, email/SMS, BI).
+        - K) Budget & KPIs: $150K/year (content $50K, paid $30K, events $25K, PR $15K, collateral $15K, partnerships $15K). Targets 6-month post-GA: 500K impressions, 500+ leads, 200+ trials, 100+ paying tenants, ARR $1.2M+, NPS ≥ 8/10, CAC payback ≤ 12 mo.
+    - **Timeline:** Sprint C-E pre-GA (2026-04-15 to 2026-07-15), full execution post-GA.
+    - **Owner:** CRO / Marketing Leader.
+
+- **Checklist de 13 Pilares (Development → Production Maturity → Initial Growth):**
+    1. ✅ DevOps/Infraestructura (Sec 22.A)
+    2. ✅ Performance/Escalabilidad (Sec 22.A.3)
+    3. ✅ Data Migration (Sec 24.C)
+    4. ✅ Training & Capacitación (Sec 26)
+    5. ✅ Change Management (Sec 22.C)
+    6. ✅ Support Model (Sec 24.D)
+    7. ✅ Rollout Strategy (Sec 23)
+    8. ✅ Post-GA Stabilization (Sec 24)
+    9. ✅ Financial & ROI (Sec 27)
+    10. ✅ Legal/Compliance (Sec 10 + 28.A.2)
+    11. ✅ Observabilidad Producción (Sec 22.B)
+    12. ✅ Vendor Management (Sec 28)
+    13. ✅ Marketing & Go-to-Market (Sec 29 - NUEVO)
+
+- **Estado Final Actualizado:** Roadmap **~2400+ líneas, 29 secciones**, cobertura end-to-end:
+    - Secciones 1-21: Desarrollo técnico (MVP → Alpha → Beta).
+    - Secciones 22-25: Operaciones (infraestructura, rollout, soporte, métricas).
+    - Secciones 26-28: Capacidades (training, finanzas, vendors).
+    - Sección 29: Estrategia comercial (marketing, GTM, partnerships) → **growth inicial post-GA.**
+    - **Governance-ready para: CTO, CFO, CRO, CMO + Steering Committee.**
+
+### Roadmap Completado con 17 Pilares (Governance + Executive Maturity) (2026-03-28)
+
+- Se agregaron **4 secciones finales** para cerrar el roadmap con **governance + comunicaciones ejecutivas:**
+    - **Sección 30 - Governance & Risk Management Post-GA:**
+        - **Justificación:** Post-GA sin comités de decisión + risk register = navegación ciega. Un issue de compliance = sorpresa de board. Competitive intel no se centraliza → se pierden oportunidades.
+        - **Componentes:**
+            - A) Comités de decisión: Steering Committee mensual (CTO/CFO/CRO/Product Lead → strategic decisions + budget), Product Board bi-weekly (Roadmap + feedback), Crisis Committee on-demand (P0 incidents · escalation).
+            - B) Risk Register (Quarterly): Operational (vendor failure, infra outage, data loss), Market (adoption plateau, competitive entry, churn), Financial (CAC > LTV, infra costs spike), Compliance (GDPR audit failure, security incident). Cada riesgo: probabilidad, impacto, mitigación, owner, status.
+            - C) Entregable: Risk register spreadsheet + decision logs + incident post-mortems.
+        - **Owner:** CTO / CFO.
+
+    - **Sección 31 - Customer Feedback Loop & v1.1 Roadmap:**
+        - **Justificación:** Post-GA feedback = goldmine para v1.1. Sin structured loop = opacidad, churn, feature misalignment.
+        - **Componentes:**
+            - A) Feedback accumulation (monthly): NPS surveys in-app + support ticket analysis + 5 quarterly customer interviews + analyst briefings (Gartner/Forrester).
+            - B) Feedback scoring (monthly meeting): Impact (1-5), Effort (1-5), Strategic alignment (1-5), Urgency (1-5) → top 20 items ranked.
+            - C) v1.1 roadmap quarterly (2026-09-15): 3-5 "big rocks" based on feedback + business goals, phased P0/P1/P2, narrative → customer-centric communication.
+            - D) Entregable: Feedback database + prioritization scores + v1.1 roadmap doc (shared with board + customers).
+        - **Owner:** Product Lead / CRO.
+
+    - **Sección 32 - Knowledge Management & Operational Runbooks:**
+        - **Justificación:** Sin runbooks post-GA = troubleshooting ad-hoc, incident MTTR +50%, on-call burnout. New on-call engineer blind.
+        - **Componentes:**
+            - A) Internal KB: Architecture diagrams, API docs, DB schema, deployment procedures, on-call guide.
+            - B) Troubleshooting Runbooks (3 decision trees):
+                - LMS Hybrid: Q tree for "not seeing new courses" → connector status → sync logs → rules → escalate.
+                - Messaging: Q tree for "message not delivered" → channel check → permission check → queue status → L3.
+                - Notifications: Q tree for "notifications stopped" → rule enabled → condition matching → delivery channel status.
+            - C) Disaster Recovery: Monthly backup restore test, runbooks for DB failure / app server failure / data corruption / ransomware.
+            - D) Entregable: KB docs (Confluence/Notion) + decision tree diagrams + monthly DR test logs.
+        - **Owner:** Technical Writer / DevOps.
+
+    - **Sección 33 - Stakeholder Communications Strategy:**
+        - **Justificación:** Post-GA sin comms strategy = board concerns, customer frustration, team misalignment. Diferentes stakeholders = diferentes cadencias/contenidos.
+        - **Componentes:**
+            - A) Executive Dashboard (monthly): 7 KPIs (uptime, error rate, ARR, paying tenants, NPS, CAC payback, churn %), narrative 3 bullets, spotlight 1 win/risk.
+            - B) Customer Communications: Release notes post-feature, feature announcements monthly, uptime reports monthly, incident comms reactive (SLA-driven).
+            - C) Team Communications: All-hands bi-weekly (KPIs + wins + challenges + roadmap), postmortem + lessons learned after P1+ incidents.
+            - D) Analyst Relations: Quarterly briefings (Gartner/Forrester), 2-3 speaking engagements per quarter, competitive positioning updates.
+            - E) Entregable: Comms calendar (monthly plan), dashboard templates, postmortem templates, analyst deck.
+        - **Owner:** Communications / Customer Success.
+
+- **Checklist de 17 Pilares (Development → Production Maturity → Growth → Governance):**
+    1. ✅ DevOps/Infraestructura (Sec 22.A)
+    2. ✅ Performance/Escalabilidad (Sec 22.A.3)
+    3. ✅ Data Migration (Sec 24.C)
+    4. ✅ Training & Capacitación (Sec 26)
+    5. ✅ Change Management (Sec 22.C)
+    6. ✅ Support Model (Sec 24.D)
+    7. ✅ Rollout Strategy (Sec 23)
+    8. ✅ Post-GA Stabilization (Sec 24)
+    9. ✅ Financial & ROI (Sec 27)
+    10. ✅ Legal/Compliance (Sec 10 + 28.A.2)
+    11. ✅ Observabilidad Producción (Sec 22.B)
+    12. ✅ Vendor Management (Sec 28)
+    13. ✅ Marketing & Go-to-Market (Sec 29)
+    14. ✅ Governance & Risk Management (Sec 30 - NUEVO)
+    15. ✅ Feedback Loop & v1.1 Roadmap (Sec 31 - NUEVO)
+    16. ✅ Knowledge Management & Runbooks (Sec 32 - NUEVO)
+    17. ✅ Stakeholder Communications (Sec 33 - NUEVO)
+
+- **Estado Final Completo:** Roadmap **2700+ líneas, 33 secciones**, coverage 360°:
+    - Secciones 1-21: Desarrollo técnico (MVP → Alpha → Beta).
+    - Secciones 22-25: Operaciones (infraestructura, rollout, soporte, KPIs).
+    - Secciones 26-28: Capacidades operacionales (training, finanzas, vendors).
+    - Sección 29: Go-to-Market (marketing, channels, partnerships, budget $150K).
+    - Secciones 30-33: Governance & Executive Maturity (comités, risk register, feedback loop, runbooks, comms stakeholder).
+    - **Governance-ready para steering committee, CFO, CRO, CMO, CTO, full C-suite + board.**
+    - **Timeline:** MVP→Alpha→Beta (16 semanas), Post-GA Stabilization (2 semanas), Production Mature (30-day eval), Growth + v1.1 planning (quarterly).
+
 ### Branding Update (2026-03-07)
+
+- Se añadieron variantes de logo "premium ultra minimal" de 4 nodos para comparación visual sin reemplazar los assets vigentes.
+- Nuevos archivos en `public/brand/`:
+    - `stratos-logo-icon-4nodes.svg`
+    - `stratos-logo-primary-4nodes.svg`
+    - `stratos-logo-mono-4nodes.svg`
+- Objetivo: evaluar un isotipo con menor densidad de nodos y mayor sensación premium/minimal.
+- Iteración adicional: sobre la variante 4 nodos se agregaron 2 nodos laterales tipo "brazos" para dar lectura humanoide manteniendo estética premium.
+- Archivos ajustados:
+    - `stratos-logo-icon-4nodes.svg`
+    - `stratos-logo-primary-4nodes.svg`
+    - `stratos-logo-mono-4nodes.svg`
+- Ajuste de proporciones posterior: brazos acortados para una silueta más compacta y sobria.
+- Decisión final aplicada: esta variante humanoide de brazos cortos se adopta como isotipo activo en app y assets principales (`stratos-logo-icon.svg`, `stratos-logo-primary.svg`, `stratos-logo-mono.svg`, `AppLogoIcon.vue`).
 
 - Se añadieron variantes de logo "premium ultra minimal" de 4 nodos para comparación visual sin reemplazar los assets vigentes.
 - Nuevos archivos en `public/brand/`:
@@ -3742,7 +3956,7 @@ POST /api/rag/ask
 
 - [ ] Endpoint `/api/intelligence/aggregates` para timeseries
 - [ ] SLAs y alertas
-- [ ] Backfill histórico
+- [x] Backfill histórico (`backfill:intelligence-metric-aggregates` implementado con `--from`, `--to`, `--organization_id`, `--apply`; dry-run por defecto e idempotencia vía `updateOrCreate`)
 
 ---
 
