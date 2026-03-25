@@ -3876,9 +3876,11 @@ Estado de métricas:
 
 ---
 
-### Sprint 0: pgvector + Knowledge Indexing (PENDIENTE ⏳)
+### Sprint 0: pgvector + Knowledge Indexing (COMPLETADO ✅)
 
-**Estimado:** 12-14 días
+**Completado:** 2026-03-24 | **Commit:** `6e463d27`
+
+Ver sección "Sprint 0: Vector DB + Indexación" más arriba para detalle completo.
 
 ---
 
@@ -3952,9 +3954,11 @@ Estado de métricas:
 
 ---
 
-### Sprint 0: pgvector + Knowledge Indexing (PENDIENTE ⏳)
+### Sprint 0: pgvector + Knowledge Indexing (COMPLETADO ✅)
 
-**Estimado:** 12-14 días
+**Completado:** 2026-03-24 | **Commit:** `6e463d27`
+
+Ver sección "Sprint 0: Vector DB + Indexación" más arriba para detalle completo.
 
 ---
 
@@ -4730,14 +4734,21 @@ expect($result['valid'])->toBeTrue();
 
 ---
 
+### ✅ RESUELTO — Sprint 0: pgvector + Knowledge Indexing
+
+**Completado:** 2026-03-24 | **Commit:** `6e463d27`
+
+- 31 GuideFaqs sembradas (`database/seeders/GuideFaqSeeder.php`)
+- Feature flag `FEATURE_GENERATE_EMBEDDINGS=true` activado
+- 44 embeddings indexados: 31 guide_faq + 5 roles + 3 scenarios + 5 people
+- Fix: `EmbeddingService::forScenario()` — `assumptions` casteado como array
+- Búsqueda semántica sobre tabla genérica `embeddings` activa (pgvector)
+- 14 tests de Sprint 0 pasando ✅
+- Proveedor: `mock` (determinístico, sin costo). Para producción: `EMBEDDINGS_PROVIDER=openai`
+
+---
+
 ### 🔴 Alta Prioridad
-
-#### Sprint 0: pgvector + Knowledge Indexing (PENDIENTE ⏳)
-
-- Estimado: 12-14 días de trabajo
-- Prerequisito para búsqueda semántica avanzada (RAG real)
-- `EmbeddingService::findSimilar()` actualmente usa fallback legacy; migración a tabla genérica `embeddings` incompleta
-- No iniciado
 
 #### Migración Bloqueante: `make_capability_nullable_on_skills`
 
@@ -4822,9 +4833,9 @@ php artisan backfill:scenario-generation-scenario-id
 | Frontend Dashboards | ✅ 6 páginas Verification Hub     | Vue 3 + Vuetify                          |
 | Documentación       | ✅ 5,232+ líneas Verification Hub | 7 docs especializados                    |
 | Tests               | ✅ 0 fallos (1,605 assertions)    | 486 deprecated (no fallos)               |
-| Git                 | ✅ origin/main sincronizado       | HEAD: `609448ef` (71 commits pushed)     |
+| Git                 | ✅ origin/main sincronizado       | HEAD: `6e463d27` (push actual)           |
 | Phase 12            | ⏳ Pendiente                      | Enterprise Security                      |
-| Sprint 0            | ⏳ Pendiente                      | pgvector + Embeddings (12-14 días est.)  |
+| Sprint 0            | ✅ Completado                     | 44 embeddings indexados, mock activo     |
 | Index.vue DRY       | 📋 Planificado                    | Composables listos, aplicación pendiente |
 | Auto-import LLM     | 📋 Planificado                    | Detrás de feature flag                   |
 
@@ -4842,4 +4853,6 @@ cecd5e7b             Phase 8 Real-time WebSockets & SSE
 73270bf3             Phase 11 Mobile-First Support
 8ef6a44e             Phase 11 routes + openmemory
 609448ef             Fix: 19 test failures (Analytics, Mobile, VerHub, Intelligence) + push
+3720ec1e             docs: update openmemory — test suite stabilization session
+6e463d27             feat: Sprint 0 — GuideFaq seeder (31 FAQs), embeddings flag ON, fix forScenario
 ```
