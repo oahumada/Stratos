@@ -6,6 +6,30 @@
 
 ## 🎯 Próximos Pasos Inmediatos (Semana de Mar 26-30)
 
+### 0. **Deploy Messaging to Staging** 🚀 📋 IN PROGRESS
+
+- **Estado:** ⏳ Deployment Plan Ready (see MESSAGING_MVP_STAGING_DEPLOYMENT.md)
+- **Timeline:**
+    - [ ] **Mar 27 (Morning):** Execute deployment (40 mins)
+    - [ ] **Mar 27-28:** UAT & 24-hour monitoring
+    - [ ] **Mar 28:** Go/No-Go decision
+    - [ ] **Mar 31:** Production deployment
+- **Deployment Steps:**
+    - [ ] Verify 759 tests passing
+    - [ ] Create staging tag (messaging-mvp-staging-v0.4.0)
+    - [ ] Configure .env.staging with DB + Redis
+    - [ ] Run migrations + cache warming
+    - [ ] Deploy via CI/CD pipeline or manual
+    - [ ] Smoke tests (API + UI + Messaging)
+- **Rollback Plan:** Ready (git revert + cache clear + service restart)
+- **Risk Level:** LOW (comprehensive tests, monitoring configured)
+- **Prerequisites:**
+    - [x] All 759 tests passing
+    - [x] Code quality verified
+    - [x] Performance optimized (N+1 complete)
+    - [x] Zero breaking changes
+    - [x] Documentation updated
+
 ### 1. **Merge & Deploy Messaging MVP** 🚀 ✅ COMPLETE
 
 - **Estado:** ✅ COMPLETAMENTE MERGEADO A MAIN
