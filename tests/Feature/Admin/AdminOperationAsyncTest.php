@@ -228,6 +228,7 @@ it('executes callback with lock protection', function () {
 
     $result = $lockService->withLock(1, 'backfill', function () use (&$executed) {
         $executed = true;
+
         return 'success';
     });
 

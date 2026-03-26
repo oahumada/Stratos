@@ -4,8 +4,8 @@ use App\Models\AdminOperationAudit;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\getJson;
 
 uses(RefreshDatabase::class);
 
@@ -53,4 +53,3 @@ describe('AdminOperationsController', function () {
         expect($response->status())->toBeIn([403, 404]);
     });
 });
-

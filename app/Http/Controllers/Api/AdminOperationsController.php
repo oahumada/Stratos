@@ -437,7 +437,7 @@ class AdminOperationsController extends Controller
     {
         $organizationId = $request->user()->organization_id ?? 1;
 
-        return response()->stream(function () use ($organizationId, $request) {
+        return response()->stream(function () {
             // Set SSE headers
             header('Content-Type: text/event-stream');
             header('Cache-Control: no-cache');
@@ -446,7 +446,7 @@ class AdminOperationsController extends Controller
 
             // Initial connection event
             echo "event: connected\n";
-            echo 'data: ' . json_encode(['message' => 'Connected to admin operations monitor']) . "\n\n";
+            echo 'data: '.json_encode(['message' => 'Connected to admin operations monitor'])."\n\n";
             flush();
 
             // Send heartbeat every 30 seconds
@@ -461,7 +461,7 @@ class AdminOperationsController extends Controller
 
                 // Send heartbeat
                 echo "event: heartbeat\n";
-                echo 'data: ' . json_encode(['timestamp' => now()->toIso8601String()]) . "\n\n";
+                echo 'data: '.json_encode(['timestamp' => now()->toIso8601String()])."\n\n";
                 flush();
 
                 // Check timeout

@@ -37,7 +37,6 @@ class AdminOperationFailed implements ShouldBroadcast
             'operation_type' => $this->operation->operation_type,
             'status' => $this->operation->status,
             'error_message' => $this->operation->error_message,
-            'attempts' => $this->operation->attempts ?? 0,
             'completed_at' => $this->operation->completed_at?->toIso8601String(),
         ];
     }

@@ -10,8 +10,8 @@ use App\Models\User;
 use App\Services\AdminOperationLockService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
+
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\postJson;
 
 uses(RefreshDatabase::class);
 
@@ -229,6 +229,7 @@ it('executes callback with lock protection', function () {
 
     $result = $lockService->withLock(1, 'backfill', function () use (&$executed) {
         $executed = true;
+
         return 'success';
     });
 
