@@ -254,7 +254,7 @@ Messaging:
     - Estado: Definition of Done establecido (tests + observabilidad + docs + seguridad)
     - Falta: Integración en ciclo de release, métricas de deuda por dominio
 
-### C. Frentes de producto con madurez incompleta (ACTUALIZADO)
+7### C. Frentes de producto con madurez incompleta (ACTUALIZADO)
 
 1. **Módulos en estado parcial** (según planes previos): Workforce Planning, People Experience, FormBuilder, Talent 360.
 
@@ -274,12 +274,52 @@ Messaging:
     - Estado: Diseño completado
     - Próximo: Implementación en Phase Beta-3
 
-6. ✅ **Talent Pass (CV 2.0)**: Diseño e plan de deployment COMPLETADO (Mar 26)
-    - Estatus: 3-week implementation plan documented
-    - Guías: ✅ TALENT_PASS_CV2_DEPLOYMENT.md (14 KB), TALENT_PASS_QUICK_REFERENCE.md (11 KB)
-    - Timeline: Mar 31 start → Apr 19 staging → Apr 21 production
-    - Dependencia: Messaging MVP production approval required
-    - Próximo: Implementation begins Mar 31 (after Messaging MVP production)
+6. ✅ **Talent Pass (CV 2.0)**: Backend 100% + UX/UI Planning 100% (Mar 26)
+
+   **BACKEND (COMPLETADO):**
+   - ✅ Database schema: 4 migrations (talent_passes, talent_pass_skills, talents_pass_credentials, talent_pass_experiences)
+   - ✅ Eloquent models: 4 models with relationships + factories + seeders
+   - ✅ Services: 3 services (TalentPassService, CVExportService, TalentSearchService) - 450+ LOC
+   - ✅ Controllers: 2 controllers (TalentPassController, TalentSearchController) - 460+ LOC
+   - ✅ Policies: 1 multi-tenant policy (TalentPassPolicy) with 8 authorization methods
+   - ✅ API Endpoints: 26 total (1 public + 15 auth CRUD + 8 search + 2 analytics)
+   - ✅ Tests: 98/98 passing (183 assertions) across 7 test files
+   - ✅ Code Quality: 0 syntax errors, PHP -l validated, Pint formatted
+
+   **UX/UI DOCUMENTATION (COMPLETADO):**
+   - ✅ TALENT_PASS_UX_UI_GUIDE.md (2.5 KB, 350+ lines)
+     - Personas & Storyline
+     - 5 Pilares Stratos Vanguard applied (Jerarquía, Micro-interacciones, Tipografía, ADN, Narrativa)
+     - Stratos Glass components (Cards, Buttons, Badges)
+     - Responsive breakpoints + color palette
+     - Component architecture (7 components defined)
+     - 6 main flows documented
+     - Stratos Vanguard checklist + micro-copy strategy
+   - ✅ TALENT_PASS_FRONTEND_IMPLEMENTATION.md (4 KB, 600+ lines)
+     - Phase 1: Types (150 LOC, 30 min)
+     - Phase 2: Store Pinia (200 LOC, 45 min)
+     - Phase 3: Pages (400 LOC, 1.5 hours)
+     - Phase 4: Components (600 LOC, 1.5 hours)
+     - Phase 5: Routes (30 min)
+     - Phase 6: Testing (1.5 hours, Vitest + Pest v4)
+     - **Total: 6-7 hours concentrated work | 1,750+ LOC**
+   - ✅ TALENT_PASS_API.md (quick reference with 26 endpoints + curl examples)
+   - ✅ TALENT_PASS_SPRINT_COMPLETION_REPORT.md (index centralizado - NEW)
+
+   **TIMELINE & DEPENDENCIES:**
+   - Fase 1 completada: Mar 26 (Backend + Planning)
+   - Fase 2 (Frontend Sprint): Mar 31 - Apr 19
+   - Fase 3 (Staging): Apr 19
+   - Fase 4 (Production): Apr 21
+   - Prerequisito resuelto: Messaging MVP ✅ (ready for production)
+   
+   **PRÓXIMOS PASOS (Mar 27-30):**
+   - [ ] Design review: TALENT_PASS_UX_UI_GUIDE.md con stakeholders
+   - [ ] Technical review: TALENT_PASS_FRONTEND_IMPLEMENTATION.md con team lead
+   - [ ] Validar disponibilidad Stratos Glass components (StCardGlass, StButtonGlass, etc)
+   - [ ] Vitest environment setup if needed
+   - [ ] Create frontend structure (resources/js/types/, stores/, Pages/, components/)
+   - [ ] Iniciar Sprint Frontend: Mar 31
 
 ---
 
@@ -1377,21 +1417,63 @@ Ejecutar: `scripts/release.sh --version 1.0.0`
 
 ---
 
-## 21) Próximos Pasos Inmediatos (Sem. 2026-03-26)
+## 21) Próximos Pasos Inmediatos (Sem. 2026-03-26 hasta 2026-04-21)
 
-**Esta semana:**
+**Esta semana (Mar 26-30):**
 
-- [ ] Socializar roadmap con equipo + stakeholders.
-- [ ] Confirmar tenant piloto + SLA + sponsor.
-- [ ] Iniciar Sprint A: modelos de datos.
-- [ ] Setup feature flags para 3 frentes.
-- [ ] Crear backlog granular (Jira/GH Projects).
+**TALENT PASS - Phase 1 Complete, Prep for Sprint:**
+- ✅ Backend 100% complete: 98/98 tests, 26 endpoints, 1,500+ LOC
+- ✅ UX/UI Guide 100% complete: 5 Pilares Stratos Vanguard applied + Stratos Glass compliance
+- ✅ Frontend Implementation Plan 100% complete: 6-7 hour sprint mapped (6 phases, 1,750+ LOC)
+- ✅ Sprint Completion Report created: Centralized documentation index
+- [ ] **ACTION: Design review** - TALENT_PASS_UX_UI_GUIDE.md stakeholder approval (2h)
+- [ ] **ACTION: Technical review** - TALENT_PASS_FRONTEND_IMPLEMENTATION.md team lead review (1h)
+- [ ] **ACTION: Environment check** - Vitest setup validation + Stratos Glass components inventory
+- [ ] **ACTION: Frontend structure bootstrap** - Create resources/js/ directories + config
+- [ ] **ACTION: i18n keys preparation** - Add talent_pass.* namespace keys
 
-**Dependencias externas:**
+**MESSAGING MVP - Staging Deployment:**
+- ✅ Phase 4 Complete: 623/625 tests passing, 11 endpoints
+- [ ] Execute Phase 6 (Mar 27-28): Deployment to staging using DEPLOYMENT_CHECKLIST.md
+- [ ] 24-hour UAT & monitoring (MONITORING_GUIDE.md)
+- [ ] Go/No-Go decision (Mar 28 10:00)
 
-- [ ] Acceso LMS externo (Moodle/Udemy API keys).
-- [ ] Confirmación FTE del equipo.
-- [ ] Aprobación roadmap steering committee.
+**ADMIN OPERATIONS - Production Ready:**
+- ✅ Phase 5 Complete: 55 integration tests, real-time SSE dashboard
+- [ ] Production deployment approval pending Messaging UAT ✅
+
+**Próximas 2 semanas (Mar 31 - Apr 13):**
+
+**TALENT PASS - Frontend Sprint (6-7 hours concentrated):**
+- **Phase 1-2 (1.25h):** Types (30m) + Store Pinia (45m)
+- **Phase 3 (1.5h):** Pages (Index, Show, Create, Edit, PublicView)
+- **Phase 4 (1.5h):** Components (Card, Managers, Dialog, Menu)
+- **Phase 5-6 (1.5h):** Routes + Testing (Vitest + Pest v4)
+- **QA & Polish (1h):** Dark mode, i18n, Lighthouse validation
+
+**MESSAGING MVP - Production Rollout (if approved):**
+- [ ] Post-staging adjustments (Mar 29-30)
+- [ ] Production deployment (Mar 31 or Apr 1)
+- [ ] Monitoring + incident response (ongoing)
+
+**ADMIN OPERATIONS - Production Rollout (contingent on Messaging):**
+- [ ] Production deployment post-Messaging stabilization
+- [ ] Training for admin users (2-4h)
+- [ ] Monitor + support operations
+
+**Próximas 4 semanas (Apr 14-21):**
+
+**TALENT PASS - Staging & Production:**
+- [ ] Frontend testing + QA (Apr 14-17, 4h)
+- [ ] Staging deployment (Apr 18-19)
+- [ ] UAT + feedback integration (Apr 19-20, 2h)
+- [ ] Production deployment (Apr 21)
+- [ ] Post-go-live monitoring (Apr 21+)
+
+**TALENT PASS - Documentation Finalization:**
+- [ ] Update TALENT_PASS_FRONTEND_IMPLEMENTATION.md with per-phase status
+- [ ] Create TALENT_PASS_DEPLOYMENT.md (environment parity checklist)
+- [ ] Create TALENT_PASS_OPERATIONS.md (monitoring, SLAs, runbook)
 
 ---
 

@@ -3,93 +3,191 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\People;
-use App\Models\VerifiableCredential;
-use App\Traits\ApiResponses;
-use Carbon\Carbon;
+use App\Models\TalentPass;
+use App\Services\TalentPassService;
+use App\Services\CVExportService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class TalentPassController extends Controller
 {
-    use ApiResponses;
+    public function __construct(
+        private TalentPassService $talentPassService,
+        private CVExportService $exportService,
+    ) {}
 
     /**
-     * Get the full Talent Pass (Wallet) for a person
+     * List all talent passes for organization
      */
-    public function show($people_id)
+    public function index(Request $request)
     {
-        $person = People::with([
-            'verifiableCredentials',
-            'skills' => function ($query) {
-                // Return active skills up to date
-                $query->wherePivot('is_active', true)
-                    ->wherePivot('current_level', '>=', 1);
-            },
-            'badges',
-        ])->findOrFail($people_id);
+        $organizationId = auth()->user()?->organization_id;
 
-        $wallet = [
-            'did' => 'did:stratos:'.Str::uuid(), // Mock Decentralized Identifier
-            'holder_name' => $person->full_name,
-            'department' => $person->department->name ?? 'N/A',
-            'role' => $person->role->name ?? 'N/A',
-            'total_credentials' => $person->verifiableCredentials->count(),
-            'credentials' => $person->verifiableCredentials->map(function ($vc) {
-                return [
-                    'id' => $vc->id,
-                    'type' => $vc->type,
-                    'issuer' => $vc->issuer_name,
-                    'issued_at' => $vc->issued_at->toIso8601String(),
-                    'payload' => $vc->credential_data,
-                    'status' => $vc->status,
-                    'signature' => $vc->cryptographic_signature,
-                ];
-            }),
-            'unverified_achievements' => [
-                'skills' => $person->skills->map(function ($s) {
-                    return [
-                        'skill_name' => $s->name,
-                        'level' => $s->pivot->current_level,
-                        'verified' => (bool) $s->pivot->verified,
-                    ];
-                }),
-                'badges' => $person->badges->map(function ($b) {
-                    return [
-                        'badge_name' => $b->name,
-                        'awarded_at' => $b->pivot->awarded_at,
-                    ];
-                }),
-            ],
-        ];
+        $talentPasses = TalentPass::byOrganization($organizationId)
+            ->with(['person', 'skills', 'credentials', 'experiences'])
+            ->paginate(15);
 
-        return $this->successResponse($wallet, 'Talent Pass retrieved successfully');
+        return response()->json($talentPasses);
     }
 
     /**
-     * Generate a Mock Verifiable Credential for an achievement
-     * (In a real scenario, this would generate a W3C payload and sign it via Web3)
+     * Get single talent pass public view (by ULID)
      */
-    public function generateCredential(Request $request, $people_id)
+    public function showPublic(string $publicId)
     {
-        $request->validate([
-            'type' => 'required|string',
-            'payload' => 'required|array',
+        $talentPass = TalentPass::where('ulid', $publicId)
+            ->where('status', 'published')
+            ->where('visibility', 'public')
+            ->with(['person', 'skills', 'credentials', 'experiences'])
+            ->firstOrFail();
+
+        // Record view
+        $this->talentPassService->recordView($talentPass);
+
+        return response()->json([
+            'data' => $talentPass,
+            'completeness' => $this->exportService->getCompletenessScore($talentPass),
+        ]);
+    }
+
+    /**
+     * Get single talent pass (authenticated)
+     */
+    public function show($people_id)
+    {
+        $talentPass = TalentPass::where('people_id', $people_id)
+            ->with(['person', 'skills', 'credentials', 'experiences'])
+            ->firstOrFail();
+
+        $this->authorize('view', $talentPass);
+
+        return response()->json($talentPass);
+    }
+
+    /**
+     * Create new talent pass
+     */
+    public function store(Request $request)
+    {
+        $organizationId = auth()->user()?->organization_id;
+        $peopleId = auth()->user()?->people_id;
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'summary' => 'nullable|string|max:2000',
+            'visibility' => 'required|in:private,public',
         ]);
 
-        $person = People::findOrFail($people_id);
+        $talentPass = $this->talentPassService->create(
+            $organizationId,
+            $peopleId,
+            $validated
+        );
 
-        $vc = VerifiableCredential::create([
-            'people_id' => $person->id,
-            'type' => $request->type, // e.g., 'SkillAssessment', 'QuestCompletion'
-            'issuer_name' => 'Stratos Platform',
-            'issuer_did' => 'did:stratos:issuer:'.config('app.url'),
-            'credential_data' => $request->payload,
-            'cryptographic_signature' => '0x'.bin2hex(random_bytes(32)), // Mock signature
-            'issued_at' => Carbon::now(),
-            'status' => 'active',
+        return response()->json($talentPass, 201);
+    }
+
+    /**
+     * Update talent pass
+     */
+    public function update($id, Request $request)
+    {
+        $talentPass = TalentPass::findOrFail($id);
+        $this->authorize('update', $talentPass);
+
+        $validated = $request->validate([
+            'title' => 'sometimes|string|max:255',
+            'summary' => 'nullable|string|max:2000',
+            'visibility' => 'sometimes|in:private,public',
         ]);
 
-        return $this->successResponse($vc, 'Verifiable Credential issued successfully', 201);
+        $updated = $this->talentPassService->update($id, $validated);
+
+        return response()->json($updated);
+    }
+
+    /**
+     * Delete talent pass (soft delete)
+     */
+    public function destroy($id)
+    {
+        $talentPass = TalentPass::findOrFail($id);
+        $this->authorize('delete', $talentPass);
+
+        $talentPass->delete();
+
+        return response()->json(null, 204);
+    }
+
+    /**
+     * Publish talent pass
+     */
+    public function publish($id)
+    {
+        $talentPass = TalentPass::findOrFail($id);
+        $this->authorize('update', $talentPass);
+
+        $this->talentPassService->publish($id);
+
+        return response()->json(['message' => 'Talent pass published', 'status' => 'published']);
+    }
+
+    /**
+     * Archive talent pass
+     */
+    public function archive($id)
+    {
+        $talentPass = TalentPass::findOrFail($id);
+        $this->authorize('update', $talentPass);
+
+        $this->talentPassService->archive($id);
+
+        return response()->json(['message' => 'Talent pass archived', 'status' => 'archived']);
+    }
+
+    /**
+     * Clone talent pass with relationships
+     */
+    public function clone($id)
+    {
+        $talentPass = TalentPass::findOrFail($id);
+        $this->authorize('view', $talentPass);
+
+        $cloned = $this->talentPassService->clone($id);
+
+        return response()->json($cloned->load(['person', 'skills', 'credentials', 'experiences']), 201);
+    }
+
+    /**
+     * Export talent pass (PDF/JSON/LinkedIn)
+     */
+    public function export($id, Request $request)
+    {
+        $talentPass = TalentPass::findOrFail($id);
+        $this->authorize('view', $talentPass);
+
+        $format = $request->query('format', 'pdf');
+
+        return match ($format) {
+            'json' => response()->json(json_decode($this->exportService->exportJson($talentPass), true)),
+            'linkedin' => response()->json(json_decode($this->exportService->exportLinkedIn($talentPass), true)),
+            'pdf' => response($this->exportService->exportPdf($talentPass), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $talentPass->title . '.pdf"',
+            ]),
+            default => response()->json(['error' => 'Invalid format'], 400),
+        };
+    }
+
+    /**
+     * Generate shareable link
+     */
+    public function share($id)
+    {
+        $talentPass = TalentPass::findOrFail($id);
+        $this->authorize('update', $talentPass);
+
+        $shareableLink = $this->exportService->generateShareableLink($talentPass);
+
+        return response()->json(['link' => $shareableLink, 'publicId' => $talentPass->ulid]);
     }
 }

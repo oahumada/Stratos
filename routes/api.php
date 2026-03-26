@@ -59,6 +59,38 @@ Route::post('/career/{tenantSlug}/jobs/{jobSlug}/apply', [\App\Http\Controllers\
 Route::post('/compliance/public/credentials/verify', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'verifyRoleCredentialPublic']);
 Route::get('/compliance/public/verifier-metadata', [\App\Http\Controllers\Api\ComplianceAuditController::class, 'verifierMetadata']);
 
+// Public Talent Pass View (Shareable by ULID)
+Route::get('/talent-pass/{publicId}', [\App\Http\Controllers\Api\TalentPassController::class, 'showPublic'])->name('talent-pass.public');
+
+// Authenticated Talent Pass API
+Route::middleware('auth:sanctum')->group(function () {
+    // Talent Pass CRUD & Operations
+    Route::get('/talent-passes', [\App\Http\Controllers\Api\TalentPassController::class, 'index']);
+    Route::post('/talent-passes', [\App\Http\Controllers\Api\TalentPassController::class, 'store']);
+    Route::get('/talent-passes/{id}', [\App\Http\Controllers\Api\TalentPassController::class, 'show']);
+    Route::put('/talent-passes/{id}', [\App\Http\Controllers\Api\TalentPassController::class, 'update']);
+    Route::delete('/talent-passes/{id}', [\App\Http\Controllers\Api\TalentPassController::class, 'destroy']);
+    
+    // Advanced Operations
+    Route::post('/talent-passes/{id}/publish', [\App\Http\Controllers\Api\TalentPassController::class, 'publish']);
+    Route::post('/talent-passes/{id}/archive', [\App\Http\Controllers\Api\TalentPassController::class, 'archive']);
+    Route::post('/talent-passes/{id}/clone', [\App\Http\Controllers\Api\TalentPassController::class, 'clone']);
+    Route::get('/talent-passes/{id}/export', [\App\Http\Controllers\Api\TalentPassController::class, 'export']);
+    Route::post('/talent-passes/{id}/share', [\App\Http\Controllers\Api\TalentPassController::class, 'share']);
+
+    // Talent Search
+    Route::get('/search', [\App\Http\Controllers\Api\TalentSearchController::class, 'search']);
+    Route::get('/search/skills', [\App\Http\Controllers\Api\TalentSearchController::class, 'searchBySkills']);
+    Route::get('/search/skill-level', [\App\Http\Controllers\Api\TalentSearchController::class, 'findBySkillLevel']);
+    Route::get('/search/experience', [\App\Http\Controllers\Api\TalentSearchController::class, 'findByExperience']);
+    Route::get('/search/credential', [\App\Http\Controllers\Api\TalentSearchController::class, 'findByCredential']);
+    Route::get('/search/similar', [\App\Http\Controllers\Api\TalentSearchController::class, 'similar']);
+    
+    // Analytics & Trending
+    Route::get('/analytics/trending', [\App\Http\Controllers\Api\TalentSearchController::class, 'getTrending']);
+    Route::post('/analytics/gaps', [\App\Http\Controllers\Api\TalentSearchController::class, 'gaps']);
+});
+
 // Core services
 Route::patch('/development-actions/{id}/status', [\App\Http\Controllers\Api\DevelopmentActionController::class, 'updateStatus']);
 Route::get('/mentorship-sessions', [\App\Http\Controllers\Api\MentorshipSessionController::class, 'index']);

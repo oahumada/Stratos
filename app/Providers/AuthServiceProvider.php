@@ -9,6 +9,7 @@ use App\Models\LLMEvaluation;
 use App\Models\PromptInstruction;
 use App\Models\Scenario;
 use App\Models\ScenarioGeneration;
+use App\Models\TalentPass;
 use App\Models\User;
 use App\Models\WorkforcePlan;
 use App\Policies\ChangeSetPolicy;
@@ -18,6 +19,7 @@ use App\Policies\LLMEvaluationPolicy;
 use App\Policies\PromptInstructionPolicy;
 use App\Policies\ScenarioGenerationPolicy;
 use App\Policies\ScenarioPolicy;
+use App\Policies\TalentPassPolicy;
 use App\Policies\WorkforcePlanPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -33,6 +35,7 @@ class AuthServiceProvider extends ServiceProvider
         Scenario::class => ScenarioPolicy::class,
         LLMEvaluation::class => LLMEvaluationPolicy::class,
         IntelligenceMetricAggregate::class => IntelligenceMetricAggregatePolicy::class,
+        TalentPass::class => TalentPassPolicy::class,
     ];
 
     public function boot(): void
