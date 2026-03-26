@@ -60,7 +60,11 @@ class ConversationPolicy
         }
 
         if (! $user->people) {
-            return false;
+            // Try to load the relationship if it's not already loaded
+            $user->load('people');
+            if (! $user->people) {
+                return false;
+            }
         }
 
         // Check if participant and can_send

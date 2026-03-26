@@ -67,6 +67,9 @@ class MessageController extends Controller
 
         try {
             $user = $request->user();
+            
+            // Ensure people relationship is loaded
+            $user->load('people');
             $people = $user->people;
 
             if (! $people) {
@@ -84,8 +87,15 @@ class MessageController extends Controller
             $message->load('sender', 'replyTo');
 
             return response()->json(['data' => $message], 201);
+        } catch (\AuthorizationException $e) {
+            // Re-throw auth exceptions to be handled by middleware
+            throw $e;
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 403);
+            \Log::error('MessageController::store error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json(['message' => $e->getMessage()], 422);
         }
     }
 
@@ -98,15 +108,26 @@ class MessageController extends Controller
         $this->authorize('view', $message);
 
         try {
+            $user = $request->user();
+            
+            // Ensure people relationship is loaded
+            $user->load('people');
+
             // Mark the entire conversation as read for the user
             $this->messagingService->markAsRead(
                 conversationId: $message->conversation_id,
-                organizationId: $request->user()->organization_id,
-                readerPeopleId: $request->user()->people->id,
+                organizationId: $user->organization_id,
+                readerPeopleId: $user->people->id,
             );
 
             return response()->json(null, 204);
+        } catch (\AuthorizationException $e) {
+            throw $e;
         } catch (\Exception $e) {
+            \Log::error('MessageController::markRead error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return response()->json(['message' => $e->getMessage()], 422);
         }
     }

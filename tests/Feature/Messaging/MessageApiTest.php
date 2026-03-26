@@ -67,6 +67,12 @@ describe('Message API', function () {
             ['body' => 'Hello team!']
         );
 
+        // Debug output
+        if (!$response->isCreated()) {
+            dump('Response status: ' . $response->status());
+            dump('Response JSON: ' . json_encode($response->json(), JSON_PRETTY_PRINT));
+        }
+
         $response->assertCreated();
         $response->assertJsonStructure([
             'data' => ['id', 'body', 'state', 'people_id', 'conversation_id', 'created_at'],

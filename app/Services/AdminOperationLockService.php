@@ -56,12 +56,16 @@ class AdminOperationLockService
     ): bool {
         $waitSeconds = $waitSeconds ?? $this->defaultWaitTimeout;
         $lockKey = $this->getLockKey($organizationId, $operationType);
+        $statusKey = "{$lockKey}:acquired";
 
         try {
             $lock = Cache::lock($lockKey, $this->defaultLockTimeout);
 
             // Try to acquire, waiting up to $waitSeconds
             if ($lock->block($waitSeconds)) {
+                // Store a flag indicating the lock is held
+                Cache::put($statusKey, true, $this->defaultLockTimeout);
+
                 Log::info('AdminOperationLockService: Lock acquired', [
                     'organization_id' => $organizationId,
                     'operation_type' => $operationType,
@@ -91,18 +95,15 @@ class AdminOperationLockService
 
     /**
      * Check if a lock is currently held
-     * Uses a direct cache check instead of trying to acquire
+     * Checks the cached status flag set when lock was acquired
      */
     public function isLocked(int $organizationId, string $operationType): bool
     {
         $lockKey = $this->getLockKey($organizationId, $operationType);
+        $statusKey = "{$lockKey}:acquired";
 
         try {
-            // Check if the lock key exists in cache
-            // Laravel puts lock owners in cache keys with a specific format
-            $lockOwner = Cache::get($lockKey);
-
-            return $lockOwner !== null;
+            return Cache::has($statusKey);
         } catch (\Exception $e) {
             Log::error('AdminOperationLockService: Error checking lock status', [
                 'organization_id' => $organizationId,
@@ -121,13 +122,16 @@ class AdminOperationLockService
     public function release(int $organizationId, string $operationType): bool
     {
         $lockKey = $this->getLockKey($organizationId, $operationType);
+        $statusKey = "{$lockKey}:acquired";
 
         try {
             $lock = Cache::lock($lockKey, 1);
 
-            // If we can acquire it, it means it was held by another process
-            // But we can safely clear the cache key
-            Cache::forget($lockKey);
+            // Clear the status flag
+            Cache::forget($statusKey);
+
+            // Try to release the actual lock (if it exists)
+            $lock->forceRelease();
 
             Log::info('AdminOperationLockService: Lock released', [
                 'organization_id' => $organizationId,

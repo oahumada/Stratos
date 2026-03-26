@@ -54,7 +54,7 @@ class MessagingService
             'organization_id' => $organizationId,
             'people_id' => $senderPeopleId,
             'body' => $body,
-            'state' => MessageState::Sent,
+            'state' => MessageState::SENT,
             'reply_to_message_id' => $replyToMessageId,
         ]);
 

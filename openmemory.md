@@ -5359,6 +5359,7 @@ All operations support **dry-run preview** before execution and **comprehensive 
 ### Vista General Lograda
 
 **Cliente (Vue3 Composition API + SSE):**
+
 - Real-time connection indicator con pulse animation
 - Stats card (total, successful, failed, running)
 - Event listeners para 5 eventos: queued, started, completed, failed, rolled_back
@@ -5368,6 +5369,7 @@ All operations support **dry-run preview** before execution and **comprehensive 
 - Soporte dark mode completo
 
 **Backend (Laravel 12 + EventSource):**
+
 - SSE endpoint `/api/admin/operations/monitor/stream`
 - Event broadcasting por `organization_id`
 - Reconexión automática en frontend
@@ -5377,33 +5379,33 @@ All operations support **dry-run preview** before execution and **comprehensive 
 
 #### Tests por módulo (55/55 PASANDO ✅)
 
-| Módulo                      | Tests | Estado |
-| --------------------------- | ----- | ------ |
-| AdminOperationAsyncTest     | 15    | ✅ 100% |
-| AdminOperationRealtimeTest  | 11    | ✅ 100% |
-| AdminOperationRollbackTest  | 15    | ✅ 100% |
-| AdminOperationsDashboard    | 14    | ✅ 100% |
-| **TOTAL**                   | 55    | ✅ 100% |
+| Módulo                     | Tests | Estado  |
+| -------------------------- | ----- | ------- |
+| AdminOperationAsyncTest    | 15    | ✅ 100% |
+| AdminOperationRealtimeTest | 11    | ✅ 100% |
+| AdminOperationRollbackTest | 15    | ✅ 100% |
+| AdminOperationsDashboard   | 14    | ✅ 100% |
+| **TOTAL**                  | 55    | ✅ 100% |
 
 **Assertions:** 125 total, todas passing
 
 #### Tests avanzados implementados
 
 1. **Authorization & Multi-Tenancy** (7 tests)
-   - ✅ Admin-only access (403 Forbidden para non-admins)
-   - ✅ Organization isolation (admin solo ve sus org's operations)
-   - ✅ Unauthenticated users → redirect to login
+    - ✅ Admin-only access (403 Forbidden para non-admins)
+    - ✅ Organization isolation (admin solo ve sus org's operations)
+    - ✅ Unauthenticated users → redirect to login
 
 2. **Model & Factory Validation** (4 tests)
-   - ✅ Factory setup correctness
-   - ✅ Status tracking (draft, in_review, approved, active, completed, archived)
-   - ✅ Type tracking (backfill, generate, import, rebuild, cleanup)
-   - ✅ Timestamp tracking (started_at, completed_at)
+    - ✅ Factory setup correctness
+    - ✅ Status tracking (draft, in_review, approved, active, completed, archived)
+    - ✅ Type tracking (backfill, generate, import, rebuild, cleanup)
+    - ✅ Timestamp tracking (started_at, completed_at)
 
 3. **Data Querying & Filtering** (3 tests)
-   - ✅ Filtering por status, type, organization
-   - ✅ Bulk operations
-   - ✅ Multi-criteria queries
+    - ✅ Filtering por status, type, organization
+    - ✅ Bulk operations
+    - ✅ Multi-criteria queries
 
 #### Feature Test Suite (Full passing)
 
@@ -5414,12 +5416,14 @@ All operations support **dry-run preview** before execution and **comprehensive 
 ### Arquitectura de Testing
 
 **Strategy Pivot - Browser Tests → Feature Tests:**
+
 - Problema: Dusk tests colgaban indefinidamente en setup, error "facade root not set"
 - Solución: Implementé Feature tests que testean los mismos endpoints
 - Beneficio: 4-5x más rápidos, sin dependencia de browser automation
 - Validación: Mismas rutas, endpoints, permisos testeados
 
 **Feature Tests (14 tests, 33 assertions):**
+
 ```
 tests/Feature/AdminOperationsDashboardTest.php
 ├── Authorization (3 tests)
@@ -5445,23 +5449,27 @@ tests/Feature/AdminOperationsDashboardTest.php
 ### Validación Completada
 
 ✅ **Admin Operations Lifecycle:**
+
 1. Alpha-2: Async job execution (15 tests) ✅
 2. Alpha-3: Real-time broadcasting (11 tests) ✅
 3. Alpha-4: Automatic rollback (15 tests) ✅
 4. **Phase 9: Dashboard + Integration (14 tests)** ✅ NEW
 
 ✅ **Authorization:**
+
 - Admin-only access enforced
 - Organization scoping enforced
 - Session authentication working
 
 ✅ **Data Integrity:**
+
 - Model factories working
 - Status transitions correct
 - Timestamps tracked
 - Audit preserved
 
 ✅ **Performance:**
+
 - Tests execute in <200ms each
 - 55 total tests complete in ~10s
 - No N+1 queries detected
@@ -5469,32 +5477,35 @@ tests/Feature/AdminOperationsDashboardTest.php
 ### Archivos Modificados/Creados
 
 **Tests (NEW):**
+
 - `tests/Feature/AdminOperationsDashboardTest.php` (312 lines)
-  - 14 test cases covering all feature requirements
-  - 33 assertions with full coverage
-  - Authorization and multi-tenancy validation
-  - Model factory validation
-  - Data querying and filtering tests
+    - 14 test cases covering all feature requirements
+    - 33 assertions with full coverage
+    - Authorization and multi-tenancy validation
+    - Model factory validation
+    - Data querying and filtering tests
 
 **Fixes Applied:**
+
 - `tests/Pest.php` - Added Browser configuration (later unused after pivot to Feature tests)
 - **Deleted duplicates** - 3 conflicting test files removed for Pest conflict resolution
 
 **Code Quality:**
+
 - `vendor/bin/pint --dirty` - Applied formatting to AdminOperationsDashboardTest.php
 
 ### Estado Post-Testing
 
-| Aspecto | Status |
-| -------- | ------ |
-| Admin Operations Tests | 55/55 ✅ |
-| Feature Suite | 475 passing ✅ |
-| Authorization | ✅ Enforced |
-| Multi-tenancy | ✅ Validated |
-| Real-time SSE | ✅ Working |
-| Dashboard Vue3 | ✅ Complete |
-| Error Handling | ✅ Tested |
-| Code Quality | ✅ Pint-formatted |
+| Aspecto                | Status            |
+| ---------------------- | ----------------- |
+| Admin Operations Tests | 55/55 ✅          |
+| Feature Suite          | 475 passing ✅    |
+| Authorization          | ✅ Enforced       |
+| Multi-tenancy          | ✅ Validated      |
+| Real-time SSE          | ✅ Working        |
+| Dashboard Vue3         | ✅ Complete       |
+| Error Handling         | ✅ Tested         |
+| Code Quality           | ✅ Pint-formatted |
 
 ### Próximos Pasos
 
@@ -5523,6 +5534,7 @@ tests/Feature/AdminOperationsDashboardTest.php
 ### Validación Pre-Staging (3 Checkpoints)
 
 #### 1. Test Suite Validation ✅
+
 ```
 Tests: 55/55 Admin Operations PASSING
 Assertions: 125 total
@@ -5530,14 +5542,15 @@ Duration: 9.95s
 Status: ALL GREEN
 ```
 
-| Módulo | Tests | Assertions | Estado |
-|--------|-------|-----------|--------|
-| AdminOperationAsyncTest | 15 | 33 | ✅ |
-| AdminOperationRealtimeTest | 11 | 24 | ✅ |
-| AdminOperationRollbackTest | 15 | 34 | ✅ |
-| AdminOperationsDashboardTest | 14 | 33 | ✅ |
+| Módulo                       | Tests | Assertions | Estado |
+| ---------------------------- | ----- | ---------- | ------ |
+| AdminOperationAsyncTest      | 15    | 33         | ✅     |
+| AdminOperationRealtimeTest   | 11    | 24         | ✅     |
+| AdminOperationRollbackTest   | 15    | 34         | ✅     |
+| AdminOperationsDashboardTest | 14    | 33         | ✅     |
 
 #### 2. Code Quality Validation ✅
+
 ```
 Pint Formatting: 6 files checked
 Status: ALL CLEAN ✅
@@ -5545,6 +5558,7 @@ Style Compliance: PASS
 ```
 
 #### 3. Frontend Build Validation ✅
+
 ```
 Build Time: 1m 43s
 Assets Generated: ✅
@@ -5556,6 +5570,7 @@ Status: SUCCESS
 ### Git Operations Completed
 
 **Commit Details:**
+
 - **Hash:** `a15f7c90`
 - **Message:** `feat: Phase 9 Admin Operations dashboard + integration testing`
 - **Files Changed:** 78 files
@@ -5563,6 +5578,7 @@ Status: SUCCESS
 - **Deletions:** 2,397 lines
 
 **Detailed Changes:**
+
 ```
 ✅ Created:
    - app/Events/AdminOperationRolledBack.php
@@ -5584,6 +5600,7 @@ Status: SUCCESS
 ```
 
 **Push Status:**
+
 ```
 Origin: https://github.com/oahumada/Stratos.git
 Branch: main
@@ -5594,14 +5611,14 @@ Remote Status: ACCEPTED
 
 ### Phase 5 Achievements
 
-| Milestone | Status | Evidence |
-|-----------|--------|----------|
-| Tests Validated | ✅ | 55/55 passing, 9.95s |
-| Code Quality | ✅ | Pint clean, 6 files |
-| Build Success | ✅ | 1m 43s, 1.85 MB |
-| Semantic Commit | ✅ | Commit message includes all details |
-| GitHub Push | ✅ | a15f7c90 on origin/main |
-| Pre-push Hooks | ✅ | Unit tests 136 passed |
+| Milestone       | Status | Evidence                            |
+| --------------- | ------ | ----------------------------------- |
+| Tests Validated | ✅     | 55/55 passing, 9.95s                |
+| Code Quality    | ✅     | Pint clean, 6 files                 |
+| Build Success   | ✅     | 1m 43s, 1.85 MB                     |
+| Semantic Commit | ✅     | Commit message includes all details |
+| GitHub Push     | ✅     | a15f7c90 on origin/main             |
+| Pre-push Hooks  | ✅     | Unit tests 136 passed               |
 
 ### Readiness for Staging
 
@@ -5621,6 +5638,7 @@ Remote Status: ACCEPTED
 ### Next Phase (Phase 6 - Staging Deployment)
 
 **Planned Activities:**
+
 1. **Staging Environment Deploy** - Deploy a15f7c90 to staging
 2. **Smoke Tests** - Validate basic functionality in staging
 3. **Load Testing** - Test SSE under concurrent connections
@@ -5628,6 +5646,7 @@ Remote Status: ACCEPTED
 5. **Performance Monitoring** - Establish baseline metrics
 
 **Success Criteria:**
+
 - Dashboard loads in <500ms
 - SSE connections stable for 1h+
 - Admin operations execute successfully
@@ -5654,14 +5673,14 @@ Remote Status: ACCEPTED
 
 ### Phase Completion Status
 
-| Phase | Name | Status | Tests | Commits |
-|-------|------|--------|-------|---------|
-| **Alpha-1** | Admin Ops CRUD | ✅ | 2 | 1 |
-| **Alpha-2** | Async Execution | ✅ | 15 | 1 |
-| **Alpha-3** | Real-time Events | ✅ | 11 | 1 |
-| **Alpha-4** | Auto Rollback | ✅ | 15 | 1 |
-| **Phase 9** | Dashboard + Testing | ✅ | 14 | 1 |
-| **Phase 5** | Staging Push | ✅ | 136 | 1 |
+| Phase       | Name                | Status | Tests | Commits |
+| ----------- | ------------------- | ------ | ----- | ------- |
+| **Alpha-1** | Admin Ops CRUD      | ✅     | 2     | 1       |
+| **Alpha-2** | Async Execution     | ✅     | 15    | 1       |
+| **Alpha-3** | Real-time Events    | ✅     | 11    | 1       |
+| **Alpha-4** | Auto Rollback       | ✅     | 15    | 1       |
+| **Phase 9** | Dashboard + Testing | ✅     | 14    | 1       |
+| **Phase 5** | Staging Push        | ✅     | 136   | 1       |
 
 **Total Implementation:** 55 Admin Operations tests + 136 unit tests = **191 tests passing** ✅
 
@@ -5670,6 +5689,7 @@ Remote Status: ACCEPTED
 #### Admin Operations Module - COMPLETE ✅
 
 **Core Features:**
+
 - ✅ Dry-run preview (no data modification)
 - ✅ Explicit confirmation before execute
 - ✅ Automatic rollback on failure (snapshots)
@@ -5680,6 +5700,7 @@ Remote Status: ACCEPTED
 - ✅ Operation types: backfill, generate, import, cleanup, rebuild
 
 **Operation Types:**
+
 - ✅ **Backfill:** Recalculate aggregates for date range
 - ✅ **Generate:** Queue scenario generation via LLM
 - ✅ **Import:** Import records from external source
@@ -5687,6 +5708,7 @@ Remote Status: ACCEPTED
 - ✅ **Rebuild:** Rebuild indexes and clear caches
 
 **Infrastructure:**
+
 - ✅ Queue-based async execution (exponential backoff)
 - ✅ Distributed locking (prevent concurrent ops)
 - ✅ Status lifecycle (pending→queued→running→success/failed)
@@ -5696,29 +5718,32 @@ Remote Status: ACCEPTED
 
 ### Code Quality Metrics
 
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
-| Test Coverage | 55/55 ✅ | 100% | ✅ |
-| Assertions | 125 | 100+ | ✅ |
-| Code Style | Pint clean | 100% | ✅ |
-| Build Time | 1m 43s | <2min | ✅ |
-| Unit Tests | 136 passing | 100% | ✅ |
+| Metric        | Value       | Target | Status |
+| ------------- | ----------- | ------ | ------ |
+| Test Coverage | 55/55 ✅    | 100%   | ✅     |
+| Assertions    | 125         | 100+   | ✅     |
+| Code Style    | Pint clean  | 100%   | ✅     |
+| Build Time    | 1m 43s      | <2min  | ✅     |
+| Unit Tests    | 136 passing | 100%   | ✅     |
 
 ### Roadmap Milestones Achieved
 
 ✅ **Alpha Phase 1-4 Complete**
+
 - Async execution with queuing
 - Real-time event broadcasting
 - Automatic rollback capability
 - Full authorization & multi-tenancy
 
 ✅ **Phase 9 Complete**
+
 - Vue3 real-time dashboard
 - SSE streaming implementation
 - 14 integration tests
 - Production-ready UI
 
 ✅ **Phase 5 Complete**
+
 - Pre-staging validation
 - Semantic commits
 - GitHub push successful
@@ -5726,19 +5751,20 @@ Remote Status: ACCEPTED
 
 ### Quality Gates Passed
 
-| Gate | Requirement | Result | Status |
-|------|-------------|--------|--------|
-| **Tests** | 55/55 passing | ✅ | PASS |
-| **Code Quality** | Pint formatted | ✅ | PASS |
-| **Build** | Successful build | ✅ | PASS |
-| **Permissions** | Auth enforced | ✅ | PASS |
-| **Tenancy** | Org scoped | ✅ | PASS |
-| **UI** | Dashboard complete | ✅ | PASS |
-| **Performance** | Tests <200ms each | ✅ | PASS |
+| Gate             | Requirement        | Result | Status |
+| ---------------- | ------------------ | ------ | ------ |
+| **Tests**        | 55/55 passing      | ✅     | PASS   |
+| **Code Quality** | Pint formatted     | ✅     | PASS   |
+| **Build**        | Successful build   | ✅     | PASS   |
+| **Permissions**  | Auth enforced      | ✅     | PASS   |
+| **Tenancy**      | Org scoped         | ✅     | PASS   |
+| **UI**           | Dashboard complete | ✅     | PASS   |
+| **Performance**  | Tests <200ms each  | ✅     | PASS   |
 
 ### What's Implemented & Shipped
 
 **Backend (Laravel 12):**
+
 - ✅ AdminOperationAudit model with full audit trail
 - ✅ AdminOperationsController with dry-run/execute
 - ✅ AdminOperationJob with async queuing
@@ -5749,6 +5775,7 @@ Remote Status: ACCEPTED
 - ✅ Sanctum authentication integration
 
 **Frontend (Vue3/TypeScript):**
+
 - ✅ Operations.vue dashboard component
 - ✅ Real-time SSE connection handler
 - ✅ Stats cards with live updates
@@ -5759,6 +5786,7 @@ Remote Status: ACCEPTED
 - ✅ Composition API + Tailwind styling
 
 **Testing (Pest):**
+
 - ✅ 15 async execution tests
 - ✅ 11 real-time event tests
 - ✅ 15 rollback tests
@@ -5771,12 +5799,14 @@ Remote Status: ACCEPTED
 ### Next Steps (Phase 6+)
 
 **Immediate (Phase 6 - Staging):**
+
 1. Deploy a15f7c90 to staging environment
 2. Run smoke tests
 3. Load test SSE endpoint
 4. Validate with production-like data
 
 **Short-term (Phase 7 - Beta):**
+
 1. Performance optimization if needed
 2. Add toast notifications
 3. Implement CSV export
@@ -5784,6 +5814,7 @@ Remote Status: ACCEPTED
 5. Audit log UI
 
 **Medium-term (v1.0 GA):**
+
 1. Full compliance audit
 2. Security penetration testing
 3. Capacity planning & SLAs

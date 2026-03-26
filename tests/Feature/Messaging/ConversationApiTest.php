@@ -139,12 +139,12 @@ describe('Conversation API', function () {
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors('participant_ids');
+        // Validation errors with array items appear as 'participant_ids.0', 'participant_ids.1', etc.
+        $response->assertJsonValidationErrors('participant_ids.0');
     });
 
     it('prevents unauthenticated access', function () {
-        Sanctum::actingAs(null);
-
+        // Don't authenticate - by default tests are unauthenticated
         $response = $this->getJson('/api/messaging/conversations');
 
         $response->assertUnauthorized();
