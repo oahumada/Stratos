@@ -130,28 +130,80 @@ Este roadmap integra trabajo técnico, operativo y de producto para evitar creci
 - ✅ Pre-staging validation checklist PASSED
 - ✅ Ready for staging deployment
 
-**Próximo Paso: Phase 6 (Staging Deployment)**
+### ✅ PHASE 6: OPERATIONAL GUIDES CREATED (Mar 26)
 
-🚀 **Ejecutar STAGING_DEPLOYMENT_CHECKLIST.md** para ambas features
+**5 Guías Operacionales Completadas (81 KB total):**
+
+1. ✅ **DEPLOYMENT_CHECKLIST.md** (18 KB, 450+ lines)
+   - 8 phases de deployment
+   - 100+ checklist items detallados
+   - Pre-deployment verification → Phase 8 sign-off
+   - Referencias cruzadas con todas las guías
+
+2. ✅ **TROUBLESHOOTING_GUIDE.md** (18 KB, 420+ lines)
+   - 10 common issues con root causes y soluciones
+   - Decision matrix para categorizar problemas
+   - Quick reference table
+
+3. ✅ **MONITORING_GUIDE.md** (17 KB, 380+ lines)
+   - 4 CRITICAL alerts + 5 WARNING alerts
+   - Escalation matrix (Tier 1→2→3)
+   - Cache metrics, N+1 tracking, delivery rates
+   - Real-time thresholds configurables
+
+4. ✅ **OPERATIONS_SUMMARY.md** (19 KB, 440+ lines)
+   - Executive summary para stakeholders
+   - 6-phase timeline con time estimates
+   - Contact list y escalation procedures
+   - Infrastructure requirements & success criteria
+
+5. ✅ **ROLLBACK_GUIDE.md** (9.1 KB, 250+ lines)
+   - 4-level emergency recovery (Level 1-4)
+   - Decision matrix por nivel
+   - Post-incident procedures
+   - Bash commands para automatización
+
+**Todas las guías:**
+- ✅ Committed a main (commit 68e3ef6c + b69b6c0a)
+- ✅ Pushed a origin/main
+- ✅ Full test validation pre-push (136 tests)
+- ✅ Markdown rendering verificado en GitHub
+- ✅ Cross-references validadas (sin dead links)
+
+**Próximo Paso: Phase 6 (Staging Deployment - Mar 27)**
+
+🚀 **Usar las 5 guías para ejecutar DEPLOYMENT** para ambas features
+
+**Deployment Steps (Using Guides):**
 
 Admin Operations:
 
+- ✅ Pre-deployment checklist (use DEPLOYMENT_CHECKLIST.md phase 1-3)
 - Deploy admin dashboard + async job infrastructure
 - Configure distributed locking + SSE
 - Smoke tests All admin operation types
+- Monitor usando MONITORING_GUIDE.md (real-time alerts)
 
 Messaging:
 
+- ✅ Pre-deployment checklist (use DEPLOYMENT_CHECKLIST.md phase 1-3)
 - Deploy conversation + messaging infrastructure
 - Database migrations + soft deletes
 - Smoke tests para todos los 11 endpoints
+- Monitor using MONITORING_GUIDE.md + escalate via OPERATIONS_SUMMARY.md
+
+**If Issues Arise:**
+- Reference TROUBLESHOOTING_GUIDE.md (10 common issues pre-documented)
+- Follow ROLLBACK_GUIDE.md if critical issues detected (4 recovery levels)
 
 **Timeline Phase 6:**
 
-- **Mar 27-28:** Staging deployment + E2E validation
-- **Mar 30:** Staging smoke tests + observability
-- **Mar 31:** Alpha release (Admin Ops + Messaging)
-- **Abr 14:** Production release
+- **Mar 27 08:00 UTC:** Pre-deployment verification (DEPLOYMENT_CHECKLIST.md)
+- **Mar 27 08:30-09:00:** Execute deployment (40 mins, all guides at hand)
+- **Mar 27-28:** 24-hour UAT & monitoring (MONITORING_GUIDE.md)
+- **Mar 28 10:00:** Go/No-Go decision (OPERATIONS_SUMMARY.md sign-off)
+- **Mar 31:** Production deployment (if approved)
+- **Abr 14:** Production release finalized
 
 ---
 
@@ -214,12 +266,20 @@ Messaging:
 
 4. ✅ **Sistema de mensajería interna**: diseño e implementación COMPLETADO (Phase 5)
     - Estatus: Conversaciones + API endpoints funcionales (11 rutas)
-    - Tests: 16/16 unit tests passing
-    - Próximo: Staging deployment Phase 6
+    - Tests: 16/16 unit tests passing + 55 integration tests
+    - Próximo: Staging deployment Phase 6 (Mar 27)
+    - Guías operativas: ✅ DEPLOYMENT_CHECKLIST.md, TROUBLESHOOTING_GUIDE.md, MONITORING_GUIDE.md, ROLLBACK_GUIDE.md creadas
 
 5. **Centro de Notificaciones & Nudging**: interfaz para configurar reglas, canales, frecuencia y políticas de nudges.
     - Estado: Diseño completado
     - Próximo: Implementación en Phase Beta-3
+
+6. ✅ **Talent Pass (CV 2.0)**: Diseño e plan de deployment COMPLETADO (Mar 26)
+    - Estatus: 3-week implementation plan documented
+    - Guías: ✅ TALENT_PASS_CV2_DEPLOYMENT.md (14 KB), TALENT_PASS_QUICK_REFERENCE.md (11 KB)
+    - Timeline: Mar 31 start → Apr 19 staging → Apr 21 production
+    - Dependencia: Messaging MVP production approval required
+    - Próximo: Implementation begins Mar 31 (after Messaging MVP production)
 
 ---
 
