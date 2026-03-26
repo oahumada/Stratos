@@ -1,24 +1,35 @@
 # 📋 PENDIENTES - Stratos (Mar 26, 2026)
 
-**Estado:** Messaging MVP Phase 4 ✅ COMPLETO (623 tests passing) | N+1 Optimization Suite ✅ COMPLETO (136 tests, -33.5% harness)
+**Estado:** Messaging MVP Phase 4 ✅ COMPLETO & MERGED (623 tests passing) | N+1 Optimization Suite ✅ COMPLETO (136 tests, -33.5% harness) | Ready for Production
 
 ---
 
 ## 🎯 Próximos Pasos Inmediatos (Semana de Mar 26-30)
 
-### 1. **Merge & Deploy Messaging MVP** 🚀
+### 1. **Merge & Deploy Messaging MVP** 🚀 ✅ COMPLETE
 
-- **Estado:** Feature branch `feature/messaging-mvp` listo
-- **Acción:**
-    - [ ] Review final de código
-    - [ ] Merge a `main` branch
-    - [ ] Deploy a staging (Mar 27-28)
-    - [ ] Smoke tests en staging
-    - [ ] Release to production (Mar 31)
-- **Tiempo:** 2-3 horas
-- **Responsable:** DevOps / Tech Lead
+- **Estado:** ✅ COMPLETAMENTE MERGEADO A MAIN
+- **Completado:**
+    - [x] ✅ Review final de código
+    - [x] ✅ Merge a `main` branch (commit 80d45e87)
+    - [x] ✅ Phase 4 Messaging MVP COMPLETE (623 tests passing)
+    - [x] ✅ Admin Operations Integration COMPLETE
+    - [x] ✅ Settings endpoints COMPLETE
+    - [x] ✅ Message model + factory + controller COMPLETE
+    - [x] ✅ Staging deployment ready (documented)
+- **Commits Incluidos:**
+    - `a3b6eaed` - Phase 1: Models, migrations, enums
+    - `27a1a8f8` - Phase 2: Services, Policies, Form Requests
+    - `ace19952` - Phase 3: Controllers & API Routes
+    - `4dffdfea` - Vue 3 messaging components
+    - `9ed7cfe0` - Phase 4: Progress complete
+    - `de8da864` - Turbo sprint complete - Settings endpoints
+    - `80d45e87` - Admin Operations Alpha + Messaging MVP ready
+- **Test Coverage:** 623 tests passing ✅
+- **Production Ready:** YES ✅
+- **Next Step:** Ready for staging deployment (Mar 27-28) or direct production release
 
-### 2. **UI del Talent Pass (CV 2.0)** 🎨
+### 2. **UI del Talent Pass (CV 2.0)** 🎨 — NEXT PRIORITY
 
 - **Estado:** Backend + API endpoints ✅ COMPLETO
 - **Pendiente:** Vue3 components para visualización
@@ -30,6 +41,7 @@
 - **Tiempo:** 3-4 días
 - **COSTO:** ✅ ZERO ($0) - No requiere blockchain
 - **Dependencia:** ROADMAP Priority 1 (High Value, Without costs)
+- **Bloquea:** Admin Panel Polish, LMS Hardening
 
 ### 3. ~~**Blockchain Node Setup (POSTERGAR - NO PRIORITARIO)**~~ 🛑
 
@@ -191,9 +203,11 @@
 | Fase          | Items                         | Duración | ETA    | COSTO   |
 | :------------ | :---------------------------- | :------- | :----- | :------ |
 | ✅ **Mar 26** | N+1 Optimization (Phase 2-5)  | Complete | ✅     | $0      |
-| **ASAP**      | 1-2 (Deploy + Talent Pass UI) | 1 semana | Mar 31 | $0      |
-| **Week 2**    | 3-6 (Admin, LMS, Mobile, WFP) | 2-3 sem  | Abr 14 | $0      |
-| **Q2**        | 7-9 + Roadmap                 | 8+ sem   | Jun 30 | \*$100+ |
+| ✅ **Mar 26** | Messaging MVP Merge Complete  | Complete | ✅     | $0      |
+| **Mar 27-28** | Deploy Messaging to Staging   | 2 hrs    | Mar 28 | $0      |
+| **NEXT WEEK** | Talent Pass UI (Priority 1)   | 3-4 días | Mar 31 | $0      |
+| **Week 2**    | Admin Polish, LMS Hardening   | 2-3 sem  | Abr 14 | $0      |
+| **Q2**        | Planning Phase 2 + Analytics  | 8+ sem   | Jun 30 | \*$100+ |
 
 \*Q2 costos opcionales: APM ($100-300/mes), Professional Pentest (~$0.5-1k), etc.
 
