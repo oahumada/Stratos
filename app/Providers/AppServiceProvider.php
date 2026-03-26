@@ -37,6 +37,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // ── Phase 4: Register model observers for cache invalidation ───────
+        \App\Models\BusinessMetric::observe(\App\Observers\BusinessMetricObserver::class);
+        \App\Models\FinancialIndicator::observe(\App\Observers\FinancialIndicatorObserver::class);
+
         // Strategy: Domain Event Store (Event Sourcing Lite)
         \Illuminate\Support\Facades\Event::listen(
             \App\Events\DomainEvent::class,
