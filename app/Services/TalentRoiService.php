@@ -51,7 +51,7 @@ class TalentRoiService
     public function getExecutiveSummary(?int $organizationId = null, ?array $precomputedTalentPipeline = null): array
     {
         $organizationId = $this->resolveOrganizationId($organizationId);
-        $aggs = $this->getExecutiveAggregates($organizationId);
+        $aggs = $this->fetchExecutiveAggregates($organizationId);
         $totalHeadcount = (int) ($aggs->headcount ?? 0);
         $totalScenarios = (int) ($aggs->total_scenarios ?? 0);
 

@@ -7,6 +7,7 @@ use App\Repository\EvaluationRepository;
 use App\Repository\ScenarioRepository;
 use App\Services\EvolutionEngineService;
 use App\Services\ScenarioAnalysisService;
+use App\Services\TalentRoiService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
         // Servicios
         $this->app->singleton(EvolutionEngineService::class);
         $this->app->singleton(ScenarioAnalysisService::class);
+        $this->app->singleton(TalentRoiService::class);
     }
 
     /**
