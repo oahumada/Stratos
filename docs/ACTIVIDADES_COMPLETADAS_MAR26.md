@@ -157,7 +157,7 @@
 - ✅ **Pre-Execution Checklist** (execute tonight Mar 26)
   - Credenciales SSH listas
   - Backup tools disponibles
-  - Slack channel preparado
+  - Telegram group preparado
   - Rollback guide nearby
 
 - ✅ **Execution Timeline (Mar 27, 08:00-09:00 UTC)**

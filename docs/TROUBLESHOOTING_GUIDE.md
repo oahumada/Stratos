@@ -634,12 +634,12 @@ systemctl status php-fpm nginx supervisor | grep -E "active|failed"
 
 | Issue Category | Contact | Channel |
 |---|---|---|
-| Deployment infra | DevOps team | Slack #devops |
-| Database problems | DB team | Slack #database |
-| Laravel/Backend | Backend lead | Slack #backend |
-| Vue/Frontend issues | Frontend lead | Slack #frontend |
-| Redis/Cache issues | Infrastructure | Slack #devops |
-| Permission/SSH issues | System admin | Email or Slack |
+| Deployment infra | DevOps team | Telegram devops |
+| Database problems | DB team | Telegram database |
+| Laravel/Backend | Backend lead | Telegram backend |
+| Vue/Frontend issues | Frontend lead | Telegram frontend |
+| Redis/Cache issues | Infrastructure | Telegram devops |
+| Permission/SSH issues | System admin | Email or Telegram |
 
 ---
 

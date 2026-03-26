@@ -58,7 +58,7 @@ systemctl status php-fpm nginx supervisor | grep -E "active|failed"
 # 5. Restart if needed (see Troubleshooting Guide)
 sudo systemctl restart php-fpm nginx
 
-# 6. Notify on Slack: "#devops-alerts"
+# 6. Notify via Telegram: devops-alerts group
 ```
 
 ---

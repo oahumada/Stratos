@@ -14,7 +14,7 @@
 - [ ] Database backup tools (pg_dump)
 - [ ] Git access with push permissions
 - [ ] Admin credentials for staging environment
-- [ ] Slack/Alerts channel for deployment notifications
+- [ ] Telegram group created for deployment notifications
 
 ---
 

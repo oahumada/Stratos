@@ -18,7 +18,7 @@
 - All users unable to send messages
 - Security vulnerability discovered in deployment
 
-**Action → Notify Tech Lead (#devops-alerts + phone call) → Execute appropriate Level**
+**Action → Notify Tech Lead (Telegram devops-alerts + phone call) → Execute appropriate Level**
 
 ---
 
@@ -245,8 +245,8 @@ php artisan test --verbose 2>&1 | grep -i "failed\|error" | head -5
 1. [ ] **Verify:** Read the command 3 times
 2. [ ] **Backup:** Backup current state (already included in procedures)
 3. [ ] **Approval:** Get tech lead confirmation (Level 2+)
-4. [ ] **Document:** Note timestamp and reason in Slack
-5. [ ] **Communicate:** Post to #devops-alerts before starting
+4. [ ] **Document:** Note timestamp and reason in Telegram + logs
+5. [ ] **Communicate:** Post to Telegram devops-alerts before starting
 
 ---
 
@@ -274,7 +274,7 @@ curl -s https://staging.stratos.app/api/health | jq .
 php artisan metrics:cache-stats | head -3
 ```
 
-**All ✅? → Rollback complete. Post to #devops-alerts with status.**
+**All ✅? → Rollback complete. Post to Telegram devops-alerts with status.**
 
 ---
 

@@ -15,7 +15,7 @@
 - [ ] Have SSH credentials ready for staging server
 - [ ] Verify VPN access to staging infrastructure
 - [ ] Have database backup tool (pg_dump) available
-- [ ] Prepare Slack channel for deployment notifications (#deployments or #ops)
+- [ ] Prepare Telegram group for deployment notifications
 - [ ] Communicate timeline to Product/Engineering stakeholders
 - [ ] Print or bookmark this document + DEPLOYMENT_CHECKLIST.md
 - [ ] Have rollback procedure (ROLLBACK_GUIDE.md) nearby
@@ -306,7 +306,7 @@ curl -I https://staging.stratos.app/
 # Should return to previous stable state (or error if critical)
 
 # 7. Notify stakeholders
-# Send message to #incidents Slack channel with:
+# Send message to Telegram group with:
 # - Deployment rolled back
 # - Reason for rollback
 # - Time estimate for next attempt
@@ -327,7 +327,7 @@ Status: Ready (623 tests green, 0 failures)
 Impact: Staging environment brief downtime (~1 min)
 Team: DevOps + Tech Lead on-call
 
-Updates: #deployments Slack channel
+Updates: Telegram deployment group
 ```
 
 **During Deployment (Mar 27, 08:00):**

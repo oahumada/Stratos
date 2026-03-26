@@ -215,7 +215,7 @@ Logs                SSH tail/grep              DevOps, Backend
 
 ### On-Call Team (Mar 27-31)
 
-| Role | Name | Slack | Phone | Availability |
+| Role | Name | Telegram | Phone | Availability |
 |------|------|-------|-------|--------------|
 | **Backend Lead** | [Name] | @backend-lead | +1-XXX | 24/7 |
 | **DevOps Lead** | [Name] | @devops | +1-XXX | 24/7 |
@@ -229,7 +229,7 @@ Logs                SSH tail/grep              DevOps, Backend
 - Monitor hourly checks
 - Restart services if needed
 - Basic troubleshooting
-- Document all issues in Slack #devops-alerts
+- Document all issues in Telegram devops-alerts group
 
 **Tier 2 (Backend/DevOps on-call):**
 - Called if Tier 1 can't resolve
@@ -262,11 +262,11 @@ Issue Severity     Response Time    Escalate If       Tier
 ### Pre-Deployment (Mar 27, 08:00 AM)
 **Message:** "Staging deployment starting, 40-minute window"
 - [ ] Post in #general: "Staging maintenance 08:00-09:00 UTC"
-- [ ] Ping team leads in Slack
+- [ ] Ping team leads in Telegram
 - [ ] No user action required (staging only)
 
 ### During Deployment (Mar 27, 08:30-09:00 AM)
-**Updates:** Every 10 minutes in #devops-alerts
+**Updates:** Every 10 minutes in Telegram devops-alerts group
 - [ ] 08:30: "Deployment started"
 - [ ] 08:40: "Code deployed, testing API..."
 - [ ] 08:50: "Smoke tests running..."
@@ -296,7 +296,7 @@ Issue Severity     Response Time    Escalate If       Tier
 - [ ] Test database backup procedures
 - [ ] Verify monitoring tools working
 - [ ] Brief team in standup
-- [ ] Prepare Slack channels for alerts
+- [ ] Prepare Telegram groups for alerts
 
 ### Deployment Day (Mar 27, 08:00 AM)
 
@@ -304,7 +304,7 @@ Issue Severity     Response Time    Escalate If       Tier
 - [ ] Start deployment per DEPLOYMENT_CHECKLIST.md
 - [ ] Monitor continuously during deployment (40 mins)
 - [ ] Run smoke tests immediately after
-- [ ] Post completion status to Slack
+- [ ] Post completion status to Telegram
 - [ ] Brief team on next steps
 
 ### UAT Monitoring (Mar 27-28)
