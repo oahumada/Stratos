@@ -1,6 +1,6 @@
 # 📋 PENDIENTES - Stratos (Mar 26, 2026)
 
-**Estado:** Messaging MVP Phase 4 ✅ COMPLETO (623 tests passing)
+**Estado:** Messaging MVP Phase 4 ✅ COMPLETO (623 tests passing) | N+1 Optimization Suite ✅ COMPLETO (136 tests, -33.5% harness)
 
 ---
 
@@ -74,7 +74,7 @@
 - **Prioridad:** ALTA
 - **COSTO:** ✅ ZERO (integración vía APIs públicas)
 
-### 5. **Mobile App Nativa** 📱 (POSTERGAR - NO PRIORITARIO)**~~ 🛑
+### 5. **Mobile App Nativa** 📱 (POSTERGAR - NO PRIORITARIO)\*\*~~ 🛑
 
 - **Estado:** Mobile web (PWA) ✅ funcional
 - **Pendiente:**
@@ -87,7 +87,7 @@
 - **Prioridad:** MEDIA (MVP web funciona, app nativa es "nice-to-have")
 - **COSTO:** ✅ ZERO (Desarrollo interno, no requiere terceros)
 
-### 6. **Scenario Planning Phase 2** 👥 
+### 6. **Scenario Planning Phase 2** 👥
 
 - **Estado:** Fase 1 completada (basic planning)
 - **Pendiente - Fase 2:**
@@ -103,11 +103,19 @@
 
 ## 🔧 Deuda Técnica & Optimizaciones
 
-### 7. **Performance & Observability**
+### 7. **Performance & Observability** ✅ N+1 OPTIMIZED
 
-- [ ] Implementar caching distribuido (Redis) para queries pesadas
-- [ ] APM (Application Performance Monitoring) - Datadog o New Relic +++(No por ahora - ver mas adelante)+++
-- [ ] Database query optimization (N+1 analysis)
+- [x] ✅ Implementar caching distribuido (Redis) - Phase 4 COMPLETE
+    - 10-minute TTL cross-request cache via MetricsCacheService
+    - Auto-invalidation via model observers (Phase 4.1)
+    - Scheduled warming: 2x daily (06:00 & 14:00 UTC)
+    - Monitoring via `metrics:cache-stats` command
+- [x] ✅ Database query optimization (N+1 analysis) - Phase 2-5 COMPLETE
+    - Phase 2: Materialized aggregates table (executive_aggregates)
+    - Phase 3: Query batching in ImpactEngineService
+    - Phase 5: 10 strategic database indices added
+    - Result: 1.85s → 1.23s harness (-33.5%), 12→7 queries consolidated
+- [ ] APM (Application Performance Monitoring) - Datadog o New Relic +++(Optional Q2)+++
 - [ ] CDN para assets estáticos
 - **Tiempo:** 1-2 semanas
 - **COSTO:** ✅ ZERO (salvo herramientas APM si son Cloud)
@@ -149,7 +157,7 @@
 - [ ] Skills gap analysis at enterprise level
 - **Est. Complejidad:** ALTA
 
-### C. **Ecosystem Integrations** (POSTERGAR - NO PRIORITARIO)**~~ 🛑
+### C. **Ecosystem Integrations** (POSTERGAR - NO PRIORITARIO)\*\*~~ 🛑
 
 - [ ] SAP SuccessFactors API
 - [ ] Workday connector
@@ -180,11 +188,12 @@
 
 ## 🗓️ Timeline Recomendado
 
-| Fase       | Items                         | Duración | ETA    | COSTO   |
-| :--------- | :---------------------------- | :------- | :----- | :------ |
-| **ASAP**   | 1-2 (Deploy + Talent Pass UI) | 1 semana | Mar 31 | $0      |
-| **Week 2** | 3-6 (Admin, LMS, Mobile, WFP) | 2-3 sem  | Abr 14 | $0      |
-| **Q2**     | 7-9 + Roadmap                 | 8+ sem   | Jun 30 | \*$100+ |
+| Fase          | Items                         | Duración | ETA    | COSTO   |
+| :------------ | :---------------------------- | :------- | :----- | :------ |
+| ✅ **Mar 26** | N+1 Optimization (Phase 2-5)  | Complete | ✅     | $0      |
+| **ASAP**      | 1-2 (Deploy + Talent Pass UI) | 1 semana | Mar 31 | $0      |
+| **Week 2**    | 3-6 (Admin, LMS, Mobile, WFP) | 2-3 sem  | Abr 14 | $0      |
+| **Q2**        | 7-9 + Roadmap                 | 8+ sem   | Jun 30 | \*$100+ |
 
 \*Q2 costos opcionales: APM ($100-300/mes), Professional Pentest (~$0.5-1k), etc.
 
@@ -209,8 +218,84 @@
 
 ---
 
-**Última actualización:** Mar 26, 2026  
-**Estado General:** 🟢 **ON TRACK** - Messaging MVP ✅, Plan sin costos operacionales
+**Última actualización:** Mar 26, 2026 (23:42 UTC)  
+**Estado General:** 🟢 **ON TRACK** - Messaging MVP ✅ | N+1 Optimization Suite ✅ COMPLETE | Plan sin costos operacionales
+
+---
+
+## 🎯 Sprint Completado: N+1 Optimization (Mar 24-26)
+
+### ✅ Deliverables
+
+**Phase 2:** Materialized Aggregates
+
+- Executive aggregates table with pre-computed metrics
+- RefreshExecutiveAggregates command
+- Result: 1.85s → 1.32s (-29%)
+
+**Phase 3:** Query Batching
+
+- fetchMetricsAndBenchmarks() batching in ImpactEngineService
+- Per-request singleton caching
+- Result: 1.32s → 1.27s (-31% cumulative)
+
+**Phase 4:** Cross-Request Redis Caching
+
+- MetricsCacheService with 10-min TTL
+- Auto-invalidation via BusinessMetricObserver & FinancialIndicatorObserver
+- RefreshMetricsCache command for manual invalidation
+- Result: 1.27s → 1.23s (-33.5% cumulative)
+
+**Phase 5:** Database Indices + Warming + Monitoring
+
+- 10 strategic indices on business_metrics & financial_indicators
+- metrics:warm-cache command (scheduled 2x daily)
+- metrics:cache-stats command (monitoring & observability)
+- WarmMetricsCacheCommand implementation + scheduler integration
+- Result: 1.23s stable (indices provide cache miss fallback)
+
+### 📊 Final Metrics
+
+| Metric               | Baseline | Final   | Improvement |
+| -------------------- | -------- | ------- | ----------- |
+| Harness Time         | 1.85s    | 1.23s   | **-33.5%**  |
+| Consolidated Queries | 12       | 7       | **-42%**    |
+| ROI Queries          | 11       | 6       | **-45%**    |
+| Tests Passing        | —        | 136/136 | **100%** ✅ |
+
+### 🚀 Production Status
+
+- ✅ All phases merged to main (commit e17d4db4)
+- ✅ Pre-push hooks: 136 tests PASSING
+- ✅ Zero breaking changes
+- ✅ Production-ready code quality
+- ✅ Documentation complete (PHASE2-5 files)
+
+### 📁 Files Delivered
+
+```
+app/Services/Cache/
+└── MetricsCacheService.php (89 lines)
+
+app/Observers/
+├── BusinessMetricObserver.php (59 lines)
+└── FinancialIndicatorObserver.php (59 lines)
+
+app/Console/Commands/
+├── WarmMetricsCacheCommand.php (109 lines)
+├── CacheStatsCommand.php (108 lines)
+└── RefreshMetricsCache.php (67 lines)
+
+database/migrations/
+└── add_performance_indices.php (72 lines)
+
+Documentation/
+├── PHASE2_COMPLETION_NOTES.md
+├── PHASE3_COMPLETION_REPORT.md
+├── PHASE4_COMPLETION.md
+├── PHASE4_FINAL_COMPLETE.md
+└── PHASE5_OPTIONAL_ENHANCEMENTS.md
+```
 
 ---
 
