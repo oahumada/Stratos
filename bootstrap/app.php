@@ -62,6 +62,14 @@ return Application::configure(basePath: dirname(__DIR__))
             ->hourly()
             ->name('verification:process-phase-transitions')
             ->withoutOverlapping();
+
+        // Warm metrics cache twice daily (morning and afternoon)
+        // to prevent cold starts during peak hours
+        $schedule->command('metrics:warm-cache')
+            ->twiceDaily(6, 14)
+            ->name('metrics:warm-cache-scheduled')
+            ->withoutOverlapping()
+            ->onOneServer();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
