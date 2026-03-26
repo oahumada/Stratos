@@ -6,6 +6,7 @@ use App\Repository\CapabilityRepository;
 use App\Repository\EvaluationRepository;
 use App\Repository\ScenarioRepository;
 use App\Services\EvolutionEngineService;
+use App\Services\Intelligence\ImpactEngineService;
 use App\Services\ScenarioAnalysisService;
 use App\Services\TalentRoiService;
 use Illuminate\Support\ServiceProvider;
@@ -26,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(EvolutionEngineService::class);
         $this->app->singleton(ScenarioAnalysisService::class);
         $this->app->singleton(TalentRoiService::class);
+        $this->app->singleton(ImpactEngineService::class); // Phase 3: Per-request cache for metrics batching
     }
 
     /**

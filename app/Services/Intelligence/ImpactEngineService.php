@@ -11,6 +11,13 @@ use Illuminate\Support\Facades\Log;
 
 class ImpactEngineService
 {
+    /**
+     * Per-request memoization cache for expensive metrics + benchmarks queries.
+     * Keyed by organizationId to batch business_metrics + financial_indicators.
+     * @var array<int, array>
+     */
+    protected array $metricsAndBenchmarksCache = [];
+
     public function __construct(
         protected AiOrchestratorService $orchestrator
     ) {}
@@ -64,19 +71,53 @@ class ImpactEngineService
     }
 
     /**
+     * Batch load business metrics + financial indicators in single pass.
+     * Eliminates 2 queries by reading both in one organizational context fetch.
+     * Cached per request.
+     */
+    protected function fetchMetricsAndBenchmarks(int $organizationId): array
+    {
+        // Return cached if already fetched this request
+        if (isset($this->metricsAndBenchmarksCache[$organizationId])) {
+            return $this->metricsAndBenchmarksCache[$organizationId];
+        }
+
+        // Batch Query 1: All business metrics in one call
+        $metrics = BusinessMetric::where('organization_id', $organizationId)
+            ->whereIn('metric_name', ['revenue', 'opex', 'payroll_cost', 'headcount', 'turnover_rate'])
+            ->orderBy('period_date', 'desc')
+            ->get()
+            ->groupBy('metric_name');
+
+        // Batch Query 2: All financial indicators in one call
+        $indicators = FinancialIndicator::where('organization_id', $organizationId)
+            ->whereIn('indicator_type', ['avg_annual_salary', 'avg_recruitment_cost'])
+            ->get()
+            ->keyBy('indicator_type');
+
+        // Cache and return as single result set
+        $result = [
+            'metrics' => $metrics,
+            'indicators' => $indicators,
+            'reporting_period' => $metrics->flatMap(fn($items) => $items)->max('period_date') ?? null,
+        ];
+
+        $this->metricsAndBenchmarksCache[$organizationId] = $result;
+        return $result;
+    }
+
+    /**
      * Provee benchmarks financieros para el costeo de escenarios (Vanguard).
      * Intenta usar datos históricos reales, de lo contrario usa promedios de industria.
      */
     public function getFinancialBenchmarks(int $organizationId): array
     {
-        // Leer ambos indicadores en una sola consulta para reducir roundtrips
-        $rows = FinancialIndicator::where('organization_id', $organizationId)
-            ->whereIn('indicator_type', ['avg_annual_salary', 'avg_recruitment_cost'])
-            ->get()
-            ->keyBy('indicator_type');
+        // Use batched fetch instead of separate query
+        $data = $this->fetchMetricsAndBenchmarks($organizationId);
+        $rows = $data['indicators'];
 
-        $avgSalary = $rows->get('avg_annual_salary')->value ?? 45000.00;
-        $recruitmentCost = $rows->get('avg_recruitment_cost')->value ?? 5000.00;
+        $avgSalary = $rows->get('avg_annual_salary')?->value ?? 45000.00;
+        $recruitmentCost = $rows->get('avg_recruitment_cost')?->value ?? 5000.00;
 
         return [
             'avg_annual_salary' => (float) $avgSalary,
@@ -91,12 +132,9 @@ class ImpactEngineService
      */
     public function calculateFinancialKPIs(int $organizationId): array
     {
-        // 1. Obtener las métricas más recientes en una sola consulta y agruparlas
-        $metrics = BusinessMetric::where('organization_id', $organizationId)
-            ->whereIn('metric_name', ['revenue', 'opex', 'payroll_cost', 'headcount', 'turnover_rate'])
-            ->orderBy('period_date', 'desc')
-            ->get()
-            ->groupBy('metric_name');
+        // Use batched fetch (metrics + benchmarks in single pass)
+        $data = $this->fetchMetricsAndBenchmarks($organizationId);
+        $metrics = $data['metrics'];
 
         $revenue = $metrics->get('revenue')?->first()?->metric_value ?? 0;
         $opex = $metrics->get('opex')?->first()?->metric_value ?? 0;
@@ -108,18 +146,15 @@ class ImpactEngineService
         $nonPayrollExpenses = $opex - $payroll;
         $hcva = ($revenue - $nonPayrollExpenses) / ($headcount ?: 1);
 
-        $benchmarks = $this->getFinancialBenchmarks($organizationId);
+        $benchmarks = $this->getFinancialBenchmarks($organizationId); // Now uses cached data
         $replacementRisk = ($turnover / 100) * $headcount * $benchmarks['avg_recruitment_cost'];
-
-        // reporting_period desde las métricas ya cargadas
-        $reportingPeriod = $metrics->flatMap(fn($items) => $items)->max('period_date') ?? null;
 
         return [
             'hcva_average' => round($hcva, 2),
             'total_replacement_risk_usd' => round($replacementRisk, 2),
             'training_roi_index' => 1.45,
             'headcount_fte' => $headcount,
-            'reporting_period' => $reportingPeriod,
+            'reporting_period' => $data['reporting_period'],
         ];
     }
 
