@@ -10,11 +10,11 @@
 
 ### 🟢 N+1 Query Optimization Sprint ✅ COMPLETE
 
-| Phase | Area | Status | Impact |
-|-------|------|--------|--------|
-| **2** | Materialized Aggregates | ✅ Complete | 1.85s → 1.32s (-29%) |
-| **3** | Query Batching | ✅ Complete | 1.32s → 1.27s (-31%) |
-| **4** | Redis Caching + Auto-Invalidation | ✅ Complete | 1.27s → 1.23s (-33%) |
+| Phase | Area                              | Status      | Impact                           |
+| ----- | --------------------------------- | ----------- | -------------------------------- |
+| **2** | Materialized Aggregates           | ✅ Complete | 1.85s → 1.32s (-29%)             |
+| **3** | Query Batching                    | ✅ Complete | 1.32s → 1.27s (-31%)             |
+| **4** | Redis Caching + Auto-Invalidation | ✅ Complete | 1.27s → 1.23s (-33%)             |
 | **5** | DB Indices + Warming + Monitoring | ✅ Complete | 1.23s stable + operational tools |
 
 **Resultado:** **33.5% Harness Speedup** | **42% Query Reduction** | **136/136 Tests Passing** ✅
@@ -25,8 +25,8 @@
 
 ### 🟢 Bloque B: Expansión & Robustez ✅
 
-| #   | Feature   |       Estado       | Detalle                                      |
-| :-- | :-------- | :----------------: | :------------------------------------------- |
+| #   | Feature   |       Estado       | Detalle                                  |
+| :-- | :-------- | :----------------: | :--------------------------------------- |
 | B5  | Mobile PX | ✅ v1 Implementada | Integración en Mi Stratos. PWA funcional |
 
 ### 🟣 Bloque C: Inteligencia de Escala (Scenario IQ) ✅
@@ -39,39 +39,39 @@
 
 ### 🟠 Bloque D: Movilidad y Ecosistema de Talento ✅
 
-| #   | Feature               |    Estado     | Detalle                                                     |
-| :-- | :-------------------- | :-----------: | :---------------------------------------------------------- |
-| D1  | Gateway Híbrido       | ✅ Completado | SSO (Google/MS) + Magic Links implementados.                |
-| D2  | LMS & Mentor Hub      | ✅ Completado | `LmsService.php`, `MentorMatchingService.php` operativos.   |
-| D3  | Marketplace Activo    | ✅ Completado | `AiInternalMatchmakerService.php` operativo.                |
-| D4  | Gamificación Creativa | ✅ Completado | `GamificationService.php`, Quests y Badges implementados.   |
-| D5  | Misiones de Gremio    | ✅ Completado | Sistema de Quests soporta misiones colectivas/individuales. |
-| D6  | Timeline Evolutivo    | ✅ Completado | `DnaTimelineService.php` y endpoint API implementados.      |
-| D7  | Nudging Proactivo     | ✅ Completado | Orquestador de intervenciones basado en data insights.      |
-| D8  | Talent Pass (CV 2.0)  | ⏳ En Progreso | Backend API ✅ | UI Componentes [NEXT TASK]           |
-| D9  | Sovereign Identity    | ✅ Completado | Infraestructura lista (VerifiableCredentials) con emulador. |
+| #   | Feature               |     Estado     | Detalle                                                     |
+| :-- | :-------------------- | :------------: | :---------------------------------------------------------- | -------------------------- |
+| D1  | Gateway Híbrido       | ✅ Completado  | SSO (Google/MS) + Magic Links implementados.                |
+| D2  | LMS & Mentor Hub      | ✅ Completado  | `LmsService.php`, `MentorMatchingService.php` operativos.   |
+| D3  | Marketplace Activo    | ✅ Completado  | `AiInternalMatchmakerService.php` operativo.                |
+| D4  | Gamificación Creativa | ✅ Completado  | `GamificationService.php`, Quests y Badges implementados.   |
+| D5  | Misiones de Gremio    | ✅ Completado  | Sistema de Quests soporta misiones colectivas/individuales. |
+| D6  | Timeline Evolutivo    | ✅ Completado  | `DnaTimelineService.php` y endpoint API implementados.      |
+| D7  | Nudging Proactivo     | ✅ Completado  | Orquestador de intervenciones basado en data insights.      |
+| D8  | Talent Pass (CV 2.0)  | ⏳ En Progreso | Backend API ✅                                              | UI Componentes [NEXT TASK] |
+| D9  | Sovereign Identity    | ✅ Completado  | Infraestructura lista (VerifiableCredentials) con emulador. |
 
 ### 🔵 Bloque E: Performance & Observability ✅ NEW
 
-| #   | Feature                    |    Estado     | Detalle                                                        |
-| :-- | :------------------------: | :-----------: | :---------------------------------------------------------- |
-| E1  | N+1 Query Optimization     | ✅ Completado | 33.5% harness speedup, 42% query reduction                  |
-| E2  | Redis Caching Layer        | ✅ Completado | 10-min TTL cross-request cache + auto-invalidation          |
-| E3  | Database Performance Tuning| ✅ Completado | 10 strategic indices on metrics tables                       |
-| E4  | Cache Warming Scheduler    | ✅ Completado | 2x daily automated cache pre-population                      |
-| E5  | Cache Monitoring Commands  | ✅ Completado | `metrics:cache-stats` para observability                     |
+| #   |           Feature           |    Estado     | Detalle                                            |
+| :-- | :-------------------------: | :-----------: | :------------------------------------------------- |
+| E1  |   N+1 Query Optimization    | ✅ Completado | 33.5% harness speedup, 42% query reduction         |
+| E2  |     Redis Caching Layer     | ✅ Completado | 10-min TTL cross-request cache + auto-invalidation |
+| E3  | Database Performance Tuning | ✅ Completado | 10 strategic indices on metrics tables             |
+| E4  |   Cache Warming Scheduler   | ✅ Completado | 2x daily automated cache pre-population            |
+| E5  |  Cache Monitoring Commands  | ✅ Completado | `metrics:cache-stats` para observability           |
 
 ---
 
 ## 🔴 Próximos Pasos - Prioridad
 
-| Priority | Feature | Block | Est. Time | COST |
-|----------|---------|-------|-----------|------|
-| 1 | **UI del Talent Pass (CV 2.0)** | D8 | 3-5 días | $0 |
-| 2 | **Messaging Deploy to Staging** | MVP | 2 hrs | $0 |
-| 3 | **Admin Panel Polish** | B | 2-3 días | $0 |
-| 4 | **LMS Nativo Hardening** | D2 | 1-2 sem | $0 |
-| 5 | **Scenario Planning Phase 2** | D | 2-3 sem | $0 |
+| Priority | Feature                         | Block | Est. Time | COST |
+| -------- | ------------------------------- | ----- | --------- | ---- |
+| 1        | **UI del Talent Pass (CV 2.0)** | D8    | 3-5 días  | $0   |
+| 2        | **Messaging Deploy to Staging** | MVP   | 2 hrs     | $0   |
+| 3        | **Admin Panel Polish**          | B     | 2-3 días  | $0   |
+| 4        | **LMS Nativo Hardening**        | D2    | 1-2 sem   | $0   |
+| 5        | **Scenario Planning Phase 2**   | D     | 2-3 sem   | $0   |
 
 ---
 
@@ -99,6 +99,7 @@ Production Status:           Ready for scale
 ## 🏗️ Arquitectura de Performance (Completa)
 
 ### Layer 1: Materialized Aggregates (Phase 2)
+
 ```
 executive_aggregates table
 - Pre-computed KPIs (HCVA, ROI, etc)
@@ -107,6 +108,7 @@ executive_aggregates table
 ```
 
 ### Layer 2: Query Batching (Phase 3)
+
 ```
 ImpactEngineService.fetchMetricsAndBenchmarks()
 - Single query for business_metrics + financial_indicators
@@ -115,6 +117,7 @@ ImpactEngineService.fetchMetricsAndBenchmarks()
 ```
 
 ### Layer 3: Redis Caching (Phase 4)
+
 ```
 MetricsCacheService
 - 10-minute TTL cross-request cache
@@ -123,6 +126,7 @@ MetricsCacheService
 ```
 
 ### Layer 4: Database Indices (Phase 5)
+
 ```
 Performance indices:
 ├── idx_business_metrics_org_id
@@ -135,6 +139,7 @@ Benefit: Cache miss → index seek (~2-5ms vs 50ms scan)
 ```
 
 ### Layer 5: Cache Warming (Phase 5)
+
 ```
 Scheduled warming (2x daily)
 - Pre-populate Redis at 06:00 & 14:00 UTC
@@ -143,6 +148,7 @@ Scheduled warming (2x daily)
 ```
 
 ### Layer 6: Monitoring (Phase 5)
+
 ```
 metrics:cache-stats command
 - Hit ratio visualization
@@ -154,19 +160,20 @@ metrics:cache-stats command
 
 ## 📊 Tecnologías Implementadas
 
-| Tech | Purpose | Status |
-|------|---------|--------|
-| **Redis** | Cross-request caching (10-min TTL) | ✅ Production |
-| **PostgreSQL Indices** | Query fallback optimization | ✅ Applied (10 indices) |
-| **Model Observers** | Auto-cache invalidation | ✅ Active |
-| **Artisan Commands** | Cache management + monitoring | ✅ Deployed |
-| **Laravel Scheduler** | Automated cache warming | ✅ Configured |
+| Tech                   | Purpose                            | Status                  |
+| ---------------------- | ---------------------------------- | ----------------------- |
+| **Redis**              | Cross-request caching (10-min TTL) | ✅ Production           |
+| **PostgreSQL Indices** | Query fallback optimization        | ✅ Applied (10 indices) |
+| **Model Observers**    | Auto-cache invalidation            | ✅ Active               |
+| **Artisan Commands**   | Cache management + monitoring      | ✅ Deployed             |
+| **Laravel Scheduler**  | Automated cache warming            | ✅ Configured           |
 
 ---
 
 ## 🎯 Q2 Planning (Abril - Junio 2026)
 
 ### A. Feature Development (HIGH PRIORITY)
+
 - [ ] Talent Pass UI (CV 2.0 visualization) - **NEXT SPRINT**
 - [ ] Messaging MVP Deploy to Production
 - [ ] Admin Panel Polish & Advanced Analytics
@@ -174,18 +181,21 @@ metrics:cache-stats command
 - [ ] Scenario Planning Phase 2 (Advanced)
 
 ### B. Scale Messaging
+
 - [ ] Group chats / team messaging
 - [ ] Teams/Slack integrations
 - [ ] Compliance retention policies (1 yr archive)
 
 ### C. Advanced Analytics
+
 - [ ] Executive dashboard (talent insights)
 - [ ] Predictive retention analytics
 - [ ] Enterprise skills gap analysis
 - [ ] Custom reports builder
 
 ### D. Community Features (OPTIONAL, Q3+)
-- [ ] Internal social network  
+
+- [ ] Internal social network
 - [ ] Skill communities / guilds
 - [ ] Peer mentoring system
 - [ ] Knowledge base (wikis, Q&A)
@@ -195,12 +205,14 @@ metrics:cache-stats command
 ## 💰 RESUMEN FINANCIERO (Q1 2026)
 
 ### Costos Reales
+
 - **Desarrollo interno:** ✅ ZERO
 - **Blockchain (POSTPONED):** ✅ ZERO
 - **Cloud Infrastructure (AWS):** ~$200-300/mes (minimal)
 - **Redis Cache:** Included in AWS
 
 ### ROI Focus
+
 - ✅ Máximo valor con ZERO inversión de desarrollo
 - ✅ Diferir blockchain hasta que sea business requirement
 - ✅ Enfoque en features que generan daily user value
@@ -238,4 +250,3 @@ f48ec621 docs: N+1 problem explanation and clarify UI impact
 **Sprint Velocity:** 15-20 story points/week (Messaging MVP + N+1 Opt = 45 points delivered)  
 **Última actualización:** Mar 26, 2026 (23:45 UTC)  
 **Próximo Sprint:** Apr 1-7 (Talent Pass UI + Messaging Deploy)
-

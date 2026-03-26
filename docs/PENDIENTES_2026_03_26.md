@@ -89,7 +89,7 @@
     - **Time:** 10 hours
 
 - **Week 3 Deliverables (Apr 14 - Apr 18):**
-    - [ ] Integration with workforce planning
+    - [ ] Integration with scenario planning and learning paths
     - [ ] Global talent search functionality
     - [ ] Integration tests (full user flow)
     - [ ] E2E browser tests (Pest 4)

@@ -2,22 +2,22 @@
 
 **Status:** Ready to execute after Messaging MVP production (Apr 19-21)  
 **Duration:** 3 weeks implementation + 1 week staging/UAT  
-**Team:** 1 Backend + 1 Frontend + 1 QA  
+**Team:** 1 Backend + 1 Frontend + 1 QA
 
 ---
 
 ## 🚀 QUICK FACTS
 
-| Aspect | Details |
-|--------|---------|
-| **Scope** | Digital CV/skills platform (read-only + edit) |
-| **Dev Time** | 3 weeks (30 hours total) |
-| **Tests** | 150+ (80+40+30) |
-| **Cost** | $0 (internal) |
-| **Start Date** | Mar 31, 2026 (immediately after Messaging) |
-| **Staging Deploy** | Apr 19, 2026 |
-| **Production Deploy** | Apr 21, 2026 (if UAT green) |
-| **Risk** | LOW (proven pattern) |
+| Aspect                | Details                                       |
+| --------------------- | --------------------------------------------- |
+| **Scope**             | Digital CV/skills platform (read-only + edit) |
+| **Dev Time**          | 3 weeks (30 hours total)                      |
+| **Tests**             | 150+ (80+40+30)                               |
+| **Cost**              | $0 (internal)                                 |
+| **Start Date**        | Mar 31, 2026 (immediately after Messaging)    |
+| **Staging Deploy**    | Apr 19, 2026                                  |
+| **Production Deploy** | Apr 21, 2026 (if UAT green)                   |
+| **Risk**              | LOW (proven pattern)                          |
 
 ---
 
@@ -28,21 +28,22 @@
 ```bash
 Day 1:  Database migrations (4 tables: talent_pass, skills, credentials, experiences)
         - 1 Laravel model per table + factories
-        
+
 Day 2-3: Services (CRUD, PDF export, search)
         - TalentPassService.php (400 lines)
         - CVExportService.php (300 lines)
         - TalentSearchService.php (200 lines)
-        
+
 Day 4-5: API controllers + tests
         - TalentPassController.php (REST endpoints)
         - 80+ tests (unit + feature)
-        
+
 Commit: feature/talent-pass-backend → main
 Tests:  80 passing ✅
 ```
 
 **Deploy to Staging:**
+
 ```bash
 git checkout feature/talent-pass-backend
 php artisan migrate --env=staging
@@ -58,17 +59,17 @@ Day 6-7:  Viewer & Graph
           - TalentPassViewer.vue (read-only)
           - SkillsGraph.vue (visual display)
           - Tailwind CSS styling
-          
+
 Day 8-9:  Editor Form
           - TalentPassEditor.vue (edit form)
           - Inertia <Form> integration
           - Draft auto-save
-          
+
 Day 10:   Public page + responsive
           - PublicView.vue (shareable link)
           - Mobile-first responsive
           - Cross-browser test
-          
+
 Commit: feature/talent-pass-frontend → main
 Tests:  40+ passing + E2E ✅
 ```
@@ -82,12 +83,12 @@ Day 11-12: Full integration
            - Workforce planning integration
            - Global talent search
            - Admin operations
-           
+
 Day 13-15: Testing sprint
            - E2E tests (Pest 4 browser)
            - Load testing (k6)
            - Security audit
-           
+
 Commit: feature/talent-pass-integration → main
 Tests:  150+ total passing ✅
 ```
@@ -164,11 +165,13 @@ database/factories/
 ## 🔐 API ENDPOINTS
 
 ### Public Routes (No Auth)
+
 ```
 GET    /api/talent-pass/{public_link}          → View public Talent Pass
 ```
 
 ### Authenticated Routes
+
 ```
 GET    /api/talent-pass                        → List user's Talent Passes
 GET    /api/talent-pass/{id}                   → View single Talent Pass
@@ -189,6 +192,7 @@ GET    /api/talent-pass/search?skills=Laravel  → Search by skills
 ```
 
 ### Admin Routes
+
 ```
 GET    /api/admin/talent-passes                → See all Talent Passes
 GET    /api/admin/talent-passes/{id}           → View any Talent Pass
@@ -248,6 +252,7 @@ talent_pass_experiences
 ## 🎯 GO/NO-GO CRITERIA (Staging UAT, Apr 19-20)
 
 **GO if:**
+
 - ✅ 150+ tests passing
 - ✅ Error rate < 0.1%
 - ✅ PDF export < 500ms consistently
@@ -257,6 +262,7 @@ talent_pass_experiences
 - ✅ No HIGH/CRITICAL security issues
 
 **NO-GO if:**
+
 - ❌ < 80% test passing
 - ❌ Error rate > 0.5%
 - ❌ PDF export > 2s frequently
@@ -264,6 +270,7 @@ talent_pass_experiences
 - ❌ Critical security vulnerability found
 
 **EXTEND UAT if:**
+
 - Minor issue found but fixable
 - Needs 1-2 more days to resolve
 - Will not block production release
@@ -272,36 +279,37 @@ talent_pass_experiences
 
 ## 📞 WHO DOES WHAT
 
-| Phase | Owner | Duration | Status |
-|-------|-------|----------|--------|
-| Database/APIs | Backend Lead | Week 1 (10h) | [ ] |
-| Vue Components | Frontend Lead | Week 2 (10h) | [ ] |
-| Integration/Tests | QA Lead | Week 3 (10h) | [ ] |
-| Staging Deploy | DevOps | Apr 19 (2h) | [ ] |
-| UAT & Monitoring | Operations | Apr 19-20 (16h) | [ ] |
-| Production Deploy | DevOps | Apr 21 (2h) | [ ] |
+| Phase             | Owner         | Duration        | Status |
+| ----------------- | ------------- | --------------- | ------ |
+| Database/APIs     | Backend Lead  | Week 1 (10h)    | [ ]    |
+| Vue Components    | Frontend Lead | Week 2 (10h)    | [ ]    |
+| Integration/Tests | QA Lead       | Week 3 (10h)    | [ ]    |
+| Staging Deploy    | DevOps        | Apr 19 (2h)     | [ ]    |
+| UAT & Monitoring  | Operations    | Apr 19-20 (16h) | [ ]    |
+| Production Deploy | DevOps        | Apr 21 (2h)     | [ ]    |
 
 ---
 
 ## 🚨 DEPLOYMENT CHECKPOINTS
 
-| Checkpoint | Date | Owner | Status |
-|-----------|------|-------|--------|
-| Database schema approved | Mar 28 | Backend | [ ] |
-| APIs complete + tests passing | Apr 4 | Backend | [ ] |
-| UI mockups approved | Apr 1 | Design | [ ] |
-| Components complete | Apr 11 | Frontend | [ ] |
-| Integration tests passing | Apr 18 | QA | [ ] |
-| Security audit clean | Apr 18 | Security | [ ] |
-| Staging ready | Apr 19 | DevOps | [ ] |
-| UAT approval | Apr 20 | Product | [ ] |
-| Production ready | Apr 21 | Tech Lead | [ ] |
+| Checkpoint                    | Date   | Owner     | Status |
+| ----------------------------- | ------ | --------- | ------ |
+| Database schema approved      | Mar 28 | Backend   | [ ]    |
+| APIs complete + tests passing | Apr 4  | Backend   | [ ]    |
+| UI mockups approved           | Apr 1  | Design    | [ ]    |
+| Components complete           | Apr 11 | Frontend  | [ ]    |
+| Integration tests passing     | Apr 18 | QA        | [ ]    |
+| Security audit clean          | Apr 18 | Security  | [ ]    |
+| Staging ready                 | Apr 19 | DevOps    | [ ]    |
+| UAT approval                  | Apr 20 | Product   | [ ]    |
+| Production ready              | Apr 21 | Tech Lead | [ ]    |
 
 ---
 
 ## 🔄 ROLLBACK IF NEEDED
 
 **Staging Issues (< 24 hours):**
+
 ```bash
 # Soft rollback: restart services
 sudo systemctl restart php-fpm nginx
@@ -313,6 +321,7 @@ sudo systemctl restart php-fpm
 ```
 
 **Production Issues:**
+
 ```bash
 # Same as staging, but on production cluster
 # If code rollback doesn't work → database rollback
@@ -337,6 +346,7 @@ sudo systemctl restart php-fpm
 ## 📋 DELIVERABLES CHECKLIST
 
 **Backend (Week 1):**
+
 - [ ] 4 database tables + migrations
 - [ ] 4 Laravel models + factories
 - [ ] 3 Service classes (400+300+200 lines)
@@ -345,6 +355,7 @@ sudo systemctl restart php-fpm
 - [ ] API documentation (Swagger/OpenAPI)
 
 **Frontend (Week 2):**
+
 - [ ] 4 Vue 3 components (1200 lines total)
 - [ ] Tailwind CSS styling
 - [ ] Responsive mobile + desktop
@@ -352,6 +363,7 @@ sudo systemctl restart php-fpm
 - [ ] Browser compatibility (3+ browsers)
 
 **Integration (Week 3):**
+
 - [ ] Workforce planning integration
 - [ ] Global talent search
 - [ ] Admin operations panel
@@ -360,6 +372,7 @@ sudo systemctl restart php-fpm
 - [ ] Deployment runbooks (5 docs)
 
 **Operations:**
+
 - [ ] Deployment checklist (PR template)
 - [ ] Troubleshooting guide (10 issues)
 - [ ] Monitoring setup (alerts configured)
@@ -371,17 +384,20 @@ sudo systemctl restart php-fpm
 ## 🎓 KNOWLEDGE TRANSFER
 
 **Before Starting:**
+
 - [ ] Team reads TALENT_PASS_CV2_DEPLOYMENT.md
 - [ ] 1-hour kickoff meeting (architecture review)
 - [ ] Local setup testing (DB + migrations work)
 - [ ] Code examples reviewed (from Messaging MVP)
 
 **During Implementation:**
+
 - [ ] Daily 15-min standups
 - [ ] Weekly code reviews
 - [ ] Mid-week checkpoint (are we on track?)
 
 **After Release:**
+
 - [ ] Lessons learned session
 - [ ] Update deployment guide based on learnings
 - [ ] Document new patterns discovered
@@ -391,4 +407,3 @@ sudo systemctl restart php-fpm
 **Last Updated:** Mar 26, 2026  
 **Next Review:** Mar 31, 2026 (start date)  
 **Keep updated:** As implementation progresses
-
