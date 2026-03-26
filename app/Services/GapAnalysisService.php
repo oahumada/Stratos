@@ -28,19 +28,15 @@ class GapAnalysisService
         $skillsOk = 0;
         $gaps = [];
 
+        // Pre-cargar y indexar las roleSkills de la persona para evitar consultas por cada skill
+        if ($people->relationLoaded('roleSkills')) {
+            $peopleRoleSkills = $people->roleSkills->where('is_active', true)->keyBy('skill_id');
+        } else {
+            $peopleRoleSkills = $people->roleSkills()->where('is_active', true)->get()->keyBy('skill_id');
+        }
+
         foreach ($roleSkills as $roleSkill) {
-            // Buscar el nivel actual de la persona para esta skill en people_role_skills
-            // Se busca la skill activa de la persona, independiente del rol
-            if ($people->relationLoaded('roleSkills')) {
-                $peopleRoleSkill = $people->roleSkills->first(function ($rs) use ($roleSkill) {
-                    return ($rs->skill_id === $roleSkill->id) && ($rs->is_active);
-                });
-            } else {
-                $peopleRoleSkill = $people->roleSkills()
-                    ->where('skill_id', $roleSkill->id)
-                    ->where('is_active', true)
-                    ->first();
-            }
+            $peopleRoleSkill = $peopleRoleSkills->get($roleSkill->id);
 
             $currentLevel = $peopleRoleSkill ? (int) ($peopleRoleSkill->current_level ?? 0) : 0;
             $requiredLevel = (int) ($roleSkill->pivot->required_level ?? 0);

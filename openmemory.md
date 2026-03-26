@@ -47,8 +47,6 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
     - `ImpactReportService::generateOrganizationalRoiReport()` ahora consume `upskilled_count` desde el resumen ejecutivo en lugar de volver a consultar `people_role_skills`.
 - **Result (measured)**: `/api/reports/consolidated` = 14 queries, `/api/reports/roi` = 13 queries in the latest N+1 scan (`storage/logs/nplusone_full_report.csv`).
 
-
-
 ### [Fix] Consolidated Reports - Financial metrics batching (2026-03-26)
 
 - **Files modified**: `app/Services/Intelligence/ImpactEngineService.php`
@@ -58,6 +56,16 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
     - `calculateFinancialKPIs()` carga en una sola consulta las métricas de negocio relevantes (`revenue`, `opex`, `payroll_cost`, `headcount`, `turnover_rate`), agrupa en memoria y calcula `hcva`, `replacementRisk` y `reporting_period` sin consultas adicionales.
 - **Result (measured)**: `nplusone_full_report.csv` shows `/api/reports/consolidated` reduced from ~27 queries to 21 queries after the change.
 - **Report files**: `storage/logs/nplusone_full_report.json`, `storage/logs/nplusone_full_report.csv`
+
+### [Optimization] Reuse loaded people & preload person role skills (2026-03-28)
+
+- **Files modified**: `app/Services/Scenario/DigitalTwinService.php`, `app/Services/StratosGuideService.php`, `app/Services/GapAnalysisService.php`
+- **Purpose**: Reducir consultas N+1 y scans masivos de `people_role_skills` reutilizando datos ya cargados y preindexando `roleSkills` por `skill_id`.
+- **Change summary**:
+    - `DigitalTwinService::captureState()` ahora reutiliza el resultado de `capturePeople()` para construir la `skill_mesh` en memoria y evitar una consulta directa a `people_role_skills`.
+    - `StratosGuideService::getProactiveTips()` reemplaza la consulta directa a `people_role_skills` por una verificación via `activeSkills()` en la entidad `People`, con fallback robusto a la tabla si falla.
+    - `GapAnalysisService::calculate()` pre-carga y `keyBy('skill_id')` las `roleSkills` de la persona para evitar consultas por cada skill del rol.
+- **Result (measured)**: Cambios aplicados localmente; se recomienda re-ejecutar `tests/Feature/NPlusOneFullScanTest.php --filter=scan_all_get_api_routes_and_report` para validar reducción adicional en `/api/reports/consolidated` y `/api/reports/roi`.
 
 ### [Fix] ROI Executive Aggregates (2026-03-26)
 

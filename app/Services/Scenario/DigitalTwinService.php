@@ -15,20 +15,21 @@ class DigitalTwinService
     public function captureState(Organization $org): array
     {
         Log::info("Capturando Digital Twin para la organización: {$org->id}");
+        $people = $this->capturePeople($org);
 
         return [
             'org_metadata' => [
                 'id' => $org->id,
-                'total_headcount' => $org->people()->count(),
+                'total_headcount' => count($people),
                 'sectors' => $org->departments()->pluck('name')->toArray(),
             ],
             'nodes' => [
-                'people' => $this->capturePeople($org),
+                'people' => $people,
                 'roles' => $this->captureRoles($org),
             ],
             'edges' => [
                 'hierarchies' => $this->captureHierarchies($org),
-                'skill_mesh' => $this->captureSkillMesh($org),
+                'skill_mesh' => $this->captureSkillMesh($org, $people),
             ],
         ];
     }
@@ -76,14 +77,24 @@ class DigitalTwinService
             ->toArray();
     }
 
-    private function captureSkillMesh(Organization $org): array
+    private function captureSkillMesh(Organization $org, array $people): array
     {
-        // Conecta personas con sus top skills
-        return \DB::table('people_role_skills')
-            ->join('people', 'people.id', '=', 'people_role_skills.people_id')
-            ->where('people.organization_id', $org->id)
-            ->select('people_id as source', 'skill_id as target', 'level as strength')
-            ->get()
-            ->toArray();
+        // Reutiliza la información ya cargada en capturePeople para evitar otra consulta masiva
+        $edges = [];
+
+        foreach ($people as $p) {
+            $personId = $p['id'];
+            $skillIds = $p['skill_ids'] ?? [];
+
+            foreach ($skillIds as $skillId) {
+                $edges[] = [
+                    'source' => $personId,
+                    'target' => $skillId,
+                    'strength' => 1, // valor por defecto; detalle fino requiere pivot
+                ];
+            }
+        }
+
+        return $edges;
     }
 }

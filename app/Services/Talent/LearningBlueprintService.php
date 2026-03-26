@@ -156,19 +156,19 @@ class LearningBlueprintService
     protected function predictFutureGaps(int $peopleId): array
     {
         // Basado en tendencias del mercado y evolución tecnológica
-        // En una implementación real, esto consultaría MarketIntelligenceService
-        $emergingSkills = DB::table('skills')
-            ->whereNotExists(function ($query) use ($peopleId) {
-                $query->select(DB::raw(1))
-                    ->from('people_role_skills')
-                    ->whereColumn('people_role_skills.skill_id', 'skills.id')
-                    ->where('people_role_skills.people_id', $peopleId);
-            })
+        // Evitar subquery a people_role_skills: usar skills ya asociadas a la persona si están disponibles
+        $person = People::with('skills')->find($peopleId);
+        $ownedSkillIds = $person ? $person->skills->pluck('id')->toArray() : [];
+
+        $query = DB::table('skills')
             ->where('lifecycle_status', 'active')
-            ->where('is_critical', true)
-            ->select('id', 'name')
-            ->limit(5)
-            ->get();
+            ->where('is_critical', true);
+
+        if (! empty($ownedSkillIds)) {
+            $query->whereNotIn('id', $ownedSkillIds);
+        }
+
+        $emergingSkills = $query->select('id', 'name')->limit(5)->get();
 
         return $emergingSkills->map(fn ($skill) => [
             'skill_id' => $skill->id,

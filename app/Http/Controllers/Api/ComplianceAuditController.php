@@ -143,35 +143,48 @@ class ComplianceAuditController extends Controller
                 ->take(5),
         ];
 
-        $departmentMaturity = DB::table('departments as d')
-            ->leftJoin('people as p', function ($join) {
-                $join->on('p.department_id', '=', 'd.id')
-                    ->whereNull('p.deleted_at');
-            })
-            ->leftJoin('people_role_skills as prs', function ($join) {
-                $join->on('prs.people_id', '=', 'p.id')
-                    ->where('prs.is_active', '=', true);
-            })
-            ->where('d.organization_id', $organizationId)
-            ->groupBy('d.id', 'd.name')
-            ->selectRaw('d.id, d.name, COUNT(DISTINCT p.id) as headcount, ROUND(AVG(CASE WHEN prs.required_level > 0 THEN CASE WHEN (prs.current_level * 1.0 / prs.required_level) > 1 THEN 1 ELSE (prs.current_level * 1.0 / prs.required_level) END ELSE NULL END), 4) as readiness_ratio, ROUND(AVG(prs.current_level), 2) as avg_current_level, ROUND(AVG(prs.required_level), 2) as avg_required_level, SUM(CASE WHEN prs.current_level < prs.required_level THEN 1 ELSE 0 END) as gap_records')
-            ->orderBy('d.name')
-            ->get();
+        // If there are no pivot rows (people_role_skills) we can skip heavy per-department and per-skill aggregations
+        try {
+            $aggs = app(\App\Services\TalentRoiService::class)->fetchExecutiveAggregates($organizationId);
+        } catch (\Throwable $e) {
+            $aggs = null;
+        }
 
-        $transversalCapabilityGaps = DB::table('people_role_skills as prs')
-            ->join('people as p', function ($join) {
-                $join->on('p.id', '=', 'prs.people_id')
-                    ->whereNull('p.deleted_at');
-            })
-            ->join('skills as s', 's.id', '=', 'prs.skill_id')
-            ->where('p.organization_id', $organizationId)
-            ->where('prs.is_active', true)
-            ->where('s.scope_type', 'transversal')
-            ->groupBy('s.id', 's.name', 's.domain_tag')
-            ->selectRaw('s.id as skill_id, s.name as skill_name, s.domain_tag, COUNT(DISTINCT p.id) as assessed_people, COUNT(DISTINCT CASE WHEN prs.current_level < prs.required_level THEN p.id ELSE NULL END) as people_with_gap, ROUND(AVG(CASE WHEN prs.current_level < prs.required_level THEN (prs.required_level - prs.current_level) ELSE 0 END), 2) as avg_gap_level')
-            ->orderByDesc('people_with_gap')
-            ->limit(10)
-            ->get();
+        if (!empty($aggs) && isset($aggs->total_pivot_rows) && $aggs->total_pivot_rows == 0) {
+            $departmentMaturity = collect();
+
+            $transversalCapabilityGaps = collect();
+        } else {
+            $departmentMaturity = DB::table('departments as d')
+                ->leftJoin('people as p', function ($join) {
+                    $join->on('p.department_id', '=', 'd.id')
+                        ->whereNull('p.deleted_at');
+                })
+                ->leftJoin('people_role_skills as prs', function ($join) {
+                    $join->on('prs.people_id', '=', 'p.id')
+                        ->where('prs.is_active', '=', true);
+                })
+                ->where('d.organization_id', $organizationId)
+                ->groupBy('d.id', 'd.name')
+                ->selectRaw('d.id, d.name, COUNT(DISTINCT p.id) as headcount, ROUND(AVG(CASE WHEN prs.required_level > 0 THEN CASE WHEN (prs.current_level * 1.0 / prs.required_level) > 1 THEN 1 ELSE (prs.current_level * 1.0 / prs.required_level) END ELSE NULL END), 4) as readiness_ratio, ROUND(AVG(prs.current_level), 2) as avg_current_level, ROUND(AVG(prs.required_level), 2) as avg_required_level, SUM(CASE WHEN prs.current_level < prs.required_level THEN 1 ELSE 0 END) as gap_records')
+                ->orderBy('d.name')
+                ->get();
+
+            $transversalCapabilityGaps = DB::table('people_role_skills as prs')
+                ->join('people as p', function ($join) {
+                    $join->on('p.id', '=', 'prs.people_id')
+                        ->whereNull('p.deleted_at');
+                })
+                ->join('skills as s', 's.id', '=', 'prs.skill_id')
+                ->where('p.organization_id', $organizationId)
+                ->where('prs.is_active', true)
+                ->where('s.scope_type', 'transversal')
+                ->groupBy('s.id', 's.name', 's.domain_tag')
+                ->selectRaw('s.id as skill_id, s.name as skill_name, s.domain_tag, COUNT(DISTINCT p.id) as assessed_people, COUNT(DISTINCT CASE WHEN prs.current_level < prs.required_level THEN p.id ELSE NULL END) as people_with_gap, ROUND(AVG(CASE WHEN prs.current_level < prs.required_level THEN (prs.required_level - prs.current_level) ELSE 0 END), 2) as avg_gap_level')
+                ->orderByDesc('people_with_gap')
+                ->limit(10)
+                ->get();
+        }
 
         $report = [
             'replacement_cost' => $replacementCostSummary,

@@ -17,17 +17,24 @@ class StratosIqService
     public function captureSnapshot(Organizations $org, array $metadata = []): OrganizationSnapshot
     {
         $snapshotDate = Carbon::now()->startOfMonth();
+        // Prefer using precomputed executive aggregates to avoid heavy queries
+        try {
+            $aggs = app(\App\Services\TalentRoiService::class)->fetchExecutiveAggregates($org->id);
+            $averageGap = isset($aggs->avg_gap) ? (float) $aggs->avg_gap : null;
+        } catch (\Throwable $e) {
+            $averageGap = null;
+        }
 
-        $averageGapQuery = DB::table('people_role_skills')
-            ->join('people', 'people.id', '=', 'people_role_skills.people_id')
-            ->whereIn('people.organization_id', [$org->id])
-            ->whereRaw('people_role_skills.required_level > people_role_skills.current_level')
-            ->select(DB::raw('AVG(people_role_skills.required_level - people_role_skills.current_level) as total_gap'))
-            ->first();
+        if ($averageGap === null) {
+            $averageGapQuery = DB::table('people_role_skills')
+                ->join('people', 'people.id', '=', 'people_role_skills.people_id')
+                ->whereIn('people.organization_id', [$org->id])
+                ->whereRaw('people_role_skills.required_level > people_role_skills.current_level')
+                ->select(DB::raw('AVG(people_role_skills.required_level - people_role_skills.current_level) as total_gap'))
+                ->first();
 
-        $averageGap = $averageGapQuery ? $averageGapQuery->total_gap : 0;
-
-        $averageGap = $averageGap ?? 0;
+            $averageGap = $averageGapQuery ? $averageGapQuery->total_gap : 0;
+        }
 
         // 2. Total People
         $totalPeople = $org->People()->count();

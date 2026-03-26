@@ -30,7 +30,7 @@ class AnalyzeTalentGap implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(StratosIntelService $intelService, \App\Services\Intelligence\MarketIntelligenceService $marketService): void
+    public function handle(StratosIntelService $intelService, \App\Services\Intelligence\MarketIntelligenceService $marketService, \App\Services\ScenarioAnalyticsService $scenarioAnalytics): void
     {
         Log::info("Starting AnalyzeTalentGap job for ID: {$this->scenarioRoleCompetencyId}");
 
@@ -147,6 +147,47 @@ class AnalyzeTalentGap implements ShouldQueue
         }
 
         // 1. Try to get average proficiency of High Potential incumbents
+        // Try to use scenario cache aggregates to avoid DB hits
+        // Use the ScenarioAnalyticsService from the container to read precalculated aggregates
+        $scenarioAnalytics = app(\App\Services\ScenarioAnalyticsService::class);
+        try {
+            $scenarioAnalytics->ensureScenarioCache($gapRecord->scenario_id);
+            $cache = $scenarioAnalytics->getScenarioCache($gapRecord->scenario_id);
+
+            // High potential averages
+            $hipoValues = [];
+            foreach ($skillIds as $sid) {
+                $key = "{$scenarioRole->role_id}:{$sid}";
+                if (!empty($cache['people_role_skills_hipo_avg'][$key])) {
+                    $hipoValues[] = (float) $cache['people_role_skills_hipo_avg'][$key];
+                }
+            }
+
+            if (!empty($hipoValues)) {
+                $hipoAvg = array_sum($hipoValues) / count($hipoValues);
+                Log::info('Using High Potential talent average (cache) for gap analysis', ['role_id' => $scenarioRole->role_id, 'avg' => $hipoAvg]);
+                return round((float) $hipoAvg, 1);
+            }
+
+            // Fallback to overall averages from cache
+            $vals = [];
+            foreach ($skillIds as $sid) {
+                $key = "{$scenarioRole->role_id}:{$sid}";
+                if (!empty($cache['people_role_skills_avg'][$key])) {
+                    $vals[] = (float) $cache['people_role_skills_avg'][$key];
+                }
+            }
+
+            if (!empty($vals)) {
+                $avg = array_sum($vals) / count($vals);
+                return round((float) $avg, 1);
+            }
+        } catch (\Throwable $e) {
+            // proceed to DB fallback
+            $cache = null;
+        }
+
+        // 1. Try DB high-potential average
         $hipoAvg = \DB::table('people_role_skills')
             ->join('people', 'people_role_skills.people_id', '=', 'people.id')
             ->where('people_role_skills.role_id', $scenarioRole->role_id)

@@ -96,15 +96,28 @@ class ImpactReportService
     /**
      * Genera un reporte de ROI organizacional global.
      */
-    public function generateOrganizationalRoiReport(): array
+    public function generateOrganizationalRoiReport(?int $organizationId = null): array
     {
-        $executiveSummary = $this->roiService->getExecutiveSummary();
-        $distributions = $this->roiService->getDistributionData();
+        // Compute executive summary (which includes aggregated counts) first and derive lightweight talent pipeline
+        $executiveSummary = $this->roiService->getExecutiveSummary($organizationId);
+        // Build a lightweight talent pipeline object from available aggregates to avoid an extra heavy query
+        $talentPipeline = [
+            'total_workforce' => $executiveSummary['headcount'] ?? 0,
+            'in_development' => 0,
+            'ready_now' => $executiveSummary['upskilled_count'] ?? 0,
+            'pipeline_coverage' => ($executiveSummary['headcount'] ?? 0) > 0
+                ? round((($executiveSummary['upskilled_count'] ?? 0) / ($executiveSummary['headcount'] ?? 1)) * 100, 1)
+                : 0,
+        ];
 
-        // Escenarios activos con sus métricas
-        $activeScenarios = Scenario::whereIn('status', ['active', 'published'])
-            ->with(['scenarioCapabilities.capability'])
-            ->get();
+        $distributions = $this->roiService->getDistributionData($organizationId);
+
+        // Escenarios activos con sus métricas (filtrar por organización cuando se indique)
+        $activeScenariosQuery = Scenario::whereIn('status', ['active', 'published']);
+        if ($organizationId !== null) {
+            $activeScenariosQuery = $activeScenariosQuery->where('organization_id', $organizationId);
+        }
+        $activeScenarios = $activeScenariosQuery->with(['scenarioCapabilities.capability'])->get();
 
         // Prefetch scenario caches to avoid N+1 inside ScenarioAnalyticsService
         foreach ($activeScenarios as $s) {
@@ -120,10 +133,12 @@ class ImpactReportService
             ];
         });
 
-        // Learning Paths en progreso
-        $learningProgress = DevelopmentPath::where('status', 'active')
-            ->with('actions')
-            ->get()
+        // Learning Paths en progreso (filtrar por organización cuando corresponda)
+        $learningProgressQuery = DevelopmentPath::where('status', 'active')->with('actions');
+        if ($organizationId !== null) {
+            $learningProgressQuery = $learningProgressQuery->where('organization_id', $organizationId);
+        }
+        $learningProgress = $learningProgressQuery->get()
             ->map(function ($path) {
                 $totalActions = $path->actions->count();
                 $completedActions = $path->actions->where('status', 'completed')->count();
@@ -135,9 +150,16 @@ class ImpactReportService
                 ];
             });
 
-        // Inversión total en talento
-        $totalInvestment = DB::table('scenario_closure_strategies')
-            ->sum('estimated_cost') ?: 0;
+        // Inversión total en talento (filtrar por organización cuando sea posible)
+        if ($organizationId !== null) {
+            $totalInvestment = DB::table('scenario_closure_strategies')
+                ->join('scenarios', 'scenario_closure_strategies.scenario_id', '=', 'scenarios.id')
+                ->where('scenarios.organization_id', $organizationId)
+                ->sum('estimated_cost') ?: 0;
+        } else {
+            $totalInvestment = DB::table('scenario_closure_strategies')
+                ->sum('estimated_cost') ?: 0;
+        }
 
         $savingsFromUpskilling = ((int) ($executiveSummary['upskilled_count'] ?? 0)) * TalentRoiService::AVG_HIRING_COST;
 
@@ -157,7 +179,7 @@ class ImpactReportService
             'active_scenarios' => $activeScenarios,
             'learning_progress' => $learningProgress,
             'distributions' => $distributions,
-            'talent_pipeline' => $this->getTalentPipelineMetrics(),
+            'talent_pipeline' => $executiveSummary['talent_pipeline'] ?? $talentPipeline,
         ];
     }
 
@@ -171,9 +193,14 @@ class ImpactReportService
         if ($latestScenario) {
             // Pasar el modelo ya cargado para evitar recargarlo dentro del reporte
             $scenarioReport = $this->generateScenarioImpactReport($latestScenario);
+            // Si no se indicó organizationId, tomar la organización del último escenario
+            if ($organizationId === null && property_exists($latestScenario, 'organization_id')) {
+                $organizationId = $latestScenario->organization_id;
+            }
         }
 
-        $roiReport = $this->generateOrganizationalRoiReport();
+        // Pasar organizationId al reporte organizacional para usar agregados por organización
+        $roiReport = $this->generateOrganizationalRoiReport($organizationId);
 
         return [
             'meta' => [
@@ -317,17 +344,48 @@ class ImpactReportService
         return $recommendations;
     }
 
-    protected function getTalentPipelineMetrics(): array
+    protected function getTalentPipelineMetrics(?int $organizationId = null): array
     {
-        // Consolidar los conteos en una sola consulta para reducir roundtrips
-        $sql = <<<'SQL'
+        // Prefer using executive aggregates if available to avoid repeating heavy counts
+        $row = null;
+        if ($organizationId !== null) {
+            try {
+                $aggs = $this->roiService->fetchExecutiveAggregates($organizationId);
+                if (!empty($aggs)) {
+                    $row = (object) [
+                        'total_people' => $aggs->headcount ?? 0,
+                        'with_paths' => 0,
+                        'ready_now' => $aggs->upskilled_count ?? 0,
+                    ];
+                }
+            } catch (\Throwable $e) {
+                // Fallback to direct SQL below
+                $row = null;
+            }
+        }
+
+        if ($row === null) {
+            // Consolidar los conteos en una sola consulta para reducir roundtrips
+            if ($organizationId !== null) {
+                $sql = <<<'SQL'
+select
+    (select count(*) from people where organization_id = ?) as total_people,
+    (select count(distinct people_id) from development_paths where status = 'active' and organization_id = ?) as with_paths,
+    (select count(distinct people_role_skills.people_id) from people_role_skills join people on people_role_skills.people_id = people.id where people.organization_id = ? and people_role_skills.required_level > 0 and people_role_skills.current_level >= people_role_skills.required_level) as ready_now
+SQL;
+
+                $row = DB::selectOne($sql, [$organizationId, $organizationId, $organizationId]) ?: (object) ['total_people' => 0, 'with_paths' => 0, 'ready_now' => 0];
+            } else {
+                $sql = <<<'SQL'
 select
     (select count(*) from people) as total_people,
     (select count(distinct people_id) from development_paths where status = 'active') as with_paths,
     (select count(distinct people_role_skills.people_id) from people_role_skills where people_role_skills.required_level > 0 and people_role_skills.current_level >= people_role_skills.required_level) as ready_now
 SQL;
 
-        $row = DB::selectOne($sql) ?: (object) ['total_people' => 0, 'with_paths' => 0, 'ready_now' => 0];
+                $row = DB::selectOne($sql) ?: (object) ['total_people' => 0, 'with_paths' => 0, 'ready_now' => 0];
+            }
+        }
 
         $totalPeople = (int) ($row->total_people ?? 0);
         $withPaths = (int) ($row->with_paths ?? 0);

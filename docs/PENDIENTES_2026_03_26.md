@@ -74,7 +74,7 @@
 - **Prioridad:** ALTA
 - **COSTO:** ✅ ZERO (integración vía APIs públicas)
 
-### 5. **Mobile App Nativa** 📱
+### 5. **Mobile App Nativa** 📱 (POSTERGAR - NO PRIORITARIO)**~~ 🛑
 
 - **Estado:** Mobile web (PWA) ✅ funcional
 - **Pendiente:**
@@ -87,7 +87,7 @@
 - **Prioridad:** MEDIA (MVP web funciona, app nativa es "nice-to-have")
 - **COSTO:** ✅ ZERO (Desarrollo interno, no requiere terceros)
 
-### 6. **Workforce Planning Phase 2** 👥
+### 6. **Scenario Planning Phase 2** 👥 
 
 - **Estado:** Fase 1 completada (basic planning)
 - **Pendiente - Fase 2:**
@@ -106,7 +106,7 @@
 ### 7. **Performance & Observability**
 
 - [ ] Implementar caching distribuido (Redis) para queries pesadas
-- [ ] APM (Application Performance Monitoring) - Datadog o New Relic
+- [ ] APM (Application Performance Monitoring) - Datadog o New Relic +++(No por ahora - ver mas adelante)+++
 - [ ] Database query optimization (N+1 analysis)
 - [ ] CDN para assets estáticos
 - **Tiempo:** 1-2 semanas
@@ -149,7 +149,7 @@
 - [ ] Skills gap analysis at enterprise level
 - **Est. Complejidad:** ALTA
 
-### C. **Ecosystem Integrations**
+### C. **Ecosystem Integrations** (POSTERGAR - NO PRIORITARIO)**~~ 🛑
 
 - [ ] SAP SuccessFactors API
 - [ ] Workday connector

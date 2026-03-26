@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\Log;
 
 class RoleSkillDerivationService
 {
+    protected ScenarioAnalyticsService $scenarioAnalytics;
+
+    public function __construct(ScenarioAnalyticsService $scenarioAnalytics)
+    {
+        $this->scenarioAnalytics = $scenarioAnalytics;
+    }
     /**
      * Deriva skills automáticamente desde las competencias asignadas a un rol en un escenario.
      *
@@ -41,8 +47,15 @@ class RoleSkillDerivationService
                 ];
             }
 
-            $createdCount = 0;
+            // Ensure scenario cache is populated once to avoid repeated DB hits inside loops
+            try {
+                $this->scenarioAnalytics->ensureScenarioCache($scenarioId);
+                $cache = $this->scenarioAnalytics->getScenarioCache($scenarioId);
+            } catch (\Throwable $e) {
+                $cache = null;
+            }
 
+            $createdCount = 0;
             // 3. Para cada competencia, derivar sus skills
             foreach ($competencies as $scenarioComp) {
                 $compSkills = CompetencySkill::where('competency_id', $scenarioComp->competency_id)
@@ -64,10 +77,21 @@ class RoleSkillDerivationService
 
                     $avgCurrentLevel = 0;
                     if ($baseRoleId) {
-                        $avgCurrentLevel = DB::table('people_role_skills')
-                            ->where('role_id', $baseRoleId)
-                            ->where('skill_id', $cs->skill_id)
-                            ->avg('current_level') ?: 0;
+                        // Prefer scenario cache values when available (populated above)
+                        $key = "{$baseRoleId}:{$cs->skill_id}";
+                        if (!empty($cache) && !empty($cache['people_role_skills_avg'][$key])) {
+                            $avgCurrentLevel = (float) $cache['people_role_skills_avg'][$key];
+                        } else {
+                            // Fallback to DB average
+                            try {
+                                $avgCurrentLevel = DB::table('people_role_skills')
+                                    ->where('role_id', $baseRoleId)
+                                    ->where('skill_id', $cs->skill_id)
+                                    ->avg('current_level') ?: 0;
+                            } catch (\Throwable $e) {
+                                $avgCurrentLevel = 0;
+                            }
+                        }
                     }
 
                     ScenarioRoleSkill::create([

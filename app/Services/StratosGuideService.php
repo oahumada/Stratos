@@ -177,10 +177,18 @@ class StratosGuideService
         $personPeople = People::where('user_id', $userId)->first();
 
         if ($personPeople) {
-            $hasGaps = DB::table('people_role_skills')
-                ->where('people_id', $personPeople->id)
-                ->whereColumn('current_level', '<', 'required_level')
-                ->exists();
+            // Preferir relaciones Eloquent ya cargadas para evitar consultas directas repetidas
+            try {
+                $hasGaps = $personPeople->activeSkills()
+                    ->whereColumn('current_level', '<', 'required_level')
+                    ->exists();
+            } catch (\Throwable $e) {
+                // Fallback robusto a consulta directa si la relación falla por alguna razón
+                $hasGaps = DB::table('people_role_skills')
+                    ->where('people_id', $personPeople->id)
+                    ->whereColumn('current_level', '<', 'required_level')
+                    ->exists();
+            }
 
             if ($hasGaps && $module === 'mi_stratos') {
                 $tips[] = [

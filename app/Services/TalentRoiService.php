@@ -8,6 +8,7 @@ use App\Models\PeopleRoleSkills;
 use App\Models\PulseResponse;
 use App\Models\Scenario;
 use Illuminate\Support\Facades\DB;
+use App\Models\ExecutiveAggregate;
 
 class TalentRoiService
 {
@@ -24,6 +25,18 @@ class TalentRoiService
 
     protected \App\Services\Intelligence\ImpactEngineService $impactEngine;
 
+    /**
+     * Cache for executive aggregates to avoid repeating heavy SQL in a single request.
+     * keyed by organizationId
+     * @var array<int, object>
+     */
+    protected array $executiveAggregatesCache = [];
+    /**
+     * Simple per-request memoization cache for heavy queries.
+     * @var array<string,mixed>
+     */
+    protected array $memo = [];
+
     public function __construct(
         ScenarioAnalyticsService $scenarioAnalytics,
         \App\Services\Intelligence\ImpactEngineService $impactEngine
@@ -35,7 +48,7 @@ class TalentRoiService
     /**
      * Get consolidated high-level metrics for investors.
      */
-    public function getExecutiveSummary(?int $organizationId = null): array
+    public function getExecutiveSummary(?int $organizationId = null, ?array $precomputedTalentPipeline = null): array
     {
         $organizationId = $this->resolveOrganizationId($organizationId);
         $aggs = $this->getExecutiveAggregates($organizationId);
@@ -95,6 +108,7 @@ class TalentRoiService
             'upskilled_count' => (int) ($aggs->upskilled_count ?? 0),
             'bot_strategies' => (int) ($aggs->bot_strategies ?? 0),
             'total_pivot_rows' => (int) ($aggs->total_pivot_rows ?? 0),
+            'talent_pipeline' => $precomputedTalentPipeline ?? null,
         ];
     }
 
@@ -108,22 +122,80 @@ select
     (select count(*) from people where organization_id = ? and deleted_at is null) as headcount,
     (select count(*) from scenarios where organization_id = ?) as total_scenarios,
     (select count(distinct people_role_skills.people_id) from people_role_skills join people on people_role_skills.people_id = people.id where people.organization_id = ? and people_role_skills.current_level >= people_role_skills.required_level and people_role_skills.required_level > 0) as upskilled_count,
+        (select AVG(CASE WHEN prs.required_level > prs.current_level THEN (prs.required_level - prs.current_level) END) from people_role_skills prs join people p on prs.people_id = p.id where p.organization_id = ?) as avg_gap,
     (select count(*) from scenario_closure_strategies sc join scenarios s on sc.scenario_id = s.id where s.organization_id = ? and sc.strategy = 'bot') as bot_strategies,
     (select count(*) from people_role_skills prs join people p on prs.people_id = p.id where p.organization_id = ?) as total_pivot_rows,
     (select AVG(LEAST(1.0, prs.current_level / NULLIF(prs.required_level, 0))) from people_role_skills prs join people p on prs.people_id = p.id where p.organization_id = ?) as avg_readiness,
     (select count(*) from people_role_skills prs join people p on prs.people_id = p.id where p.organization_id = ? and prs.required_level > 0 and prs.current_level < (prs.required_level * 0.5)) as critical_gaps,
     (select count(*) from roles where organization_id = ?) as total_roles,
     (select count(distinct sc.role_id) from scenario_closure_strategies sc join scenarios s on sc.scenario_id = s.id join roles r on sc.role_id = r.id where s.organization_id = ? and r.organization_id = ? and sc.strategy = 'bot') as augmented_roles,
-    (select AVG(CASE WHEN ep.ai_turnover_risk = 'low' THEN 25 WHEN ep.ai_turnover_risk = 'medium' THEN 60 WHEN ep.ai_turnover_risk = 'high' THEN 85 ELSE 50 END)
-        from employee_pulses ep join people p on ep.people_id = p.id where p.organization_id = ?) as avg_turnover_risk
+            (select AVG(CASE WHEN ep.ai_turnover_risk = 'low' THEN 25 WHEN ep.ai_turnover_risk = 'medium' THEN 60 WHEN ep.ai_turnover_risk = 'high' THEN 85 ELSE 50 END)
+                from employee_pulses ep join people p on ep.people_id = p.id where p.organization_id = ?) as avg_turnover_risk,
+            (select count(distinct people_role_skills.people_id) from people_role_skills join people on people_role_skills.people_id = people.id where people.organization_id = ? and people_role_skills.required_level > 0 and people_role_skills.current_level >= people_role_skills.required_level) as ready_now,
+            (select count(*) from people_role_skills prs join people p on prs.people_id = p.id where p.organization_id = ? and prs.current_level = 0) as level_0_count,
+            (select count(*) from people_role_skills prs join people p on prs.people_id = p.id where p.organization_id = ? and prs.current_level = 1) as level_1_count,
+            (select count(*) from people_role_skills prs join people p on prs.people_id = p.id where p.organization_id = ? and prs.current_level = 2) as level_2_count,
+            (select count(*) from people_role_skills prs join people p on prs.people_id = p.id where p.organization_id = ? and prs.current_level = 3) as level_3_count,
+            (select count(*) from people_role_skills prs join people p on prs.people_id = p.id where p.organization_id = ? and prs.current_level = 4) as level_4_count,
+            (select count(*) from people_role_skills prs join people p on prs.people_id = p.id where p.organization_id = ? and prs.current_level = 5) as level_5_count
 SQL;
 
-                // Now there are 11 placeholders
-                $params = array_fill(0, 11, $organizationId);
+                        // Now there are 19 placeholders (added ready_now + level counts)
+                        $params = array_fill(0, 19, $organizationId);
 
                 $row = DB::selectOne($sql, $params);
                 return $row ?: (object)[];
         }
+
+    /**
+     * Public accessor that caches executive aggregates per request to avoid duplicate heavy queries.
+     */
+    public function fetchExecutiveAggregates(int $organizationId): object
+    {
+        $key = (int) $organizationId;
+        if (isset($this->executiveAggregatesCache[$key])) {
+            return $this->executiveAggregatesCache[$key];
+        }
+
+        // Prefer reading from precomputed aggregates table when available.
+        try {
+            $agg = ExecutiveAggregate::where('organization_id', $organizationId)
+                ->orderBy('updated_at', 'desc')
+                ->first();
+
+            if ($agg) {
+                // Convert Eloquent model to a lightweight stdClass-like object matching previous shape
+                $row = (object) [
+                    'headcount' => $agg->headcount ?? null,
+                    'total_scenarios' => $agg->total_scenarios ?? null,
+                    'upskilled_count' => $agg->upskilled_count ?? $agg->upskilled_count,
+                    'avg_gap' => $agg->avg_gap ?? null,
+                    'bot_strategies' => $agg->bot_strategies ?? null,
+                    'total_pivot_rows' => $agg->total_pivot_rows ?? null,
+                    'avg_readiness' => $agg->avg_readiness ?? null,
+                    'critical_gaps' => $agg->critical_gaps ?? null,
+                    'total_roles' => $agg->total_roles ?? null,
+                    'augmented_roles' => $agg->augmented_roles ?? null,
+                    'avg_turnover_risk' => $agg->avg_turnover_risk ?? null,
+                    'ready_now' => $agg->ready_now ?? null,
+                    'level_0_count' => $agg->level_0_count ?? 0,
+                    'level_1_count' => $agg->level_1_count ?? 0,
+                    'level_2_count' => $agg->level_2_count ?? 0,
+                    'level_3_count' => $agg->level_3_count ?? 0,
+                    'level_4_count' => $agg->level_4_count ?? 0,
+                    'level_5_count' => $agg->level_5_count ?? 0,
+                ];
+                $this->executiveAggregatesCache[$key] = $row;
+                return $row;
+            }
+        } catch (\Throwable $e) {
+            // ignore and fallback to direct query
+        }
+
+        $row = $this->getExecutiveAggregates($organizationId);
+        $this->executiveAggregatesCache[$key] = $row;
+        return $row;
+    }
 
     /**
      * CEO view: Top 5 KPIs de lectura en menos de 10 segundos.
@@ -200,11 +272,26 @@ SQL;
      */
     private function calculateGlobalReadiness(int $organizationId): float
     {
+        // Prefer using precomputed executive aggregates when available
+        try {
+            $aggs = $this->fetchExecutiveAggregates($organizationId);
+            if (isset($aggs->avg_readiness) && $aggs->avg_readiness !== null) {
+                return (float) $aggs->avg_readiness;
+            }
+        } catch (\Throwable $e) {
+            // fallback to direct calculation below
+        }
+        $key = "avg_readiness_{$organizationId}";
+        if (isset($this->memo[$key])) {
+            return (float) $this->memo[$key];
+        }
+
         $total = PeopleRoleSkills::join('people', 'people_role_skills.people_id', '=', 'people.id')
             ->where('people.organization_id', $organizationId)
             ->count();
 
         if ($total === 0) {
+            $this->memo[$key] = 0;
             return 0;
         }
 
@@ -213,6 +300,7 @@ SQL;
             ->selectRaw('AVG(LEAST(1.0, current_level / NULLIF(required_level, 0))) as avg')
             ->value('avg') ?: 0;
 
+        $this->memo[$key] = (float) $avgReadiness;
         return (float) $avgReadiness;
     }
 
@@ -229,12 +317,39 @@ SQL;
         if ($preUp !== null) {
             $upskilledCount = (int) $preUp;
         } else {
-            $upskilledCount = PeopleRoleSkills::join('people', 'people_role_skills.people_id', '=', 'people.id')
-                ->where('people.organization_id', $organizationId)
-                ->whereColumn('current_level', '>=', 'required_level')
-                ->where('required_level', '>', 0)
-                ->distinct('people_id')
-                ->count();
+            // Try using executive aggregates first
+            try {
+                $aggs = $this->fetchExecutiveAggregates($organizationId);
+                if (isset($aggs->upskilled_count)) {
+                    $upskilledCount = (int) $aggs->upskilled_count;
+                } else {
+                    $keyUp = "upskilled_count_{$organizationId}";
+                    if (isset($this->memo[$keyUp])) {
+                        $upskilledCount = (int) $this->memo[$keyUp];
+                    } else {
+                        $upskilledCount = PeopleRoleSkills::join('people', 'people_role_skills.people_id', '=', 'people.id')
+                            ->where('people.organization_id', $organizationId)
+                            ->whereColumn('current_level', '>=', 'required_level')
+                            ->where('required_level', '>', 0)
+                            ->distinct('people_id')
+                            ->count();
+                        $this->memo[$keyUp] = $upskilledCount;
+                    }
+                }
+            } catch (\Throwable $e) {
+                $keyUp = "upskilled_count_{$organizationId}";
+                if (isset($this->memo[$keyUp])) {
+                    $upskilledCount = (int) $this->memo[$keyUp];
+                } else {
+                    $upskilledCount = PeopleRoleSkills::join('people', 'people_role_skills.people_id', '=', 'people.id')
+                        ->where('people.organization_id', $organizationId)
+                        ->whereColumn('current_level', '>=', 'required_level')
+                        ->where('required_level', '>', 0)
+                        ->distinct('people_id')
+                        ->count();
+                    $this->memo[$keyUp] = $upskilledCount;
+                }
+            }
         }
 
         $upskillingSavings = $upskilledCount * self::AVG_HIRING_COST;
@@ -242,11 +357,36 @@ SQL;
         if ($preBot !== null) {
             $botStrategies = (int) $preBot;
         } else {
-            $botStrategies = DB::table('scenario_closure_strategies')
-                ->join('scenarios', 'scenario_closure_strategies.scenario_id', '=', 'scenarios.id')
-                ->where('scenarios.organization_id', $organizationId)
-                ->where('strategy', 'bot')
-                ->count();
+            try {
+                $aggs = $aggs ?? $this->fetchExecutiveAggregates($organizationId);
+                if (isset($aggs->bot_strategies)) {
+                    $botStrategies = (int) $aggs->bot_strategies;
+                } else {
+                    $keyBot = "bot_strategies_{$organizationId}";
+                    if (isset($this->memo[$keyBot])) {
+                        $botStrategies = (int) $this->memo[$keyBot];
+                    } else {
+                        $botStrategies = DB::table('scenario_closure_strategies')
+                            ->join('scenarios', 'scenario_closure_strategies.scenario_id', '=', 'scenarios.id')
+                            ->where('scenarios.organization_id', $organizationId)
+                            ->where('strategy', 'bot')
+                            ->count();
+                        $this->memo[$keyBot] = $botStrategies;
+                    }
+                }
+            } catch (\Throwable $e) {
+                $keyBot = "bot_strategies_{$organizationId}";
+                if (isset($this->memo[$keyBot])) {
+                    $botStrategies = (int) $this->memo[$keyBot];
+                } else {
+                    $botStrategies = DB::table('scenario_closure_strategies')
+                        ->join('scenarios', 'scenario_closure_strategies.scenario_id', '=', 'scenarios.id')
+                        ->where('scenarios.organization_id', $organizationId)
+                        ->where('strategy', 'bot')
+                        ->count();
+                    $this->memo[$keyBot] = $botStrategies;
+                }
+            }
         }
 
         $aiProductivityValue = $botStrategies * (self::AVG_ANNUAL_SALARY * 0.2); // Assuming 20% efficiency boost
@@ -256,6 +396,16 @@ SQL;
 
     private function calculateCriticalGapRate(int $organizationId): float
     {
+        // Prefer executive aggregates when available
+        try {
+            $aggs = $this->fetchExecutiveAggregates($organizationId);
+            if (isset($aggs->total_pivot_rows) && $aggs->total_pivot_rows > 0 && isset($aggs->critical_gaps)) {
+                return $aggs->critical_gaps / $aggs->total_pivot_rows;
+            }
+        } catch (\Throwable $e) {
+            // fallback to direct computation below
+        }
+
         $totalPivotRows = PeopleRoleSkills::join('people', 'people_role_skills.people_id', '=', 'people.id')
             ->where('people.organization_id', $organizationId)
             ->count();
@@ -303,20 +453,41 @@ SQL;
     {
         $organizationId = $this->resolveOrganizationId($organizationId);
 
-        return [
-            'skill_levels' => DB::table('people_role_skills')
+        // If there are no pivot rows, return empty distributions immediately
+        try {
+            $aggs = $this->fetchExecutiveAggregates($organizationId);
+            if (isset($aggs->total_pivot_rows) && $aggs->total_pivot_rows == 0) {
+                return ['skill_levels' => collect(), 'department_readiness' => collect()];
+            }
+        } catch (\Throwable $e) {
+            // proceed to compute as usual
+        }
+
+        $keySkill = "distribution_skill_levels_{$organizationId}";
+        $keyDept = "distribution_department_readiness_{$organizationId}";
+
+        if (! isset($this->memo[$keySkill])) {
+            $this->memo[$keySkill] = DB::table('people_role_skills')
                 ->join('people', 'people_role_skills.people_id', '=', 'people.id')
                 ->where('people.organization_id', $organizationId)
                 ->select('current_level', DB::raw('count(*) as count'))
                 ->groupBy('current_level')
                 ->orderBy('current_level')
-                ->get(),
-            'department_readiness' => PeopleRoleSkills::join('people', 'people_role_skills.people_id', '=', 'people.id')
+                ->get();
+        }
+
+        if (! isset($this->memo[$keyDept])) {
+            $this->memo[$keyDept] = PeopleRoleSkills::join('people', 'people_role_skills.people_id', '=', 'people.id')
                 ->join('departments', 'people.department_id', '=', 'departments.id')
                 ->where('people.organization_id', $organizationId)
                 ->select('departments.name', DB::raw('AVG(LEAST(1.0, current_level / NULLIF(required_level, 0))) * 100 as readiness'))
                 ->groupBy('departments.name')
-                ->get(),
+                ->get();
+        }
+
+        return [
+            'skill_levels' => $this->memo[$keySkill],
+            'department_readiness' => $this->memo[$keyDept],
         ];
     }
 
