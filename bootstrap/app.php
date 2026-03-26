@@ -30,6 +30,11 @@ return Application::configure(basePath: dirname(__DIR__))
             EnsureFrontendRequestsAreStateful::class,
         ]);
 
+        // Agregar Rate Limiting middleware para API
+        $middleware->api(append: [
+            \App\Http\Middleware\ApiRateLimiter::class,
+        ]);
+
         $middleware->web(append: [
             HandleAppearance::class,
             HandleInertiaRequests::class,

@@ -19,12 +19,17 @@ class DashboardController extends Controller
 
         // Brechas promedio por peoplea
         $gapService = new GapAnalysisService;
-        $People = People::with('skills')->get();
+
+        // Load people with their skills and preloaded roleSkills to avoid per-skill queries
+        $People = People::with(['skills', 'roleSkills'])->get();
+
+        // Load roles once with their skills (pivot info is defined on the relation)
+        $roles = Roles::with('skills')->get();
+
         $gaps = [];
         $matchPercentages = [];
 
         foreach ($People as $people) {
-            $roles = Roles::get();
             foreach ($roles as $role) {
                 $analysis = $gapService->calculate($people, $role);
                 $gaps[] = $analysis['gaps'];

@@ -42,12 +42,17 @@ describe('Message API', function () {
     });
 
     it('lists messages in conversation', function () {
-        Message::factory()
-            ->for($this->conversation)
-            ->for($this->org)
-            ->for($this->senderPeople)
-            ->times(3)
-            ->create();
+        // Create messages directly to avoid factory issues with relationships
+        for ($i = 0; $i < 3; $i++) {
+            Message::create([
+                'id' => \Illuminate\Support\Str::uuid(),
+                'conversation_id' => $this->conversation->id,
+                'organization_id' => $this->org->id,
+                'people_id' => $this->senderPeople->id,
+                'body' => "Test message {$i}",
+                'state' => 'sent',
+            ]);
+        }
 
         $response = $this->getJson("/api/messaging/conversations/{$this->conversation->id}/messages");
 
@@ -66,12 +71,6 @@ describe('Message API', function () {
             "/api/messaging/conversations/{$this->conversation->id}/messages",
             ['body' => 'Hello team!']
         );
-
-        // Debug output
-        if (!$response->isCreated()) {
-            dump('Response status: ' . $response->status());
-            dump('Response JSON: ' . json_encode($response->json(), JSON_PRETTY_PRINT));
-        }
 
         $response->assertCreated();
         $response->assertJsonStructure([

@@ -60,7 +60,7 @@ describe('Demo generation accept+import flow (programmatic)', () => {
         });
 
         // perform generate
-        const genRes = await store.generate();
+        await store.generate();
         expect(store.generationId).toBe(999);
 
         // set importAfterAccept and simulate polling/complete
@@ -68,7 +68,8 @@ describe('Demo generation accept+import flow (programmatic)', () => {
         await store.fetchStatus(); // first call -> processing
         await store.fetchStatus(); // second call -> complete and auto-accept should trigger
 
-        // after auto-accept run, importAutoAccepted should be set
+        // verify auto-accept was triggered during polling completion
+        // the accept should have been called automatically when status became complete
         expect(store.importAutoAccepted).toBe(true);
     });
 });

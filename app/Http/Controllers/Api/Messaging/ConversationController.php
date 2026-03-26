@@ -33,7 +33,7 @@ class ConversationController extends Controller
         $conversations = Conversation::where('organization_id', $user->organization_id)
             ->where('is_active', true)
             ->with([
-                'createdByUser:id,name,email',
+                'creator:id,first_name,last_name,email',
                 'participants' => function ($query) {
                     $query->select('id', 'conversation_id', 'people_id', 'unread_count')
                         ->whereNull('left_at');
@@ -88,7 +88,7 @@ class ConversationController extends Controller
                 contextId: $request->validated()['context_id'] ?? null,
             );
 
-            $conversation->load('participants', 'createdByUser');
+            $conversation->load('participants', 'creator');
 
             return response()->json(['data' => $conversation], 201);
         } catch (\Exception $e) {
@@ -116,12 +116,9 @@ class ConversationController extends Controller
             );
 
             return response()->json([
-                'data' => [
-                    'conversation' => $data['conversation'],
-                    'messages' => $data['messages'],
-                    'participants' => $data['participants'],
-                    'meta' => $data['meta'],
-                ],
+                'data' => $data['conversation'],
+                'messages' => $data['messages'],
+                'participants' => $data['participants'],
             ]);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 404);

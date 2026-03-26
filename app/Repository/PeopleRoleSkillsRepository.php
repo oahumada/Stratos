@@ -19,10 +19,10 @@ class PeopleRoleSkillsRepository extends Repository
     {
         return $this->model->query()
             ->with([
-                'person:id,name,email,role_id,organization_id',
+                'person:id,first_name,last_name,email,role_id,organization_id',
                 'role:id,name,level,organization_id',
                 'skill:id,name,category,is_critical,organization_id',
-                'evaluator:id,name,email',
+                'evaluator:id,first_name,last_name,email',
             ]);
     }
 

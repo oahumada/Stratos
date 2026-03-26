@@ -58,7 +58,6 @@ class ConversationService
                 'organization_id' => $organizationId,
                 'created_by' => $createdByPeopleId,
                 'title' => $title,
-                'description' => $description,
                 'context_type' => $contextType,
                 'context_id' => $contextId,
                 'is_active' => true,
@@ -99,10 +98,10 @@ class ConversationService
             ->where('organization_id', $organizationId)
             ->with([
                 'organization:id,name',
-                'createdByUser:id,name,email',
+                'creator:id,first_name,last_name,email',
                 'participants' => function ($query) {
                     $query->select('id', 'conversation_id', 'people_id', 'can_send', 'can_read', 'joined_at', 'unread_count');
-                    $query->with('people:id,name,email');
+                    $query->with('people:id,first_name,last_name,email');
                 },
             ])
             ->firstOrFail();
@@ -110,7 +109,7 @@ class ConversationService
         // Get paginated messages
         $messagesQuery = $conversation->messages()
             ->select('id', 'conversation_id', 'people_id', 'body', 'state', 'reply_to_message_id', 'created_at')
-            ->with('sender:id,name,email')
+            ->with('sender:id,first_name,last_name,email')
             ->with('replyTo:id,body,people_id')
             ->orderBy('created_at', 'desc');
 

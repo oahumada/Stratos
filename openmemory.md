@@ -3,6 +3,84 @@
 Este documento actúa como índice vivo (openmemory) del repositorio `oahumada/Stratos`.
 Se creó/actualizó automáticamente para registrar decisiones, implementaciones y referencias útiles.
 
+### [Fix] Heatmap N+1 Optimization (2026-03-28)
+
+- **Files modified**: `app/Http/Controllers/Api/DepartmentController.php`
+- **Purpose**: Reducir consultas N+1 en endpoint `/api/departments/heatmap` agrupando cargas en memoria.
+- **Change summary**: Se reemplazó la lógica que ejecutaba consultas por cada par departamento/skill por una estrategia en lotes:
+    - Carga de `Departments` y `Skill` en una sola consulta cada una.
+    - Carga de `People` con `activeSkills` filtradas por los skill IDs relevantes (una única consulta con eager-loading).
+    - Agregación en memoria para calcular cobertura y detección de riesgos de retención.
+- **Result (measured)**: `nplusone_full_report.csv` shows `/api/departments/heatmap` reduced from ~51 queries to 2 queries after the change.
+- **Report files**: `storage/logs/nplusone_full_report.json`, `storage/logs/nplusone_full_report.csv`
+
+### [Fix] ScenarioAnalyticsService - precache competency names (2026-03-26)
+
+- **Files modified**: `app/Services/ScenarioAnalyticsService.php`
+- **Purpose**: Eliminar una consulta adicional a `competencies` en `calculateImpact()` usando el cache de escenario.
+- **Change summary**:
+    - `ensureScenarioCache()` ahora precarga además un map `competency_names` con pares `id => name` para todas las competencias vinculadas al `scenario`.
+    - `calculateImpact()` usa `competency_names` desde la cache para construir la colección de competencias ({id,name}) en memoria y evita la consulta `WHERE IN (competency_ids)` cuando los nombres ya están en cache.
+    - Si por alguna razón la cache no incluye nombres, mantiene un fallback a la consulta en lote (única consulta).
+- **Result (measured)**: Escaneo N+1 ejecutado después del cambio. `storage/logs/nplusone_full_report.csv` muestra sin regresión en contadores principales; la mejora evita la consulta separada por nombres y simplifica el flujo de cálculo de impacto.
+- **Notes**: Esto completa la cobertura de precarga que ya existía para `competency_skills`, `scenario_role_skills_by_skill`, `people_role_skills_avg`, `people_role_skills_hipo_avg`, `closure_strategies_by_skill` y `closure_strategy_stats`.
+- **Report files**: `storage/logs/nplusone_full_report.json`, `storage/logs/nplusone_full_report.csv`
+
+### [Optimization] ImpactReportService - batch talent pipeline metrics & reduce duplicate loads (2026-03-26)
+
+- **Files modified**: `app/Services/ImpactReportService.php`
+- **Purpose**: Reducir consultas en endpoints de reporte consolidado y ROI eliminando cargas redundantes y consolidando conteos.
+- **Change summary**:
+    - `generateScenarioImpactReport()` ahora acepta un `Scenario` o un `id`, evitando recargas cuando ya se dispone del modelo (evita una consulta adicional en `generateConsolidatedReport`).
+    - `getTalentPipelineMetrics()` consolida `total_workforce`, `in_development` y `ready_now` en una sola consulta SQL con subselects, reemplazando tres queries separadas.
+- **Result (measured)**: Después del cambio, `storage/logs/nplusone_full_report.csv` muestra `/api/reports/consolidated` reducido a 16 queries y `/api/reports/roi` a 15 queries.
+- **Next**: Iterar sobre `ScenarioAnalyticsService` y `TalentRoiService` para eliminar las últimas consultas restantes en los pipelines de escenarios activos.
+
+### [Optimization] TalentRoiService - aggregate turnover + reuse aggregates (2026-03-26)
+
+- **Files modified**: `app/Services/TalentRoiService.php`, `app/Services/ImpactReportService.php`
+- **Purpose**: Eliminar consultas redundantes a `employee_pulses` y `people_role_skills` durante generación de reportes ROI/consolidado.
+- **Change summary**:
+    - `getExecutiveAggregates()` ahora incluye `avg_turnover_risk` (mapeo CASE en SQL) para devolver un promedio precomputado y evitar una lectura separada de `employee_pulses`.
+    - `getExecutiveSummary()` usa `avg_turnover_risk` cuando está disponible; si es NULL se aplica el valor por defecto `50.0` para mantener comportamiento previo sin consultas adicionales.
+    - `getExecutiveSummary()` ahora expone `upskilled_count`, `bot_strategies` y `total_pivot_rows` para que llamantes (ej. `ImpactReportService`) reutilicen agregados y eviten repetir conteos.
+    - `ImpactReportService::generateOrganizationalRoiReport()` ahora consume `upskilled_count` desde el resumen ejecutivo en lugar de volver a consultar `people_role_skills`.
+- **Result (measured)**: `/api/reports/consolidated` = 14 queries, `/api/reports/roi` = 13 queries in the latest N+1 scan (`storage/logs/nplusone_full_report.csv`).
+
+
+
+### [Fix] Consolidated Reports - Financial metrics batching (2026-03-26)
+
+- **Files modified**: `app/Services/Intelligence/ImpactEngineService.php`
+- **Purpose**: Reducir consultas repetidas contra `financial_indicators` y `business_metrics` usadas por `/api/reports/consolidated`.
+- **Change summary**:
+    - `getFinancialBenchmarks()` ahora obtiene ambos indicadores (`avg_annual_salary`, `avg_recruitment_cost`) en una sola consulta usando `whereIn()` y `keyBy()`.
+    - `calculateFinancialKPIs()` carga en una sola consulta las métricas de negocio relevantes (`revenue`, `opex`, `payroll_cost`, `headcount`, `turnover_rate`), agrupa en memoria y calcula `hcva`, `replacementRisk` y `reporting_period` sin consultas adicionales.
+- **Result (measured)**: `nplusone_full_report.csv` shows `/api/reports/consolidated` reduced from ~27 queries to 21 queries after the change.
+- **Report files**: `storage/logs/nplusone_full_report.json`, `storage/logs/nplusone_full_report.csv`
+
+### [Fix] ROI Executive Aggregates (2026-03-26)
+
+- **Files modified**: `app/Services/TalentRoiService.php`
+- **Purpose**: Reducir consultas en `GET /api/reports/roi` consolidando múltiples conteos y promedios en una sola consulta de agregados.
+- **Change summary**:
+    - `getExecutiveAggregates()` amplió el SELECT para incluir: `total_pivot_rows`, `avg_readiness`, `critical_gaps`, `total_roles`, `augmented_roles` además de los agregados ya existentes (`headcount`, `total_scenarios`, `upskilled_count`, `bot_strategies`).
+    - `getExecutiveSummary()` usa estos valores precomputados para evitar llamadas adicionales a `calculateGlobalReadiness()`, `calculateCriticalGapRate()` y `calculateAiAugmentationIndex()` cuando los agregados están disponibles.
+- **Result (measured)**: Tras el cambio, `nplusone_full_report.csv` shows `/api/reports/roi` at 20 queries (no error). Es una reducción parcial respecto a la versión inicial más antigua; quedan más optimizaciones por hacer en el pipeline de `active_scenarios` y `scenarioAnalytics`.
+- **Report files**: `storage/logs/nplusone_full_report.json`, `storage/logs/nplusone_full_report.csv`
+
+### [Fix] Investor Dashboard - Pulse aggregation + prefetch (2026-03-26)
+
+- **Files modified**: `app/Services/TalentRoiService.php`, `app/Services/ImpactReportService.php`, `app/Services/ScenarioAnalyticsService.php`, `app/Http/Controllers/Api/InvestorDashboardController.php`
+- **Purpose**: Reducir llamadas repetidas a `pulse_responses` y evitar N+1 en cálculos ejecutivos del dashboard de inversores.
+- **Change summary**:
+    - Agregué `getPulseSentimentStats()` en `TalentRoiService` que obtiene `recent_avg`, `previous_avg` y `recent_count` en una sola consulta agregada (evita 2-3 llamadas separadas).
+    - `calculateCultureHealthScore()` y `calculateSentimentTrend()` ahora reutilizan esos stats en lugar de ejecutar múltiples queries.
+    - `ImpactReportService` prefetchea caches de `ScenarioAnalyticsService` para todos los escenarios activos antes de calcular IQ/impact.
+    - `ScenarioAnalyticsService::calculateImpact()` usa `competency_skills` desde la caché cuando está disponible.
+- **Result (measured)**: `storage/logs/nplusone_full_report.csv` shows `/api/investor/dashboard` reduced from 13→10 queries; `/api/reports/consolidated` 21→18; `/api/reports/roi` 20→17.
+- **Report files**: `storage/logs/nplusone_full_report.json`, `storage/logs/nplusone_full_report.csv`
+
 ### [Implementation] Alpha-1 Admin Operations Dashboard (2026-03-25)
 
 - **Files**: `app/Http/Controllers/Api/AdminOperationsController.php`, `resources/js/Pages/Admin/Operations.vue`, 4 modal components, tests

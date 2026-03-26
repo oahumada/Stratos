@@ -14,14 +14,14 @@ Este roadmap integra trabajo técnico, operativo y de producto para evitar creci
 
 **Progreso de Alpha Phases (Completado):**
 
-| Fase                          | Componentes                                            | Estado      | Evidencia                              |
-| :---------------------------- | :----------------------------------------------------- | :---------- | :------------------------------------- |
-| **Alpha-1: Admin Ops CRUD**   | 1 Model, 2 Controllers, 3 Policies, Auth/Audit        | ✅ Completo | 15 tests passing, 100% coverage        |
-| **Alpha-2: Async Execution**  | AsyncJob, distributed locking, exponential backoff    | ✅ Completo | 15 tests passing, no conflicts         |
-| **Alpha-3: Real-time Events** | Event broadcasting (SSE), live dashboard              | ✅ Completo | 11 tests passing, latency < 100ms      |
-| **Alpha-4: Rollback System**  | AdminOperationRolledBack event, rollback service      | ✅ Completo | 15 tests passing, 100% snapshot cover |
-| **Phase 9: Vue3 Dashboard**   | Real-time dashboard + dark mode, TypeScript actions   | ✅ Completo | 14 integration tests passing           |
-| **Phase 5: Pre-Staging QA**   | Git push, Pint formatting, build validation           | ✅ Completo | 191 tests total (55 integration)       |
+| Fase                          | Componentes                                         | Estado      | Evidencia                             |
+| :---------------------------- | :-------------------------------------------------- | :---------- | :------------------------------------ |
+| **Alpha-1: Admin Ops CRUD**   | 1 Model, 2 Controllers, 3 Policies, Auth/Audit      | ✅ Completo | 15 tests passing, 100% coverage       |
+| **Alpha-2: Async Execution**  | AsyncJob, distributed locking, exponential backoff  | ✅ Completo | 15 tests passing, no conflicts        |
+| **Alpha-3: Real-time Events** | Event broadcasting (SSE), live dashboard            | ✅ Completo | 11 tests passing, latency < 100ms     |
+| **Alpha-4: Rollback System**  | AdminOperationRolledBack event, rollback service    | ✅ Completo | 15 tests passing, 100% snapshot cover |
+| **Phase 9: Vue3 Dashboard**   | Real-time dashboard + dark mode, TypeScript actions | ✅ Completo | 14 integration tests passing          |
+| **Phase 5: Pre-Staging QA**   | Git push, Pint formatting, build validation         | ✅ Completo | 191 tests total (55 integration)      |
 
 **Validación Técnica Phase 5:**
 
@@ -33,35 +33,45 @@ Este roadmap integra trabajo técnico, operativo y de producto para evitar creci
 - ✅ Authorization: Admin-only with role + org scoping
 - ✅ Git: All commits pushed to `main` (commits a15f7c90, 8d1bdfc2)
 
-### ✅ Messaging MVP: LISTO PARA STAGING (Sprint A-D)
+### ✅ Messaging MVP: COMPLETADO FASE 4 - LISTO PARA STAGING (Sprint A-D)
 
 **Phases Completadas:**
 
-| Fase           | Componentes                                | Estado      | Evidencia                       |
-| :------------- | :----------------------------------------- | :---------- | :------------------------------ |
-| **Phase 1**    | 3 Models, 4 Migrations, 2 Enums            | ✅ Completo | Código commiteado               |
-| **Phase 2**    | 3 Services, 2 Policies, 4 Form Requests    | ✅ Completo | Todas las validaciones pasadas  |
-| **Phase 3**    | 3 Controllers, 11 API routes               | ✅ Completo | Endpoints funcionando, tests OK |
-| **Phase 4**    | 16 Unit tests (100% passing)               | ✅ Completo | 51 assertions, 7.49s ejecución  |
-| **Frontend**   | 3 Vue components + 1 Composable TypeScript | ✅ Completo | Integración completa con API    |
-| **Deployment** | Staging checklist (256 líneas)             | ✅ Completo | Pre-deployment validation ready |
+| Fase           | Componentes                                | Estado      | Evidencia                                  |
+| :------------- | :----------------------------------------- | :---------- | :----------------------------------------- |
+| **Phase 1**    | 3 Models, 4 Migrations, 2 Enums            | ✅ Completo | Código commiteado                          |
+| **Phase 2**    | 3 Services, 2 Policies, 4 Form Requests    | ✅ Completo | Todas las validaciones pasadas             |
+| **Phase 3**    | 3 Controllers, 11 API routes               | ✅ Completo | Endpoints funcionando, tests OK            |
+| **Phase 4**    | **623 tests passing (100%)** - 📈 UPGRADED | ✅ Completo | **0 failures, 2 skipped, 1998 assertions** |
+| **Frontend**   | 3 Vue components + 1 Composable TypeScript | ✅ Completo | Integración completa con API               |
+| **Deployment** | Staging checklist (256 líneas)             | ✅ Completo | Pre-deployment validation ready            |
 
-**Validación Técnica Messaging:**
+**Validación Técnica Messaging (ACTUALIZADO):**
 
-- ✅ Unit Tests: 16/16 passing (100%)
-- ✅ Feature Tests: Syntax validated, relationships fixed
-- ✅ Multi-tenant isolation: Verified across all layers
-- ✅ Soft deletes: Implemented and tested
-- ✅ API Endpoints: All 11 routes functional
-- ✅ Frontend Components: Full TypeScript support, Tailwind CSS, dark mode
-- ✅ Git: All commits pushed to `feature/messaging-mvp` branch
+- ✅ **Full Test Suite:** 623/625 passing (100% de tests ejecutables)
+- ✅ **Messaging Tests:** 28+ tests passing (6 ConversationApi + 6 MessageApi + 16 Unit tests)
+- ✅ **Multi-tenant isolation:** Verified across all layers
+- ✅ **Soft deletes:** Implemented and tested
+- ✅ **API Endpoints:** All 11 routes functional
+- ✅ **Frontend Components:** Full TypeScript support, Tailwind CSS, dark mode
+- ✅ **Git:** All commits pushed to `feature/messaging-mvp` branch
+- ✅ **Coverage:** ~75% baseline achieved (messaging module: ~86%)
+- ✅ **Execution Time:** 74.42s - performance within targets
+
+**Test Metrics (Mar 26):**
+
+- Starting: 612 passing, 12 failed (98.1%)
+- Ending: **623 passing, 0 failed (100%)**
+- Duration: 74.42s
+- Test assertions: 1998 all passing
+- **Phase 4 Status: ✅ FULLY COMPLETE**
 
 **Artefactos Principales (Admin Operations Alpha):**
 
 1. Backend:
     - `app/Models/AdminOperation.php`, `AdminOperationRolledBack.php` (NEW)
     - `app/Services/AdminOperationRollbackService.php` (NEW)
-    - `app/Http/Controllers/Api/AdminOperationsController.php` 
+    - `app/Http/Controllers/Api/AdminOperationsController.php`
     - `app/Jobs/AdminOperationJob.php` (async + locking)
     - `app/Events/AdminOperationRolledBack.php` (NEW)
     - `tests/Feature/AdminOperation*.php` (4 test files, 55 integration tests)
@@ -97,6 +107,7 @@ Este roadmap integra trabajo técnico, operativo y de producto para evitar creci
 **Problemas Resueltos (10 issues - Admin Ops + Messaging):**
 
 **Admin Operations:**
+
 1. ✅ Real-time event broadcasting to dashboard (SSE)
 2. ✅ Distributed locking for concurrent admin operations
 3. ✅ Exponential backoff for automatic job retries
@@ -104,6 +115,7 @@ Este roadmap integra trabajo técnico, operativo y de producto para evitar creci
 5. ✅ Admin-only authorization + org scoping
 
 **Messaging:**
+
 1. ✅ Faker factory methods (fake()->name())
 2. ✅ User→People relationship mismatch (People.user_id FK)
 3. ✅ Enum casing (::SENT vs ::Sent)
@@ -123,11 +135,13 @@ Este roadmap integra trabajo técnico, operativo y de producto para evitar creci
 🚀 **Ejecutar STAGING_DEPLOYMENT_CHECKLIST.md** para ambas features
 
 Admin Operations:
+
 - Deploy admin dashboard + async job infrastructure
 - Configure distributed locking + SSE
 - Smoke tests All admin operation types
 
 Messaging:
+
 - Deploy conversation + messaging infrastructure
 - Database migrations + soft deletes
 - Smoke tests para todos los 11 endpoints
@@ -218,6 +232,7 @@ Messaging:
 ### ✅ Alpha-1: Operación Admin Controlada - COMPLETO
 
 **Implementación:**
+
 - Vue3 admin dashboard expuesta en menú administrativo
 - Dry-run por defecto con confirmación explícita para apply
 - Backend: políticas de autorización (rol + permiso + validación)
@@ -232,6 +247,7 @@ Messaging:
 ### ✅ Alpha-2: Robustez de Ejecución - COMPLETO
 
 **Implementación:**
+
 - Operaciones en jobs asíncronos (queued, running, success, failed)
 - Distributed locking por rango + scope
 - Reintentos con exponential backoff
@@ -246,6 +262,7 @@ Messaging:
 ### ✅ Alpha-3: Observabilidad Técnica y Funcional - COMPLETO
 
 **Implementación:**
+
 - Métricas integradas: tiempo, éxito/error, throughput, retries
 - SLAs iniciales (latencia p95, success rate)
 - Alertas básicas (fallo consecutivo, duración anómala)
@@ -260,6 +277,7 @@ Messaging:
 ### ✅ Alpha-4: Sistema de Rollback - COMPLETO (NEW)
 
 **Implementación:**
+
 - Snapshots automáticos antes de operación
 - AdminOperationRolledBack event + rollback service
 - Rollback automático en fallos críticos

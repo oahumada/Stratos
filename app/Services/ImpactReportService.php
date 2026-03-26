@@ -28,13 +28,17 @@ class ImpactReportService
     /**
      * Genera un reporte de impacto completo para un escenario.
      */
-    public function generateScenarioImpactReport(int $scenarioId): array
+    public function generateScenarioImpactReport($scenarioOrId): array
     {
-        $scenario = Scenario::with(['roles.skills', 'capabilities'])->findOrFail($scenarioId);
+        if ($scenarioOrId instanceof Scenario) {
+            $scenario = $scenarioOrId;
+        } else {
+            $scenario = Scenario::with(['roles.skills', 'capabilities'])->findOrFail((int) $scenarioOrId);
+        }
 
-        $iq = $this->scenarioAnalytics->calculateScenarioIQ($scenarioId);
-        $impact = $this->scenarioAnalytics->calculateImpact($scenarioId);
-        $confidence = $this->scenarioAnalytics->getConfidenceScore($scenarioId);
+        $iq = $this->scenarioAnalytics->calculateScenarioIQ($scenario);
+        $impact = $this->scenarioAnalytics->calculateImpact($scenario);
+        $confidence = $this->scenarioAnalytics->getConfidenceScore($scenario->id);
 
         // Estrategias 4B aplicadas
         $strategyBreakdown = DB::table('scenario_closure_strategies')
@@ -98,17 +102,23 @@ class ImpactReportService
         $distributions = $this->roiService->getDistributionData();
 
         // Escenarios activos con sus métricas
-        $activeScenarios = Scenario::where('status', 'active')
-            ->orWhere('status', 'published')
-            ->get()
-            ->map(function ($scenario) {
-                return [
-                    'id' => $scenario->id,
-                    'name' => $scenario->name,
-                    'iq' => $this->scenarioAnalytics->calculateScenarioIQ($scenario->id),
-                    'impact' => $this->scenarioAnalytics->calculateImpact($scenario->id),
-                ];
-            });
+        $activeScenarios = Scenario::whereIn('status', ['active', 'published'])
+            ->with(['scenarioCapabilities.capability'])
+            ->get();
+
+        // Prefetch scenario caches to avoid N+1 inside ScenarioAnalyticsService
+        foreach ($activeScenarios as $s) {
+            $this->scenarioAnalytics->ensureScenarioCache($s->id);
+        }
+
+        $activeScenarios = $activeScenarios->map(function ($scenario) {
+            return [
+                'id' => $scenario->id,
+                'name' => $scenario->name,
+                'iq' => $this->scenarioAnalytics->calculateScenarioIQ($scenario),
+                'impact' => $this->scenarioAnalytics->calculateImpact($scenario),
+            ];
+        });
 
         // Learning Paths en progreso
         $learningProgress = DevelopmentPath::where('status', 'active')
@@ -129,10 +139,7 @@ class ImpactReportService
         $totalInvestment = DB::table('scenario_closure_strategies')
             ->sum('estimated_cost') ?: 0;
 
-        $savingsFromUpskilling = PeopleRoleSkills::whereColumn('current_level', '>=', 'required_level')
-            ->where('required_level', '>', 0)
-            ->distinct('people_id')
-            ->count() * TalentRoiService::AVG_HIRING_COST;
+        $savingsFromUpskilling = ((int) ($executiveSummary['upskilled_count'] ?? 0)) * TalentRoiService::AVG_HIRING_COST;
 
         return [
             'meta' => [
@@ -162,7 +169,8 @@ class ImpactReportService
         $scenarioReport = null;
         $latestScenario = Scenario::latest()->first();
         if ($latestScenario) {
-            $scenarioReport = $this->generateScenarioImpactReport($latestScenario->id);
+            // Pasar el modelo ya cargado para evitar recargarlo dentro del reporte
+            $scenarioReport = $this->generateScenarioImpactReport($latestScenario);
         }
 
         $roiReport = $this->generateOrganizationalRoiReport();
@@ -311,12 +319,19 @@ class ImpactReportService
 
     protected function getTalentPipelineMetrics(): array
     {
-        $totalPeople = People::count();
-        $withPaths = DevelopmentPath::distinct('people_id')->count('people_id');
-        $readyNow = PeopleRoleSkills::whereColumn('current_level', '>=', 'required_level')
-            ->where('required_level', '>', 0)
-            ->distinct('people_id')
-            ->count();
+        // Consolidar los conteos en una sola consulta para reducir roundtrips
+        $sql = <<<'SQL'
+select
+    (select count(*) from people) as total_people,
+    (select count(distinct people_id) from development_paths where status = 'active') as with_paths,
+    (select count(distinct people_role_skills.people_id) from people_role_skills where people_role_skills.required_level > 0 and people_role_skills.current_level >= people_role_skills.required_level) as ready_now
+SQL;
+
+        $row = DB::selectOne($sql) ?: (object) ['total_people' => 0, 'with_paths' => 0, 'ready_now' => 0];
+
+        $totalPeople = (int) ($row->total_people ?? 0);
+        $withPaths = (int) ($row->with_paths ?? 0);
+        $readyNow = (int) ($row->ready_now ?? 0);
 
         return [
             'total_workforce' => $totalPeople,

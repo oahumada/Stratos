@@ -18,7 +18,11 @@ class GapAnalysisService
     public function calculate(People $people, Roles $role): array
     {
         // Cargar skills del rol con datos de pivot (required_level, is_critical)
-        $roleSkills = $role->skills()->withPivot(['required_level', 'is_critical'])->get();
+        if ($role->relationLoaded('skills')) {
+            $roleSkills = $role->skills;
+        } else {
+            $roleSkills = $role->skills()->withPivot(['required_level', 'is_critical'])->get();
+        }
 
         $totalSkills = $roleSkills->count();
         $skillsOk = 0;
@@ -27,10 +31,16 @@ class GapAnalysisService
         foreach ($roleSkills as $roleSkill) {
             // Buscar el nivel actual de la persona para esta skill en people_role_skills
             // Se busca la skill activa de la persona, independiente del rol
-            $peopleRoleSkill = $people->roleSkills()
-                ->where('skill_id', $roleSkill->id)
-                ->where('is_active', true)
-                ->first();
+            if ($people->relationLoaded('roleSkills')) {
+                $peopleRoleSkill = $people->roleSkills->first(function ($rs) use ($roleSkill) {
+                    return ($rs->skill_id === $roleSkill->id) && ($rs->is_active);
+                });
+            } else {
+                $peopleRoleSkill = $people->roleSkills()
+                    ->where('skill_id', $roleSkill->id)
+                    ->where('is_active', true)
+                    ->first();
+            }
 
             $currentLevel = $peopleRoleSkill ? (int) ($peopleRoleSkill->current_level ?? 0) : 0;
             $requiredLevel = (int) ($roleSkill->pivot->required_level ?? 0);

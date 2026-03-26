@@ -29,7 +29,7 @@ class MessageController extends Controller
         $messages = $conversation->messages()
             ->select('id', 'conversation_id', 'people_id', 'body', 'state', 'reply_to_message_id', 'created_at', 'deleted_at')
             ->with([
-                'sender:id,name,email',
+                'sender:id,first_name,last_name,email',
                 'replyTo:id,body,people_id',
             ])
             ->orderBy('created_at', 'desc')

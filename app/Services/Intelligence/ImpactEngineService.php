@@ -69,16 +69,14 @@ class ImpactEngineService
      */
     public function getFinancialBenchmarks(int $organizationId): array
     {
-        // En una implementación completa, esto consultaría la tabla financial_indicators
-        // o agregaría datos de business_metrics (Payroll total / headcount).
+        // Leer ambos indicadores en una sola consulta para reducir roundtrips
+        $rows = FinancialIndicator::where('organization_id', $organizationId)
+            ->whereIn('indicator_type', ['avg_annual_salary', 'avg_recruitment_cost'])
+            ->get()
+            ->keyBy('indicator_type');
 
-        $avgSalary = FinancialIndicator::where('organization_id', $organizationId)
-            ->where('indicator_type', 'avg_annual_salary')
-            ->value('value') ?? 45000.00;
-
-        $recruitmentCost = FinancialIndicator::where('organization_id', $organizationId)
-            ->where('indicator_type', 'avg_recruitment_cost')
-            ->value('value') ?? 5000.00;
+        $avgSalary = $rows->get('avg_annual_salary')->value ?? 45000.00;
+        $recruitmentCost = $rows->get('avg_recruitment_cost')->value ?? 5000.00;
 
         return [
             'avg_annual_salary' => (float) $avgSalary,
@@ -93,9 +91,9 @@ class ImpactEngineService
      */
     public function calculateFinancialKPIs(int $organizationId): array
     {
-        // 1. Obtener las métricas más recientes
+        // 1. Obtener las métricas más recientes en una sola consulta y agruparlas
         $metrics = BusinessMetric::where('organization_id', $organizationId)
-            ->whereIn('metric_name', ['revenue', 'opex', 'payroll_cost', 'headcount'])
+            ->whereIn('metric_name', ['revenue', 'opex', 'payroll_cost', 'headcount', 'turnover_rate'])
             ->orderBy('period_date', 'desc')
             ->get()
             ->groupBy('metric_name');
@@ -104,29 +102,24 @@ class ImpactEngineService
         $opex = $metrics->get('opex')?->first()?->metric_value ?? 0;
         $payroll = $metrics->get('payroll_cost')?->first()?->metric_value ?? 0;
         $headcount = $metrics->get('headcount')?->first()?->metric_value ?? 1; // Evitar división por cero
+        $turnover = $metrics->get('turnover_rate')?->first()?->metric_value ?? 15;
 
         // 2. Aplicar fórmula HCVA: [Revenue - (Total Expenses - Payroll)] / Full-Time Equivalents
-        // NOTA: En este contexto OPEX suele incluir todo menos intereses/impuestos,
-        // pero la fórmula clásica de HCVA busca aislar el valor que el humano agrega después de gastos operativos no-humanos.
         $nonPayrollExpenses = $opex - $payroll;
-        $hcva = ($revenue - $nonPayrollExpenses) / $headcount;
-
-        // 3. Calcular Riesgo de Reemplazo (Replacement Risk)
-        // Estimado: turnover_rate * headcount * avg_recruitment_cost
-        $turnover = BusinessMetric::where('organization_id', $organizationId)
-            ->where('metric_name', 'turnover_rate')
-            ->latest()
-            ->value('metric_value') ?? 15; // 15% default
+        $hcva = ($revenue - $nonPayrollExpenses) / ($headcount ?: 1);
 
         $benchmarks = $this->getFinancialBenchmarks($organizationId);
         $replacementRisk = ($turnover / 100) * $headcount * $benchmarks['avg_recruitment_cost'];
 
+        // reporting_period desde las métricas ya cargadas
+        $reportingPeriod = $metrics->flatMap(fn($items) => $items)->max('period_date') ?? null;
+
         return [
             'hcva_average' => round($hcva, 2),
             'total_replacement_risk_usd' => round($replacementRisk, 2),
-            'training_roi_index' => 1.45, // Valor estático a refinar con datos de Navigator
+            'training_roi_index' => 1.45,
             'headcount_fte' => $headcount,
-            'reporting_period' => BusinessMetric::where('organization_id', $organizationId)->max('period_date'),
+            'reporting_period' => $reportingPeriod,
         ];
     }
 

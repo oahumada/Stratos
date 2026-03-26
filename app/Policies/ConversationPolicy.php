@@ -90,8 +90,15 @@ class ConversationPolicy
             return false;
         }
 
+        if (! $user->people) {
+            $user->load('people');
+            if (! $user->people) {
+                return false;
+            }
+        }
+
         // Creator or admin
-        return $user->id === $conversation->created_by || $this->isAdmin($user);
+        return $user->people->id === $conversation->created_by || $this->isAdmin($user);
     }
 
     /**
@@ -105,8 +112,15 @@ class ConversationPolicy
             return false;
         }
 
+        if (! $user->people) {
+            $user->load('people');
+            if (! $user->people) {
+                return false;
+            }
+        }
+
         // Creator or admin
-        return $user->id === $conversation->created_by || $this->isAdmin($user);
+        return $user->people->id === $conversation->created_by || $this->isAdmin($user);
     }
 
     /**

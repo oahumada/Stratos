@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Departments;
 use App\Models\Skill;
+use App\Models\People;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -127,65 +128,123 @@ class DepartmentController extends Controller
      */
     public function heatmapData(Request $request)
     {
-        // En producción cargaríamos deps y skills de la DB
-        $departments = Departments::orderBy('name')->pluck('name')->toArray();
-        if (empty($departments)) {
-            $departments = ['Ventas', 'Ingeniería', 'Producto', 'Marketing', 'Data', 'RRHH', 'Operaciones'];
+        // Cargar departamentos y skills desde la BD (una sola vez)
+        $departments = Departments::orderBy('name')->get();
+        $skills = Skill::where('is_critical', true)->orderBy('name')->get();
+
+        // Fallbacks en caso de datos ausentes (mantener comportamiento previo)
+        if ($departments->isEmpty()) {
+            $departments = collect(['Ventas', 'Ingeniería', 'Producto', 'Marketing', 'Data', 'RRHH', 'Operaciones'])
+                ->map(fn($n) => (object)['id' => null, 'name' => $n]);
+        }
+        if ($skills->isEmpty()) {
+            $skills = collect(['Python', 'SQL', 'Liderazgo', 'AI/ML', 'UX/UI', 'Finanzas'])
+                ->map(fn($n) => (object)['id' => null, 'name' => $n]);
         }
 
-        $skills = Skill::where('is_critical', true)->orderBy('name')->pluck('name')->toArray();
-        if (empty($skills)) {
-            $skills = ['Python', 'SQL', 'Liderazgo', 'AI/ML', 'UX/UI', 'Finanzas'];
-        }
+        $deptNames = $departments->pluck('name')->values()->all();
+        $skillNames = $skills->pluck('name')->values()->all();
+
+        // Mapear por nombre para búsquedas rápidas
+        $deptByName = $departments->keyBy('name');
+        $skillByName = $skills->keyBy('name');
 
         $data = [];
         $criticalRisks = [];
 
-        foreach ($departments as $x => $depName) {
-            $dept = Departments::where('name', $depName)->first();
-            foreach ($skills as $y => $skillName) {
-                $skill = Skill::where('name', $skillName)->first();
+        // Si no hay ids reales, mantenemos el comportamiento aleatorio simple
+        $realDeptIds = $departments->pluck('id')->filter()->values()->all();
+        $realSkillIds = $skills->pluck('id')->filter()->values()->all();
 
-                // Calculamos cobertura real or random if not exists
-                $coverage = rand(30, 95);
+        if (empty($realDeptIds) || empty($realSkillIds)) {
+            // Generar datos random (legacy fallback)
+            foreach ($deptNames as $x => $depName) {
+                foreach ($skillNames as $y => $skillName) {
+                    $data[] = [$x, $y, rand(30, 95)];
+                }
+            }
 
-                // LÓGICA DE RIESGO DE CONTINUIDAD
-                // Si la cobertura es < 50% y la skill es crítica, o si hay personas clave en riesgo de fuga
-                $hasRetentionRisk = false;
-                $riskReason = '';
+            return response()->json([
+                'x_axis' => $deptNames,
+                'y_axis' => $skillNames,
+                'data' => $data,
+                'critical_risks' => $criticalRisks,
+            ]);
+        }
 
-                if ($dept && $skill) {
-                    // Buscamos personas en este depto con esta skill crítica
-                    $peopleWithSkill = $dept->People()->whereHas('activeSkills', function ($q) use ($skill) {
-                        $q->where('skill_id', $skill->id);
-                    })->get();
+        // Cargar personas una sola vez con sus activeSkills filtradas
+        $people = People::with(['activeSkills' => function ($q) use ($realSkillIds) {
+            $q->whereIn('skill_id', $realSkillIds);
+        }])
+            ->whereIn('department_id', $realDeptIds)
+            ->get(['id', 'first_name', 'last_name', 'department_id', 'is_high_potential']);
 
-                    foreach ($peopleWithSkill as $p) {
-                        // Mock de detección de riesgo de fuga (en prod vendría del predictor service)
-                        if ($p->is_high_potential && rand(0, 10) > 8) {
-                            $hasRetentionRisk = true;
-                            $riskReason = "Continuity Alert: {$p->full_name} (Clave) en riesgo de fuga.";
-                            break;
-                        }
+        // Headcount por departamento (solo para los departamentos reales)
+        $headcounts = DB::table('people')
+            ->whereIn('department_id', $realDeptIds)
+            ->select('department_id', DB::raw('count(*) as cnt'))
+            ->groupBy('department_id')
+            ->get()
+            ->pluck('cnt', 'department_id')
+            ->toArray();
+
+        // Mapear índices para eje X/Y
+        $deptIndex = array_flip($deptNames);
+        $skillIndex = array_flip($skillNames);
+
+        // Contadores por pair (deptIndex, skillIndex)
+        $counters = [];
+
+        foreach ($people as $p) {
+            foreach ($p->activeSkills as $ps) {
+                $skill = $ps->skill; // relación de PeopleRoleSkills
+                if (! $skill) {
+                    continue;
+                }
+                $dName = $departments->firstWhere('id', $p->department_id)->name ?? null;
+                $sName = $skill->name;
+                if ($dName === null || $sName === null) {
+                    continue;
+                }
+                $x = $deptIndex[$dName] ?? null;
+                $y = $skillIndex[$sName] ?? null;
+                if ($x === null || $y === null) {
+                    continue;
+                }
+                $key = "{$x}:{$y}";
+                $counters[$key]['count'] = ($counters[$key]['count'] ?? 0) + 1;
+                if (! empty($p->is_high_potential) && rand(0, 10) > 8) {
+                    $counters[$key]['risk_person'] = ($counters[$key]['risk_person'] ?? []) + [trim($p->first_name . ' ' . $p->last_name)];
+                }
+            }
+        }
+
+        // Construir la matriz de salida
+        foreach ($deptNames as $x => $dName) {
+            foreach ($skillNames as $y => $sName) {
+                $key = "{$x}:{$y}";
+                $count = $counters[$key]['count'] ?? 0;
+                $head = $headcounts[$departments->firstWhere('name', $dName)->id] ?? 0;
+                $coverage = $head > 0 ? (int) round(($count / $head) * 100) : rand(30, 95);
+
+                if (! empty($counters[$key]['risk_person'])) {
+                    foreach ($counters[$key]['risk_person'] as $personName) {
+                        $criticalRisks[] = [
+                            'coord' => [$x, $y],
+                            'reason' => "Continuity Alert: {$personName} (Clave) en riesgo de fuga.",
+                        ];
+                        // solo un riesgo por celda es suficiente para la visual
+                        break;
                     }
                 }
 
-                $value = $coverage;
-                // Si hay riesgo de fuga, forzamos un estado visual de "Alerta" (ej. > 100 para lógica de color)
-                if ($hasRetentionRisk) {
-                    $criticalRisks[] = [
-                        'coord' => [$x, $y],
-                        'reason' => $riskReason,
-                    ];
-                }
-
-                $data[] = [$x, $y, $value];
+                $data[] = [$x, $y, $coverage];
             }
         }
 
         return response()->json([
-            'x_axis' => $departments,
-            'y_axis' => $skills,
+            'x_axis' => $deptNames,
+            'y_axis' => $skillNames,
             'data' => $data,
             'critical_risks' => $criticalRisks,
         ]);

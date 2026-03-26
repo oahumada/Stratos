@@ -38,22 +38,40 @@ class TalentRoiService
     public function getExecutiveSummary(?int $organizationId = null): array
     {
         $organizationId = $this->resolveOrganizationId($organizationId);
+        $aggs = $this->getExecutiveAggregates($organizationId);
+        $totalHeadcount = (int) ($aggs->headcount ?? 0);
+        $totalScenarios = (int) ($aggs->total_scenarios ?? 0);
 
-        $totalHeadcount = People::where('organization_id', $organizationId)->count();
-        $totalScenarios = Scenario::where('organization_id', $organizationId)->count();
+        // Use aggregated values when available to avoid extra DB hits
+        $avgReadiness = isset($aggs->avg_readiness) ? (float) $aggs->avg_readiness : $this->calculateGlobalReadiness($organizationId);
 
-        $avgReadiness = $this->calculateGlobalReadiness($organizationId);
-        $talentRoi = $this->calculateTotalTalentRoi($organizationId);
+        // Pass precomputed upskilled & bot counts to avoid duplicate queries
+        $talentRoi = $this->calculateTotalTalentRoi($organizationId, (int) ($aggs->upskilled_count ?? 0), (int) ($aggs->bot_strategies ?? 0));
 
         // Impact Engine Metrics
         $impactKpis = $this->impactEngine->calculateFinancialKPIs($organizationId);
 
         // High-level risks
-        $criticalGapRate = $this->calculateCriticalGapRate($organizationId);
+        if (isset($aggs->critical_gaps) && isset($aggs->total_pivot_rows) && $aggs->total_pivot_rows > 0) {
+            $criticalGapRate = $aggs->critical_gaps / $aggs->total_pivot_rows;
+        } else {
+            $criticalGapRate = $this->calculateCriticalGapRate($organizationId);
+        }
 
         $cultureHealthScore = $this->calculateCultureHealthScore($organizationId);
-        $avgTurnoverRisk = $this->getAverageTurnoverRisk($organizationId);
-        $aiAugmentationIndex = $this->calculateAiAugmentationIndex($organizationId);
+        // Prefer precomputed aggregate when available to avoid extra queries
+        if (isset($aggs->avg_turnover_risk) && $aggs->avg_turnover_risk !== null) {
+            $avgTurnoverRisk = (float) $aggs->avg_turnover_risk;
+        } else {
+            // Default when no pulse data: 50.0 (matches previous fallback behavior)
+            $avgTurnoverRisk = 50.0;
+        }
+
+        if (isset($aggs->total_roles) && isset($aggs->augmented_roles) && $aggs->total_roles > 0) {
+            $aiAugmentationIndex = round(($aggs->augmented_roles / $aggs->total_roles) * 100, 1);
+        } else {
+            $aiAugmentationIndex = $this->calculateAiAugmentationIndex($organizationId);
+        }
 
         $stratosIq = $this->calculateStratosIq([
             'org_readiness' => round($avgReadiness * 100, 1),
@@ -73,8 +91,39 @@ class TalentRoiService
             'culture_health_score' => $cultureHealthScore,
             'avg_turnover_risk' => round($avgTurnoverRisk, 1),
             'stratos_iq' => $stratosIq,
+            // Expose some precomputed aggregates for callers that want to avoid duplicate queries
+            'upskilled_count' => (int) ($aggs->upskilled_count ?? 0),
+            'bot_strategies' => (int) ($aggs->bot_strategies ?? 0),
+            'total_pivot_rows' => (int) ($aggs->total_pivot_rows ?? 0),
         ];
     }
+
+        /**
+         * Ejecuta agregados clave en una sola consulta para reducir roundtrips.
+         */
+        private function getExecutiveAggregates(int $organizationId): object
+        {
+                $sql = <<<'SQL'
+select
+    (select count(*) from people where organization_id = ? and deleted_at is null) as headcount,
+    (select count(*) from scenarios where organization_id = ?) as total_scenarios,
+    (select count(distinct people_role_skills.people_id) from people_role_skills join people on people_role_skills.people_id = people.id where people.organization_id = ? and people_role_skills.current_level >= people_role_skills.required_level and people_role_skills.required_level > 0) as upskilled_count,
+    (select count(*) from scenario_closure_strategies sc join scenarios s on sc.scenario_id = s.id where s.organization_id = ? and sc.strategy = 'bot') as bot_strategies,
+    (select count(*) from people_role_skills prs join people p on prs.people_id = p.id where p.organization_id = ?) as total_pivot_rows,
+    (select AVG(LEAST(1.0, prs.current_level / NULLIF(prs.required_level, 0))) from people_role_skills prs join people p on prs.people_id = p.id where p.organization_id = ?) as avg_readiness,
+    (select count(*) from people_role_skills prs join people p on prs.people_id = p.id where p.organization_id = ? and prs.required_level > 0 and prs.current_level < (prs.required_level * 0.5)) as critical_gaps,
+    (select count(*) from roles where organization_id = ?) as total_roles,
+    (select count(distinct sc.role_id) from scenario_closure_strategies sc join scenarios s on sc.scenario_id = s.id join roles r on sc.role_id = r.id where s.organization_id = ? and r.organization_id = ? and sc.strategy = 'bot') as augmented_roles,
+    (select AVG(CASE WHEN ep.ai_turnover_risk = 'low' THEN 25 WHEN ep.ai_turnover_risk = 'medium' THEN 60 WHEN ep.ai_turnover_risk = 'high' THEN 85 ELSE 50 END)
+        from employee_pulses ep join people p on ep.people_id = p.id where p.organization_id = ?) as avg_turnover_risk
+SQL;
+
+                // Now there are 11 placeholders
+                $params = array_fill(0, 11, $organizationId);
+
+                $row = DB::selectOne($sql, $params);
+                return $row ?: (object)[];
+        }
 
     /**
      * CEO view: Top 5 KPIs de lectura en menos de 10 segundos.
@@ -172,22 +221,34 @@ class TalentRoiService
      */
     private function calculateTotalTalentRoi(int $organizationId): float
     {
-        // 1. Savings from internal upskilling (people who reached required level)
-        $upskilledCount = PeopleRoleSkills::join('people', 'people_role_skills.people_id', '=', 'people.id')
-            ->where('people.organization_id', $organizationId)
-            ->whereColumn('current_level', '>=', 'required_level')
-            ->where('required_level', '>', 0)
-            ->distinct('people_id')
-            ->count();
+        // Allow passing precomputed values to avoid duplicate queries
+        $args = func_get_args();
+        $preUp = $args[1] ?? null;
+        $preBot = $args[2] ?? null;
+
+        if ($preUp !== null) {
+            $upskilledCount = (int) $preUp;
+        } else {
+            $upskilledCount = PeopleRoleSkills::join('people', 'people_role_skills.people_id', '=', 'people.id')
+                ->where('people.organization_id', $organizationId)
+                ->whereColumn('current_level', '>=', 'required_level')
+                ->where('required_level', '>', 0)
+                ->distinct('people_id')
+                ->count();
+        }
 
         $upskillingSavings = $upskilledCount * self::AVG_HIRING_COST;
 
-        // 2. Value from AI-Assisted productivity (mock/aggregated from bot strategies)
-        $botStrategies = DB::table('scenario_closure_strategies')
-            ->join('scenarios', 'scenario_closure_strategies.scenario_id', '=', 'scenarios.id')
-            ->where('scenarios.organization_id', $organizationId)
-            ->where('strategy', 'bot')
-            ->count();
+        if ($preBot !== null) {
+            $botStrategies = (int) $preBot;
+        } else {
+            $botStrategies = DB::table('scenario_closure_strategies')
+                ->join('scenarios', 'scenario_closure_strategies.scenario_id', '=', 'scenarios.id')
+                ->where('scenarios.organization_id', $organizationId)
+                ->where('strategy', 'bot')
+                ->count();
+        }
+
         $aiProductivityValue = $botStrategies * (self::AVG_ANNUAL_SALARY * 0.2); // Assuming 20% efficiency boost
 
         return round($upskillingSavings + $aiProductivityValue, 2);
@@ -261,18 +322,15 @@ class TalentRoiService
 
     private function calculateCultureHealthScore(int $organizationId): int
     {
-        $avgSentiment = (float) (PulseResponse::whereHas('people', function ($query) use ($organizationId) {
-            $query->where('organization_id', $organizationId);
-        })->where('created_at', '>=', now()->subDays(30))->avg('sentiment_score') ?? 0);
+        $stats = $this->getPulseSentimentStats($organizationId);
 
-        $pulseCount = PulseResponse::whereHas('people', function ($query) use ($organizationId) {
-            $query->where('organization_id', $organizationId);
-        })->where('created_at', '>=', now()->subDays(30))->count();
+        $avgSentiment = (float) ($stats['recent_avg'] ?? 50);
+        $pulseCount = (int) ($stats['recent_count'] ?? 0);
 
         $score = 50;
         $score += ($avgSentiment - 50) * 0.4;
 
-        $trend = $this->calculateSentimentTrend($organizationId);
+        $trend = $this->calculateSentimentTrend($organizationId, $stats);
         if ($trend === 'improving') {
             $score += 10;
         } elseif ($trend === 'declining') {
@@ -288,15 +346,14 @@ class TalentRoiService
         return max(0, min(100, (int) round($score)));
     }
 
-    private function calculateSentimentTrend(int $organizationId): string
+    private function calculateSentimentTrend(int $organizationId, array $stats = []): string
     {
-        $recent = (float) (PulseResponse::whereHas('people', function ($query) use ($organizationId) {
-            $query->where('organization_id', $organizationId);
-        })->where('created_at', '>=', now()->subDays(15))->avg('sentiment_score') ?? 0);
+        if (empty($stats)) {
+            $stats = $this->getPulseSentimentStats($organizationId);
+        }
 
-        $previous = (float) (PulseResponse::whereHas('people', function ($query) use ($organizationId) {
-            $query->where('organization_id', $organizationId);
-        })->whereBetween('created_at', [now()->subDays(30), now()->subDays(15)])->avg('sentiment_score') ?? 0);
+        $recent = (float) ($stats['recent_avg'] ?? 0);
+        $previous = (float) ($stats['previous_avg'] ?? 0);
 
         if ($recent > ($previous + 5)) {
             return 'improving';
@@ -307,6 +364,33 @@ class TalentRoiService
         }
 
         return 'stable';
+    }
+
+    /**
+     * Devuelve estadísticas agregadas de `pulse_responses` en una sola consulta
+     */
+    private function getPulseSentimentStats(int $organizationId): array
+    {
+        $recentSince = now()->subDays(15);
+        $previousFrom = now()->subDays(30);
+        $previousTo = now()->subDays(15);
+
+        $row = PulseResponse::selectRaw(
+            'AVG(CASE WHEN pulse_responses.created_at >= ? THEN pulse_responses.sentiment_score END) as recent_avg, '
+            . 'AVG(CASE WHEN pulse_responses.created_at BETWEEN ? AND ? THEN pulse_responses.sentiment_score END) as previous_avg, '
+            . 'SUM(CASE WHEN pulse_responses.created_at >= ? THEN 1 ELSE 0 END) as recent_count',
+            [$recentSince, $previousFrom, $previousTo, $recentSince]
+        )
+        ->join('people', 'pulse_responses.people_id', '=', 'people.id')
+        ->where('people.organization_id', $organizationId)
+        ->whereNull('people.deleted_at')
+        ->first();
+
+        return [
+            'recent_avg' => $row->recent_avg ?? null,
+            'previous_avg' => $row->previous_avg ?? null,
+            'recent_count' => (int) ($row->recent_count ?? 0),
+        ];
     }
 
     private function getAverageTurnoverRisk(int $organizationId): float

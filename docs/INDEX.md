@@ -92,6 +92,7 @@
 - **[dia3_services_logica_negocio.md](dia3_services_logica_negocio.md)** - Lógica de negocio
 - **[DIAGRAMA_FLUJO.md](DIAGRAMA_FLUJO.md)** - Diagramas de flujo
 - **[FormSchemaController-Complete-Documentation.md](FormSchemaController-Complete-Documentation.md)** - Controller CRUD
+- **[MESSAGING_MVP_PROGRESS.md](MESSAGING_MVP_PROGRESS.md)** - ⭐ **Messaging MVP (Phase 1-4 ✅ COMPLETE)** - Sistema de mensajería interna con conversaciones multi-participantes, soft deletes y multi-tenant isolation
 
 ### Frontend
 
@@ -170,6 +171,7 @@
 - **[memories.md](memories.md)** - Memoria de contexto (actualizada)
 - **[estado_actual_mvp.md](estado_actual_mvp.md)** - Estado actual del MVP
 - **[CHECKLIST_MVP_COMPLETION.md](CHECKLIST_MVP_COMPLETION.md)** - Checklist de completitud
+- **[PENDIENTES_2026_03_26.md](PENDIENTES_2026_03_26.md)** - ✅ **Roadmap de Pendientes** - Próximos pasos tras Messaging MVP Phase 4 completo
 
 ---
 
