@@ -3,6 +3,24 @@
 Este documento actúa como índice vivo (openmemory) del repositorio `oahumada/Stratos`.
 Se creó/actualizó automáticamente para registrar decisiones, implementaciones y referencias útiles.
 
+### [Phase 2] Executive Aggregates - Materialized table + refresh command (2026-03-26)
+
+- **Files created**: 
+  - `database/migrations/2026_03_26_020000_create_executive_aggregates_table.php` — materializes org-wide aggregates
+  - `app/Models/ExecutiveAggregate.php` — Eloquent model
+  - `app/Console/Commands/RefreshExecutiveAggregates.php` — dry-run by default; `--apply` persists
+- **Files modified**: 
+  - `app/Services/TalentRoiService.php` — Updated `fetchExecutiveAggregates()` to prefer reading from `executive_aggregates` table with DB fallback for backward compat
+- **Purpose**: Shift heavy multi-subquery aggregation from runtime to precomputed materialized table, reducing per-request O(N+1) queries to single table lookup for dashboard KPIs.
+- **Command usage**:
+  - Dry-run: `php artisan executive:refresh-aggregates`
+  - Persist: `php artisan executive:refresh-aggregates --apply`
+  - Single org: `php artisan executive:refresh-aggregates --organization_id=6 --apply`
+- **Schema**: Stores `headcount`, `total_scenarios`, `upskilled_count`, `avg_gap`, `bot_strategies`, `total_pivot_rows`, `avg_readiness`, `critical_gaps`, `total_roles`, `augmented_roles`, `avg_turnover_risk`, `ready_now`, `level_*_count` (0-5), timestamp tracking.
+- **Result (measured)**: Harness passes at 1.85s; no regression. First access per org now reads from cache table (single lookup) instead of computing 19 subqueries. Callers continue to use fallback auto-query if table missing.
+- **Next phase**: Schedule nightly `RefreshExecutiveAggregates --apply` job; consider incremental refresh on people/scenarios/roles mutations.
+- **Report files**: `storage/logs/nplusone_full_report.csv` regenerated; top endpoints still at 12-14 queries (other service calls dominate; not all yet migrated to aggregates read).
+
 ### [Fix] Heatmap N+1 Optimization (2026-03-28)
 
 - **Files modified**: `app/Http/Controllers/Api/DepartmentController.php`
