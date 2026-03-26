@@ -3,6 +3,32 @@
 Este documento actúa como índice vivo (openmemory) del repositorio `oahumada/Stratos`.
 Se creó/actualizó automáticamente para registrar decisiones, implementaciones y referencias útiles.
 
+### [Phase 2.1] TalentRoiService Singleton + Aggregates Caching (2026-03-26)
+
+- **Files modified**: 
+  - `app/Providers/AppServiceProvider.php` — Register TalentRoiService as singleton
+  - `app/Services/TalentRoiService.php` — Update `getExecutiveSummary()` to use `fetchExecutiveAggregates()`
+- **Purpose**: Share aggregate cache across all calls in same request; eliminate duplicate queries when multiple services call `fetchExecutiveAggregates()`
+- **Mechanism**: 
+  - Singleton registration ensures single instance per request lifecycle
+  - All internal calls to `fetchExecutiveAggregates()` hit instance cache first
+  - Fallback to materialized table OR SQL subqueries if cache miss
+- **Result (measured)**:
+  - `/api/reports/consolidated`: 12 → 9 queries (-25%)
+  - `/api/reports/roi`: 11 → 8 queries (-27%)
+  - N+1 harness: 1.85s → 1.41s running time (-24%)
+- **Remaining queries breakdown** (consolidated report):
+  - 1x `scenarios order by created_at desc limit 1` (context)
+  - 1x `business_metrics WHERE metric_name IN (...)`
+  - 1x `financial_indicators WHERE indicator_type IN (...)`
+  - 1x `people_role_skills aggregate count`
+  - 1x `pulse_responses aggregate (sentiment)`
+  - 1x `roles aggregate count`
+  - 1x `scenarios WHERE status IN (active, published)`
+  - 1x `development_paths WHERE status = active`
+  - (Total: 9 queries vs 12 previously)
+- **Next phase**: Batch business_metrics + financial_indicators; consider pre-aggregating scenario metrics
+
 ### [Phase 2] Executive Aggregates - Materialized table + refresh command (2026-03-26)
 
 - **Files created**: 
