@@ -54,19 +54,95 @@
 - **Production Ready:** YES ✅
 - **Next Step:** Ready for staging deployment (Mar 27-28) or direct production release
 
-### 2. **UI del Talent Pass (CV 2.0)** 🎨 — NEXT PRIORITY
+### 2. **Talent Pass (CV 2.0) - Full Deployment** 🎨 D8 — NEXT PRIORITY (After Messaging Complete)
 
-- **Estado:** Backend + API endpoints ✅ COMPLETO
-- **Pendiente:** Vue3 components para visualización
-- **Componentes Necesarios:**
-    - [ ] `TalentPassViewer.vue` - Display del CV 2.0
-    - [ ] `TalentPassEditor.vue` - Edición de skills/competencias
-    - [ ] `TalentPassExport.vue` - Exportar a PDF/JSON
-    - [ ] Tailwind CSS styling con Glass design system
-- **Tiempo:** 3-4 días
-- **COSTO:** ✅ ZERO ($0) - No requiere blockchain
-- **Dependencia:** ROADMAP Priority 1 (High Value, Without costs)
-- **Bloquea:** Admin Panel Polish, LMS Hardening
+- **Estado:** 📋 Deployment guide ready (see TALENT_PASS_CV2_DEPLOYMENT.md)
+- **Overview:** Digital confidence platform = skills graph + credentials + shareable CV
+- **Phase Scope (v1.0 MVP):**
+    - [x] ✅ Deployment guide created (all phases planned)
+    - [x] ✅ Database schema designed (4 tables)
+    - [x] ✅ Architecture documented (models, services, controllers)
+    - [x] ✅ Timeline defined (3 weeks: Mar 31 - Apr 18)
+    - [ ] ⏳ Database & Backend (Week 1: Mar 31 - Apr 4)
+    - [ ] ⏳ Vue3 Components (Week 2: Apr 7 - Apr 11)
+    - [ ] ⏳ Integration & Testing (Week 3: Apr 14 - Apr 18)
+    - [ ] ⏳ Staging Deployment (Apr 19)
+    - [ ] ⏳ Production Deployment (Apr 21 if approved)
+
+- **Week 1 Deliverables (Mar 31 - Apr 4):**
+    - [ ] Database schema: talent_passes, skills, credentials, experiences tables
+    - [ ] Laravel models: TalentPass, TalentPassSkill, TalentPassCredential, TalentPassExperience
+    - [ ] Services: TalentPassService, CVExportService, TalentSearchService
+    - [ ] API controllers: REST endpoints for CRUD operations
+    - [ ] 80+ backend tests (unit + feature)
+    - **Lines of Code:** ~1,500 backend
+    - **Time:** 10 hours
+
+- **Week 2 Deliverables (Apr 7 - Apr 11):**
+    - [ ] Vue 3 Components: TalentPassViewer, TalentPassEditor, SkillsGraph, PublicView
+    - [ ] Tailwind CSS styling (glass design system)
+    - [ ] Responsive layout (mobile, tablet, desktop)
+    - [ ] Form validation with Inertia <Form>
+    - [ ] Draft auto-save functionality
+    - [ ] 40+ frontend tests
+    - **Lines of Code:** ~1,200 frontend
+    - **Time:** 10 hours
+
+- **Week 3 Deliverables (Apr 14 - Apr 18):**
+    - [ ] Integration with workforce planning
+    - [ ] Global talent search functionality
+    - [ ] Integration tests (full user flow)
+    - [ ] E2E browser tests (Pest 4)
+    - [ ] Load testing with k6
+    - [ ] Security audit (OWASP top 10)
+    - [ ] 30+ integration + E2E tests
+    - **Lines of Code:** ~500 integration
+    - **Time:** 10 hours
+
+- **Key Metrics:**
+    - [ ] Total Tests: 150+ (80 backend + 40 frontend + 30 integration/E2E)
+    - [ ] Test Coverage: > 90%
+    - [ ] Performance: PDF export < 500ms, search < 200ms
+    - [ ] Security: Zero HIGH/CRITICAL vulnerabilities
+    - [ ] Uptime: > 99.5% in staging UAT
+
+- **Deployment Timeline:**
+    - [ ] **Apr 19 (09:00 UTC):** Staging deployment (40 mins)
+    - [ ] **Apr 19-20:** 24-hour UAT monitoring
+    - [ ] **Apr 21 (10:00 UTC):** Go/No-Go decision
+    - [ ] **Apr 21 (14:00 UTC):** Production deployment (if approved)
+    - [ ] **Apr 21-24:** 72-hour production monitoring
+
+- **Dependencies:**
+    - [x] ✅ Messaging MVP staging complete (Mar 27-28)
+    - [x] ✅ Messaging MVP production approved (Mar 31)
+    - [ ] ⏳ Messaging MVP in production (before Apr 19)
+
+- **COSTO:** ✅ ZERO ($0)
+    - Backend dev: 10 hours (internal)
+    - Frontend dev: 10 hours (internal)
+    - QA/testing: 10 hours (internal)
+    - Infrastructure: $0 (existing staging/prod)
+    - External services: $0 (no blockchain, no third-party)
+
+- **Feature Details (v1.0):**
+    - ✅ Talent Pass viewer (read-only display)
+    - ✅ Skills editor with proficiency levels
+    - ✅ Credentials management (certs, courses)
+    - ✅ Experience timeline
+    - ✅ CV/PDF export with Dompdf
+    - ✅ Public shareable link
+    - ✅ Search by skills
+    - ✅ Integration with workforce planning (view skills)
+
+- **Future Phases (v2.0+):**
+    - ❌ Endorsement system
+    - ❌ Social features
+    - ❌ Blockchain verification (cost-benefit unfavorable)
+    - ❌ Third-party integrations (LinkedIn, Indeed, etc)
+
+- **Risk Level:** LOW (follows proven Messaging MVP pattern, internal dev only)
+- **Bloquea:** Admin Panel Polish, LMS Hardening (as planned)
 
 ### 3. ~~**Blockchain Node Setup (POSTERGAR - NO PRIORITARIO)**~~ 🛑
 
@@ -225,14 +301,14 @@
 
 ## 🗓️ Timeline Recomendado
 
-| Fase          | Items                         | Duración | ETA    | COSTO   |
-| :------------ | :---------------------------- | :------- | :----- | :------ |
-| ✅ **Mar 26** | N+1 Optimization (Phase 2-5)  | Complete | ✅     | $0      |
-| ✅ **Mar 26** | Messaging MVP Merge Complete  | Complete | ✅     | $0      |
-| **Mar 27-28** | Deploy Messaging to Staging   | 2 hrs    | Mar 28 | $0      |
-| **NEXT WEEK** | Talent Pass UI (Priority 1)   | 3-4 días | Mar 31 | $0      |
-| **Week 2**    | Admin Polish, LMS Hardening   | 2-3 sem  | Abr 14 | $0      |
-| **Q2**        | Planning Phase 2 + Analytics  | 8+ sem   | Jun 30 | \*$100+ |
+| Fase          | Items                        | Duración | ETA    | COSTO   |
+| :------------ | :--------------------------- | :------- | :----- | :------ |
+| ✅ **Mar 26** | N+1 Optimization (Phase 2-5) | Complete | ✅     | $0      |
+| ✅ **Mar 26** | Messaging MVP Merge Complete | Complete | ✅     | $0      |
+| **Mar 27-28** | Deploy Messaging to Staging  | 2 hrs    | Mar 28 | $0      |
+| **NEXT WEEK** | Talent Pass UI (Priority 1)  | 3-4 días | Mar 31 | $0      |
+| **Week 2**    | Admin Polish, LMS Hardening  | 2-3 sem  | Abr 14 | $0      |
+| **Q2**        | Planning Phase 2 + Analytics | 8+ sem   | Jun 30 | \*$100+ |
 
 \*Q2 costos opcionales: APM ($100-300/mes), Professional Pentest (~$0.5-1k), etc.
 
