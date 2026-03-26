@@ -16,8 +16,8 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - **Result (measured)**:
   - `/api/reports/consolidated`: 12 → 9 queries (-25%)
   - `/api/reports/roi`: 11 → 8 queries (-27%)
-  - N+1 harness: 1.85s → 1.41s running time (-24%)
-- **Remaining queries breakdown** (consolidated report):
+  - N+1 harness: 1.85s → 1.32s running time (-29% total from baseline)
+- **Remaining queries breakdown** (consolidated report, 9 total):
   - 1x `scenarios order by created_at desc limit 1` (context)
   - 1x `business_metrics WHERE metric_name IN (...)`
   - 1x `financial_indicators WHERE indicator_type IN (...)`
@@ -26,8 +26,13 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
   - 1x `roles aggregate count`
   - 1x `scenarios WHERE status IN (active, published)`
   - 1x `development_paths WHERE status = active`
-  - (Total: 9 queries vs 12 previously)
-- **Next phase**: Batch business_metrics + financial_indicators; consider pre-aggregating scenario metrics
+- **Future optimizations** (Phase 3+):
+  - Batch business_metrics + financial_indicators into single query
+  - Lazy-load scenario context (only fetch if needed)
+  - Add DB indices: `scenarios.status`, `pulse_responses.organization_id`, `development_paths.status`
+  - Redis caching for business_metrics (relatively stable, read-heavy)
+  - Consolidate `getDistributionData()` queries (skill_levels + department_readiness) into single query
+- **Summary**: Reduced dashboard endpoints from 12/11 queries to 9/8; harness runtime improved 29%; singleton caching ensures request-scoped aggregates shared across services
 
 ### [Phase 2] Executive Aggregates - Materialized table + refresh command (2026-03-26)
 
