@@ -67,6 +67,7 @@ import AnalyticsController from './AnalyticsController'
 import AutomationController from './AutomationController'
 import MobileController from './MobileController'
 import Messaging from './Messaging'
+import AdminOperationsController from './AdminOperationsController'
 import Automation from './Automation'
 
 const Api = {
@@ -139,6 +140,7 @@ const Api = {
     AutomationController: Object.assign(AutomationController, AutomationController),
     MobileController: Object.assign(MobileController, MobileController),
     Messaging: Object.assign(Messaging, Messaging),
+    AdminOperationsController: Object.assign(AdminOperationsController, AdminOperationsController),
     Automation: Object.assign(Automation, Automation),
 }
 

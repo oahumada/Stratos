@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::analyze
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:23
+* @see app/Http/Controllers/Api/BulkPeopleImportController.php:22
 * @route '/api/talent/bulk-import/analyze'
 */
 export const analyze = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ analyze.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::analyze
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:23
+* @see app/Http/Controllers/Api/BulkPeopleImportController.php:22
 * @route '/api/talent/bulk-import/analyze'
 */
 analyze.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ analyze.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::analyze
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:23
+* @see app/Http/Controllers/Api/BulkPeopleImportController.php:22
 * @route '/api/talent/bulk-import/analyze'
 */
 analyze.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ analyze.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::analyze
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:23
+* @see app/Http/Controllers/Api/BulkPeopleImportController.php:22
 * @route '/api/talent/bulk-import/analyze'
 */
 const analyzeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const analyzeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =
 
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::analyze
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:23
+* @see app/Http/Controllers/Api/BulkPeopleImportController.php:22
 * @route '/api/talent/bulk-import/analyze'
 */
 analyzeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -57,7 +57,7 @@ analyze.form = analyzeForm
 
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::stage
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:174
+* @see app/Http/Controllers/Api/BulkPeopleImportController.php:176
 * @route '/api/talent/bulk-import/stage'
 */
 export const stage = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -72,7 +72,7 @@ stage.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::stage
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:174
+* @see app/Http/Controllers/Api/BulkPeopleImportController.php:176
 * @route '/api/talent/bulk-import/stage'
 */
 stage.url = (options?: RouteQueryOptions) => {
@@ -81,7 +81,7 @@ stage.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::stage
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:174
+* @see app/Http/Controllers/Api/BulkPeopleImportController.php:176
 * @route '/api/talent/bulk-import/stage'
 */
 stage.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -91,7 +91,7 @@ stage.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::stage
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:174
+* @see app/Http/Controllers/Api/BulkPeopleImportController.php:176
 * @route '/api/talent/bulk-import/stage'
 */
 const stageForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -101,7 +101,7 @@ const stageForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::stage
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:174
+* @see app/Http/Controllers/Api/BulkPeopleImportController.php:176
 * @route '/api/talent/bulk-import/stage'
 */
 stageForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -113,7 +113,7 @@ stage.form = stageForm
 
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::approveAndCommit
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:205
+* @see app/Http/Controllers/Api/BulkPeopleImportController.php:207
 * @route '/api/talent/bulk-import/{id}/approve'
 */
 export const approveAndCommit = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -128,7 +128,7 @@ approveAndCommit.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::approveAndCommit
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:205
+* @see app/Http/Controllers/Api/BulkPeopleImportController.php:207
 * @route '/api/talent/bulk-import/{id}/approve'
 */
 approveAndCommit.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -155,7 +155,7 @@ approveAndCommit.url = (args: { id: string | number } | [id: string | number ] |
 
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::approveAndCommit
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:205
+* @see app/Http/Controllers/Api/BulkPeopleImportController.php:207
 * @route '/api/talent/bulk-import/{id}/approve'
 */
 approveAndCommit.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -165,7 +165,7 @@ approveAndCommit.post = (args: { id: string | number } | [id: string | number ] 
 
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::approveAndCommit
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:205
+* @see app/Http/Controllers/Api/BulkPeopleImportController.php:207
 * @route '/api/talent/bulk-import/{id}/approve'
 */
 const approveAndCommitForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -175,7 +175,7 @@ const approveAndCommitForm = (args: { id: string | number } | [id: string | numb
 
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::approveAndCommit
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:205
+* @see app/Http/Controllers/Api/BulkPeopleImportController.php:207
 * @route '/api/talent/bulk-import/{id}/approve'
 */
 approveAndCommitForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -1,6 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:241
 * @route '/quality-hub'
 */
 export const hub = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +14,7 @@ hub.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:241
 * @route '/quality-hub'
 */
 hub.url = (options?: RouteQueryOptions) => {
@@ -22,7 +22,7 @@ hub.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:241
 * @route '/quality-hub'
 */
 hub.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -31,7 +31,7 @@ hub.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:241
 * @route '/quality-hub'
 */
 hub.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -40,7 +40,7 @@ hub.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:241
 * @route '/quality-hub'
 */
 const hubForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -49,7 +49,7 @@ const hubForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:241
 * @route '/quality-hub'
 */
 hubForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -58,7 +58,7 @@ hubForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:241
 * @route '/quality-hub'
 */
 hubForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -74,7 +74,7 @@ hubForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 hub.form = hubForm
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:245
 * @route '/quality/ragas-metrics'
 */
 export const ragasMetrics = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -88,7 +88,7 @@ ragasMetrics.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:245
 * @route '/quality/ragas-metrics'
 */
 ragasMetrics.url = (options?: RouteQueryOptions) => {
@@ -96,7 +96,7 @@ ragasMetrics.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:245
 * @route '/quality/ragas-metrics'
 */
 ragasMetrics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -105,7 +105,7 @@ ragasMetrics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:245
 * @route '/quality/ragas-metrics'
 */
 ragasMetrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -114,7 +114,7 @@ ragasMetrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:245
 * @route '/quality/ragas-metrics'
 */
 const ragasMetricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -123,7 +123,7 @@ const ragasMetricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:245
 * @route '/quality/ragas-metrics'
 */
 ragasMetricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ ragasMetricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'>
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:245
 * @route '/quality/ragas-metrics'
 */
 ragasMetricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -148,7 +148,7 @@ ragasMetricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 ragasMetrics.form = ragasMetricsForm
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:249
 * @route '/quality/compliance-audit'
 */
 export const complianceAudit = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -162,7 +162,7 @@ complianceAudit.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:249
 * @route '/quality/compliance-audit'
 */
 complianceAudit.url = (options?: RouteQueryOptions) => {
@@ -170,7 +170,7 @@ complianceAudit.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:249
 * @route '/quality/compliance-audit'
 */
 complianceAudit.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -179,7 +179,7 @@ complianceAudit.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => (
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:249
 * @route '/quality/compliance-audit'
 */
 complianceAudit.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -188,7 +188,7 @@ complianceAudit.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:249
 * @route '/quality/compliance-audit'
 */
 const complianceAuditForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -197,7 +197,7 @@ const complianceAuditForm = (options?: RouteQueryOptions): RouteFormDefinition<'
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:249
 * @route '/quality/compliance-audit'
 */
 complianceAuditForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -206,7 +206,7 @@ complianceAuditForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'ge
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:249
 * @route '/quality/compliance-audit'
 */
 complianceAuditForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

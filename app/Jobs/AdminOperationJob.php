@@ -4,9 +4,11 @@ namespace App\Jobs;
 
 use App\Events\AdminOperationCompleted;
 use App\Events\AdminOperationFailed;
+use App\Events\AdminOperationRolledBack;
 use App\Events\AdminOperationStarted;
 use App\Models\AdminOperationAudit;
 use App\Services\AdminOperationLockService;
+use App\Services\AdminOperationRollbackService;
 use App\Services\AdminOperationsService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -58,7 +60,8 @@ class AdminOperationJob implements ShouldQueue
      */
     public function handle(
         AdminOperationsService $service,
-        AdminOperationLockService $lockService
+        AdminOperationLockService $lockService,
+        AdminOperationRollbackService $rollbackService
     ): void {
         try {
             // Load audit record with organization scoping
@@ -90,6 +93,10 @@ class AdminOperationJob implements ShouldQueue
                 // Release for retry
                 throw new \RuntimeException('Could not acquire operation lock - another instance is running');
             }
+
+            // Create snapshot before executing (for rollback capability)
+            $snapshot = $rollbackService->createSnapshot($audit);
+            $audit->update(['dry_run_preview' => $snapshot]);
 
             // Mark as running
             $audit->markAsRunning();
@@ -150,9 +157,22 @@ class AdminOperationJob implements ShouldQueue
             // Broadcast operation failed event
             AdminOperationFailed::dispatch($audit);
 
+            // Attempt automatic rollback
+            $rollbackService = app(AdminOperationRollbackService::class);
+            if ($rollbackService->canRollback($audit)) {
+                Log::info('AdminOperationJob: Attempting automatic rollback', [
+                    'audit_id' => $this->auditId,
+                ]);
+
+                if ($rollbackService->performRollback($audit)) {
+                    AdminOperationRolledBack::dispatch($audit);
+                }
+            }
+
             Log::error('AdminOperationJob: Failed permanently after retries', [
                 'audit_id' => $this->auditId,
                 'error' => $exception->getMessage(),
+                'rolled_back' => $rollbackService->canRollback($audit) ? true : false,
             ]);
         }
     }

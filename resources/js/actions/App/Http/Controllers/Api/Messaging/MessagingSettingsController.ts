@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::getSettings
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:18
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:17
 * @route '/api/messaging/settings'
 */
 export const getSettings = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ getSettings.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::getSettings
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:18
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:17
 * @route '/api/messaging/settings'
 */
 getSettings.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ getSettings.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::getSettings
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:18
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:17
 * @route '/api/messaging/settings'
 */
 getSettings.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ getSettings.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::getSettings
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:18
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:17
 * @route '/api/messaging/settings'
 */
 getSettings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ getSettings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::getSettings
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:18
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:17
 * @route '/api/messaging/settings'
 */
 const getSettingsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const getSettingsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::getSettings
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:18
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:17
 * @route '/api/messaging/settings'
 */
 getSettingsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ getSettingsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> 
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::getSettings
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:18
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:17
 * @route '/api/messaging/settings'
 */
 getSettingsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ getSettings.form = getSettingsForm
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::updateSettings
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:41
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:40
 * @route '/api/messaging/settings'
 */
 export const updateSettings = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -97,7 +97,7 @@ updateSettings.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::updateSettings
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:41
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:40
 * @route '/api/messaging/settings'
 */
 updateSettings.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ updateSettings.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::updateSettings
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:41
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:40
 * @route '/api/messaging/settings'
 */
 updateSettings.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -116,7 +116,7 @@ updateSettings.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::updateSettings
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:41
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:40
 * @route '/api/messaging/settings'
 */
 const updateSettingsForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -131,7 +131,7 @@ const updateSettingsForm = (options?: RouteQueryOptions): RouteFormDefinition<'p
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::updateSettings
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:41
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:40
 * @route '/api/messaging/settings'
 */
 updateSettingsForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -148,7 +148,7 @@ updateSettings.form = updateSettingsForm
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::getMetrics
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:67
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:66
 * @route '/api/messaging/metrics'
 */
 export const getMetrics = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -163,7 +163,7 @@ getMetrics.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::getMetrics
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:67
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:66
 * @route '/api/messaging/metrics'
 */
 getMetrics.url = (options?: RouteQueryOptions) => {
@@ -172,7 +172,7 @@ getMetrics.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::getMetrics
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:67
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:66
 * @route '/api/messaging/metrics'
 */
 getMetrics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -182,7 +182,7 @@ getMetrics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::getMetrics
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:67
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:66
 * @route '/api/messaging/metrics'
 */
 getMetrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -192,7 +192,7 @@ getMetrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::getMetrics
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:67
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:66
 * @route '/api/messaging/metrics'
 */
 const getMetricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -202,7 +202,7 @@ const getMetricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'>
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::getMetrics
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:67
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:66
 * @route '/api/messaging/metrics'
 */
 getMetricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -212,7 +212,7 @@ getMetricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessagingSettingsController::getMetrics
-* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:67
+* @see app/Http/Controllers/Api/Messaging/MessagingSettingsController.php:66
 * @route '/api/messaging/metrics'
 */
 getMetricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

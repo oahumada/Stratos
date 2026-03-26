@@ -75,7 +75,7 @@ generateBlueprint.form = generateBlueprintForm
 
 /**
 * @see \App\Http\Controllers\Api\CompetencyMaterializerController::materialize
-* @see app/Http/Controllers/Api/CompetencyMaterializerController.php:42
+* @see app/Http/Controllers/Api/CompetencyMaterializerController.php:44
 * @route '/api/strategic-planning/competencies/{id}/materialize'
 */
 export const materialize = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -90,7 +90,7 @@ materialize.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\CompetencyMaterializerController::materialize
-* @see app/Http/Controllers/Api/CompetencyMaterializerController.php:42
+* @see app/Http/Controllers/Api/CompetencyMaterializerController.php:44
 * @route '/api/strategic-planning/competencies/{id}/materialize'
 */
 materialize.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -117,7 +117,7 @@ materialize.url = (args: { id: string | number } | [id: string | number ] | stri
 
 /**
 * @see \App\Http\Controllers\Api\CompetencyMaterializerController::materialize
-* @see app/Http/Controllers/Api/CompetencyMaterializerController.php:42
+* @see app/Http/Controllers/Api/CompetencyMaterializerController.php:44
 * @route '/api/strategic-planning/competencies/{id}/materialize'
 */
 materialize.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -127,7 +127,7 @@ materialize.post = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\Api\CompetencyMaterializerController::materialize
-* @see app/Http/Controllers/Api/CompetencyMaterializerController.php:42
+* @see app/Http/Controllers/Api/CompetencyMaterializerController.php:44
 * @route '/api/strategic-planning/competencies/{id}/materialize'
 */
 const materializeForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -137,7 +137,7 @@ const materializeForm = (args: { id: string | number } | [id: string | number ] 
 
 /**
 * @see \App\Http\Controllers\Api\CompetencyMaterializerController::materialize
-* @see app/Http/Controllers/Api/CompetencyMaterializerController.php:42
+* @see app/Http/Controllers/Api/CompetencyMaterializerController.php:44
 * @route '/api/strategic-planning/competencies/{id}/materialize'
 */
 materializeForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::simulate
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:25
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:26
 * @route '/api/strategic-planning/mobility/simulate'
 */
 export const simulate = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ simulate.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::simulate
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:25
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:26
 * @route '/api/strategic-planning/mobility/simulate'
 */
 simulate.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ simulate.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::simulate
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:25
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:26
 * @route '/api/strategic-planning/mobility/simulate'
 */
 simulate.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ simulate.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::simulate
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:25
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:26
 * @route '/api/strategic-planning/mobility/simulate'
 */
 const simulateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const simulateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> 
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::simulate
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:25
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:26
 * @route '/api/strategic-planning/mobility/simulate'
 */
 simulateForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -57,7 +57,7 @@ simulate.form = simulateForm
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::organizationImpact
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:79
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:80
 * @route '/api/strategic-planning/mobility/organization-impact'
 */
 export const organizationImpact = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -72,7 +72,7 @@ organizationImpact.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::organizationImpact
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:79
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:80
 * @route '/api/strategic-planning/mobility/organization-impact'
 */
 organizationImpact.url = (options?: RouteQueryOptions) => {
@@ -81,7 +81,7 @@ organizationImpact.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::organizationImpact
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:79
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:80
 * @route '/api/strategic-planning/mobility/organization-impact'
 */
 organizationImpact.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -91,7 +91,7 @@ organizationImpact.get = (options?: RouteQueryOptions): RouteDefinition<'get'> =
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::organizationImpact
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:79
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:80
 * @route '/api/strategic-planning/mobility/organization-impact'
 */
 organizationImpact.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -101,7 +101,7 @@ organizationImpact.head = (options?: RouteQueryOptions): RouteDefinition<'head'>
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::organizationImpact
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:79
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:80
 * @route '/api/strategic-planning/mobility/organization-impact'
 */
 const organizationImpactForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -111,7 +111,7 @@ const organizationImpactForm = (options?: RouteQueryOptions): RouteFormDefinitio
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::organizationImpact
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:79
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:80
 * @route '/api/strategic-planning/mobility/organization-impact'
 */
 organizationImpactForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -121,7 +121,7 @@ organizationImpactForm.get = (options?: RouteQueryOptions): RouteFormDefinition<
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::organizationImpact
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:79
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:80
 * @route '/api/strategic-planning/mobility/organization-impact'
 */
 organizationImpactForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -138,7 +138,7 @@ organizationImpact.form = organizationImpactForm
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::saveScenario
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:101
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:102
 * @route '/api/strategic-planning/mobility/save-scenario'
 */
 export const saveScenario = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -153,7 +153,7 @@ saveScenario.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::saveScenario
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:101
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:102
 * @route '/api/strategic-planning/mobility/save-scenario'
 */
 saveScenario.url = (options?: RouteQueryOptions) => {
@@ -162,7 +162,7 @@ saveScenario.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::saveScenario
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:101
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:102
 * @route '/api/strategic-planning/mobility/save-scenario'
 */
 saveScenario.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ saveScenario.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::saveScenario
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:101
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:102
 * @route '/api/strategic-planning/mobility/save-scenario'
 */
 const saveScenarioForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -182,7 +182,7 @@ const saveScenarioForm = (options?: RouteQueryOptions): RouteFormDefinition<'pos
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::saveScenario
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:101
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:102
 * @route '/api/strategic-planning/mobility/save-scenario'
 */
 saveScenarioForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -194,7 +194,7 @@ saveScenario.form = saveScenarioForm
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::materialize
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:142
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:143
 * @route '/api/strategic-planning/mobility/scenarios/{id}/materialize'
 */
 export const materialize = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -209,7 +209,7 @@ materialize.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::materialize
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:142
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:143
 * @route '/api/strategic-planning/mobility/scenarios/{id}/materialize'
 */
 materialize.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -236,7 +236,7 @@ materialize.url = (args: { id: string | number } | [id: string | number ] | stri
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::materialize
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:142
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:143
 * @route '/api/strategic-planning/mobility/scenarios/{id}/materialize'
 */
 materialize.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -246,7 +246,7 @@ materialize.post = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::materialize
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:142
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:143
 * @route '/api/strategic-planning/mobility/scenarios/{id}/materialize'
 */
 const materializeForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -256,7 +256,7 @@ const materializeForm = (args: { id: string | number } | [id: string | number ] 
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::materialize
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:142
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:143
 * @route '/api/strategic-planning/mobility/scenarios/{id}/materialize'
 */
 materializeForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -268,7 +268,7 @@ materialize.form = materializeForm
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::getAiSuggestions
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:210
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:212
 * @route '/api/strategic-planning/mobility/ai-suggestions'
 */
 export const getAiSuggestions = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -283,7 +283,7 @@ getAiSuggestions.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::getAiSuggestions
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:210
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:212
 * @route '/api/strategic-planning/mobility/ai-suggestions'
 */
 getAiSuggestions.url = (options?: RouteQueryOptions) => {
@@ -292,7 +292,7 @@ getAiSuggestions.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::getAiSuggestions
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:210
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:212
 * @route '/api/strategic-planning/mobility/ai-suggestions'
 */
 getAiSuggestions.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -302,7 +302,7 @@ getAiSuggestions.post = (options?: RouteQueryOptions): RouteDefinition<'post'> =
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::getAiSuggestions
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:210
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:212
 * @route '/api/strategic-planning/mobility/ai-suggestions'
 */
 const getAiSuggestionsForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -312,7 +312,7 @@ const getAiSuggestionsForm = (options?: RouteQueryOptions): RouteFormDefinition<
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::getAiSuggestions
-* @see app/Http/Controllers/Api/MobilitySimulationController.php:210
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:212
 * @route '/api/strategic-planning/mobility/ai-suggestions'
 */
 getAiSuggestionsForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

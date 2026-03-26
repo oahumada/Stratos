@@ -82,7 +82,7 @@ aggregatesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> 
 aggregates.form = aggregatesForm
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:255
 * @route '/intelligence/monitoring-hub'
 */
 export const monitoringHub = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -96,7 +96,7 @@ monitoringHub.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:255
 * @route '/intelligence/monitoring-hub'
 */
 monitoringHub.url = (options?: RouteQueryOptions) => {
@@ -104,7 +104,7 @@ monitoringHub.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:255
 * @route '/intelligence/monitoring-hub'
 */
 monitoringHub.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -113,7 +113,7 @@ monitoringHub.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:255
 * @route '/intelligence/monitoring-hub'
 */
 monitoringHub.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ monitoringHub.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:255
 * @route '/intelligence/monitoring-hub'
 */
 const monitoringHubForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -131,7 +131,7 @@ const monitoringHubForm = (options?: RouteQueryOptions): RouteFormDefinition<'ge
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:255
 * @route '/intelligence/monitoring-hub'
 */
 monitoringHubForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -140,7 +140,7 @@ monitoringHubForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:255
 * @route '/intelligence/monitoring-hub'
 */
 monitoringHubForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -156,7 +156,7 @@ monitoringHubForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get
 monitoringHub.form = monitoringHubForm
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:259
 * @route '/intelligence/quality-dashboard'
 */
 export const qualityDashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -170,7 +170,7 @@ qualityDashboard.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:259
 * @route '/intelligence/quality-dashboard'
 */
 qualityDashboard.url = (options?: RouteQueryOptions) => {
@@ -178,7 +178,7 @@ qualityDashboard.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:259
 * @route '/intelligence/quality-dashboard'
 */
 qualityDashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -187,7 +187,7 @@ qualityDashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => 
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:259
 * @route '/intelligence/quality-dashboard'
 */
 qualityDashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -196,7 +196,7 @@ qualityDashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:259
 * @route '/intelligence/quality-dashboard'
 */
 const qualityDashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -205,7 +205,7 @@ const qualityDashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:259
 * @route '/intelligence/quality-dashboard'
 */
 qualityDashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -214,7 +214,7 @@ qualityDashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'g
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:259
 * @route '/intelligence/quality-dashboard'
 */
 qualityDashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -230,7 +230,7 @@ qualityDashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'
 qualityDashboard.form = qualityDashboardForm
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:263
 * @route '/intelligence/agent-metrics'
 */
 export const agentMetrics = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -244,7 +244,7 @@ agentMetrics.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:263
 * @route '/intelligence/agent-metrics'
 */
 agentMetrics.url = (options?: RouteQueryOptions) => {
@@ -252,7 +252,7 @@ agentMetrics.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:263
 * @route '/intelligence/agent-metrics'
 */
 agentMetrics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -261,7 +261,7 @@ agentMetrics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:263
 * @route '/intelligence/agent-metrics'
 */
 agentMetrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -270,7 +270,7 @@ agentMetrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:263
 * @route '/intelligence/agent-metrics'
 */
 const agentMetricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -279,7 +279,7 @@ const agentMetricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:263
 * @route '/intelligence/agent-metrics'
 */
 agentMetricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -288,7 +288,7 @@ agentMetricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'>
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:263
 * @route '/intelligence/agent-metrics'
 */
 agentMetricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -304,7 +304,7 @@ agentMetricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 agentMetrics.form = agentMetricsForm
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:267
 * @route '/intelligence/aggregates'
 */
 export const metricsDashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -318,7 +318,7 @@ metricsDashboard.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:267
 * @route '/intelligence/aggregates'
 */
 metricsDashboard.url = (options?: RouteQueryOptions) => {
@@ -326,7 +326,7 @@ metricsDashboard.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:267
 * @route '/intelligence/aggregates'
 */
 metricsDashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -335,7 +335,7 @@ metricsDashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => 
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:267
 * @route '/intelligence/aggregates'
 */
 metricsDashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -344,7 +344,7 @@ metricsDashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:267
 * @route '/intelligence/aggregates'
 */
 const metricsDashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -353,7 +353,7 @@ const metricsDashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:267
 * @route '/intelligence/aggregates'
 */
 metricsDashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -362,7 +362,7 @@ metricsDashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'g
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:267
 * @route '/intelligence/aggregates'
 */
 metricsDashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

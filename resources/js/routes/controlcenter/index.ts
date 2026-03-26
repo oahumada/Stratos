@@ -1,6 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:32
 * @route '/controlcenter'
 */
 export const landing = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +14,7 @@ landing.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:32
 * @route '/controlcenter'
 */
 landing.url = (options?: RouteQueryOptions) => {
@@ -22,7 +22,7 @@ landing.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:32
 * @route '/controlcenter'
 */
 landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -31,7 +31,7 @@ landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:32
 * @route '/controlcenter'
 */
 landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -40,7 +40,7 @@ landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:32
 * @route '/controlcenter'
 */
 const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -49,7 +49,7 @@ const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:32
 * @route '/controlcenter'
 */
 landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -58,7 +58,7 @@ landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:32
 * @route '/controlcenter'
 */
 landingForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -74,7 +74,7 @@ landingForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => 
 landing.form = landingForm
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:36
 * @route '/controlcenter/culture'
 */
 export const culture = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -88,7 +88,7 @@ culture.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:36
 * @route '/controlcenter/culture'
 */
 culture.url = (options?: RouteQueryOptions) => {
@@ -96,7 +96,7 @@ culture.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:36
 * @route '/controlcenter/culture'
 */
 culture.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -105,7 +105,7 @@ culture.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:36
 * @route '/controlcenter/culture'
 */
 culture.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -114,7 +114,7 @@ culture.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:36
 * @route '/controlcenter/culture'
 */
 const cultureForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -123,7 +123,7 @@ const cultureForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:36
 * @route '/controlcenter/culture'
 */
 cultureForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ cultureForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:36
 * @route '/controlcenter/culture'
 */
 cultureForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -148,7 +148,7 @@ cultureForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => 
 culture.form = cultureForm
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:40
 * @route '/controlcenter/culture-analytics'
 */
 export const cultureAnalytics = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -162,7 +162,7 @@ cultureAnalytics.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:40
 * @route '/controlcenter/culture-analytics'
 */
 cultureAnalytics.url = (options?: RouteQueryOptions) => {
@@ -170,7 +170,7 @@ cultureAnalytics.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:40
 * @route '/controlcenter/culture-analytics'
 */
 cultureAnalytics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -179,7 +179,7 @@ cultureAnalytics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => 
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:40
 * @route '/controlcenter/culture-analytics'
 */
 cultureAnalytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -188,7 +188,7 @@ cultureAnalytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:40
 * @route '/controlcenter/culture-analytics'
 */
 const cultureAnalyticsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -197,7 +197,7 @@ const cultureAnalyticsForm = (options?: RouteQueryOptions): RouteFormDefinition<
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:40
 * @route '/controlcenter/culture-analytics'
 */
 cultureAnalyticsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -206,7 +206,7 @@ cultureAnalyticsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'g
 })
 
 /**
-* @see [serialized-closure]:2
+* @see routes/web.php:40
 * @route '/controlcenter/culture-analytics'
 */
 cultureAnalyticsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\Messaging\ParticipantController::store
-* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:23
+* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:22
 * @route '/api/messaging/conversations/{conversation}/participants'
 */
 export const store = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\ParticipantController::store
-* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:23
+* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:22
 * @route '/api/messaging/conversations/{conversation}/participants'
 */
 store.url = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ store.url = (args: { conversation: string | { id: string } } | [conversation: st
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\ParticipantController::store
-* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:23
+* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:22
 * @route '/api/messaging/conversations/{conversation}/participants'
 */
 store.post = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -59,7 +59,7 @@ store.post = (args: { conversation: string | { id: string } } | [conversation: s
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\ParticipantController::store
-* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:23
+* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:22
 * @route '/api/messaging/conversations/{conversation}/participants'
 */
 const storeForm = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -69,7 +69,7 @@ const storeForm = (args: { conversation: string | { id: string } } | [conversati
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\ParticipantController::store
-* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:23
+* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:22
 * @route '/api/messaging/conversations/{conversation}/participants'
 */
 storeForm.post = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -81,7 +81,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\ParticipantController::destroy
-* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:54
+* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:53
 * @route '/api/messaging/conversations/{conversation}/participants/{participant}'
 */
 export const destroy = (args: { conversation: string | { id: string }, participant: string | { id: string } } | [conversation: string | { id: string }, participant: string | { id: string } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -96,7 +96,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\ParticipantController::destroy
-* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:54
+* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:53
 * @route '/api/messaging/conversations/{conversation}/participants/{participant}'
 */
 destroy.url = (args: { conversation: string | { id: string }, participant: string | { id: string } } | [conversation: string | { id: string }, participant: string | { id: string } ], options?: RouteQueryOptions) => {
@@ -126,7 +126,7 @@ destroy.url = (args: { conversation: string | { id: string }, participant: strin
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\ParticipantController::destroy
-* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:54
+* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:53
 * @route '/api/messaging/conversations/{conversation}/participants/{participant}'
 */
 destroy.delete = (args: { conversation: string | { id: string }, participant: string | { id: string } } | [conversation: string | { id: string }, participant: string | { id: string } ], options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -136,7 +136,7 @@ destroy.delete = (args: { conversation: string | { id: string }, participant: st
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\ParticipantController::destroy
-* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:54
+* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:53
 * @route '/api/messaging/conversations/{conversation}/participants/{participant}'
 */
 const destroyForm = (args: { conversation: string | { id: string }, participant: string | { id: string } } | [conversation: string | { id: string }, participant: string | { id: string } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -151,7 +151,7 @@ const destroyForm = (args: { conversation: string | { id: string }, participant:
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\ParticipantController::destroy
-* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:54
+* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:53
 * @route '/api/messaging/conversations/{conversation}/participants/{participant}'
 */
 destroyForm.delete = (args: { conversation: string | { id: string }, participant: string | { id: string } } | [conversation: string | { id: string }, participant: string | { id: string } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

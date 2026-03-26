@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::show
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:58
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:59
 * @route '/api/strategic-planning/mobility/execution/{id}'
 */
 export const show = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -97,7 +97,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::show
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:58
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:59
 * @route '/api/strategic-planning/mobility/execution/{id}'
 */
 show.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -124,7 +124,7 @@ show.url = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::show
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:58
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:59
 * @route '/api/strategic-planning/mobility/execution/{id}'
 */
 show.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -134,7 +134,7 @@ show.get = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::show
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:58
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:59
 * @route '/api/strategic-planning/mobility/execution/{id}'
 */
 show.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -144,7 +144,7 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::show
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:58
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:59
 * @route '/api/strategic-planning/mobility/execution/{id}'
 */
 const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -154,7 +154,7 @@ const showForm = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::show
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:58
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:59
 * @route '/api/strategic-planning/mobility/execution/{id}'
 */
 showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -164,7 +164,7 @@ showForm.get = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::show
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:58
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:59
 * @route '/api/strategic-planning/mobility/execution/{id}'
 */
 showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -181,7 +181,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::launchLms
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:77
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:78
 * @route '/api/strategic-planning/mobility/execution/launch/{actionId}'
 */
 export const launchLms = (args: { actionId: string | number } | [actionId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -196,7 +196,7 @@ launchLms.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::launchLms
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:77
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:78
 * @route '/api/strategic-planning/mobility/execution/launch/{actionId}'
 */
 launchLms.url = (args: { actionId: string | number } | [actionId: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -223,7 +223,7 @@ launchLms.url = (args: { actionId: string | number } | [actionId: string | numbe
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::launchLms
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:77
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:78
 * @route '/api/strategic-planning/mobility/execution/launch/{actionId}'
 */
 launchLms.post = (args: { actionId: string | number } | [actionId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -233,7 +233,7 @@ launchLms.post = (args: { actionId: string | number } | [actionId: string | numb
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::launchLms
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:77
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:78
 * @route '/api/strategic-planning/mobility/execution/launch/{actionId}'
 */
 const launchLmsForm = (args: { actionId: string | number } | [actionId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -243,7 +243,7 @@ const launchLmsForm = (args: { actionId: string | number } | [actionId: string |
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::launchLms
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:77
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:78
 * @route '/api/strategic-planning/mobility/execution/launch/{actionId}'
 */
 launchLmsForm.post = (args: { actionId: string | number } | [actionId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -255,7 +255,7 @@ launchLms.form = launchLmsForm
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::syncProgress
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:104
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:105
 * @route '/api/strategic-planning/mobility/execution/sync/{actionId}'
 */
 export const syncProgress = (args: { actionId: string | number } | [actionId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -270,7 +270,7 @@ syncProgress.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::syncProgress
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:104
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:105
 * @route '/api/strategic-planning/mobility/execution/sync/{actionId}'
 */
 syncProgress.url = (args: { actionId: string | number } | [actionId: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -297,7 +297,7 @@ syncProgress.url = (args: { actionId: string | number } | [actionId: string | nu
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::syncProgress
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:104
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:105
 * @route '/api/strategic-planning/mobility/execution/sync/{actionId}'
 */
 syncProgress.post = (args: { actionId: string | number } | [actionId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -307,7 +307,7 @@ syncProgress.post = (args: { actionId: string | number } | [actionId: string | n
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::syncProgress
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:104
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:105
 * @route '/api/strategic-planning/mobility/execution/sync/{actionId}'
 */
 const syncProgressForm = (args: { actionId: string | number } | [actionId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -317,7 +317,7 @@ const syncProgressForm = (args: { actionId: string | number } | [actionId: strin
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::syncProgress
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:104
+* @see app/Http/Controllers/Api/ExecutionTrackingController.php:105
 * @route '/api/strategic-planning/mobility/execution/sync/{actionId}'
 */
 syncProgressForm.post = (args: { actionId: string | number } | [actionId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

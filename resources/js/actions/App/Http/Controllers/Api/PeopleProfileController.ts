@@ -100,7 +100,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
-* @see app/Http/Controllers/Api/PeopleProfileController.php:99
+* @see app/Http/Controllers/Api/PeopleProfileController.php:100
 * @route '/api/people/profile/{id}/timeline'
 */
 export const getTimeline = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -115,7 +115,7 @@ getTimeline.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
-* @see app/Http/Controllers/Api/PeopleProfileController.php:99
+* @see app/Http/Controllers/Api/PeopleProfileController.php:100
 * @route '/api/people/profile/{id}/timeline'
 */
 getTimeline.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -142,7 +142,7 @@ getTimeline.url = (args: { id: string | number } | [id: string | number ] | stri
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
-* @see app/Http/Controllers/Api/PeopleProfileController.php:99
+* @see app/Http/Controllers/Api/PeopleProfileController.php:100
 * @route '/api/people/profile/{id}/timeline'
 */
 getTimeline.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -152,7 +152,7 @@ getTimeline.get = (args: { id: string | number } | [id: string | number ] | stri
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
-* @see app/Http/Controllers/Api/PeopleProfileController.php:99
+* @see app/Http/Controllers/Api/PeopleProfileController.php:100
 * @route '/api/people/profile/{id}/timeline'
 */
 getTimeline.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -162,7 +162,7 @@ getTimeline.head = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
-* @see app/Http/Controllers/Api/PeopleProfileController.php:99
+* @see app/Http/Controllers/Api/PeopleProfileController.php:100
 * @route '/api/people/profile/{id}/timeline'
 */
 const getTimelineForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -172,7 +172,7 @@ const getTimelineForm = (args: { id: string | number } | [id: string | number ] 
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
-* @see app/Http/Controllers/Api/PeopleProfileController.php:99
+* @see app/Http/Controllers/Api/PeopleProfileController.php:100
 * @route '/api/people/profile/{id}/timeline'
 */
 getTimelineForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -182,7 +182,7 @@ getTimelineForm.get = (args: { id: string | number } | [id: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
-* @see app/Http/Controllers/Api/PeopleProfileController.php:99
+* @see app/Http/Controllers/Api/PeopleProfileController.php:100
 * @route '/api/people/profile/{id}/timeline'
 */
 getTimelineForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

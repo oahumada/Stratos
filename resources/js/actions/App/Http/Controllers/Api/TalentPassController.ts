@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::show
-* @see app/Http/Controllers/Api/TalentPassController.php:21
+* @see app/Http/Controllers/Api/TalentPassController.php:20
 * @route '/api/people/{people_id}/talent-pass'
 */
 export const show = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::show
-* @see app/Http/Controllers/Api/TalentPassController.php:21
+* @see app/Http/Controllers/Api/TalentPassController.php:20
 * @route '/api/people/{people_id}/talent-pass'
 */
 show.url = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -43,7 +43,7 @@ show.url = (args: { people_id: string | number } | [people_id: string | number ]
 
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::show
-* @see app/Http/Controllers/Api/TalentPassController.php:21
+* @see app/Http/Controllers/Api/TalentPassController.php:20
 * @route '/api/people/{people_id}/talent-pass'
 */
 show.get = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -53,7 +53,7 @@ show.get = (args: { people_id: string | number } | [people_id: string | number ]
 
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::show
-* @see app/Http/Controllers/Api/TalentPassController.php:21
+* @see app/Http/Controllers/Api/TalentPassController.php:20
 * @route '/api/people/{people_id}/talent-pass'
 */
 show.head = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -63,7 +63,7 @@ show.head = (args: { people_id: string | number } | [people_id: string | number 
 
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::show
-* @see app/Http/Controllers/Api/TalentPassController.php:21
+* @see app/Http/Controllers/Api/TalentPassController.php:20
 * @route '/api/people/{people_id}/talent-pass'
 */
 const showForm = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -73,7 +73,7 @@ const showForm = (args: { people_id: string | number } | [people_id: string | nu
 
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::show
-* @see app/Http/Controllers/Api/TalentPassController.php:21
+* @see app/Http/Controllers/Api/TalentPassController.php:20
 * @route '/api/people/{people_id}/talent-pass'
 */
 showForm.get = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -83,7 +83,7 @@ showForm.get = (args: { people_id: string | number } | [people_id: string | numb
 
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::show
-* @see app/Http/Controllers/Api/TalentPassController.php:21
+* @see app/Http/Controllers/Api/TalentPassController.php:20
 * @route '/api/people/{people_id}/talent-pass'
 */
 showForm.head = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -100,7 +100,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::generateCredential
-* @see app/Http/Controllers/Api/TalentPassController.php:74
+* @see app/Http/Controllers/Api/TalentPassController.php:73
 * @route '/api/people/{people_id}/talent-pass/issue'
 */
 export const generateCredential = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -115,7 +115,7 @@ generateCredential.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::generateCredential
-* @see app/Http/Controllers/Api/TalentPassController.php:74
+* @see app/Http/Controllers/Api/TalentPassController.php:73
 * @route '/api/people/{people_id}/talent-pass/issue'
 */
 generateCredential.url = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -142,7 +142,7 @@ generateCredential.url = (args: { people_id: string | number } | [people_id: str
 
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::generateCredential
-* @see app/Http/Controllers/Api/TalentPassController.php:74
+* @see app/Http/Controllers/Api/TalentPassController.php:73
 * @route '/api/people/{people_id}/talent-pass/issue'
 */
 generateCredential.post = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -152,7 +152,7 @@ generateCredential.post = (args: { people_id: string | number } | [people_id: st
 
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::generateCredential
-* @see app/Http/Controllers/Api/TalentPassController.php:74
+* @see app/Http/Controllers/Api/TalentPassController.php:73
 * @route '/api/people/{people_id}/talent-pass/issue'
 */
 const generateCredentialForm = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -162,7 +162,7 @@ const generateCredentialForm = (args: { people_id: string | number } | [people_i
 
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::generateCredential
-* @see app/Http/Controllers/Api/TalentPassController.php:74
+* @see app/Http/Controllers/Api/TalentPassController.php:73
 * @route '/api/people/{people_id}/talent-pass/issue'
 */
 generateCredentialForm.post = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
