@@ -355,12 +355,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/strategic-planning/scenarios/generate/{id}/progress', [\App\Http\Controllers\Api\GenerationChunkController::class, 'progress']);
     Route::get('/strategic-planning/scenarios/{id}/versions', [\App\Http\Controllers\Api\ScenarioController::class, 'getVersions']);
 
-    // Scenario Planning - Advanced Analytics (Phase 2 - Task 2)
+    // Scenario Planning - Advanced Analytics (Phase 1 - Task 2)
     Route::post('/scenarios/compare', [\App\Http\Controllers\Api\ScenarioAnalyticsController::class, 'compareScenarios']);
     Route::get('/scenarios/{scenario}/analytics', [\App\Http\Controllers\Api\ScenarioAnalyticsController::class, 'analytics']);
     Route::get('/scenarios/{scenario}/financial-impact', [\App\Http\Controllers\Api\ScenarioAnalyticsController::class, 'financialImpact']);
     Route::get('/scenarios/{scenario}/risk-assessment', [\App\Http\Controllers\Api\ScenarioAnalyticsController::class, 'riskAssessment']);
     Route::get('/scenarios/{scenario}/skill-gaps', [\App\Http\Controllers\Api\ScenarioAnalyticsController::class, 'skillGaps']);
+
+    // Scenario Planning - Workflow & Approval System (Phase 2 - Task 2)
+    Route::post('/scenarios/{id}/submit-approval', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'submitForApproval']);
+    Route::post('/approval-requests/{id}/approve', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'approve']);
+    Route::post('/approval-requests/{id}/reject', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'reject']);
+    Route::get('/scenarios/{id}/approval-matrix', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'getApprovalMatrix']);
+    Route::post('/scenarios/{id}/activate', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'activate']);
+    Route::get('/scenarios/{id}/execution-plan', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'getExecutionPlan']);
 
     // Scenario Planning - Simulation & Strategic Talent Modeling
     Route::prefix('strategic-planning')->group(
