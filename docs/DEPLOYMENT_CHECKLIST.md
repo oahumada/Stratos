@@ -786,10 +786,10 @@ echo "API Health: $(curl -s https://staging.stratos.app/api/health | jq .status)
 
 ---
 
-**Deployment completed on:** ********\_\_\_********  
-**Deployed by:** ********\_\_\_********  
-**Approved by:** ********\_\_\_********  
-**Notes:** ********\_\_\_********
+**Deployment completed on:** **\*\*\*\***\_\_\_**\*\*\*\***  
+**Deployed by:** **\*\*\*\***\_\_\_**\*\*\*\***  
+**Approved by:** **\*\*\*\***\_\_\_**\*\*\*\***  
+**Notes:** **\*\*\*\***\_\_\_**\*\*\*\***
 
 ---
 

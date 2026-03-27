@@ -2,7 +2,7 @@
 
 **Purpose:** Quick reference for common issues during and after deployment  
 **Status:** For use during deployment (Mar 27) and UAT (Mar 27-28)  
-**Update:** Add issues as they occur  
+**Update:** Add issues as they occur
 
 ---
 
@@ -41,11 +41,13 @@ php artisan metrics:cache-stats 2>&1 | head -5
 ## ❌ ISSUE 1: Tests Failing During Pre-Deployment
 
 **Symptoms:**
+
 - `php artisan test --compact` shows < 759 tests passing
 - Some tests show FAILED or ERROR status
 - Output includes red text with assertion failures
 
 **Root Causes:**
+
 1. Database not cleaned between tests
 2. Environment variables not set correctly
 3. Redis not available during test run
@@ -84,6 +86,7 @@ php artisan test --recreate-databases --compact
 ```
 
 **Prevention:**
+
 - Always run full test suite locally before pushing
 - Commit `phpunit.xml` with correct test environment config
 - Document any test-specific environment variables in `.env.testing.example`
@@ -93,11 +96,13 @@ php artisan test --recreate-databases --compact
 ## ❌ ISSUE 2: Deployment Tag Already Exists
 
 **Symptoms:**
+
 ```
 fatal: tag 'messaging-mvp-staging-v0.4.0' already exists
 ```
 
 **Root Causes:**
+
 - Tag was created in previous deployment attempt
 - Tag exists locally but wasn't deleted before new attempt
 - Tag exists on remote but local wasn't synced
@@ -129,12 +134,14 @@ git ls-remote origin | grep messaging-mvp
 ## ❌ ISSUE 3: SSH Connection Fails to Staging Server
 
 **Symptoms:**
+
 ```
 ssh: connect to host staging.stratos.app port 22: Connection timed out
 ssh: connect to host staging-db.internal port 22: Permission denied
 ```
 
 **Root Causes:**
+
 - SSH key permissions are incorrect (644 instead of 400)
 - SSH key not added to ssh-agent
 - Network connectivity issue
@@ -176,6 +183,7 @@ cat ~/.ssh/staging-key.pub | ssh ubuntu@staging.stratos.app \
 ```
 
 **Prevention:**
+
 - Document SSH setup procedure in README
 - Use SSH config file (~/.ssh/config) for easier management
 - Test SSH connection before (or early in) deployment
@@ -185,12 +193,14 @@ cat ~/.ssh/staging-key.pub | ssh ubuntu@staging.stratos.app \
 ## ❌ ISSUE 4: .env.staging File Not Found or Permissions Wrong
 
 **Symptoms:**
+
 ```
 env file [.env.staging] not found
 PHP Warning: fopen(.../.env.staging): Permission denied
 ```
 
 **Root Causes:**
+
 - File not created with correct path
 - Permissions too restrictive (not readable by PHP-FPM user)
 - File created in wrong directory
@@ -226,6 +236,7 @@ php artisan config:list | grep -E "^APP_ENV|^DB_HOST"
 ```
 
 **Prevention:**
+
 - Use template .env.staging.example in git
 - Document exact permissions required
 - Add check to deployment checklist: `ls -l .env.staging`
@@ -235,6 +246,7 @@ php artisan config:list | grep -E "^APP_ENV|^DB_HOST"
 ## ❌ ISSUE 5: Composer Install Hangs or Fails
 
 **Symptoms:**
+
 ```
 Resolving dependencies...
 [hangs for > 2 minutes]
@@ -242,6 +254,7 @@ Failed to open /packages.json: HTTP/1.1 400 Bad Request
 ```
 
 **Root Causes:**
+
 - Network connectivity issue to Packagist
 - Outdated Composer cache
 - Incorrect PHP version
@@ -285,6 +298,7 @@ composer diagnose | grep -i "php version"
 ```
 
 **Prevention:**
+
 - Test composer install locally before deployment
 - Document all PHP version requirements
 - Add "composer clear-cache" to deployment checklist
@@ -294,12 +308,14 @@ composer diagnose | grep -i "php version"
 ## ❌ ISSUE 6: Database Migrations Fail
 
 **Symptoms:**
+
 ```
 SQLSTATE[42P09]: Exception: 7 ERROR: relation "messages" already exists
 SQLSTATE[HY000]: General error: 1 Could not freshly create schema
 ```
 
 **Root Causes:**
+
 - Table already exists from previous migration
 - Migration has syntax error (invalid SQL)
 - Database user doesn't have CREATE TABLE permission
@@ -346,6 +362,7 @@ EOF
 ```
 
 **Prevention:**
+
 - Test migrations on local database replica first
 - Keep migrations idempotent (can run multiple times safely)
 - Use `if not exists` clauses in migrations
@@ -356,6 +373,7 @@ EOF
 ## ❌ ISSUE 7: npm Build Fails
 
 **Symptoms:**
+
 ```
 npm ERR! code ERESOLVE
 npm ERR! ERESOLVE unable to resolve dependency tree
@@ -363,6 +381,7 @@ npm ERR! npm ERR! While resolving: stratos@1.0.0
 ```
 
 **Root Causes:**
+
 - Node.js version incompatible
 - Incompatible peer dependencies
 - npm cache corrupted
@@ -404,6 +423,7 @@ npm run build
 ```
 
 **Prevention:**
+
 - Lock Node version in .nvmrc or .node-version
 - Use `npm ci` instead of `npm install` in CI/CD
 - Test npm build locally with same Node version
@@ -413,12 +433,14 @@ npm run build
 ## ❌ ISSUE 8: Redis Connection Fails
 
 **Symptoms:**
+
 ```
 Redis [Connection refused] could not connect to Redis at 127.0.0.1:6379
 REDIS ERRORR: ECONNREFUSED Connection refused
 ```
 
 **Root Causes:**
+
 - Redis not running
 - Redis host/port misconfigured in .env
 - Redis authentication required but password not set
@@ -466,6 +488,7 @@ telnet staging-redis.internal 6379
 ```
 
 **Prevention:**
+
 - Document Redis host/port/password in deployment guide
 - Test Redis connection in pre-deployment checklist
 - Add Redis health check to monitoring
@@ -475,12 +498,14 @@ telnet staging-redis.internal 6379
 ## ❌ ISSUE 9: Messages Not Appearing in UI
 
 **Symptoms:**
+
 - Messaging page loads but no messages in thread
 - Send message completes but doesn't show up
 - Empty conversation list despite seeded data
 - API returns messages but UI shows nothing
 
 **Root Causes:**
+
 - Database seeding didn't run or failed
 - Cache is stale and serving old/wrong data
 - Frontend Vue component has JavaScript error
@@ -539,6 +564,7 @@ php artisan metrics:warm-cache --org-id=1
 ```
 
 **Prevention:**
+
 - Test full message flow: seed → API → UI
 - Add browser console error check to smoke tests
 - Log API responses for debugging
@@ -549,6 +575,7 @@ php artisan metrics:warm-cache --org-id=1
 ## ❌ ISSUE 10: Service Restart Fails or Hangs
 
 **Symptoms:**
+
 ```
 Job for php-fpm.service failed because the control process exited with error code
 systemctl: error reading /var/run/php-fpm.pid: Permission denied
@@ -556,6 +583,7 @@ Process already running on port 9000
 ```
 
 **Root Causes:**
+
 - Service already running (double-restart attempt)
 - PID file corrupted or locked
 - Port already in use by another process
@@ -607,6 +635,7 @@ systemctl status php-fpm nginx supervisor | grep -E "active|failed"
 ```
 
 **Prevention:**
+
 - Use `systemctl restart` instead of stop/start separately
 - Check logs before restarting
 - Test restart procedure on lower environment first
@@ -615,34 +644,33 @@ systemctl status php-fpm nginx supervisor | grep -E "active|failed"
 
 ## ⚡ QUICK REFERENCE TABLE
 
-| Issue | Symptom | Quick Fix |
-|-------|---------|-----------|
-| Tests fail | < 759 passing | `php artisan migrate:refresh --env=testing` |
-| Tag exists | "tag already exists" | `git tag -d {tag} && git tag -a ...` |
-| SSH fails | Connection timeout | `chmod 400 ~/.ssh/key.pem && ssh-add ...` |
-| .env missing | "env file not found" | `ls -lh .env.staging && chmod 600` |
-| Composer hangs | Resolving > 2 min | `composer clear-cache && composer install` |
-| Migration fails | "relation already exists" | `php artisan migrate:refresh --force` |
-| npm fails | ERESOLVE | `npm install --legacy-peer-deps` |
-| Redis fails | ECONNREFUSED | `redis-cli ping && systemctl status redis-server` |
-| No messages | UI empty | `php artisan tinker → Message::count()` |
-| Service fails | Job failed | `sudo pkill -9 php-fpm && systemctl start php-fpm` |
+| Issue           | Symptom                   | Quick Fix                                          |
+| --------------- | ------------------------- | -------------------------------------------------- |
+| Tests fail      | < 759 passing             | `php artisan migrate:refresh --env=testing`        |
+| Tag exists      | "tag already exists"      | `git tag -d {tag} && git tag -a ...`               |
+| SSH fails       | Connection timeout        | `chmod 400 ~/.ssh/key.pem && ssh-add ...`          |
+| .env missing    | "env file not found"      | `ls -lh .env.staging && chmod 600`                 |
+| Composer hangs  | Resolving > 2 min         | `composer clear-cache && composer install`         |
+| Migration fails | "relation already exists" | `php artisan migrate:refresh --force`              |
+| npm fails       | ERESOLVE                  | `npm install --legacy-peer-deps`                   |
+| Redis fails     | ECONNREFUSED              | `redis-cli ping && systemctl status redis-server`  |
+| No messages     | UI empty                  | `php artisan tinker → Message::count()`            |
+| Service fails   | Job failed                | `sudo pkill -9 php-fpm && systemctl start php-fpm` |
 
 ---
 
 ## 📞 Who to Contact
 
-| Issue Category | Contact | Channel |
-|---|---|---|
-| Deployment infra | DevOps team | Telegram devops |
-| Database problems | DB team | Telegram database |
-| Laravel/Backend | Backend lead | Telegram backend |
-| Vue/Frontend issues | Frontend lead | Telegram frontend |
-| Redis/Cache issues | Infrastructure | Telegram devops |
-| Permission/SSH issues | System admin | Email or Telegram |
+| Issue Category        | Contact        | Channel           |
+| --------------------- | -------------- | ----------------- |
+| Deployment infra      | DevOps team    | Telegram devops   |
+| Database problems     | DB team        | Telegram database |
+| Laravel/Backend       | Backend lead   | Telegram backend  |
+| Vue/Frontend issues   | Frontend lead  | Telegram frontend |
+| Redis/Cache issues    | Infrastructure | Telegram devops   |
+| Permission/SSH issues | System admin   | Email or Telegram |
 
 ---
 
 **Last Updated:** Mar 26, 2026  
 **Add new issues as they occur**
-

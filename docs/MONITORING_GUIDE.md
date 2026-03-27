@@ -3,20 +3,20 @@
 **Purpose:** Real-time monitoring during UAT phase (Mar 27-28, 2026)  
 **Duration:** Continuous 24-hour monitoring post-deployment  
 **Alert Owner:** DevOps/Operations team  
-**Escalation:** To Backend/Frontend leads if thresholds exceeded  
+**Escalation:** To Backend/Frontend leads if thresholds exceeded
 
 ---
 
 ## 🎯 Monitoring Objectives
 
-| Objective | Why | Success Metric |
-|-----------|-----|---|
-| **Availability** | Catch outages immediately | Uptime > 99.5% |
-| **Performance** | Detect slow queries/bottlenecks | Response p95 < 500ms |
-| **Errors** | Identify bugs/issues early | Error rate < 0.1% |
-| **Data Integrity** | Verify zero message loss | All created messages persist |
-| **Cache Effectiveness** | Validate N+1 optimization | Hit ratio > 80% |
-| **Resource Usage** | Prevent OOM/CPU exhaustion | CPU < 70%, Memory < 80% |
+| Objective               | Why                             | Success Metric               |
+| ----------------------- | ------------------------------- | ---------------------------- |
+| **Availability**        | Catch outages immediately       | Uptime > 99.5%               |
+| **Performance**         | Detect slow queries/bottlenecks | Response p95 < 500ms         |
+| **Errors**              | Identify bugs/issues early      | Error rate < 0.1%            |
+| **Data Integrity**      | Verify zero message loss        | All created messages persist |
+| **Cache Effectiveness** | Validate N+1 optimization       | Hit ratio > 80%              |
+| **Resource Usage**      | Prevent OOM/CPU exhaustion      | CPU < 70%, Memory < 80%      |
 
 ---
 
@@ -27,7 +27,7 @@
 **Trigger:** Application returns HTTP 500 or 503  
 **Check Frequency:** Every 1 minute  
 **Threshold:** Any occurrence  
-**Response Time:** Investigate within 5 minutes  
+**Response Time:** Investigate within 5 minutes
 
 **Monitor Command:**
 
@@ -68,7 +68,7 @@ sudo systemctl restart php-fpm nginx
 **Trigger:** Cannot connect to PostgreSQL  
 **Check Frequency:** Every 2 minutes  
 **Threshold:** Any failed connection  
-**Response Time:** Investigate within 5 minutes  
+**Response Time:** Investigate within 5 minutes
 
 **Monitor Command:**
 
@@ -118,7 +118,7 @@ php artisan migrate:status  # Forces connection test
 **Trigger:** Cannot connect to Redis cache  
 **Check Frequency:** Every 2 minutes  
 **Threshold:** Any failed connection  
-**Response Time:** Immediate (affects multiple services)  
+**Response Time:** Immediate (affects multiple services)
 
 **Monitor Command:**
 
@@ -170,7 +170,7 @@ redis-cli -h staging-redis.internal INFO clients | grep connected_clients
 **Trigger:** Application error rate exceeds 1%  
 **Check Frequency:** Every 5 minutes  
 **Threshold:** Errors > 1% of total requests  
-**Response Time:** Investigate within 10 minutes  
+**Response Time:** Investigate within 10 minutes
 
 **Monitor Command:**
 
@@ -224,7 +224,7 @@ sudo systemctl restart php-fpm
 **Trigger:** 95th percentile response time exceeds 500ms  
 **Check Frequency:** Every 10 minutes  
 **Threshold:** p95 > 500ms for more than 2 consecutive checks  
-**Action:** Investigate and optimize  
+**Action:** Investigate and optimize
 
 **Monitor Command:**
 
@@ -287,7 +287,7 @@ php artisan tinker
 **Trigger:** Redis cache serving < 70% of cache attempts  
 **Check Frequency:** Every 15 minutes  
 **Threshold:** Hit ratio < 70% for 2+ consecutive checks  
-**Action:** Investigate cache invalidation or warming  
+**Action:** Investigate cache invalidation or warming
 
 **Monitor Command:**
 
@@ -339,7 +339,7 @@ redis-cli -h staging-redis.internal TTL metrics_cache_key
 **Trigger:** Server memory > 80% utilized  
 **Check Frequency:** Every 5 minutes  
 **Threshold:** Memory > 80% for 3+ consecutive checks  
-**Action:** Investigate memory leak or optimize  
+**Action:** Investigate memory leak or optimize
 
 **Monitor Command:**
 
@@ -395,7 +395,7 @@ redis-cli -h staging-redis.internal INFO memory | grep used_memory_human
 **Trigger:** Server CPU > 70% sustained  
 **Check Frequency:** Every 5 minutes  
 **Threshold:** CPU > 70% for 2+ consecutive checks  
-**Action:** Investigate resource-intensive operations  
+**Action:** Investigate resource-intensive operations
 
 **Monitor Command:**
 
@@ -425,8 +425,8 @@ ps aux --sort=-%cpu | head -5
 # 2. If Laravel (php-fpm):
 #    - Check for expensive queries
 php artisan tinker
->>> DB::listen(function($q) { 
-  if ($q->time > 500) echo $q->sql . ' took ' . $q->time . "ms\n"; 
+>>> DB::listen(function($q) {
+  if ($q->time > 500) echo $q->sql . ' took ' . $q->time . "ms\n";
 });
 
 # 3. If Nginx: Check for too many concurrent connections
@@ -450,7 +450,7 @@ sudo systemctl restart nginx
 **Trigger:** Disk space < 15% available  
 **Check Frequency:** Every 30 minutes  
 **Threshold:** > 85% used  
-**Action:** Clean up logs and old databases  
+**Action:** Clean up logs and old databases
 
 **Monitor Command:**
 
@@ -493,7 +493,7 @@ find /tmp -type f -larger 100M -exec ls -lh {} \;
 ### Metric 1: Message Delivery Rate
 
 **What to Track:** Percentage of messages successfully created and delivered  
-**Expected:** 100% (every created message appears in thread)  
+**Expected:** 100% (every created message appears in thread)
 
 **Monitor Command:**
 
@@ -520,7 +520,7 @@ echo "Delivery rate: $(echo "scale=2; $CREATED * 100 / $ATTEMPTS" | bc)%"
 ### Metric 2: N+1 Query Count
 
 **What to Track:** Number of database queries per request (should be stable after optimization)  
-**Expected:** ~6-7 consolidated queries (down from 12 baseline)  
+**Expected:** ~6-7 consolidated queries (down from 12 baseline)
 
 **Monitor Command:**
 
@@ -545,7 +545,7 @@ php artisan tinker
 ### Metric 3: Cache Warming Duration
 
 **What to Track:** How long cache warming command takes to execute  
-**Expected:** < 30 seconds  
+**Expected:** < 30 seconds
 
 **Monitor Command:**
 
@@ -591,16 +591,16 @@ time php artisan metrics:warm-cache
 
 ## 🚨 ESCALATION MATRIX
 
-| Severity | Issue | Escalate To | Wait Time |
-|----------|-------|-------------|-----------|
-| CRITICAL | Down/500 errors/DB fail | Backend + DevOps | 5 mins |
-| CRITICAL | Redis down | Infrastructure | 5 mins |
-| HIGH | Error rate > 1% | Backend | 15 mins |
-| HIGH | p95 > 1s | Backend + DevOps | 15 mins |
-| MEDIUM | Hit ratio < 70% | Backend | 30 mins |
-| MEDIUM | Memory/CPU > 80% | DevOps | 30 mins |
-| LOW | Disk > 85% | DevOps | 2 hours |
-| LOW | Slow endpoint (< 1s) | Backend | 4 hours |
+| Severity | Issue                   | Escalate To      | Wait Time |
+| -------- | ----------------------- | ---------------- | --------- |
+| CRITICAL | Down/500 errors/DB fail | Backend + DevOps | 5 mins    |
+| CRITICAL | Redis down              | Infrastructure   | 5 mins    |
+| HIGH     | Error rate > 1%         | Backend          | 15 mins   |
+| HIGH     | p95 > 1s                | Backend + DevOps | 15 mins   |
+| MEDIUM   | Hit ratio < 70%         | Backend          | 30 mins   |
+| MEDIUM   | Memory/CPU > 80%        | DevOps           | 30 mins   |
+| LOW      | Disk > 85%              | DevOps           | 2 hours   |
+| LOW      | Slow endpoint (< 1s)    | Backend          | 4 hours   |
 
 ---
 
@@ -609,24 +609,24 @@ time php artisan metrics:warm-cache
 **If using monitoring tool (New Relic, DataDog, etc):**
 
 1. **Real-time panels:**
-   - HTTP status codes (200, 5xx count)
-   - Response time (p50, p95, p99)
-   - Error rate
-   - Database query count
-   - Cache hit ratio
+    - HTTP status codes (200, 5xx count)
+    - Response time (p50, p95, p99)
+    - Error rate
+    - Database query count
+    - Cache hit ratio
 
 2. **Alerts configured:**
-   - HTTP 500 errors (immediate)
-   - Response p95 > 500ms (5x10 minute checks)
-   - Error rate > 1% (triggered)
-   - Database errors (immediate)
-   - Cache failures (immediate)
+    - HTTP 500 errors (immediate)
+    - Response p95 > 500ms (5x10 minute checks)
+    - Error rate > 1% (triggered)
+    - Database errors (immediate)
+    - Cache failures (immediate)
 
 3. **Historical trending:**
-   - Response time over 24 hours (should be stable)
-   - Error rate over time (should stay ~0%)
-   - Query count (should stay ~6-7)
-   - Memory usage (should be stable)
+    - Response time over 24 hours (should be stable)
+    - Error rate over time (should stay ~0%)
+    - Query count (should stay ~6-7)
+    - Memory usage (should be stable)
 
 ---
 
@@ -642,6 +642,7 @@ time php artisan metrics:warm-cache
 6. [ ] Message delivery 100%? Verify sample messages persisted
 
 **Decision:**
+
 - [ ] GO for production (all metrics good)
 - [ ] EXTEND UAT (fix issues found)
 - [ ] ROLLBACK (critical failures, see Rollback Guide)
@@ -651,4 +652,3 @@ time php artisan metrics:warm-cache
 **Last Updated:** Mar 26, 2026  
 **Next Review:** Mar 28, 2026 (Post-UAT)  
 **Owner:** DevOps Team
-

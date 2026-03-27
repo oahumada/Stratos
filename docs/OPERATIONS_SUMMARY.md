@@ -3,7 +3,7 @@
 **Audience:** Operations Team, Stakeholders, Management  
 **Date:** Mar 27-31, 2026  
 **Status:** Staging Deployment Plan  
-**Duration:** 4 days (deployment + UAT + go/no-go decision)  
+**Duration:** 4 days (deployment + UAT + go/no-go decision)
 
 ---
 
@@ -13,12 +13,12 @@
 
 **Messaging MVP v0.4.0** - Industry-leading talent messaging platform feature with enterprise-grade performance optimizations.
 
-| Component | Status | Tests | Performance |
-|-----------|--------|-------|-------------|
-| **Messaging System** | ✅ Complete | 623 passing | Real-time, scalable |
-| **N+1 Optimization** | ✅ Complete | 136 passing | 33.5% faster (-420ms) |
-| **Admin Operations** | ✅ Integrated | Included | Full audit trail |
-| **Infrastructure** | ✅ Ready | Incl. | Redis, PostgreSQL |
+| Component            | Status        | Tests       | Performance           |
+| -------------------- | ------------- | ----------- | --------------------- |
+| **Messaging System** | ✅ Complete   | 623 passing | Real-time, scalable   |
+| **N+1 Optimization** | ✅ Complete   | 136 passing | 33.5% faster (-420ms) |
+| **Admin Operations** | ✅ Integrated | Included    | Full audit trail      |
+| **Infrastructure**   | ✅ Ready      | Incl.       | Redis, PostgreSQL     |
 
 ### Key Business Benefits
 
@@ -30,13 +30,13 @@
 
 ### Risk Assessment
 
-| Category | Level | Mitigation |
-|----------|-------|-----------|
-| **Code Quality** | ✅ LOW | 759 automated tests, pre-push hooks |
-| **Performance** | ✅ LOW | 5-phase N+1 optimization, caching, indices |
-| **Data Safety** | ✅ LOW | Database backups, migration rollback plan |
-| **Availability** | ✅ LOW | 24-hour monitoring, escalation plan |
-| **Rollback** | ✅ LOW | Git-based rollback < 5 minutes |
+| Category         | Level  | Mitigation                                 |
+| ---------------- | ------ | ------------------------------------------ |
+| **Code Quality** | ✅ LOW | 759 automated tests, pre-push hooks        |
+| **Performance**  | ✅ LOW | 5-phase N+1 optimization, caching, indices |
+| **Data Safety**  | ✅ LOW | Database backups, migration rollback plan  |
+| **Availability** | ✅ LOW | 24-hour monitoring, escalation plan        |
+| **Rollback**     | ✅ LOW | Git-based rollback < 5 minutes             |
 
 **Overall: LOW RISK deployment with comprehensive monitoring**
 
@@ -45,6 +45,7 @@
 ## 📅 DEPLOYMENT TIMELINE
 
 ### Phase 1: Pre-Deployment (Mar 27, 08:00 AM UTC)
+
 **Duration:** 5 minutes | **Owner:** DevOps | **Action:** Verify everything ready
 
 ```
@@ -56,6 +57,7 @@ Brief team            08:05     [ ] Announce deployment starting
 ```
 
 ### Phase 2: Deployment (Mar 27, 08:30 AM UTC)
+
 **Duration:** 40 minutes | **Owner:** DevOps | **Action:** Deploy and test
 
 ```
@@ -72,6 +74,7 @@ Total deployment      ~40 min   09:00       Complete ✅
 ```
 
 ### Phase 3: Smoke Tests (Mar 27, 09:00 AM UTC)
+
 **Duration:** 15 minutes | **Owner:** QA/Backend | **Action:** Quick functionality check
 
 ```
@@ -88,6 +91,7 @@ Smoke tests complete                               [ ]
 ```
 
 ### Phase 4: 24-Hour Monitoring (Mar 27-28)
+
 **Duration:** 24 hours | **Owner:** Operations | **Action:** Continuous monitoring
 
 ```
@@ -103,6 +107,7 @@ Log review  Nightly log review          Ops         08:00 AM daily
 ```
 
 **Key Metrics During UAT:**
+
 - ✅ Error rate consistent < 0.1%
 - ✅ Response p95 stable < 500ms
 - ✅ Cache hit ratio > 80%
@@ -110,6 +115,7 @@ Log review  Nightly log review          Ops         08:00 AM daily
 - ✅ All users can send/receive messages
 
 ### Phase 5: Go/No-Go Decision (Mar 28, 10:00 AM UTC)
+
 **Duration:** 30 minutes | **Owner:** Tech Lead + Product | **Action:** Review data, decide
 
 ```
@@ -126,14 +132,15 @@ Production Decision: ___________
 
 **Possible Outcomes:**
 
-| Decision | Action | Next Steps |
-|----------|--------|-----------|
-| **GO** | Proceed to production | See "Production Deployment" section |
-| **GO with fixes** | Deploy to production + fix issues post-release | Document known issues |
-| **EXTEND UAT** | Keep in staging 24+ hours, fix and retry | Identify root causes |
-| **NO-GO** | Rollback to previous version, investigate | See "Rollback" guide |
+| Decision          | Action                                         | Next Steps                          |
+| ----------------- | ---------------------------------------------- | ----------------------------------- |
+| **GO**            | Proceed to production                          | See "Production Deployment" section |
+| **GO with fixes** | Deploy to production + fix issues post-release | Document known issues               |
+| **EXTEND UAT**    | Keep in staging 24+ hours, fix and retry       | Identify root causes                |
+| **NO-GO**         | Rollback to previous version, investigate      | See "Rollback" guide                |
 
 ### Phase 6: Production Deployment (Mar 31, if GO approved)
+
 **Duration:** 40 minutes | **Owner:** DevOps | **Action:** Deploy to production
 
 ```
@@ -187,6 +194,7 @@ Logs                SSH tail/grep              DevOps, Backend
 ## 🎯 SUCCESS CRITERIA (Before Production)
 
 **Technical Success:**
+
 - ✅ 759 automated tests passing (136 N+1 + 623 Messaging)
 - ✅ Error rate < 0.1% sustained for 24 hours
 - ✅ Response p95 < 500ms consistently
@@ -195,6 +203,7 @@ Logs                SSH tail/grep              DevOps, Backend
 - ✅ Database backups working (daily + pre-migration)
 
 **Operational Success:**
+
 - ✅ All monitoring alerts functional
 - ✅ On-call rotation confirmed
 - ✅ Runbooks delivered (this document + others)
@@ -203,6 +212,7 @@ Logs                SSH tail/grep              DevOps, Backend
 - ✅ Rollback tested (not executed unless needed)
 
 **Business Success:**
+
 - ✅ Team can use messaging UI without errors
 - ✅ Messages persist after page refresh
 - ✅ No data loss reported
@@ -215,29 +225,32 @@ Logs                SSH tail/grep              DevOps, Backend
 
 ### On-Call Team (Mar 27-31)
 
-| Role | Name | Telegram | Phone | Availability |
-|------|------|-------|-------|--------------|
-| **Backend Lead** | [Name] | @backend-lead | +1-XXX | 24/7 |
-| **DevOps Lead** | [Name] | @devops | +1-XXX | 24/7 |
-| **Database Admin** | [Name] | @dba | +1-XXX | 9-5 (escalate after) |
-| **Tech Lead** | [Name] | @tech-lead | +1-XXX | 24/7 |
-| **Product Manager** | [Name] | @product | +1-XXX | 9-5 |
+| Role                | Name   | Telegram      | Phone  | Availability         |
+| ------------------- | ------ | ------------- | ------ | -------------------- |
+| **Backend Lead**    | [Name] | @backend-lead | +1-XXX | 24/7                 |
+| **DevOps Lead**     | [Name] | @devops       | +1-XXX | 24/7                 |
+| **Database Admin**  | [Name] | @dba          | +1-XXX | 9-5 (escalate after) |
+| **Tech Lead**       | [Name] | @tech-lead    | +1-XXX | 24/7                 |
+| **Product Manager** | [Name] | @product      | +1-XXX | 9-5                  |
 
 ### Escalation Procedures
 
 **Tier 1 (Operations on-call):**
+
 - Monitor hourly checks
 - Restart services if needed
 - Basic troubleshooting
 - Document all issues in Telegram devops-alerts group
 
 **Tier 2 (Backend/DevOps on-call):**
+
 - Called if Tier 1 can't resolve
 - Investigate application errors
 - Optimize slow queries
 - Database operations
 
 **Tier 3 (Tech Lead):**
+
 - Called if Tier 2 needs senior review
 - Rollback decision authority
 - Production deployment approval
@@ -260,28 +273,36 @@ Issue Severity     Response Time    Escalate If       Tier
 ## 📞 COMMUNICATION PLAN
 
 ### Pre-Deployment (Mar 27, 08:00 AM)
+
 **Message:** "Staging deployment starting, 40-minute window"
+
 - [ ] Post in #general: "Staging maintenance 08:00-09:00 UTC"
 - [ ] Ping team leads in Telegram
 - [ ] No user action required (staging only)
 
 ### During Deployment (Mar 27, 08:30-09:00 AM)
+
 **Updates:** Every 10 minutes in Telegram devops-alerts group
+
 - [ ] 08:30: "Deployment started"
 - [ ] 08:40: "Code deployed, testing API..."
 - [ ] 08:50: "Smoke tests running..."
 - [ ] 09:00: "✅ or ❌ Deployment complete"
 
 ### Post-Deployment Updates (Mar 27-28)
+
 **Cadence:** Once per 12 hours (morning + evening)
+
 - [ ] 08:00 AM: "UAT proceeding normally, all metrics green" or "Issue found: [brief description]"
 - [ ] 08:00 PM: "Overnight monitoring complete, no critical issues"
 - [ ] 10:00 AM Mar 28: "Go/No-Go decision: [decision]"
 
 ### Decision Announcement (Mar 28, 10:00 AM)
+
 **Message:** Goes to #general + decision notification
+
 - **IF GO:** "✅ Production deployment approved for Mar 31"
-- **IF EXTEND:** "⏸️  Extending UAT to [date], investigating [issue]"
+- **IF EXTEND:** "⏸️ Extending UAT to [date], investigating [issue]"
 - **IF NO-GO:** "🔄 Rollback proceeding, investigating [failure]"
 
 ---
@@ -351,23 +372,23 @@ Issue Severity     Response Time    Escalate If       Tier
 
 ### Baseline Metrics (Pre-Optimization)
 
-| Metric | Value |
-|--------|-------|
-| Response Time (p95) | 1.85s |
-| Database Queries | 12 consolidated |
-| ROI Queries | 11 |
-| Message Send Delay | ~150ms (cold) |
-| Cache Hit Ratio | N/A (no cache) |
+| Metric              | Value           |
+| ------------------- | --------------- |
+| Response Time (p95) | 1.85s           |
+| Database Queries    | 12 consolidated |
+| ROI Queries         | 11              |
+| Message Send Delay  | ~150ms (cold)   |
+| Cache Hit Ratio     | N/A (no cache)  |
 
 ### After Optimization (Expected in Staging)
 
-| Metric | Value | Improvement |
-|--------|-------|-------------|
-| Response Time (p95) | 1.23s | **-33.5%** ✅ |
-| Database Queries | 7 consolidated | **-42%** ✅ |
-| ROI Queries | 6 | **-45%** ✅ |
-| Message Send Delay | ~5ms (hot) | **-97%** ✅ |
-| Cache Hit Ratio | > 80% | **New feature** ✅ |
+| Metric              | Value          | Improvement        |
+| ------------------- | -------------- | ------------------ |
+| Response Time (p95) | 1.23s          | **-33.5%** ✅      |
+| Database Queries    | 7 consolidated | **-42%** ✅        |
+| ROI Queries         | 6              | **-45%** ✅        |
+| Message Send Delay  | ~5ms (hot)     | **-97%** ✅        |
+| Cache Hit Ratio     | > 80%          | **New feature** ✅ |
 
 ### Success Threshold
 
@@ -394,9 +415,9 @@ Issue Severity     Response Time    Escalate If       Tier
 - **Personnel:** 2-3 hours engineer time (8-12 people × 1-2 hours each)
 - **Downtime:** 0 minutes (rolling deploy with no downtime)
 - **Business Impact:** Positive
-  - Users gain instant messaging feature
-  - 33.5% faster platform performance
-  - Improves user engagement
+    - Users gain instant messaging feature
+    - 33.5% faster platform performance
+    - Improves user engagement
 
 ### Post-Launch Costs (Monthly)
 
@@ -430,6 +451,7 @@ Issue Severity     Response Time    Escalate If       Tier
 **Duration:** 1 hour  
 **Participants:** DevOps, Backend, Operations, Product  
 **Topics:**
+
 - 5-minute deployment walk-through
 - Monitoring dashboard setup
 - Alert configuration and escalation
@@ -464,23 +486,23 @@ Issue Severity     Response Time    Escalate If       Tier
 
 ## 📝 SIGN-OFF
 
-| Role | Name | Signature | Date |
-|------|------|-----------|------|
-| **Tech Lead** | __________ | __________ | ____ |
-| **Ops Manager** | __________ | __________ | ____ |
-| **Product Manager** | __________ | __________ | ____ |
-| **Deployment Engineer** | __________ | __________ | ____ |
+| Role                    | Name         | Signature    | Date     |
+| ----------------------- | ------------ | ------------ | -------- |
+| **Tech Lead**           | ****\_\_**** | ****\_\_**** | \_\_\_\_ |
+| **Ops Manager**         | ****\_\_**** | ****\_\_**** | \_\_\_\_ |
+| **Product Manager**     | ****\_\_**** | ****\_\_**** | \_\_\_\_ |
+| **Deployment Engineer** | ****\_\_**** | ****\_\_**** | \_\_\_\_ |
 
 ---
 
 **Document Version:** 1.0  
 **Last Updated:** Mar 26, 2026  
 **Next Review:** Mar 31, 2026 (before production decision)  
-**Maintained By:** Operations Team  
+**Maintained By:** Operations Team
 
 **Quick Links:**
+
 - [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) - For DevOps team
 - [TROUBLESHOOTING_GUIDE.md](./TROUBLESHOOTING_GUIDE.md) - For on-call
 - [MONITORING_GUIDE.md](./MONITORING_GUIDE.md) - For operations
 - [ROLLBACK_GUIDE.md](./ROLLBACK_GUIDE.md) - Emergency reference
-

@@ -10,12 +10,12 @@
 
 ```typescript
 // In Vue components (with useI18n)
-const { t } = useI18n()
+const { t } = useI18n();
 
 // Access keys
-t('talent_pass.title.create')
-t('talent_pass.sections.skills.label')
-t('talent_pass.status.draft')
+t('talent_pass.title.create');
+t('talent_pass.sections.skills.label');
+t('talent_pass.status.draft');
 ```
 
 ---
@@ -133,7 +133,7 @@ skills: {
   add: 'Add Skill',
   edit: 'Edit Skill',
   remove: 'Remove Skill',
-  
+
   form: {
     name_label: 'Skill Name',
     name_placeholder: 'e.g., Product Leadership',
@@ -194,7 +194,7 @@ experience: {
   current_position: 'Current',
   years: '{years} years',
   months: '{months} months',
-  
+
   timeline_view: 'Timeline',
   list_view: 'List View',
 },
@@ -236,7 +236,7 @@ completeness: {
   label: 'Profile Completeness',
   percentage: '{percentage}%',
   help_text: 'Complete all sections to maximize visibility',
-  
+
   levels: {
     empty: 'Getting started...',
     partial: 'Profile growing',
@@ -276,7 +276,7 @@ actions: {
   confirm: 'Confirm',
   download: 'Download',
   copy_link: 'Copy Link',
-  
+
   view_public: 'View Public Profile',
   view_all: 'View All',
   manage: 'Manage',
@@ -383,7 +383,7 @@ search: {
   status: 'Status',
   visibility: 'Visibility',
   sort_by: 'Sort by',
-  
+
   sort_options: {
     newest: 'Newest',
     oldest: 'Oldest',
@@ -440,7 +440,7 @@ accessibility: {
   close_menu: 'Close menu',
   expand_section: 'Expand {section}',
   collapse_section: 'Collapse {section}',
-  
+
   // Skip links
   skip_to_main: 'Skip to main content',
   skip_to_search: 'Skip to search',
@@ -456,34 +456,40 @@ accessibility: {
 ## Integration Steps
 
 1. **Add to `resources/js/i18n.ts`:**
-   ```typescript
-   const messages = {
-     en: {
-       talent_pass: { /* keys above */ },
-     },
-     es: {
-       talent_pass: { /* Spanish translations */ },
-     },
-   }
-   ```
+
+    ```typescript
+    const messages = {
+        en: {
+            talent_pass: {
+                /* keys above */
+            },
+        },
+        es: {
+            talent_pass: {
+                /* Spanish translations */
+            },
+        },
+    };
+    ```
 
 2. **In Components:**
-   ```vue
-   <script setup lang="ts">
-   import { useI18n } from 'vue-i18n'
-   
-   const { t } = useI18n()
-   </script>
-   
-   <template>
-     <h1>{{ t('talent_pass.title.list') }}</h1>
-     <button>{{ t('talent_pass.actions.create') }}</button>
-   </template>
-   ```
+
+    ```vue
+    <script setup lang="ts">
+    import { useI18n } from 'vue-i18n';
+
+    const { t } = useI18n();
+    </script>
+
+    <template>
+        <h1>{{ t('talent_pass.title.list') }}</h1>
+        <button>{{ t('talent_pass.actions.create') }}</button>
+    </template>
+    ```
 
 3. **Fallback for untranslated keys:**
-   - Defaults to English if ES missing
-   - Use `t('key', 'Fallback text')` for safety
+    - Defaults to English if ES missing
+    - Use `t('key', 'Fallback text')` for safety
 
 ---
 

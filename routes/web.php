@@ -334,6 +334,20 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
         ->name('deployment.verification.dashboard.insights');
     Route::inertia('/deployment/verification/dashboard/realtime', 'Verification/RealtimeMonitor')
         ->name('deployment.verification.dashboard.realtime');
+
+    // Talent Pass (CV 2.0) - Authenticated Routes
+    Route::inertia('/talent-pass', 'TalentPass/Index')
+        ->name('talent-pass.index');
+    Route::inertia('/talent-pass/create', 'TalentPass/Create')
+        ->name('talent-pass.create');
+    Route::inertia('/talent-pass/{id}', 'TalentPass/Show')
+        ->name('talent-pass.show');
+    Route::inertia('/talent-pass/{id}/edit', 'TalentPass/Edit')
+        ->name('talent-pass.edit');
 });
+
+// Talent Pass Public Route (No Auth Required)
+Route::inertia('/public/talent-pass/{ulid}', 'Public/TalentPass')
+    ->name('talent-pass.public-view');
 
 require __DIR__.'/settings.php';

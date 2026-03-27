@@ -3,7 +3,7 @@
 **Purpose:** Fast, safe recovery if deployment has critical failures  
 **When to Use:** Only if CRITICAL issues found during/after deployment  
 **Execution Time:** 5-10 minutes  
-**Authority:** Tech Lead approval required  
+**Authority:** Tech Lead approval required
 
 ---
 
@@ -197,12 +197,12 @@ curl -s https://staging.stratos.app/api/health | jq .
 
 ## 📋 QUICK DECISION MATRIX
 
-| Situation | Symptom | Level | Time | Risk |
-|-----------|---------|-------|------|------|
-| Temporary spike | CPU/Memory high, transient errors | 1 | 2 min | Very Low |
-| Code bug | New errors in logs, migrations fail | 2 | 3 min | Low |
-| Schema broken | Tables missing, queries fail | 3 | 5 min | Medium |
-| Unknown chaos | Multiple failures, can't debug | 4 | 15 min | High |
+| Situation       | Symptom                             | Level | Time   | Risk     |
+| --------------- | ----------------------------------- | ----- | ------ | -------- |
+| Temporary spike | CPU/Memory high, transient errors   | 1     | 2 min  | Very Low |
+| Code bug        | New errors in logs, migrations fail | 2     | 3 min  | Low      |
+| Schema broken   | Tables missing, queries fail        | 3     | 5 min  | Medium   |
+| Unknown chaos   | Multiple failures, can't debug      | 4     | 15 min | High     |
 
 ---
 
@@ -280,12 +280,12 @@ php artisan metrics:cache-stats | head -3
 
 ## 📞 ESCALATION
 
-| Issue | Action | Contact |
-|-------|--------|---------|
-| Level 1 failed | Try Level 2 | Backend lead |
-| Level 2 failed | Try Level 3 | DevOps lead |
-| Level 3 failed | Execute Level 4 | Tech lead (approval required) |
-| Level 4 didn't work | System in unknown state | Call full team + AWS support |
+| Issue               | Action                  | Contact                       |
+| ------------------- | ----------------------- | ----------------------------- |
+| Level 1 failed      | Try Level 2             | Backend lead                  |
+| Level 2 failed      | Try Level 3             | DevOps lead                   |
+| Level 3 failed      | Execute Level 4         | Tech lead (approval required) |
+| Level 4 didn't work | System in unknown state | Call full team + AWS support  |
 
 ---
 
@@ -294,17 +294,20 @@ php artisan metrics:cache-stats | head -3
 After identifying issue:
 
 **ROLLBACK IF:**
+
 - Bug in new code causing failures
 - Critical data loss
 - Security vulnerability
 - Unable to fix in < 30 minutes
 
 **EXTEND STAGING IF:**
+
 - Minor issue found but doesn't block messaging
 - Can be fixed and re-tested
 - Time permits (before production window)
 
 **PUSH AHEAD IF:**
+
 - Issue is not in new code (pre-existing)
 - Monitored and not critical
 - Fix ready for production release
@@ -329,4 +332,3 @@ After rollback, before attempting deployment again:
 **Last Updated:** Mar 26, 2026  
 **Maintained By:** DevOps Team  
 **Emergency Contact:** Tech Lead (24/7)
-
