@@ -9,6 +9,7 @@ use App\Services\Cache\MetricsCacheService;
 use App\Services\EvolutionEngineService;
 use App\Services\Intelligence\ImpactEngineService;
 use App\Services\ScenarioAnalysisService;
+use App\Services\ScenarioPlanning\ScenarioTemplateService;
 use App\Services\TalentRoiService;
 use Illuminate\Support\ServiceProvider;
 
@@ -30,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(TalentRoiService::class);
         $this->app->singleton(ImpactEngineService::class); // Phase 3: Per-request cache for metrics batching
         $this->app->singleton(MetricsCacheService::class); // Phase 4: Cross-request Redis cache
+        $this->app->singleton(ScenarioTemplateService::class); // Phase 3: Template management service
     }
 
     /**

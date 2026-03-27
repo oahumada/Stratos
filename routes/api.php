@@ -1227,8 +1227,19 @@ Route::middleware('auth:sanctum')->prefix('strategic-planning')->group(function 
     Route::post('scenarios/{id}/finalize', [\App\Http\Controllers\Api\ScenarioController::class, 'finalizeScenario']);
     Route::get('scenarios/{id}/compare-versions', [\App\Http\Controllers\Api\ScenarioController::class, 'compareVersions']);
     Route::get('scenarios/{id}/summary', [\App\Http\Controllers\Api\ScenarioController::class, 'summarize']);
-    Route::get('scenario-templates', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'index']);
     Route::delete('scenarios/{id}', [\App\Http\Controllers\Api\ScenarioController::class, 'destroyScenario']);
+
+    // Scenario Templates - Full CRUD + Advanced Operations
+    Route::get('scenario-templates', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'index']);
+    Route::post('scenario-templates', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'store']);
+    Route::get('scenario-templates/recommendations', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'recommendations']);
+    Route::get('scenario-templates/statistics', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'statistics']);
+    Route::get('scenario-templates/{template}', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'show']);
+    Route::patch('scenario-templates/{template}', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'update']);
+    Route::delete('scenario-templates/{template}', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'destroy']);
+    Route::post('scenario-templates/save-as-template', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'saveAsTemplate']);
+    Route::post('scenario-templates/{template}/instantiate', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'instantiate']);
+    Route::post('scenario-templates/{template}/clone', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'clone']);
 });
 
 // Talent Engineering
