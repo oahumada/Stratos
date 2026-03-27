@@ -355,6 +355,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/strategic-planning/scenarios/generate/{id}/progress', [\App\Http\Controllers\Api\GenerationChunkController::class, 'progress']);
     Route::get('/strategic-planning/scenarios/{id}/versions', [\App\Http\Controllers\Api\ScenarioController::class, 'getVersions']);
 
+    // Scenario Planning - Advanced Analytics (Phase 2 - Task 2)
+    Route::post('/scenarios/compare', [\App\Http\Controllers\Api\ScenarioAnalyticsController::class, 'compareScenarios']);
+    Route::get('/scenarios/{scenario}/analytics', [\App\Http\Controllers\Api\ScenarioAnalyticsController::class, 'analytics']);
+    Route::get('/scenarios/{scenario}/financial-impact', [\App\Http\Controllers\Api\ScenarioAnalyticsController::class, 'financialImpact']);
+    Route::get('/scenarios/{scenario}/risk-assessment', [\App\Http\Controllers\Api\ScenarioAnalyticsController::class, 'riskAssessment']);
+    Route::get('/scenarios/{scenario}/skill-gaps', [\App\Http\Controllers\Api\ScenarioAnalyticsController::class, 'skillGaps']);
+
     // Scenario Planning - Simulation & Strategic Talent Modeling
     Route::prefix('strategic-planning')->group(
         function () {
