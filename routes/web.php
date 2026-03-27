@@ -170,6 +170,11 @@ Route::get('/scenario-planning/{id}', function ($id) {
     return Inertia::render('ScenarioPlanning/ScenarioDetail', ['scenarioId' => $id]);
 })->middleware(['auth', 'verified', 'module:st-radar'])->name('scenario-planning.show');
 
+// Scenario Planning Phase 1: Advanced Analytics
+Route::get('/scenario-planning/analytics', function () {
+    return Inertia::render('ScenarioPlanning/Analytics', []);
+})->middleware(['auth', 'verified'])->name('scenario-planning.analytics');
+
 // Backwards-compatibility aliases: /strategic-planning -> /scenario-planning
 Route::get('/strategic-planning', function () {
     return Inertia::render('ScenarioPlanning/ScenarioList');

@@ -184,6 +184,12 @@ const allNavItems: NavItem[] = [
         href: '/strategic-planning',
         icon: ScenarioPlanningIcon,
     },
+    // Scenario Planning Analytics (Phase 1)
+    {
+        title: 'Planning Analytics',
+        href: '/scenario-planning/analytics',
+        icon: PhChartBar,
+    },
     // Talento 360 — requires assessments.view
     {
         title: 'Talento 360°',
