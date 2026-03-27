@@ -82,6 +82,11 @@
             <div v-show="activeTab === 'execution'">
                 <ExecutionPlan :execution-plan="selectedScenarioExecutionPlan" />
             </div>
+
+            <!-- Phase 2.5: Approval Dashboard Tab -->
+            <div v-show="activeTab === 'dashboard'">
+                <ApprovalDashboard />
+            </div>
         </div>
     </div>
 </template>
@@ -95,6 +100,7 @@ import RiskAssessment from '@/components/ScenarioPlanning/RiskAssessment.vue'
 import ApprovalMatrix from '@/components/ScenarioPlanning/ApprovalMatrix.vue'
 import WorkflowTimeline from '@/components/ScenarioPlanning/WorkflowTimeline.vue'
 import ExecutionPlan from '@/components/ScenarioPlanning/ExecutionPlan.vue'
+import ApprovalDashboard from '@/components/ScenarioPlanning/ApprovalDashboard.vue'
 
 // State
 const activeTab = ref('comparison')
@@ -113,7 +119,8 @@ const tabs = [
     { id: 'risk', name: '⚠️ Risk Assessment' },
     { id: 'approval', name: '✔️ Approvals' },
     { id: 'workflow', name: '🔄 Workflow' },
-    { id: 'execution', name: '🚀 Execution' }
+    { id: 'execution', name: '🚀 Execution' },
+    { id: 'dashboard', name: '📋 Dashboard' }
 ]
 
 // Sample Data (Replace with API calls in Phase 2)
