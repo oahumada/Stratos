@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:434
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
 * @route '/.well-known/did.json'
 */
 export const didDocument = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ didDocument.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:434
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
 * @route '/.well-known/did.json'
 */
 didDocument.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ didDocument.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:434
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
 * @route '/.well-known/did.json'
 */
 didDocument.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ didDocument.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:434
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
 * @route '/.well-known/did.json'
 */
 didDocument.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ didDocument.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:434
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
 * @route '/.well-known/did.json'
 */
 const didDocumentForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const didDocumentForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:434
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
 * @route '/.well-known/did.json'
 */
 didDocumentForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ didDocumentForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> 
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:434
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
 * @route '/.well-known/did.json'
 */
 didDocumentForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

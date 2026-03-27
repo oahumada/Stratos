@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifyRoleCredentialPublic
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:388
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:401
 * @route '/api/compliance/public/credentials/verify'
 */
 export const verifyRoleCredentialPublic = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ verifyRoleCredentialPublic.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifyRoleCredentialPublic
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:388
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:401
 * @route '/api/compliance/public/credentials/verify'
 */
 verifyRoleCredentialPublic.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ verifyRoleCredentialPublic.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifyRoleCredentialPublic
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:388
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:401
 * @route '/api/compliance/public/credentials/verify'
 */
 verifyRoleCredentialPublic.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ verifyRoleCredentialPublic.post = (options?: RouteQueryOptions): RouteDefinition
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifyRoleCredentialPublic
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:388
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:401
 * @route '/api/compliance/public/credentials/verify'
 */
 const verifyRoleCredentialPublicForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const verifyRoleCredentialPublicForm = (options?: RouteQueryOptions): RouteFormD
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifyRoleCredentialPublic
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:388
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:401
 * @route '/api/compliance/public/credentials/verify'
 */
 verifyRoleCredentialPublicForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -57,7 +57,7 @@ verifyRoleCredentialPublic.form = verifyRoleCredentialPublicForm
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifierMetadata
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:470
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:483
 * @route '/api/compliance/public/verifier-metadata'
 */
 export const verifierMetadata = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -72,7 +72,7 @@ verifierMetadata.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifierMetadata
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:470
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:483
 * @route '/api/compliance/public/verifier-metadata'
 */
 verifierMetadata.url = (options?: RouteQueryOptions) => {
@@ -81,7 +81,7 @@ verifierMetadata.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifierMetadata
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:470
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:483
 * @route '/api/compliance/public/verifier-metadata'
 */
 verifierMetadata.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -91,7 +91,7 @@ verifierMetadata.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => 
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifierMetadata
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:470
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:483
 * @route '/api/compliance/public/verifier-metadata'
 */
 verifierMetadata.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -101,7 +101,7 @@ verifierMetadata.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifierMetadata
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:470
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:483
 * @route '/api/compliance/public/verifier-metadata'
 */
 const verifierMetadataForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -111,7 +111,7 @@ const verifierMetadataForm = (options?: RouteQueryOptions): RouteFormDefinition<
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifierMetadata
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:470
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:483
 * @route '/api/compliance/public/verifier-metadata'
 */
 verifierMetadataForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -121,7 +121,7 @@ verifierMetadataForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'g
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifierMetadata
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:470
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:483
 * @route '/api/compliance/public/verifier-metadata'
 */
 verifierMetadataForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -381,7 +381,7 @@ iso30414Summary.form = iso30414SummaryForm
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::recordAiConsent
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:185
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:198
 * @route '/api/compliance/consents/ai-processing'
 */
 export const recordAiConsent = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -396,7 +396,7 @@ recordAiConsent.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::recordAiConsent
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:185
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:198
 * @route '/api/compliance/consents/ai-processing'
 */
 recordAiConsent.url = (options?: RouteQueryOptions) => {
@@ -405,7 +405,7 @@ recordAiConsent.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::recordAiConsent
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:185
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:198
 * @route '/api/compliance/consents/ai-processing'
 */
 recordAiConsent.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -415,7 +415,7 @@ recordAiConsent.post = (options?: RouteQueryOptions): RouteDefinition<'post'> =>
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::recordAiConsent
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:185
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:198
 * @route '/api/compliance/consents/ai-processing'
 */
 const recordAiConsentForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -425,7 +425,7 @@ const recordAiConsentForm = (options?: RouteQueryOptions): RouteFormDefinition<'
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::recordAiConsent
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:185
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:198
 * @route '/api/compliance/consents/ai-processing'
 */
 recordAiConsentForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -437,7 +437,7 @@ recordAiConsent.form = recordAiConsentForm
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::executeGdprPurge
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:248
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:261
 * @route '/api/compliance/gdpr/purge'
 */
 export const executeGdprPurge = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -452,7 +452,7 @@ executeGdprPurge.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::executeGdprPurge
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:248
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:261
 * @route '/api/compliance/gdpr/purge'
 */
 executeGdprPurge.url = (options?: RouteQueryOptions) => {
@@ -461,7 +461,7 @@ executeGdprPurge.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::executeGdprPurge
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:248
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:261
 * @route '/api/compliance/gdpr/purge'
 */
 executeGdprPurge.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -471,7 +471,7 @@ executeGdprPurge.post = (options?: RouteQueryOptions): RouteDefinition<'post'> =
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::executeGdprPurge
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:248
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:261
 * @route '/api/compliance/gdpr/purge'
 */
 const executeGdprPurgeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -481,7 +481,7 @@ const executeGdprPurgeForm = (options?: RouteQueryOptions): RouteFormDefinition<
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::executeGdprPurge
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:248
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:261
 * @route '/api/compliance/gdpr/purge'
 */
 executeGdprPurgeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -493,7 +493,7 @@ executeGdprPurge.form = executeGdprPurgeForm
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::exportRoleCredential
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:341
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:354
 * @route '/api/compliance/credentials/roles/{roleId}'
 */
 export const exportRoleCredential = (args: { roleId: string | number } | [roleId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -508,7 +508,7 @@ exportRoleCredential.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::exportRoleCredential
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:341
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:354
 * @route '/api/compliance/credentials/roles/{roleId}'
 */
 exportRoleCredential.url = (args: { roleId: string | number } | [roleId: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -535,7 +535,7 @@ exportRoleCredential.url = (args: { roleId: string | number } | [roleId: string 
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::exportRoleCredential
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:341
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:354
 * @route '/api/compliance/credentials/roles/{roleId}'
 */
 exportRoleCredential.get = (args: { roleId: string | number } | [roleId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -545,7 +545,7 @@ exportRoleCredential.get = (args: { roleId: string | number } | [roleId: string 
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::exportRoleCredential
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:341
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:354
 * @route '/api/compliance/credentials/roles/{roleId}'
 */
 exportRoleCredential.head = (args: { roleId: string | number } | [roleId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -555,7 +555,7 @@ exportRoleCredential.head = (args: { roleId: string | number } | [roleId: string
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::exportRoleCredential
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:341
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:354
 * @route '/api/compliance/credentials/roles/{roleId}'
 */
 const exportRoleCredentialForm = (args: { roleId: string | number } | [roleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -565,7 +565,7 @@ const exportRoleCredentialForm = (args: { roleId: string | number } | [roleId: s
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::exportRoleCredential
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:341
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:354
 * @route '/api/compliance/credentials/roles/{roleId}'
 */
 exportRoleCredentialForm.get = (args: { roleId: string | number } | [roleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -575,7 +575,7 @@ exportRoleCredentialForm.get = (args: { roleId: string | number } | [roleId: str
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::exportRoleCredential
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:341
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:354
 * @route '/api/compliance/credentials/roles/{roleId}'
 */
 exportRoleCredentialForm.head = (args: { roleId: string | number } | [roleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -592,7 +592,7 @@ exportRoleCredential.form = exportRoleCredentialForm
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifyRoleCredential
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:362
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:375
 * @route '/api/compliance/credentials/roles/{roleId}/verify'
 */
 export const verifyRoleCredential = (args: { roleId: string | number } | [roleId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -607,7 +607,7 @@ verifyRoleCredential.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifyRoleCredential
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:362
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:375
 * @route '/api/compliance/credentials/roles/{roleId}/verify'
 */
 verifyRoleCredential.url = (args: { roleId: string | number } | [roleId: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -634,7 +634,7 @@ verifyRoleCredential.url = (args: { roleId: string | number } | [roleId: string 
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifyRoleCredential
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:362
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:375
 * @route '/api/compliance/credentials/roles/{roleId}/verify'
 */
 verifyRoleCredential.post = (args: { roleId: string | number } | [roleId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -644,7 +644,7 @@ verifyRoleCredential.post = (args: { roleId: string | number } | [roleId: string
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifyRoleCredential
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:362
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:375
 * @route '/api/compliance/credentials/roles/{roleId}/verify'
 */
 const verifyRoleCredentialForm = (args: { roleId: string | number } | [roleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -654,7 +654,7 @@ const verifyRoleCredentialForm = (args: { roleId: string | number } | [roleId: s
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::verifyRoleCredential
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:362
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:375
 * @route '/api/compliance/credentials/roles/{roleId}/verify'
 */
 verifyRoleCredentialForm.post = (args: { roleId: string | number } | [roleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -666,7 +666,7 @@ verifyRoleCredential.form = verifyRoleCredentialForm
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::internalAuditWizard
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:598
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:611
 * @route '/api/compliance/internal-audit-wizard'
 */
 export const internalAuditWizard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -681,7 +681,7 @@ internalAuditWizard.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::internalAuditWizard
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:598
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:611
 * @route '/api/compliance/internal-audit-wizard'
 */
 internalAuditWizard.url = (options?: RouteQueryOptions) => {
@@ -690,7 +690,7 @@ internalAuditWizard.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::internalAuditWizard
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:598
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:611
 * @route '/api/compliance/internal-audit-wizard'
 */
 internalAuditWizard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -700,7 +700,7 @@ internalAuditWizard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> 
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::internalAuditWizard
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:598
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:611
 * @route '/api/compliance/internal-audit-wizard'
 */
 internalAuditWizard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -710,7 +710,7 @@ internalAuditWizard.head = (options?: RouteQueryOptions): RouteDefinition<'head'
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::internalAuditWizard
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:598
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:611
 * @route '/api/compliance/internal-audit-wizard'
 */
 const internalAuditWizardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -720,7 +720,7 @@ const internalAuditWizardForm = (options?: RouteQueryOptions): RouteFormDefiniti
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::internalAuditWizard
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:598
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:611
 * @route '/api/compliance/internal-audit-wizard'
 */
 internalAuditWizardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -730,7 +730,7 @@ internalAuditWizardForm.get = (options?: RouteQueryOptions): RouteFormDefinition
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::internalAuditWizard
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:598
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:611
 * @route '/api/compliance/internal-audit-wizard'
 */
 internalAuditWizardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -747,7 +747,7 @@ internalAuditWizard.form = internalAuditWizardForm
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:434
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
 * @route '/.well-known/did.json'
 */
 export const didDocument = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -762,7 +762,7 @@ didDocument.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:434
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
 * @route '/.well-known/did.json'
 */
 didDocument.url = (options?: RouteQueryOptions) => {
@@ -771,7 +771,7 @@ didDocument.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:434
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
 * @route '/.well-known/did.json'
 */
 didDocument.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -781,7 +781,7 @@ didDocument.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:434
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
 * @route '/.well-known/did.json'
 */
 didDocument.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -791,7 +791,7 @@ didDocument.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:434
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
 * @route '/.well-known/did.json'
 */
 const didDocumentForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -801,7 +801,7 @@ const didDocumentForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:434
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
 * @route '/.well-known/did.json'
 */
 didDocumentForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -811,7 +811,7 @@ didDocumentForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> 
 
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:434
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
 * @route '/.well-known/did.json'
 */
 didDocumentForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

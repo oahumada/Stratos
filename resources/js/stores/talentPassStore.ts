@@ -143,11 +143,11 @@ export const useTalentPassStore = defineStore('talents-pass', () => {
             if (params?.sort_order)
                 queryParams.append('sort_order', params.sort_order);
 
-            const response = await apiClient.get(
+            const response = await apiCall(
                 `/api/talent-passes?${queryParams.toString()}`,
             );
-            talentPasses.value = response.data.data;
-            totalPages.value = response.data.meta.last_page;
+            talentPasses.value = response.data || [];
+            totalPages.value = response.meta?.last_page || 1;
         } catch (err: any) {
             error.value =
                 err.response?.data?.message || 'Error fetching Talent Passes';
@@ -164,8 +164,8 @@ export const useTalentPassStore = defineStore('talents-pass', () => {
         error.value = null;
 
         try {
-            const response = await apiClient.get(`/api/talent-passes/${id}`);
-            currentTalentPass.value = response.data.data;
+            const response = await apiCall(`/api/talent-passes/${id}`);
+            currentTalentPass.value = response.data || null;
         } catch (err: any) {
             error.value =
                 err.response?.data?.message || 'Error fetching Talent Pass';
@@ -182,8 +182,8 @@ export const useTalentPassStore = defineStore('talents-pass', () => {
         error.value = null;
 
         try {
-            const response = await apiClient.get(`/api/talent-pass/${ulid}`);
-            currentTalentPass.value = response.data.data;
+            const response = await apiCall(`/api/talent-pass/${ulid}`);
+            currentTalentPass.value = response.data || null;
         } catch (err: any) {
             error.value =
                 err.response?.data?.message ||
@@ -254,7 +254,9 @@ export const useTalentPassStore = defineStore('talents-pass', () => {
         error.value = null;
 
         try {
-            await apiClient.delete(`/api/talent-passes/${id}`);
+            await apiCall(`/api/talent-passes/${id}`, {
+                method: 'DELETE',
+            });
             talentPasses.value = talentPasses.value.filter(
                 (tp) => tp.id !== id,
             );

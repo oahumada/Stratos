@@ -2,8 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { PhArrowClockwise, PhCheckCircle, PhWarning, PhClock, PhServer, PhActivity, PhDownload } from '@phosphor-icons/vue';
-import { formatDate, formatTime, formatDistance } from '@/lib/utils';
+import { PhArrowClockwise, PhCheckCircle, PhWarning, PhClock, PhDatabase, PhActivity, PhDownload } from '@phosphor-icons/vue';
 
 defineOptions({
     layout: AppLayout,
@@ -106,7 +105,7 @@ const statusIcon = (status: string) => {
         processing: PhArrowClockwise,
         failed: PhWarning,
         pending: PhClock,
-        rolled_back: PhServer,
+        rolled_back: PhDatabase,
     };
     return icons[status] || PhClock;
 };
@@ -145,7 +144,7 @@ onMounted(() => {
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-3xl font-bold text-white flex items-center gap-3">
-                        <PhServer :size="32" class="text-indigo-400" />
+                        <PhDatabase :size="32" class="text-indigo-400" />
                         Operations Dashboard
                     </h1>
                     <p class="text-slate-400 text-sm mt-2">Real-time system monitoring & operation tracking</p>
@@ -178,7 +177,7 @@ onMounted(() => {
                 <div class="p-4 rounded-lg bg-white/5 border border-white/10 hover:border-blue-500/50 transition-all">
                     <div class="flex items-center justify-between mb-2">
                         <p class="text-sm text-slate-400">Memory Usage</p>
-                        <PhServer :size="20" class="text-blue-400" />
+                        <PhDatabase :size="20" class="text-blue-400" />
                     </div>
                     <p class="text-3xl font-bold text-white">{{ metrics.memoryUsage }}%</p>
                     <div class="mt-3 h-2 bg-white/5 rounded-full overflow-hidden">
@@ -275,7 +274,7 @@ onMounted(() => {
                                 <div>
                                     <p class="font-bold text-white">{{ operation.name }}</p>
                                     <p class="text-xs text-slate-400">
-                                        Started {{ formatDistance(new Date(operation.createdAt), new Date()) }} ago
+                                        Started {{operation.createdAt ? new Date(operation.createdAt).toLocaleString() : 'N/A' }} ago
                                     </p>
                                 </div>
                             </div>
@@ -301,10 +300,10 @@ onMounted(() => {
                         <!-- Timeline -->
                         <div class="flex items-center gap-4 text-xs text-slate-400 mb-3">
                             <span v-if="operation.startedAt">
-                                Started: {{ formatTime(new Date(operation.startedAt)) }}
+                                Started: {{ new Date(operation.startedAt).toLocaleString() }}
                             </span>
                             <span v-if="operation.completedAt">
-                                Completed: {{ formatTime(new Date(operation.completedAt)) }}
+                                Completed: {{ new Date(operation.completedAt).toLocaleString() }}
                             </span>
                         </div>
 
@@ -319,7 +318,7 @@ onMounted(() => {
                             <p class="text-xs text-amber-300 font-semibold">Rolled Back</p>
                             <p class="text-xs text-amber-200 mt-1">Reason: {{ operation.rollback.reason }}</p>
                             <p class="text-xs text-amber-300 mt-1">
-                                Initiated: {{ formatTime(new Date(operation.rollback.initiatedAt)) }}
+                                Initiated: {{ new Date(operation.rollback.initiatedAt).toLocaleString() }}
                             </p>
                         </div>
 
@@ -358,7 +357,7 @@ onMounted(() => {
             <!-- Last Update Info -->
             <div class="p-4 rounded-lg bg-white/5 border border-white/10 text-center">
                 <p class="text-xs text-slate-400">
-                    Last update: {{ formatTime(new Date(metrics.lastCheck)) }}
+                    Last update: {{ new Date(metrics.lastCheck).toLocaleString() }}
                     <span v-if="autoRefresh" class="ml-2 text-indigo-400">• Auto-refresh enabled</span>
                 </p>
             </div>

@@ -186,7 +186,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessageController::markRead
-* @see app/Http/Controllers/Api/Messaging/MessageController.php:96
+* @see app/Http/Controllers/Api/Messaging/MessageController.php:106
 * @route '/api/messaging/messages/{message}/read'
 */
 export const markRead = (args: { message: string | { id: string } } | [message: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -201,7 +201,7 @@ markRead.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessageController::markRead
-* @see app/Http/Controllers/Api/Messaging/MessageController.php:96
+* @see app/Http/Controllers/Api/Messaging/MessageController.php:106
 * @route '/api/messaging/messages/{message}/read'
 */
 markRead.url = (args: { message: string | { id: string } } | [message: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions) => {
@@ -234,7 +234,7 @@ markRead.url = (args: { message: string | { id: string } } | [message: string | 
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessageController::markRead
-* @see app/Http/Controllers/Api/Messaging/MessageController.php:96
+* @see app/Http/Controllers/Api/Messaging/MessageController.php:106
 * @route '/api/messaging/messages/{message}/read'
 */
 markRead.post = (args: { message: string | { id: string } } | [message: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -244,7 +244,7 @@ markRead.post = (args: { message: string | { id: string } } | [message: string |
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessageController::markRead
-* @see app/Http/Controllers/Api/Messaging/MessageController.php:96
+* @see app/Http/Controllers/Api/Messaging/MessageController.php:106
 * @route '/api/messaging/messages/{message}/read'
 */
 const markReadForm = (args: { message: string | { id: string } } | [message: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -254,7 +254,7 @@ const markReadForm = (args: { message: string | { id: string } } | [message: str
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\MessageController::markRead
-* @see app/Http/Controllers/Api/Messaging/MessageController.php:96
+* @see app/Http/Controllers/Api/Messaging/MessageController.php:106
 * @route '/api/messaging/messages/{message}/read'
 */
 markReadForm.post = (args: { message: string | { id: string } } | [message: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

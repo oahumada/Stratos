@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { useRoute } from 'vue-router';
 import { useTalentPassStore } from '@/stores/talentPassStore';
 import { useNotification } from '@kyvg/vue3-notification';
 import {
@@ -13,13 +12,20 @@ import {
 import StCardGlass from '@/components/StCardGlass.vue';
 import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import { computed, onMounted, ref } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
+
+// Props
+interface Props {
+    ulid: string;
+}
+
+const props = defineProps<Props>();
 
 // Setup
-const route = useRoute();
+const page = usePage();
 const store = useTalentPassStore();
 const { notify } = useNotification();
 const loading = ref(true);
-const ulid = ref<string>('');
 
 // Computed
 const talentPass = computed(() => store.currentTalentPass);
@@ -30,10 +36,10 @@ const completinessPercentage = computed(
 // Methods
 async function loadPublicTalentPass() {
     try {
-        if (!ulid.value) return;
+        if (!props.ulid) return;
 
         // Fetch public talent pass by ULID
-        const response = await fetch(`/api/talent-pass/${ulid.value}`);
+        const response = await fetch(`/api/talent-pass/${props.ulid}`);
 
         if (!response.ok) {
             throw new Error('Talent Pass not found or not public');
@@ -122,7 +128,7 @@ onMounted(() => {
             class="mx-auto max-w-4xl text-center py-20"
         >
             <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 mb-4">
-                <PhArrowLeft :size="32} weight="thin" class="text-slate-600" />
+                <PhArrowLeft :size="32" weight="thin" class="text-slate-600" />
             </div>
             <h2 class="text-2xl font-bold text-white mb-2">Talent Pass not found</h2>
             <p class="text-slate-400 mb-6">

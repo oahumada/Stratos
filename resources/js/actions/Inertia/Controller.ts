@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
@@ -639,6 +639,460 @@ Controllerfc6f24c041bacb6b74c576eb16f12888Form.head = (options?: RouteQueryOptio
 })
 
 Controllerfc6f24c041bacb6b74c576eb16f12888.form = Controllerfc6f24c041bacb6b74c576eb16f12888Form
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass'
+*/
+const Controllerf294916370e4bfbc152ae84f39f44ed8 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerf294916370e4bfbc152ae84f39f44ed8.url(options),
+    method: 'get',
+})
+
+Controllerf294916370e4bfbc152ae84f39f44ed8.definition = {
+    methods: ["get","head"],
+    url: '/talent-pass',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass'
+*/
+Controllerf294916370e4bfbc152ae84f39f44ed8.url = (options?: RouteQueryOptions) => {
+    return Controllerf294916370e4bfbc152ae84f39f44ed8.definition.url + queryParams(options)
+}
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass'
+*/
+Controllerf294916370e4bfbc152ae84f39f44ed8.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerf294916370e4bfbc152ae84f39f44ed8.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass'
+*/
+Controllerf294916370e4bfbc152ae84f39f44ed8.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controllerf294916370e4bfbc152ae84f39f44ed8.url(options),
+    method: 'head',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass'
+*/
+const Controllerf294916370e4bfbc152ae84f39f44ed8Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerf294916370e4bfbc152ae84f39f44ed8.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass'
+*/
+Controllerf294916370e4bfbc152ae84f39f44ed8Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerf294916370e4bfbc152ae84f39f44ed8.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass'
+*/
+Controllerf294916370e4bfbc152ae84f39f44ed8Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerf294916370e4bfbc152ae84f39f44ed8.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+Controllerf294916370e4bfbc152ae84f39f44ed8.form = Controllerf294916370e4bfbc152ae84f39f44ed8Form
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/create'
+*/
+const Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2.url(options),
+    method: 'get',
+})
+
+Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2.definition = {
+    methods: ["get","head"],
+    url: '/talent-pass/create',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/create'
+*/
+Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2.url = (options?: RouteQueryOptions) => {
+    return Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2.definition.url + queryParams(options)
+}
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/create'
+*/
+Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/create'
+*/
+Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2.url(options),
+    method: 'head',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/create'
+*/
+const Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/create'
+*/
+Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/create'
+*/
+Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2.form = Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2Form
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/{id}'
+*/
+const Controller377010c88ff7b9517dc6b60819bbfdab = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller377010c88ff7b9517dc6b60819bbfdab.url(args, options),
+    method: 'get',
+})
+
+Controller377010c88ff7b9517dc6b60819bbfdab.definition = {
+    methods: ["get","head"],
+    url: '/talent-pass/{id}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/{id}'
+*/
+Controller377010c88ff7b9517dc6b60819bbfdab.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { id: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            id: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        id: args.id,
+    }
+
+    return Controller377010c88ff7b9517dc6b60819bbfdab.definition.url
+            .replace('{id}', parsedArgs.id.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/{id}'
+*/
+Controller377010c88ff7b9517dc6b60819bbfdab.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller377010c88ff7b9517dc6b60819bbfdab.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/{id}'
+*/
+Controller377010c88ff7b9517dc6b60819bbfdab.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controller377010c88ff7b9517dc6b60819bbfdab.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/{id}'
+*/
+const Controller377010c88ff7b9517dc6b60819bbfdabForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller377010c88ff7b9517dc6b60819bbfdab.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/{id}'
+*/
+Controller377010c88ff7b9517dc6b60819bbfdabForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller377010c88ff7b9517dc6b60819bbfdab.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/{id}'
+*/
+Controller377010c88ff7b9517dc6b60819bbfdabForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller377010c88ff7b9517dc6b60819bbfdab.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+Controller377010c88ff7b9517dc6b60819bbfdab.form = Controller377010c88ff7b9517dc6b60819bbfdabForm
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/{id}/edit'
+*/
+const Controller1d23530a54575f83aa46a4f4f7537e3e = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller1d23530a54575f83aa46a4f4f7537e3e.url(args, options),
+    method: 'get',
+})
+
+Controller1d23530a54575f83aa46a4f4f7537e3e.definition = {
+    methods: ["get","head"],
+    url: '/talent-pass/{id}/edit',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/{id}/edit'
+*/
+Controller1d23530a54575f83aa46a4f4f7537e3e.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { id: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            id: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        id: args.id,
+    }
+
+    return Controller1d23530a54575f83aa46a4f4f7537e3e.definition.url
+            .replace('{id}', parsedArgs.id.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/{id}/edit'
+*/
+Controller1d23530a54575f83aa46a4f4f7537e3e.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller1d23530a54575f83aa46a4f4f7537e3e.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/{id}/edit'
+*/
+Controller1d23530a54575f83aa46a4f4f7537e3e.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controller1d23530a54575f83aa46a4f4f7537e3e.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/{id}/edit'
+*/
+const Controller1d23530a54575f83aa46a4f4f7537e3eForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller1d23530a54575f83aa46a4f4f7537e3e.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/{id}/edit'
+*/
+Controller1d23530a54575f83aa46a4f4f7537e3eForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller1d23530a54575f83aa46a4f4f7537e3e.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/talent-pass/{id}/edit'
+*/
+Controller1d23530a54575f83aa46a4f4f7537e3eForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller1d23530a54575f83aa46a4f4f7537e3e.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+Controller1d23530a54575f83aa46a4f4f7537e3e.form = Controller1d23530a54575f83aa46a4f4f7537e3eForm
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/public/talent-pass/{ulid}'
+*/
+const Controller98ea1aa8bf95e23aa708198b0e2ab85e = (args: { ulid: string | number } | [ulid: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller98ea1aa8bf95e23aa708198b0e2ab85e.url(args, options),
+    method: 'get',
+})
+
+Controller98ea1aa8bf95e23aa708198b0e2ab85e.definition = {
+    methods: ["get","head"],
+    url: '/public/talent-pass/{ulid}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/public/talent-pass/{ulid}'
+*/
+Controller98ea1aa8bf95e23aa708198b0e2ab85e.url = (args: { ulid: string | number } | [ulid: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { ulid: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            ulid: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        ulid: args.ulid,
+    }
+
+    return Controller98ea1aa8bf95e23aa708198b0e2ab85e.definition.url
+            .replace('{ulid}', parsedArgs.ulid.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/public/talent-pass/{ulid}'
+*/
+Controller98ea1aa8bf95e23aa708198b0e2ab85e.get = (args: { ulid: string | number } | [ulid: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller98ea1aa8bf95e23aa708198b0e2ab85e.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/public/talent-pass/{ulid}'
+*/
+Controller98ea1aa8bf95e23aa708198b0e2ab85e.head = (args: { ulid: string | number } | [ulid: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controller98ea1aa8bf95e23aa708198b0e2ab85e.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/public/talent-pass/{ulid}'
+*/
+const Controller98ea1aa8bf95e23aa708198b0e2ab85eForm = (args: { ulid: string | number } | [ulid: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller98ea1aa8bf95e23aa708198b0e2ab85e.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/public/talent-pass/{ulid}'
+*/
+Controller98ea1aa8bf95e23aa708198b0e2ab85eForm.get = (args: { ulid: string | number } | [ulid: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller98ea1aa8bf95e23aa708198b0e2ab85e.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/public/talent-pass/{ulid}'
+*/
+Controller98ea1aa8bf95e23aa708198b0e2ab85eForm.head = (args: { ulid: string | number } | [ulid: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller98ea1aa8bf95e23aa708198b0e2ab85e.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+Controller98ea1aa8bf95e23aa708198b0e2ab85e.form = Controller98ea1aa8bf95e23aa708198b0e2ab85eForm
 
 const Controller = {
     '/deployment/verification-metrics': Controller1536443aaca1d0055cf9728225f4c9b5,
@@ -649,6 +1103,11 @@ const Controller = {
     '/deployment/verification/dashboard/performance': Controllere27a306b64fc1541f6e85c04f4679ea7,
     '/deployment/verification/dashboard/insights': Controller7a93b4b13ca60da089834989d92dad53,
     '/deployment/verification/dashboard/realtime': Controllerfc6f24c041bacb6b74c576eb16f12888,
+    '/talent-pass': Controllerf294916370e4bfbc152ae84f39f44ed8,
+    '/talent-pass/create': Controllerd8eb82699ec5375ae3c8b9cd4cd9d6c2,
+    '/talent-pass/{id}': Controller377010c88ff7b9517dc6b60819bbfdab,
+    '/talent-pass/{id}/edit': Controller1d23530a54575f83aa46a4f4f7537e3e,
+    '/public/talent-pass/{ulid}': Controller98ea1aa8bf95e23aa708198b0e2ab85e,
 }
 
 export default Controller

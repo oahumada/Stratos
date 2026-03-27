@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, useRoute } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { useTalentPassStore } from '@/stores/talentPassStore';
 import { useNotification } from '@kyvg/vue3-notification';
@@ -22,8 +22,15 @@ import { computed, onMounted, ref } from 'vue';
 
 defineOptions({ layout: AppLayout });
 
+// Props Interface
+interface Props {
+    id: number | string;
+}
+
+const props = defineProps<Props>();
+
 // Setup
-const route = useRoute();
+const page = usePage();
 const store = useTalentPassStore();
 const { notify } = useNotification();
 const loading = ref(true);
@@ -128,9 +135,9 @@ async function handleExport() {
 
 // Lifecycle
 onMounted(() => {
-    const id = Array.isArray(route.params.id)
-        ? parseInt(route.params.id[0])
-        : parseInt(route.params.id);
+    const id = Array.isArray(props.id)
+        ? parseInt(Array.isArray(props.id) ? props.id[0].toString() : props.id.toString())
+        : parseInt(props.id.toString());
 
     if (id) {
         talentPassId.value = id;

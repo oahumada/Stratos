@@ -3,6 +3,8 @@ import AssessmentController from './AssessmentController'
 import RoleDesignerController from './RoleDesignerController'
 import PublicJobController from './PublicJobController'
 import ComplianceAuditController from './ComplianceAuditController'
+import TalentPassController from './TalentPassController'
+import TalentSearchController from './TalentSearchController'
 import DevelopmentActionController from './DevelopmentActionController'
 import MentorshipSessionController from './MentorshipSessionController'
 import EvidenceController from './EvidenceController'
@@ -11,7 +13,6 @@ import AgentController from './AgentController'
 import JobOpeningController from './JobOpeningController'
 import ApplicationController from './ApplicationController'
 import StratosIqController from './StratosIqController'
-import TalentPassController from './TalentPassController'
 import MarketplaceController from './MarketplaceController'
 import MentorController from './MentorController'
 import AuthController from './AuthController'
@@ -76,6 +77,8 @@ const Api = {
     RoleDesignerController: Object.assign(RoleDesignerController, RoleDesignerController),
     PublicJobController: Object.assign(PublicJobController, PublicJobController),
     ComplianceAuditController: Object.assign(ComplianceAuditController, ComplianceAuditController),
+    TalentPassController: Object.assign(TalentPassController, TalentPassController),
+    TalentSearchController: Object.assign(TalentSearchController, TalentSearchController),
     DevelopmentActionController: Object.assign(DevelopmentActionController, DevelopmentActionController),
     MentorshipSessionController: Object.assign(MentorshipSessionController, MentorshipSessionController),
     EvidenceController: Object.assign(EvidenceController, EvidenceController),
@@ -84,7 +87,6 @@ const Api = {
     JobOpeningController: Object.assign(JobOpeningController, JobOpeningController),
     ApplicationController: Object.assign(ApplicationController, ApplicationController),
     StratosIqController: Object.assign(StratosIqController, StratosIqController),
-    TalentPassController: Object.assign(TalentPassController, TalentPassController),
     MarketplaceController: Object.assign(MarketplaceController, MarketplaceController),
     MentorController: Object.assign(MentorController, MentorController),
     AuthController: Object.assign(AuthController, AuthController),
