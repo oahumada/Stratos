@@ -211,6 +211,34 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/smart-alerts', [\App\Http\Controllers\Api\SmartAlertController::class, 'index']);
     Route::post('/smart-alerts/{id}/read', [\App\Http\Controllers\Api\SmartAlertController::class, 'markAsRead']);
 
+    // SLA Alert System (Phase 2 - Alerting)
+    Route::prefix('alerts')->group(function () {
+        // Thresholds management
+        Route::get('/thresholds', [\App\Http\Controllers\Api\AlertController::class, 'indexThresholds'])->name('alerts.thresholds.index');
+        Route::post('/thresholds', [\App\Http\Controllers\Api\AlertController::class, 'storeThreshold'])->name('alerts.thresholds.store');
+        Route::get('/thresholds/{threshold}', [\App\Http\Controllers\Api\AlertController::class, 'showThreshold'])->name('alerts.thresholds.show');
+        Route::patch('/thresholds/{threshold}', [\App\Http\Controllers\Api\AlertController::class, 'updateThreshold'])->name('alerts.thresholds.update');
+        Route::delete('/thresholds/{threshold}', [\App\Http\Controllers\Api\AlertController::class, 'destroyThreshold'])->name('alerts.thresholds.destroy');
+
+        // Alert history
+        Route::get('/history', [\App\Http\Controllers\Api\AlertController::class, 'indexHistory'])->name('alerts.history.index');
+        Route::get('/history/{alert}', [\App\Http\Controllers\Api\AlertController::class, 'showHistory'])->name('alerts.history.show');
+        Route::post('/history/{alert}/acknowledge', [\App\Http\Controllers\Api\AlertController::class, 'acknowledgeAlert'])->name('alerts.acknowledge');
+        Route::post('/history/{alert}/resolve', [\App\Http\Controllers\Api\AlertController::class, 'resolveAlert'])->name('alerts.resolve');
+        Route::post('/history/{alert}/mute', [\App\Http\Controllers\Api\AlertController::class, 'muteAlert'])->name('alerts.mute');
+
+        // Summary views
+        Route::get('/unacknowledged', [\App\Http\Controllers\Api\AlertController::class, 'getUnacknowledged'])->name('alerts.unacknowledged');
+        Route::get('/critical', [\App\Http\Controllers\Api\AlertController::class, 'getCritical'])->name('alerts.critical');
+        Route::get('/statistics', [\App\Http\Controllers\Api\AlertController::class, 'statistics'])->name('alerts.statistics');
+
+        // Bulk operations
+        Route::post('/bulk-acknowledge', [\App\Http\Controllers\Api\AlertController::class, 'bulkAcknowledge'])->name('alerts.bulkAcknowledge');
+
+        // Export
+        Route::get('/export/history', [\App\Http\Controllers\Api\AlertController::class, 'exportHistory'])->name('alerts.export');
+    });
+
     // Gamification (Fase 6 / D4)
     Route::get('/gamification/quests', [\App\Http\Controllers\Api\GamificationController::class, 'getAvailableQuests']);
     Route::get('/gamification/people/{peopleId}/quests', [\App\Http\Controllers\Api\GamificationController::class, 'getPersonQuests']);
