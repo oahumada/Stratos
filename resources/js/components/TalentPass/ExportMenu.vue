@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { PhDownload, PhFilePdf, PhFileJson, PhLinkedinLogo } from '@phosphor-icons/vue';
-import { useTalentPassStore } from '@/stores/talentPassStore';
 import { useNotification } from '@/composables/useNotification';
+import { useTalentPassStore } from '@/stores/talentPassStore';
+import {
+    PhDownload,
+    PhFileJson,
+    PhFilePdf,
+    PhLinkedinLogo,
+} from '@phosphor-icons/vue';
+import { ref } from 'vue';
 
 interface Props {
     talentPassId: number;
@@ -22,12 +27,15 @@ async function exportToPdf() {
 
     try {
         // Call backend to generate PDF
-        const response = await fetch(`/api/talent-pass/${talentPassId}/export/pdf`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/pdf',
+        const response = await fetch(
+            `/api/talent-pass/${talentPassId}/export/pdf`,
+            {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/pdf',
+                },
             },
-        });
+        );
 
         if (!response.ok) throw new Error('Export failed');
 
@@ -54,12 +62,15 @@ async function exportToJson() {
     isLoading.value = true;
 
     try {
-        const response = await fetch(`/api/talent-pass/${talentPassId}/export/json`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
+        const response = await fetch(
+            `/api/talent-pass/${talentPassId}/export/json`,
+            {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                },
             },
-        });
+        );
 
         if (!response.ok) throw new Error('Export failed');
 
@@ -95,7 +106,7 @@ function shareToLinkedin() {
         <button
             @click="isOpen = !isOpen"
             type="button"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-sm transition-all"
+            class="inline-flex items-center gap-2 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-bold text-white transition-all hover:bg-indigo-600"
         >
             <PhDownload :size="18" />
             Export
@@ -104,13 +115,13 @@ function shareToLinkedin() {
         <!-- Dropdown Menu -->
         <div
             v-if="isOpen"
-            class="absolute top-full mt-2 right-0 w-48 rounded-lg bg-slate-900 border border-white/10 shadow-xl z-50 overflow-hidden"
+            class="absolute top-full right-0 z-50 mt-2 w-48 overflow-hidden rounded-lg border border-white/10 bg-slate-900 shadow-xl"
         >
             <button
                 @click="exportToPdf"
                 :disabled="isLoading"
                 type="button"
-                class="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 text-left text-white text-sm transition-colors disabled:opacity-50"
+                class="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-white transition-colors hover:bg-white/5 disabled:opacity-50"
             >
                 <PhFilePdf :size="18" class="text-red-400" />
                 <span>Export as PDF</span>
@@ -119,7 +130,7 @@ function shareToLinkedin() {
                 @click="exportToJson"
                 :disabled="isLoading"
                 type="button"
-                class="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 text-left text-white text-sm transition-colors disabled:opacity-50 border-t border-white/5"
+                class="flex w-full items-center gap-3 border-t border-white/5 px-4 py-3 text-left text-sm text-white transition-colors hover:bg-white/5 disabled:opacity-50"
             >
                 <PhFileJson :size="18" class="text-blue-400" />
                 <span>Export as JSON</span>
@@ -127,7 +138,7 @@ function shareToLinkedin() {
             <button
                 @click="shareToLinkedin"
                 type="button"
-                class="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 text-left text-white text-sm transition-colors border-t border-white/5"
+                class="flex w-full items-center gap-3 border-t border-white/5 px-4 py-3 text-left text-sm text-white transition-colors hover:bg-white/5"
             >
                 <PhLinkedinLogo :size="18" class="text-blue-600" />
                 <span>Share to LinkedIn</span>
@@ -135,6 +146,10 @@ function shareToLinkedin() {
         </div>
 
         <!-- Click Outside to Close -->
-        <div v-if="isOpen" @click="isOpen = false" class="fixed inset-0 z-40"></div>
+        <div
+            v-if="isOpen"
+            @click="isOpen = false"
+            class="fixed inset-0 z-40"
+        ></div>
     </div>
 </template>

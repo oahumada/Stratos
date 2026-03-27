@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { PhPlus, PhTrash, PhCertificate } from '@phosphor-icons/vue';
+import { useNotification } from '@/composables/useNotification';
 import { formatDate } from '@/lib/utils';
 import { useTalentPassStore } from '@/stores/talentPassStore';
-import { useNotification } from '@/composables/useNotification';
+import { PhCertificate, PhPlus, PhTrash } from '@phosphor-icons/vue';
+import { computed, ref } from 'vue';
 
 interface Props {
     talentPassId: number;
@@ -44,7 +44,11 @@ const credentialsByDate = computed(() => {
 });
 
 const isFormValid = computed(() => {
-    return newCredential.value.title && newCredential.value.issuer && newCredential.value.issue_date;
+    return (
+        newCredential.value.title &&
+        newCredential.value.issuer &&
+        newCredential.value.issue_date
+    );
 });
 
 const isExpired = (expiryDate?: string): boolean => {
@@ -57,7 +61,10 @@ async function addCredential() {
 
     loading.value = true;
     try {
-        const added = await store.addCredential(props.talentPassId, newCredential.value);
+        const added = await store.addCredential(
+            props.talentPassId,
+            newCredential.value,
+        );
         notify({
             type: 'success',
             text: `Added credential: ${newCredential.value.title}`,
@@ -117,7 +124,7 @@ function toggleForm() {
 <template>
     <div class="space-y-4">
         <div class="flex items-center justify-between">
-            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <h3 class="flex items-center gap-2 text-lg font-bold text-white">
                 <PhCertificate :size="20" class="text-emerald-400" />
                 Certifications & Credentials
             </h3>
@@ -125,7 +132,7 @@ function toggleForm() {
                 v-if="!readonly"
                 @click="toggleForm"
                 type="button"
-                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold transition-colors"
+                class="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-3 py-1.5 text-sm font-bold text-white transition-colors hover:bg-emerald-600"
             >
                 <PhPlus :size="16" />
                 <span>{{ showForm ? 'Cancel' : 'Add' }}</span>
@@ -133,49 +140,52 @@ function toggleForm() {
         </div>
 
         <!-- Add Form -->
-        <div v-if="showForm && !readonly" class="p-4 rounded-lg bg-white/5 border border-emerald-500/20 space-y-3">
+        <div
+            v-if="showForm && !readonly"
+            class="space-y-3 rounded-lg border border-emerald-500/20 bg-white/5 p-4"
+        >
             <input
                 v-model="newCredential.title"
                 type="text"
                 placeholder="Credential title (e.g., AWS Solutions Architect)"
-                class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                class="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white placeholder-slate-400 transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
             />
             <input
                 v-model="newCredential.issuer"
                 type="text"
                 placeholder="Issuer (e.g., AWS, Google, Coursera)"
-                class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                class="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white placeholder-slate-400 transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
             />
             <div class="grid grid-cols-2 gap-3">
                 <input
                     v-model="newCredential.issue_date"
                     type="date"
-                    class="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                 />
                 <input
                     v-model="newCredential.expiry_date"
                     type="date"
                     placeholder="Expiry (optional)"
-                    class="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all placeholder-slate-400"
+                    class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white placeholder-slate-400 transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                 />
             </div>
             <input
                 v-model="newCredential.credential_id"
                 type="text"
                 placeholder="Credential ID or license number (optional)"
-                class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                class="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white placeholder-slate-400 transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
             />
             <input
                 v-model="newCredential.credential_url"
                 type="url"
                 placeholder="Verification URL (optional)"
-                class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                class="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white placeholder-slate-400 transition-all focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
             />
             <button
                 @click="addCredential"
                 :disabled="!isFormValid || loading"
                 type="button"
-                class="w-full py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold transition-colors"
+                class="w-full rounded-lg bg-emerald-500 py-2 font-bold text-white transition-colors hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
                 {{ loading ? 'Adding...' : 'Add Credential' }}
             </button>
@@ -186,39 +196,56 @@ function toggleForm() {
             <div
                 v-for="cred in credentialsByDate"
                 :key="cred.id"
-                class="p-4 rounded-lg bg-white/5 border border-white/10 hover:border-emerald-500/50 transition-all group"
-                :class="{ 'border-red-500/50 bg-red-500/5': isExpired(cred.expiry_date) }"
+                class="group rounded-lg border border-white/10 bg-white/5 p-4 transition-all hover:border-emerald-500/50"
+                :class="{
+                    'border-red-500/50 bg-red-500/5': isExpired(
+                        cred.expiry_date,
+                    ),
+                }"
             >
-                <div class="flex items-start justify-between mb-2">
+                <div class="mb-2 flex items-start justify-between">
                     <div class="flex-1">
                         <div class="flex items-center gap-2">
                             <p class="font-bold text-white">{{ cred.title }}</p>
-                            <span v-if="isExpired(cred.expiry_date)" class="text-xs px-2 py-1 rounded-full bg-red-500/20 text-red-300 font-semibold">
+                            <span
+                                v-if="isExpired(cred.expiry_date)"
+                                class="rounded-full bg-red-500/20 px-2 py-1 text-xs font-semibold text-red-300"
+                            >
                                 Expired
                             </span>
-                            <span v-else-if="cred.expiry_date" class="text-xs px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold">
+                            <span
+                                v-else-if="cred.expiry_date"
+                                class="rounded-full bg-emerald-500/20 px-2 py-1 text-xs font-semibold text-emerald-300"
+                            >
                                 Active
                             </span>
                         </div>
-                        <p class="text-sm text-emerald-400">{{ cred.issuer }}</p>
+                        <p class="text-sm text-emerald-400">
+                            {{ cred.issuer }}
+                        </p>
                     </div>
                     <button
                         v-if="!readonly"
                         @click="deleteCredential(cred.id)"
                         :disabled="loading"
                         type="button"
-                        class="text-slate-400 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50"
+                        class="text-slate-400 opacity-0 transition-all group-hover:opacity-100 hover:text-red-400 disabled:opacity-50"
                     >
                         <PhTrash :size="18" />
                     </button>
                 </div>
-                <p class="text-xs text-slate-400 mb-2">
+                <p class="mb-2 text-xs text-slate-400">
                     Issued {{ formatDate(cred.issue_date) }}
-                    <span v-if="cred.expiry_date"> • Expires {{ formatDate(cred.expiry_date) }}</span>
+                    <span v-if="cred.expiry_date">
+                        • Expires {{ formatDate(cred.expiry_date) }}</span
+                    >
                     <span v-else> • No expiration</span>
                 </p>
-                <div class="flex flex-wrap gap-2 items-center">
-                    <span v-if="cred.credential_id" class="text-xs bg-slate-500/20 text-slate-300 px-2 py-1 rounded">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span
+                        v-if="cred.credential_id"
+                        class="rounded bg-slate-500/20 px-2 py-1 text-xs text-slate-300"
+                    >
                         ID: {{ cred.credential_id }}
                     </span>
                     <a
@@ -226,7 +253,7 @@ function toggleForm() {
                         :href="cred.credential_url"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="text-xs text-indigo-400 hover:text-indigo-300 underline"
+                        class="text-xs text-indigo-400 underline hover:text-indigo-300"
                     >
                         View credential ↗
                     </a>
@@ -235,9 +262,14 @@ function toggleForm() {
         </div>
 
         <!-- Empty State -->
-        <div v-else class="text-center py-8 px-4 rounded-lg bg-white/5 border border-white/10">
+        <div
+            v-else
+            class="rounded-lg border border-white/10 bg-white/5 px-4 py-8 text-center"
+        >
             <p class="text-sm text-slate-400">No credentials added yet</p>
-            <p class="text-xs text-slate-500 mt-1">Add your certifications to boost credibility</p>
+            <p class="mt-1 text-xs text-slate-500">
+                Add your certifications to boost credibility
+            </p>
         </div>
     </div>
 </template>

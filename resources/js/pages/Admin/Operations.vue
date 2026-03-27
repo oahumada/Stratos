@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { PhArrowClockwise, PhCheckCircle, PhWarning, PhClock, PhDatabase, PhActivity, PhDownload } from '@phosphor-icons/vue';
+import { Head } from '@inertiajs/vue3';
+import {
+    PhActivity,
+    PhArrowClockwise,
+    PhCheckCircle,
+    PhClock,
+    PhDatabase,
+    PhDownload,
+    PhWarning,
+} from '@phosphor-icons/vue';
+import { computed, onMounted, ref } from 'vue';
 
 defineOptions({
     layout: AppLayout,
@@ -82,10 +90,13 @@ const filteredOperations = computed(() => {
 });
 
 const operationStats = computed(() => ({
-    completed: operations.value.filter((op) => op.status === 'completed').length,
-    processing: operations.value.filter((op) => op.status === 'processing').length,
+    completed: operations.value.filter((op) => op.status === 'completed')
+        .length,
+    processing: operations.value.filter((op) => op.status === 'processing')
+        .length,
     failed: operations.value.filter((op) => op.status === 'failed').length,
-    rolledBack: operations.value.filter((op) => op.status === 'rolled_back').length,
+    rolledBack: operations.value.filter((op) => op.status === 'rolled_back')
+        .length,
 }));
 
 const statusColor = (status: string) => {
@@ -139,20 +150,26 @@ onMounted(() => {
     <div>
         <Head title="Admin Operations Dashboard" />
 
-        <div class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 space-y-6">
+        <div
+            class="min-h-screen space-y-6 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6"
+        >
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold text-white flex items-center gap-3">
+                    <h1
+                        class="flex items-center gap-3 text-3xl font-bold text-white"
+                    >
                         <PhDatabase :size="32" class="text-indigo-400" />
                         Operations Dashboard
                     </h1>
-                    <p class="text-slate-400 text-sm mt-2">Real-time system monitoring & operation tracking</p>
+                    <p class="mt-2 text-sm text-slate-400">
+                        Real-time system monitoring & operation tracking
+                    </p>
                 </div>
                 <button
                     @click="refreshMetrics"
                     type="button"
-                    class="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white font-bold flex items-center gap-2 transition-colors"
+                    class="flex items-center gap-2 rounded-lg bg-indigo-500 px-4 py-2 font-bold text-white transition-colors hover:bg-indigo-600"
                 >
                     <PhArrowClockwise :size="18" />
                     Refresh
@@ -160,27 +177,42 @@ onMounted(() => {
             </div>
 
             <!-- System Metrics Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <!-- Uptime -->
-                <div class="p-4 rounded-lg bg-white/5 border border-white/10 hover:border-emerald-500/50 transition-all">
-                    <div class="flex items-center justify-between mb-2">
+                <div
+                    class="rounded-lg border border-white/10 bg-white/5 p-4 transition-all hover:border-emerald-500/50"
+                >
+                    <div class="mb-2 flex items-center justify-between">
                         <p class="text-sm text-slate-400">System Uptime</p>
                         <PhActivity :size="20" class="text-emerald-400" />
                     </div>
-                    <p class="text-3xl font-bold text-white">{{ metrics.uptime }}%</p>
-                    <div class="mt-3 h-2 bg-white/5 rounded-full overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-emerald-500 to-green-500" :style="{ width: `${metrics.uptime}%` }"></div>
+                    <p class="text-3xl font-bold text-white">
+                        {{ metrics.uptime }}%
+                    </p>
+                    <div
+                        class="mt-3 h-2 overflow-hidden rounded-full bg-white/5"
+                    >
+                        <div
+                            class="h-full bg-gradient-to-r from-emerald-500 to-green-500"
+                            :style="{ width: `${metrics.uptime}%` }"
+                        ></div>
                     </div>
                 </div>
 
                 <!-- Memory Usage -->
-                <div class="p-4 rounded-lg bg-white/5 border border-white/10 hover:border-blue-500/50 transition-all">
-                    <div class="flex items-center justify-between mb-2">
+                <div
+                    class="rounded-lg border border-white/10 bg-white/5 p-4 transition-all hover:border-blue-500/50"
+                >
+                    <div class="mb-2 flex items-center justify-between">
                         <p class="text-sm text-slate-400">Memory Usage</p>
                         <PhDatabase :size="20" class="text-blue-400" />
                     </div>
-                    <p class="text-3xl font-bold text-white">{{ metrics.memoryUsage }}%</p>
-                    <div class="mt-3 h-2 bg-white/5 rounded-full overflow-hidden">
+                    <p class="text-3xl font-bold text-white">
+                        {{ metrics.memoryUsage }}%
+                    </p>
+                    <div
+                        class="mt-3 h-2 overflow-hidden rounded-full bg-white/5"
+                    >
                         <div
                             class="h-full bg-gradient-to-r from-blue-500 to-cyan-500"
                             :style="{ width: `${metrics.memoryUsage}%` }"
@@ -189,13 +221,19 @@ onMounted(() => {
                 </div>
 
                 <!-- CPU Usage -->
-                <div class="p-4 rounded-lg bg-white/5 border border-white/10 hover:border-indigo-500/50 transition-all">
-                    <div class="flex items-center justify-between mb-2">
+                <div
+                    class="rounded-lg border border-white/10 bg-white/5 p-4 transition-all hover:border-indigo-500/50"
+                >
+                    <div class="mb-2 flex items-center justify-between">
                         <p class="text-sm text-slate-400">CPU Usage</p>
                         <PhActivity :size="20" class="text-indigo-400" />
                     </div>
-                    <p class="text-3xl font-bold text-white">{{ metrics.cpuUsage }}%</p>
-                    <div class="mt-3 h-2 bg-white/5 rounded-full overflow-hidden">
+                    <p class="text-3xl font-bold text-white">
+                        {{ metrics.cpuUsage }}%
+                    </p>
+                    <div
+                        class="mt-3 h-2 overflow-hidden rounded-full bg-white/5"
+                    >
                         <div
                             class="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
                             :style="{ width: `${metrics.cpuUsage}%` }"
@@ -204,59 +242,98 @@ onMounted(() => {
                 </div>
 
                 <!-- Queue Status -->
-                <div class="p-4 rounded-lg bg-white/5 border border-white/10 hover:border-amber-500/50 transition-all">
-                    <div class="flex items-center justify-between mb-2">
+                <div
+                    class="rounded-lg border border-white/10 bg-white/5 p-4 transition-all hover:border-amber-500/50"
+                >
+                    <div class="mb-2 flex items-center justify-between">
                         <p class="text-sm text-slate-400">Queue Status</p>
                         <PhClock :size="20" class="text-amber-400" />
                     </div>
-                    <p class="text-3xl font-bold text-white">{{ metrics.queuedJobs }}</p>
-                    <p class="text-xs text-slate-400 mt-3">
-                        <span v-if="metrics.failedJobs > 0" class="text-red-400">{{ metrics.failedJobs }} failed</span>
+                    <p class="text-3xl font-bold text-white">
+                        {{ metrics.queuedJobs }}
+                    </p>
+                    <p class="mt-3 text-xs text-slate-400">
+                        <span v-if="metrics.failedJobs > 0" class="text-red-400"
+                            >{{ metrics.failedJobs }} failed</span
+                        >
                         <span v-else class="text-emerald-400">No failures</span>
                     </p>
                 </div>
             </div>
 
             <!-- Operations Stats -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                    <p class="text-xs text-emerald-300 font-semibold">Completed</p>
-                    <p class="text-2xl font-bold text-emerald-400 mt-1">{{ operationStats.completed }}</p>
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <div
+                    class="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4"
+                >
+                    <p class="text-xs font-semibold text-emerald-300">
+                        Completed
+                    </p>
+                    <p class="mt-1 text-2xl font-bold text-emerald-400">
+                        {{ operationStats.completed }}
+                    </p>
                 </div>
-                <div class="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                    <p class="text-xs text-blue-300 font-semibold">Processing</p>
-                    <p class="text-2xl font-bold text-blue-400 mt-1">{{ operationStats.processing }}</p>
+                <div
+                    class="rounded-lg border border-blue-500/20 bg-blue-500/10 p-4"
+                >
+                    <p class="text-xs font-semibold text-blue-300">
+                        Processing
+                    </p>
+                    <p class="mt-1 text-2xl font-bold text-blue-400">
+                        {{ operationStats.processing }}
+                    </p>
                 </div>
-                <div class="p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-                    <p class="text-xs text-red-300 font-semibold">Failed</p>
-                    <p class="text-2xl font-bold text-red-400 mt-1">{{ operationStats.failed }}</p>
+                <div
+                    class="rounded-lg border border-red-500/20 bg-red-500/10 p-4"
+                >
+                    <p class="text-xs font-semibold text-red-300">Failed</p>
+                    <p class="mt-1 text-2xl font-bold text-red-400">
+                        {{ operationStats.failed }}
+                    </p>
                 </div>
-                <div class="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                    <p class="text-xs text-amber-300 font-semibold">Rolled Back</p>
-                    <p class="text-2xl font-bold text-amber-400 mt-1">{{ operationStats.rolledBack }}</p>
+                <div
+                    class="rounded-lg border border-amber-500/20 bg-amber-500/10 p-4"
+                >
+                    <p class="text-xs font-semibold text-amber-300">
+                        Rolled Back
+                    </p>
+                    <p class="mt-1 text-2xl font-bold text-amber-400">
+                        {{ operationStats.rolledBack }}
+                    </p>
                 </div>
             </div>
 
             <!-- Operations List -->
             <div class="space-y-4">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <h2
+                        class="flex items-center gap-2 text-xl font-bold text-white"
+                    >
                         <PhArrowClockwise :size="24" class="text-indigo-400" />
                         Recent Operations
                     </h2>
                     <div class="flex gap-2">
                         <button
-                            v-for="status in ['all', 'completed', 'processing', 'failed']"
+                            v-for="status in [
+                                'all',
+                                'completed',
+                                'processing',
+                                'failed',
+                            ]"
                             :key="status"
                             @click="filterStatus = status"
                             type="button"
                             :class="{
-                                'bg-indigo-500 text-white': filterStatus === status,
-                                'bg-white/5 text-slate-300 hover:bg-white/10': filterStatus !== status,
+                                'bg-indigo-500 text-white':
+                                    filterStatus === status,
+                                'bg-white/5 text-slate-300 hover:bg-white/10':
+                                    filterStatus !== status,
                             }"
-                            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                            class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
                         >
-                            {{ status.charAt(0).toUpperCase() + status.slice(1) }}
+                            {{
+                                status.charAt(0).toUpperCase() + status.slice(1)
+                            }}
                         </button>
                     </div>
                 </div>
@@ -266,30 +343,57 @@ onMounted(() => {
                     <div
                         v-for="operation in filteredOperations"
                         :key="operation.id"
-                        class="p-4 rounded-lg bg-white/5 border border-white/10 hover:border-indigo-500/50 transition-all"
+                        class="rounded-lg border border-white/10 bg-white/5 p-4 transition-all hover:border-indigo-500/50"
                     >
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="flex items-center gap-3 flex-1">
-                                <component :is="statusIcon(operation.status)" :size="24" class="text-indigo-400" />
+                        <div class="mb-3 flex items-start justify-between">
+                            <div class="flex flex-1 items-center gap-3">
+                                <component
+                                    :is="statusIcon(operation.status)"
+                                    :size="24"
+                                    class="text-indigo-400"
+                                />
                                 <div>
-                                    <p class="font-bold text-white">{{ operation.name }}</p>
+                                    <p class="font-bold text-white">
+                                        {{ operation.name }}
+                                    </p>
                                     <p class="text-xs text-slate-400">
-                                        Started {{operation.createdAt ? new Date(operation.createdAt).toLocaleString() : 'N/A' }} ago
+                                        Started
+                                        {{
+                                            operation.createdAt
+                                                ? new Date(
+                                                      operation.createdAt,
+                                                  ).toLocaleString()
+                                                : 'N/A'
+                                        }}
+                                        ago
                                     </p>
                                 </div>
                             </div>
-                            <span :class="statusColor(operation.status)" class="px-3 py-1 rounded-full text-xs font-bold">
-                                {{ operation.status.replace('_', ' ').toUpperCase() }}
+                            <span
+                                :class="statusColor(operation.status)"
+                                class="rounded-full px-3 py-1 text-xs font-bold"
+                            >
+                                {{
+                                    operation.status
+                                        .replace('_', ' ')
+                                        .toUpperCase()
+                                }}
                             </span>
                         </div>
 
                         <!-- Progress Bar -->
                         <div class="mb-3">
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="text-xs text-slate-400">Progress</span>
-                                <span class="text-xs font-bold text-slate-300">{{ operation.progress }}%</span>
+                            <div class="mb-1 flex items-center justify-between">
+                                <span class="text-xs text-slate-400"
+                                    >Progress</span
+                                >
+                                <span class="text-xs font-bold text-slate-300"
+                                    >{{ operation.progress }}%</span
+                                >
                             </div>
-                            <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+                            <div
+                                class="h-2 overflow-hidden rounded-full bg-white/5"
+                            >
                                 <div
                                     class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300"
                                     :style="{ width: `${operation.progress}%` }"
@@ -298,27 +402,58 @@ onMounted(() => {
                         </div>
 
                         <!-- Timeline -->
-                        <div class="flex items-center gap-4 text-xs text-slate-400 mb-3">
+                        <div
+                            class="mb-3 flex items-center gap-4 text-xs text-slate-400"
+                        >
                             <span v-if="operation.startedAt">
-                                Started: {{ new Date(operation.startedAt).toLocaleString() }}
+                                Started:
+                                {{
+                                    new Date(
+                                        operation.startedAt,
+                                    ).toLocaleString()
+                                }}
                             </span>
                             <span v-if="operation.completedAt">
-                                Completed: {{ new Date(operation.completedAt).toLocaleString() }}
+                                Completed:
+                                {{
+                                    new Date(
+                                        operation.completedAt,
+                                    ).toLocaleString()
+                                }}
                             </span>
                         </div>
 
                         <!-- Error Message -->
-                        <div v-if="operation.error" class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 mb-3">
-                            <p class="text-xs text-red-300 font-semibold">Error</p>
-                            <p class="text-xs text-red-200 mt-1">{{ operation.error }}</p>
+                        <div
+                            v-if="operation.error"
+                            class="mb-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3"
+                        >
+                            <p class="text-xs font-semibold text-red-300">
+                                Error
+                            </p>
+                            <p class="mt-1 text-xs text-red-200">
+                                {{ operation.error }}
+                            </p>
                         </div>
 
                         <!-- Rollback Info -->
-                        <div v-if="operation.rollback" class="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 mb-3">
-                            <p class="text-xs text-amber-300 font-semibold">Rolled Back</p>
-                            <p class="text-xs text-amber-200 mt-1">Reason: {{ operation.rollback.reason }}</p>
-                            <p class="text-xs text-amber-300 mt-1">
-                                Initiated: {{ new Date(operation.rollback.initiatedAt).toLocaleString() }}
+                        <div
+                            v-if="operation.rollback"
+                            class="mb-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3"
+                        >
+                            <p class="text-xs font-semibold text-amber-300">
+                                Rolled Back
+                            </p>
+                            <p class="mt-1 text-xs text-amber-200">
+                                Reason: {{ operation.rollback.reason }}
+                            </p>
+                            <p class="mt-1 text-xs text-amber-300">
+                                Initiated:
+                                {{
+                                    new Date(
+                                        operation.rollback.initiatedAt,
+                                    ).toLocaleString()
+                                }}
                             </p>
                         </div>
 
@@ -326,21 +461,26 @@ onMounted(() => {
                         <div class="flex gap-2">
                             <button
                                 type="button"
-                                class="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-bold transition-colors"
+                                class="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-300 transition-colors hover:bg-white/10"
                             >
                                 View Details
                             </button>
                             <button
                                 v-if="operation.status === 'processing'"
-                                @click="initiateRollback(operation.id, 'User initiated')"
+                                @click="
+                                    initiateRollback(
+                                        operation.id,
+                                        'User initiated',
+                                    )
+                                "
                                 type="button"
-                                class="text-xs px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-300 font-bold transition-colors"
+                                class="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-bold text-red-300 transition-colors hover:bg-red-500/20"
                             >
                                 Rollback
                             </button>
                             <button
                                 type="button"
-                                class="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-bold transition-colors"
+                                class="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-300 transition-colors hover:bg-white/10"
                             >
                                 <PhDownload :size="14" />
                             </button>
@@ -349,16 +489,26 @@ onMounted(() => {
                 </div>
 
                 <!-- Empty State -->
-                <div v-if="filteredOperations.length === 0" class="text-center py-12 px-4 rounded-lg bg-white/5 border border-white/10">
-                    <p class="text-slate-400">No operations found with this filter</p>
+                <div
+                    v-if="filteredOperations.length === 0"
+                    class="rounded-lg border border-white/10 bg-white/5 px-4 py-12 text-center"
+                >
+                    <p class="text-slate-400">
+                        No operations found with this filter
+                    </p>
                 </div>
             </div>
 
             <!-- Last Update Info -->
-            <div class="p-4 rounded-lg bg-white/5 border border-white/10 text-center">
+            <div
+                class="rounded-lg border border-white/10 bg-white/5 p-4 text-center"
+            >
                 <p class="text-xs text-slate-400">
-                    Last update: {{ new Date(metrics.lastCheck).toLocaleString() }}
-                    <span v-if="autoRefresh" class="ml-2 text-indigo-400">• Auto-refresh enabled</span>
+                    Last update:
+                    {{ new Date(metrics.lastCheck).toLocaleString() }}
+                    <span v-if="autoRefresh" class="ml-2 text-indigo-400"
+                        >• Auto-refresh enabled</span
+                    >
                 </p>
             </div>
         </div>

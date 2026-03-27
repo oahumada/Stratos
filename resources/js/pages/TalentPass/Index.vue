@@ -1,23 +1,21 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
+import { useApi } from '@/composables/useApi';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { useTalentPassStore } from '@/stores/talentPassStore';
-import { useApi } from '@/composables/useApi';
+import { Head, Link } from '@inertiajs/vue3';
 import { useNotification } from '@kyvg/vue3-notification';
 import {
-    PhPlus,
-    PhMagnifyingGlass,
-    PhDownload,
-    PhShare,
-    PhEye,
-    PhPencil,
     PhArchiveBox,
+    PhDownload,
+    PhEye,
+    PhMagnifyingGlass,
+    PhPencil,
+    PhPlus,
+    PhShare,
     PhTrash,
 } from '@phosphor-icons/vue';
-import StCardGlass from '@/components/StCardGlass.vue';
-import StButtonGlass from '@/components/StButtonGlass.vue';
-import StBadgeGlass from '@/components/StBadgeGlass.vue';
-import TalentPassCard from '@/components/TalentPass/TalentPassCard.vue';
 import { computed, onMounted, ref } from 'vue';
 
 defineOptions({ layout: AppLayout });
@@ -37,18 +35,21 @@ const filteredPasses = computed(() => {
 
     if (searchQuery.value) {
         const q = searchQuery.value.toLowerCase();
-        filtered = filtered.filter(tp =>
-            tp.title.toLowerCase().includes(q) ||
-            tp.summary?.toLowerCase().includes(q)
+        filtered = filtered.filter(
+            (tp) =>
+                tp.title.toLowerCase().includes(q) ||
+                tp.summary?.toLowerCase().includes(q),
         );
     }
 
     if (selectedStatus.value) {
-        filtered = filtered.filter(tp => tp.status === selectedStatus.value);
+        filtered = filtered.filter((tp) => tp.status === selectedStatus.value);
     }
 
     if (selectedVisibility.value) {
-        filtered = filtered.filter(tp => tp.visibility === selectedVisibility.value);
+        filtered = filtered.filter(
+            (tp) => tp.visibility === selectedVisibility.value,
+        );
     }
 
     return filtered;
@@ -57,7 +58,10 @@ const filteredPasses = computed(() => {
 const completenessStats = computed(() => {
     if (filteredPasses.value.length === 0) return { avg: 0, count: 0 };
 
-    const total = filteredPasses.value.reduce((sum, tp) => sum + (tp.completeness || 0), 0);
+    const total = filteredPasses.value.reduce(
+        (sum, tp) => sum + (tp.completeness || 0),
+        0,
+    );
     return {
         avg: Math.round(total / filteredPasses.value.length),
         count: filteredPasses.value.length,
@@ -132,31 +136,36 @@ onMounted(() => {
 <template>
     <Head title="Talent Pass — Mi Portafolio Profesional" />
 
-    <div class="min-h-screen bg-[#020617] p-6 mb-8">
+    <div class="mb-8 min-h-screen bg-[#020617] p-6">
         <!-- Header -->
-        <div class="mx-auto max-w-7xl mb-8">
-            <div class="flex flex-col gap-2 mb-6">
+        <div class="mx-auto mb-8 max-w-7xl">
+            <div class="mb-6 flex flex-col gap-2">
                 <div class="flex items-center gap-2">
-                    <div class="h-1 w-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"></div>
-                    <span class="text-xs font-black tracking-[0.2em] text-indigo-400 uppercase">
+                    <div
+                        class="h-1 w-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
+                    ></div>
+                    <span
+                        class="text-xs font-black tracking-[0.2em] text-indigo-400 uppercase"
+                    >
                         Talent Pass CV 2.0
                     </span>
                 </div>
                 <h1 class="text-4xl font-black text-white">
                     Mi Portafolio Profesional
                 </h1>
-                <p class="text-sm text-slate-400 max-w-2xl">
-                    Crea y comparte tu perfil profesional avanzado con componentes interactivos,
-                    credenciales verificables y análisis de completitud.
+                <p class="max-w-2xl text-sm text-slate-400">
+                    Crea y comparte tu perfil profesional avanzado con
+                    componentes interactivos, credenciales verificables y
+                    análisis de completitud.
                 </p>
             </div>
 
             <!-- Action Bar -->
-            <div class="flex gap-3 mb-8">
+            <div class="mb-8 flex gap-3">
                 <Link
                     href="/talent-pass/create"
                     as="button"
-                    class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold transition"
+                    class="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-2 font-semibold text-white transition hover:from-indigo-600 hover:to-purple-600"
                 >
                     <PhPlus :size="18" weight="bold" />
                     Crear Talent Pass
@@ -164,26 +173,26 @@ onMounted(() => {
             </div>
 
             <!-- Filters -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
                 <!-- Search -->
                 <div class="relative">
                     <PhMagnifyingGlass
                         :size="18"
                         weight="bold"
-                        class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+                        class="absolute top-1/2 left-3 -translate-y-1/2 text-slate-500"
                     />
                     <input
                         v-model="searchQuery"
                         type="text"
                         placeholder="Buscar por título o resumen..."
-                        class="w-full pl-10 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        class="w-full rounded-lg border border-white/10 bg-white/5 py-2 pr-4 pl-10 text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     />
                 </div>
 
                 <!-- Status Filter -->
                 <select
                     v-model="selectedStatus"
-                    class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 >
                     <option value="">Todos los estados</option>
                     <option value="draft">Borrador</option>
@@ -194,7 +203,7 @@ onMounted(() => {
                 <!-- Visibility Filter -->
                 <select
                     v-model="selectedVisibility"
-                    class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 >
                     <option value="">Todas las visibilidades</option>
                     <option value="private">Privado</option>
@@ -204,25 +213,39 @@ onMounted(() => {
             </div>
 
             <!-- Stats Bar -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
                 <StCardGlass class="p-4">
-                    <div class="text-sm text-slate-400 mb-1">Total</div>
-                    <div class="text-2xl font-bold text-white">{{ store.talentPasses.length }}</div>
-                </StCardGlass>
-                <StCardGlass class="p-4">
-                    <div class="text-sm text-slate-400 mb-1">Completitud Prom.</div>
-                    <div class="text-2xl font-bold text-white">{{ completenessStats.avg }}%</div>
-                </StCardGlass>
-                <StCardGlass class="p-4">
-                    <div class="text-sm text-slate-400 mb-1">Publicados</div>
-                    <div class="text-2xl font-bold text-green-400">
-                        {{ store.talentPasses.filter(tp => tp.status === 'published').length }}
+                    <div class="mb-1 text-sm text-slate-400">Total</div>
+                    <div class="text-2xl font-bold text-white">
+                        {{ store.talentPasses.length }}
                     </div>
                 </StCardGlass>
                 <StCardGlass class="p-4">
-                    <div class="text-sm text-slate-400 mb-1">Borradores</div>
+                    <div class="mb-1 text-sm text-slate-400">
+                        Completitud Prom.
+                    </div>
+                    <div class="text-2xl font-bold text-white">
+                        {{ completenessStats.avg }}%
+                    </div>
+                </StCardGlass>
+                <StCardGlass class="p-4">
+                    <div class="mb-1 text-sm text-slate-400">Publicados</div>
+                    <div class="text-2xl font-bold text-green-400">
+                        {{
+                            store.talentPasses.filter(
+                                (tp) => tp.status === 'published',
+                            ).length
+                        }}
+                    </div>
+                </StCardGlass>
+                <StCardGlass class="p-4">
+                    <div class="mb-1 text-sm text-slate-400">Borradores</div>
                     <div class="text-2xl font-bold text-amber-400">
-                        {{ store.talentPasses.filter(tp => tp.status === 'draft').length }}
+                        {{
+                            store.talentPasses.filter(
+                                (tp) => tp.status === 'draft',
+                            ).length
+                        }}
                     </div>
                 </StCardGlass>
             </div>
@@ -231,18 +254,27 @@ onMounted(() => {
         <!-- Content Area -->
         <div class="mx-auto max-w-7xl">
             <!-- Empty State -->
-            <div v-if="filteredPasses.length === 0" class="text-center py-20">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 mb-4">
-                    <PhDownload :size="32" weight="thin" class="text-slate-600" />
+            <div v-if="filteredPasses.length === 0" class="py-20 text-center">
+                <div
+                    class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/5"
+                >
+                    <PhDownload
+                        :size="32"
+                        weight="thin"
+                        class="text-slate-600"
+                    />
                 </div>
-                <h3 class="text-xl font-bold text-white mb-2">No hay Talent Passes</h3>
-                <p class="text-sm text-slate-400 mb-6">
-                    Crea tu primer Talent Pass para comenzar a compartir tu perfil profesional.
+                <h3 class="mb-2 text-xl font-bold text-white">
+                    No hay Talent Passes
+                </h3>
+                <p class="mb-6 text-sm text-slate-400">
+                    Crea tu primer Talent Pass para comenzar a compartir tu
+                    perfil profesional.
                 </p>
                 <Link
                     href="/talent-pass/create"
                     as="button"
-                    class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 text-indigo-300 font-semibold transition"
+                    class="inline-flex items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/20 px-4 py-2 font-semibold text-indigo-300 transition hover:bg-indigo-500/30"
                 >
                     <PhPlus :size="16" />
                     Crear Talent Pass
@@ -250,20 +282,27 @@ onMounted(() => {
             </div>
 
             <!-- Grid View -->
-            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div
+                v-else
+                class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+            >
                 <div
                     v-for="talentPass in filteredPasses"
                     :key="talentPass.id"
                     class="group"
                 >
-                    <StCardGlass class="h-full flex flex-col gap-4 p-6 hover:border-indigo-500/50 transition">
+                    <StCardGlass
+                        class="flex h-full flex-col gap-4 p-6 transition hover:border-indigo-500/50"
+                    >
                         <!-- Header -->
                         <div class="flex items-start justify-between">
                             <div class="flex-1">
-                                <h3 class="text-lg font-bold text-white group-hover:text-indigo-300 transition">
+                                <h3
+                                    class="text-lg font-bold text-white transition group-hover:text-indigo-300"
+                                >
                                     {{ talentPass.title }}
                                 </h3>
-                                <p class="text-xs text-slate-400 mt-1">
+                                <p class="mt-1 text-xs text-slate-400">
                                     {{ talentPass.people?.name || 'N/A' }}
                                 </p>
                             </div>
@@ -282,51 +321,63 @@ onMounted(() => {
                         </div>
 
                         <!-- Summary -->
-                        <p class="text-sm text-slate-300 line-clamp-3">
+                        <p class="line-clamp-3 text-sm text-slate-300">
                             {{ talentPass.summary || 'Sin descripción' }}
                         </p>
 
                         <!-- Completeness Bar -->
                         <div>
-                            <div class="flex justify-between mb-2">
-                                <span class="text-xs text-slate-400">Completitud</span>
+                            <div class="mb-2 flex justify-between">
+                                <span class="text-xs text-slate-400"
+                                    >Completitud</span
+                                >
                                 <span class="text-xs font-bold text-indigo-400">
                                     {{ talentPass.completeness || 0 }}%
                                 </span>
                             </div>
-                            <div class="h-2 rounded-full bg-white/5 overflow-hidden">
+                            <div
+                                class="h-2 overflow-hidden rounded-full bg-white/5"
+                            >
                                 <div
                                     class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all"
-                                    :style="{ width: `${talentPass.completeness || 0}%` }"
+                                    :style="{
+                                        width: `${talentPass.completeness || 0}%`,
+                                    }"
                                 ></div>
                             </div>
                         </div>
 
                         <!-- Metadata -->
                         <div class="flex gap-2 text-xs text-slate-400">
-                            <span>Skills: {{ talentPass.skills_count || 0 }}</span>
+                            <span
+                                >Skills:
+                                {{ talentPass.skills_count || 0 }}</span
+                            >
                             <span>•</span>
-                            <span>Experiencia: {{ talentPass.experiences_count || 0 }}</span>
+                            <span
+                                >Experiencia:
+                                {{ talentPass.experiences_count || 0 }}</span
+                            >
                         </div>
 
                         <!-- Actions -->
-                        <div class="flex gap-2 pt-4 border-t border-white/10">
+                        <div class="flex gap-2 border-t border-white/10 pt-4">
                             <Link
                                 :href="`/talent-pass/${talentPass.id}`"
-                                class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-indigo-500/20 text-slate-300 hover:text-indigo-300 font-semibold text-sm transition"
+                                class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm font-semibold text-slate-300 transition hover:bg-indigo-500/20 hover:text-indigo-300"
                             >
                                 <PhEye :size="16" />
                             </Link>
                             <Link
                                 :href="`/talent-pass/${talentPass.id}/edit`"
-                                class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-blue-500/20 text-slate-300 hover:text-blue-300 font-semibold text-sm transition"
+                                class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm font-semibold text-slate-300 transition hover:bg-blue-500/20 hover:text-blue-300"
                             >
                                 <PhPencil :size="16" />
                             </Link>
                             <button
                                 v-if="talentPass.status === 'draft'"
                                 @click="handlePublish(talentPass.id)"
-                                class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-green-500/20 text-slate-300 hover:text-green-300 font-semibold text-sm transition"
+                                class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm font-semibold text-slate-300 transition hover:bg-green-500/20 hover:text-green-300"
                                 title="Publicar"
                             >
                                 <PhShare :size="16" />
@@ -334,14 +385,14 @@ onMounted(() => {
                             <button
                                 v-else
                                 @click="handleArchive(talentPass.id)"
-                                class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-amber-500/20 text-slate-300 hover:text-amber-300 font-semibold text-sm transition"
+                                class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm font-semibold text-slate-300 transition hover:bg-amber-500/20 hover:text-amber-300"
                                 title="Archivar"
                             >
                                 <PhArchiveBox :size="16" />
                             </button>
                             <button
                                 @click="handleDelete(talentPass.id)"
-                                class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-slate-300 hover:text-red-300 font-semibold text-sm transition"
+                                class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm font-semibold text-slate-300 transition hover:bg-red-500/20 hover:text-red-300"
                                 title="Eliminar"
                             >
                                 <PhTrash :size="16" />

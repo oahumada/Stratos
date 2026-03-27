@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import StCardGlass from '@/components/StCardGlass.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { useTalentPassStore } from '@/stores/talentPassStore';
+import type { UpdateTalentPassRequest } from '@/types/talentPass';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { useNotification } from '@kyvg/vue3-notification';
 import { PhArrowLeft, PhCheck } from '@phosphor-icons/vue';
-import StCardGlass from '@/components/StCardGlass.vue';
-import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import { computed, onMounted, ref } from 'vue';
-import type { UpdateTalentPassRequest } from '@/types/talentPass';
 
 defineOptions({ layout: AppLayout });
 
@@ -103,7 +102,11 @@ async function submitForm() {
 // Lifecycle
 onMounted(() => {
     const id = Array.isArray(props.id)
-        ? parseInt(Array.isArray(props.id) ? props.id[0].toString() : props.id.toString())
+        ? parseInt(
+              Array.isArray(props.id)
+                  ? props.id[0].toString()
+                  : props.id.toString(),
+          )
         : parseInt(props.id.toString());
 
     if (id) {
@@ -122,27 +125,36 @@ onMounted(() => {
             <div class="mb-8">
                 <Link
                     :href="`/talent-pass/${talentPassId}`"
-                    class="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 font-semibold mb-6 transition"
+                    class="mb-6 inline-flex items-center gap-2 font-semibold text-indigo-400 transition hover:text-indigo-300"
                 >
                     <PhArrowLeft :size="18" />
                     Volver
                 </Link>
 
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="h-1 w-6 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"></div>
-                    <span class="text-xs font-black tracking-[0.2em] text-indigo-400 uppercase">
+                <div class="mb-2 flex items-center gap-3">
+                    <div
+                        class="h-1 w-6 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
+                    ></div>
+                    <span
+                        class="text-xs font-black tracking-[0.2em] text-indigo-400 uppercase"
+                    >
                         Editar Talent Pass
                     </span>
                 </div>
 
-                <h1 class="text-4xl font-black text-white mb-2">
+                <h1 class="mb-2 text-4xl font-black text-white">
                     Actualizar tu Perfil
                 </h1>
             </div>
 
             <!-- Loading State -->
-            <div v-if="initialLoading" class="flex items-center justify-center py-20">
-                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+            <div
+                v-if="initialLoading"
+                class="flex items-center justify-center py-20"
+            >
+                <div
+                    class="h-12 w-12 animate-spin rounded-full border-t-2 border-b-2 border-indigo-500"
+                ></div>
             </div>
 
             <!-- Form Card -->
@@ -150,104 +162,139 @@ onMounted(() => {
                 <form @submit.prevent="submitForm" class="space-y-6">
                     <!-- Title Field -->
                     <div>
-                        <label class="block text-sm font-semibold text-white mb-2">
+                        <label
+                            class="mb-2 block text-sm font-semibold text-white"
+                        >
                             Título
                             <span class="text-red-400">*</span>
                         </label>
                         <input
                             v-model="form.title"
                             type="text"
-                            class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-slate-500 focus:border-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                             :class="{ 'ring-2 ring-red-500/50': errors.title }"
                         />
-                        <p v-if="errors.title" class="text-sm text-red-400 mt-1">
+                        <p
+                            v-if="errors.title"
+                            class="mt-1 text-sm text-red-400"
+                        >
                             {{ errors.title }}
                         </p>
                     </div>
 
                     <!-- Summary Field -->
                     <div>
-                        <label class="block text-sm font-semibold text-white mb-2">
+                        <label
+                            class="mb-2 block text-sm font-semibold text-white"
+                        >
                             Resumen (Opcional)
                         </label>
                         <textarea
                             v-model="form.summary"
                             rows="5"
-                            class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                            class="w-full resize-none rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-slate-500 focus:border-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                         ></textarea>
-                        <p class="text-xs text-slate-400 mt-1">
+                        <p class="mt-1 text-xs text-slate-400">
                             {{ form.summary?.length || 0 }} caracteres
                         </p>
                     </div>
 
                     <!-- Visibility -->
                     <div>
-                        <label class="block text-sm font-semibold text-white mb-3">
+                        <label
+                            class="mb-3 block text-sm font-semibold text-white"
+                        >
                             Visibilidad
                         </label>
                         <div class="space-y-3">
-                            <label class="flex items-center gap-3 p-3 rounded-lg border border-white/10 cursor-pointer hover:border-indigo-500/50 hover:bg-white/5 transition"
-                                :class="{ 'border-indigo-500 bg-indigo-500/10': form.visibility === 'private' }"
+                            <label
+                                class="flex cursor-pointer items-center gap-3 rounded-lg border border-white/10 p-3 transition hover:border-indigo-500/50 hover:bg-white/5"
+                                :class="{
+                                    'border-indigo-500 bg-indigo-500/10':
+                                        form.visibility === 'private',
+                                }"
                             >
                                 <input
                                     v-model="form.visibility"
                                     type="radio"
                                     value="private"
-                                    class="w-4 h-4 accent-indigo-500"
+                                    class="h-4 w-4 accent-indigo-500"
                                 />
                                 <div class="flex-1">
-                                    <div class="font-semibold text-white">Privado</div>
-                                    <p class="text-xs text-slate-400">Solo tú puedes ver este Talent Pass</p>
+                                    <div class="font-semibold text-white">
+                                        Privado
+                                    </div>
+                                    <p class="text-xs text-slate-400">
+                                        Solo tú puedes ver este Talent Pass
+                                    </p>
                                 </div>
                             </label>
 
-                            <label class="flex items-center gap-3 p-3 rounded-lg border border-white/10 cursor-pointer hover:border-indigo-500/50 hover:bg-white/5 transition"
-                                :class="{ 'border-indigo-500 bg-indigo-500/10': form.visibility === 'link' }"
+                            <label
+                                class="flex cursor-pointer items-center gap-3 rounded-lg border border-white/10 p-3 transition hover:border-indigo-500/50 hover:bg-white/5"
+                                :class="{
+                                    'border-indigo-500 bg-indigo-500/10':
+                                        form.visibility === 'link',
+                                }"
                             >
                                 <input
                                     v-model="form.visibility"
                                     type="radio"
                                     value="link"
-                                    class="w-4 h-4 accent-indigo-500"
+                                    class="h-4 w-4 accent-indigo-500"
                                 />
                                 <div class="flex-1">
-                                    <div class="font-semibold text-white">A través de enlace</div>
-                                    <p class="text-xs text-slate-400">Accesible con el enlace directo</p>
+                                    <div class="font-semibold text-white">
+                                        A través de enlace
+                                    </div>
+                                    <p class="text-xs text-slate-400">
+                                        Accesible con el enlace directo
+                                    </p>
                                 </div>
                             </label>
 
-                            <label class="flex items-center gap-3 p-3 rounded-lg border border-white/10 cursor-pointer hover:border-indigo-500/50 hover:bg-white/5 transition"
-                                :class="{ 'border-indigo-500 bg-indigo-500/10': form.visibility === 'public' }"
+                            <label
+                                class="flex cursor-pointer items-center gap-3 rounded-lg border border-white/10 p-3 transition hover:border-indigo-500/50 hover:bg-white/5"
+                                :class="{
+                                    'border-indigo-500 bg-indigo-500/10':
+                                        form.visibility === 'public',
+                                }"
                             >
                                 <input
                                     v-model="form.visibility"
                                     type="radio"
                                     value="public"
-                                    class="w-4 h-4 accent-indigo-500"
+                                    class="h-4 w-4 accent-indigo-500"
                                 />
                                 <div class="flex-1">
-                                    <div class="font-semibold text-white">Público</div>
-                                    <p class="text-xs text-slate-400">Visible en búsquedas públicas</p>
+                                    <div class="font-semibold text-white">
+                                        Público
+                                    </div>
+                                    <p class="text-xs text-slate-400">
+                                        Visible en búsquedas públicas
+                                    </p>
                                 </div>
                             </label>
                         </div>
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex gap-3 pt-6 border-t border-white/10">
+                    <div class="flex gap-3 border-t border-white/10 pt-6">
                         <Link
                             :href="`/talent-pass/${talentPassId}`"
-                            class="flex-1 px-6 py-3 rounded-lg bg-white/5 hover:bg-white/10 text-white font-semibold transition text-center"
+                            class="flex-1 rounded-lg bg-white/5 px-6 py-3 text-center font-semibold text-white transition hover:bg-white/10"
                         >
                             Cancelar
                         </Link>
                         <button
                             type="submit"
                             :disabled="!canSubmit || loading"
-                            class="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition"
+                            class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-3 font-semibold text-white transition hover:from-indigo-600 hover:to-purple-600 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             <PhCheck :size="18" />
-                            {{ loading ? 'Actualizando...' : 'Guardar cambios' }}
+                            {{
+                                loading ? 'Actualizando...' : 'Guardar cambios'
+                            }}
                         </button>
                     </div>
                 </form>

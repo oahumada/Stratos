@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import StCardGlass from '@/components/StCardGlass.vue';
 import { useTalentPassStore } from '@/stores/talentPassStore';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { useNotification } from '@kyvg/vue3-notification';
 import {
     PhArrowLeft,
+    PhCheckCircle,
     PhDownload,
     PhLink,
-    PhCheckCircle,
     PhShare,
 } from '@phosphor-icons/vue';
-import StCardGlass from '@/components/StCardGlass.vue';
-import StBadgeGlass from '@/components/StBadgeGlass.vue';
 import { computed, onMounted, ref } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
 
 // Props
 interface Props {
@@ -30,7 +28,7 @@ const loading = ref(true);
 // Computed
 const talentPass = computed(() => store.currentTalentPass);
 const completinessPercentage = computed(
-    () => talentPass.value?.completeness || 0
+    () => talentPass.value?.completeness || 0,
 );
 
 // Methods
@@ -102,11 +100,15 @@ onMounted(() => {
 <template>
     <div class="min-h-screen bg-[#020617] p-6 pb-20">
         <!-- Header Info Banner -->
-        <div class="mx-auto max-w-4xl mb-6">
-            <div class="p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center gap-3">
-                <PhLink :size="20" class="text-indigo-400 flex-shrink-0" />
+        <div class="mx-auto mb-6 max-w-4xl">
+            <div
+                class="flex items-center gap-3 rounded-lg border border-indigo-500/30 bg-indigo-500/10 p-4"
+            >
+                <PhLink :size="20" class="flex-shrink-0 text-indigo-400" />
                 <div>
-                    <p class="text-sm font-semibold text-indigo-300">Public View</p>
+                    <p class="text-sm font-semibold text-indigo-300">
+                        Public View
+                    </p>
                     <p class="text-xs text-indigo-400/80">
                         This is a publicly shared Talent Pass profile
                     </p>
@@ -115,28 +117,31 @@ onMounted(() => {
         </div>
 
         <!-- Loading State -->
-        <div
-            v-if="loading"
-            class="flex items-center justify-center py-20"
-        >
-            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        <div v-if="loading" class="flex items-center justify-center py-20">
+            <div
+                class="h-12 w-12 animate-spin rounded-full border-t-2 border-b-2 border-indigo-500"
+            ></div>
         </div>
 
         <!-- Not Found State -->
         <div
             v-else-if="!talentPass"
-            class="mx-auto max-w-4xl text-center py-20"
+            class="mx-auto max-w-4xl py-20 text-center"
         >
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 mb-4">
+            <div
+                class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/5"
+            >
                 <PhArrowLeft :size="32" weight="thin" class="text-slate-600" />
             </div>
-            <h2 class="text-2xl font-bold text-white mb-2">Talent Pass not found</h2>
-            <p class="text-slate-400 mb-6">
+            <h2 class="mb-2 text-2xl font-bold text-white">
+                Talent Pass not found
+            </h2>
+            <p class="mb-6 text-slate-400">
                 This profile is no longer available or could not be found.
             </p>
             <Link
                 href="/"
-                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 border border-indigo-500/30 font-semibold transition"
+                class="inline-flex items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/20 px-4 py-2 font-semibold text-indigo-300 transition hover:bg-indigo-500/30"
             >
                 <PhArrowLeft :size="16" />
                 Back to Home
@@ -148,11 +153,13 @@ onMounted(() => {
             <Head :title="talentPass.title || 'Talent Pass'" />
 
             <!-- Main Card -->
-            <StCardGlass class="p-8 mb-8">
+            <StCardGlass class="mb-8 p-8">
                 <!-- Header Section -->
-                <div class="flex flex-col md:flex-row justify-between items-start gap-6 mb-8 pb-8 border-b border-white/10">
+                <div
+                    class="mb-8 flex flex-col items-start justify-between gap-6 border-b border-white/10 pb-8 md:flex-row"
+                >
                     <div class="flex-1">
-                        <h1 class="text-4xl font-black text-white mb-2">
+                        <h1 class="mb-2 text-4xl font-black text-white">
                             {{ talentPass.title }}
                         </h1>
                         <p class="text-sm text-slate-400">
@@ -164,14 +171,14 @@ onMounted(() => {
                     <div class="flex gap-2">
                         <button
                             @click="copyShareLink"
-                            class="px-4 py-2 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 text-indigo-300 font-semibold transition flex items-center gap-2"
+                            class="flex items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/20 px-4 py-2 font-semibold text-indigo-300 transition hover:bg-indigo-500/30"
                         >
                             <PhShare :size="16" />
                             Share
                         </button>
                         <button
                             @click="handleExport"
-                            class="px-4 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 font-semibold transition flex items-center gap-2"
+                            class="flex items-center gap-2 rounded-lg border border-blue-500/30 bg-blue-500/20 px-4 py-2 font-semibold text-blue-300 transition hover:bg-blue-500/30"
                         >
                             <PhDownload :size="16" />
                             Download
@@ -181,14 +188,20 @@ onMounted(() => {
 
                 <!-- Summary -->
                 <div v-if="talentPass.summary" class="mb-8">
-                    <h3 class="text-sm font-bold text-slate-400 mb-2">PROFESSIONAL SUMMARY</h3>
-                    <p class="text-white leading-relaxed">{{ talentPass.summary }}</p>
+                    <h3 class="mb-2 text-sm font-bold text-slate-400">
+                        PROFESSIONAL SUMMARY
+                    </h3>
+                    <p class="leading-relaxed text-white">
+                        {{ talentPass.summary }}
+                    </p>
                 </div>
 
                 <!-- Completeness Bar -->
                 <div class="mb-8">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm font-semibold text-white flex items-center gap-2">
+                    <div class="mb-2 flex items-center justify-between">
+                        <span
+                            class="flex items-center gap-2 text-sm font-semibold text-white"
+                        >
                             <PhCheckCircle :size="16" class="text-indigo-400" />
                             Profile Completeness
                         </span>
@@ -196,7 +209,7 @@ onMounted(() => {
                             {{ completinessPercentage }}%
                         </span>
                     </div>
-                    <div class="h-3 rounded-full bg-white/5 overflow-hidden">
+                    <div class="h-3 overflow-hidden rounded-full bg-white/5">
                         <div
                             class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500"
                             :style="{ width: `${completinessPercentage}%` }"
@@ -205,22 +218,28 @@ onMounted(() => {
                 </div>
 
                 <!-- Stats Grid -->
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div class="p-3 rounded-lg bg-white/5 border border-white/10">
-                        <p class="text-xs text-slate-400 mb-1">Skills</p>
-                        <span class="font-bold text-white text-xl">
+                <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
+                    <div
+                        class="rounded-lg border border-white/10 bg-white/5 p-3"
+                    >
+                        <p class="mb-1 text-xs text-slate-400">Skills</p>
+                        <span class="text-xl font-bold text-white">
                             {{ talentPass.skills_count || 0 }}
                         </span>
                     </div>
-                    <div class="p-3 rounded-lg bg-white/5 border border-white/10">
-                        <p class="text-xs text-slate-400 mb-1">Experience</p>
-                        <span class="font-bold text-white text-xl">
+                    <div
+                        class="rounded-lg border border-white/10 bg-white/5 p-3"
+                    >
+                        <p class="mb-1 text-xs text-slate-400">Experience</p>
+                        <span class="text-xl font-bold text-white">
                             {{ talentPass.experiences_count || 0 }}
                         </span>
                     </div>
-                    <div class="p-3 rounded-lg bg-white/5 border border-white/10">
-                        <p class="text-xs text-slate-400 mb-1">Credentials</p>
-                        <span class="font-bold text-white text-xl">
+                    <div
+                        class="rounded-lg border border-white/10 bg-white/5 p-3"
+                    >
+                        <p class="mb-1 text-xs text-slate-400">Credentials</p>
+                        <span class="text-xl font-bold text-white">
                             {{ talentPass.credentials_count || 0 }}
                         </span>
                     </div>
@@ -228,39 +247,48 @@ onMounted(() => {
             </StCardGlass>
 
             <!-- Section Cards (Placeholder) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <StCardGlass class="p-6">
-                    <h3 class="text-lg font-bold text-white mb-4">Technical Skills</h3>
+                    <h3 class="mb-4 text-lg font-bold text-white">
+                        Technical Skills
+                    </h3>
                     <div class="space-y-2">
-                        <p class="text-slate-400 text-sm">
-                            {{ talentPass.skills_count || 0 }} skills on this profile
+                        <p class="text-sm text-slate-400">
+                            {{ talentPass.skills_count || 0 }} skills on this
+                            profile
                         </p>
                     </div>
                 </StCardGlass>
 
                 <StCardGlass class="p-6">
-                    <h3 class="text-lg font-bold text-white mb-4">Professional Experience</h3>
+                    <h3 class="mb-4 text-lg font-bold text-white">
+                        Professional Experience
+                    </h3>
                     <div class="space-y-2">
-                        <p class="text-slate-400 text-sm">
-                            {{ talentPass.experiences_count || 0 }} experiences listed
+                        <p class="text-sm text-slate-400">
+                            {{ talentPass.experiences_count || 0 }} experiences
+                            listed
                         </p>
                     </div>
                 </StCardGlass>
 
                 <StCardGlass class="p-6">
-                    <h3 class="text-lg font-bold text-white mb-4">Verified Credentials</h3>
+                    <h3 class="mb-4 text-lg font-bold text-white">
+                        Verified Credentials
+                    </h3>
                     <div class="space-y-2">
-                        <p class="text-slate-400 text-sm">
-                            {{ talentPass.credentials_count || 0 }} credentials verified
+                        <p class="text-sm text-slate-400">
+                            {{ talentPass.credentials_count || 0 }} credentials
+                            verified
                         </p>
                     </div>
                 </StCardGlass>
 
                 <StCardGlass class="p-6">
-                    <h3 class="text-lg font-bold text-white mb-4">About</h3>
+                    <h3 class="mb-4 text-lg font-bold text-white">About</h3>
                     <div class="space-y-3 text-sm text-slate-400">
                         <div>
-                            <p class="font-semibold text-white mb-1">Privacy</p>
+                            <p class="mb-1 font-semibold text-white">Privacy</p>
                             <p>This profile is shared via public link</p>
                         </div>
                     </div>
@@ -268,14 +296,19 @@ onMounted(() => {
             </div>
 
             <!-- Footer CTA -->
-            <div class="mt-12 p-8 rounded-xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/30 text-center">
-                <h3 class="text-xl font-bold text-white mb-2">Interested in connecting?</h3>
-                <p class="text-slate-400 mb-6 max-w-2xl mx-auto">
-                    This profile is shared publicly for portfolio purposes. Contact via email or social media.
+            <div
+                class="mt-12 rounded-xl border border-indigo-500/30 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 p-8 text-center"
+            >
+                <h3 class="mb-2 text-xl font-bold text-white">
+                    Interested in connecting?
+                </h3>
+                <p class="mx-auto mb-6 max-w-2xl text-slate-400">
+                    This profile is shared publicly for portfolio purposes.
+                    Contact via email or social media.
                 </p>
                 <Link
                     href="/"
-                    class="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white font-semibold transition"
+                    class="inline-flex items-center gap-2 rounded-lg bg-indigo-500 px-6 py-3 font-semibold text-white transition hover:bg-indigo-600"
                 >
                     Back to Stratos
                 </Link>

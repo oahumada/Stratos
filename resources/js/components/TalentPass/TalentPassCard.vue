@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
+import type { TalentPass } from '@/types/talentPass';
 import { Link } from '@inertiajs/vue3';
 import { PhArrowRight, PhCheckCircle } from '@phosphor-icons/vue';
-import StCardGlass from '@/components/StCardGlass.vue';
-import StBadgeGlass from '@/components/StBadgeGlass.vue';
-import type { TalentPass } from '@/types/talentPass';
+import { computed } from 'vue';
 
 interface Props {
     talentPass: TalentPass;
@@ -32,11 +32,18 @@ const statusColor = computed(() => {
 </script>
 
 <template>
-    <StCardGlass class="group overflow-hidden hover:border-indigo-500/50 transition">
-        <Link :href="`/talent-pass/${talentPass.id}`" class="block p-6 hover:bg-white/5 transition">
+    <StCardGlass
+        class="group overflow-hidden transition hover:border-indigo-500/50"
+    >
+        <Link
+            :href="`/talent-pass/${talentPass.id}`"
+            class="block p-6 transition hover:bg-white/5"
+        >
             <!-- Header -->
-            <div class="flex items-start justify-between mb-3">
-                <h3 class="text-xl font-bold text-white group-hover:text-indigo-300 transition line-clamp-2">
+            <div class="mb-3 flex items-start justify-between">
+                <h3
+                    class="line-clamp-2 text-xl font-bold text-white transition group-hover:text-indigo-300"
+                >
                     {{ talentPass.title }}
                 </h3>
                 <StBadgeGlass :class="statusColor" class="ml-2 flex-shrink-0">
@@ -45,25 +52,32 @@ const statusColor = computed(() => {
             </div>
 
             <!-- Person Name -->
-            <p class="text-xs text-slate-400 mb-3">
+            <p class="mb-3 text-xs text-slate-400">
                 {{ talentPass.people?.name || 'N/A' }}
             </p>
 
             <!-- Summary -->
-            <p v-if="!compact && talentPass.summary" class="text-sm text-slate-300 line-clamp-2 mb-4">
+            <p
+                v-if="!compact && talentPass.summary"
+                class="mb-4 line-clamp-2 text-sm text-slate-300"
+            >
                 {{ talentPass.summary }}
             </p>
 
             <!-- Completeness Bar -->
             <div class="mb-4">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs text-slate-400 flex items-center gap-1">
+                <div class="mb-2 flex items-center justify-between">
+                    <span
+                        class="flex items-center gap-1 text-xs text-slate-400"
+                    >
                         <PhCheckCircle :size="12" />
                         Completitud
                     </span>
-                    <span class="text-xs font-bold text-indigo-400">{{ completeness }}%</span>
+                    <span class="text-xs font-bold text-indigo-400"
+                        >{{ completeness }}%</span
+                    >
                 </div>
-                <div class="h-2 rounded-full bg-white/5 overflow-hidden">
+                <div class="h-2 overflow-hidden rounded-full bg-white/5">
                     <div
                         class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all"
                         :style="{ width: `${completeness}%` }"
@@ -72,16 +86,24 @@ const statusColor = computed(() => {
             </div>
 
             <!-- Stats -->
-            <div v-if="!compact" class="flex gap-4 text-xs text-slate-400 mb-4 pb-4 border-b border-white/10">
+            <div
+                v-if="!compact"
+                class="mb-4 flex gap-4 border-b border-white/10 pb-4 text-xs text-slate-400"
+            >
                 <span>{{ talentPass.skills_count || 0 }} Skills</span>
                 <span>{{ talentPass.experiences_count || 0 }} XP</span>
                 <span>{{ talentPass.credentials_count || 0 }} Creds</span>
             </div>
 
             <!-- Footer CTA -->
-            <div class="flex items-center gap-2 text-indigo-400 group-hover:text-indigo-300 transition text-sm font-semibold">
+            <div
+                class="flex items-center gap-2 text-sm font-semibold text-indigo-400 transition group-hover:text-indigo-300"
+            >
                 View Profile
-                <PhArrowRight :size="14" class="group-hover:translate-x-1 transition" />
+                <PhArrowRight
+                    :size="14"
+                    class="transition group-hover:translate-x-1"
+                />
             </div>
         </Link>
     </StCardGlass>

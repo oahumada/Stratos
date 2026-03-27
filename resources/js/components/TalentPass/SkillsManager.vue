@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { useTalentPassStore } from '@/stores/talentPassStore';
-import { useNotification } from '@kyvg/vue3-notification';
-import { PhPlus, PhMinus, PhStar } from '@phosphor-icons/vue';
 import StCardGlass from '@/components/StCardGlass.vue';
-import StButtonGlass from '@/components/StButtonGlass.vue';
-import type { TalentPassSkill, AddSkillRequest } from '@/types/talentPass';
+import { useTalentPassStore } from '@/stores/talentPassStore';
+import type { AddSkillRequest, TalentPassSkill } from '@/types/talentPass';
+import { useNotification } from '@kyvg/vue3-notification';
+import { PhMinus, PhPlus, PhStar } from '@phosphor-icons/vue';
+import { computed, ref } from 'vue';
 
 interface Props {
     talentPassId: number;
@@ -40,7 +39,7 @@ const skillsByLevel = computed(() => {
         1: [],
     };
 
-    props.skills.forEach(skill => {
+    props.skills.forEach((skill) => {
         if (levels[skill.level]) {
             levels[skill.level].push(skill);
         }
@@ -122,38 +121,55 @@ async function removeSkill(skillId: number) {
 
 <template>
     <StCardGlass class="p-6">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+        <div class="mb-6 flex items-center justify-between">
+            <h3 class="flex items-center gap-2 text-lg font-bold text-white">
                 <PhStar :size="20" class="text-indigo-400" />
                 Technical Skills
             </h3>
-            <div v-if="!readonly" class="flex items-center gap-2 text-xs text-slate-400">
+            <div
+                v-if="!readonly"
+                class="flex items-center gap-2 text-xs text-slate-400"
+            >
                 <span>{{ skills.length }} skills</span>
             </div>
         </div>
 
         <!-- Skills by Level -->
         <div class="space-y-6">
-            <div v-for="(skills, level) in skillsByLevel" :key="level" v-show="skills.length > 0">
-                <h4 :class="levelColor[level]" class="text-xs font-bold uppercase tracking-wide mb-3">
+            <div
+                v-for="(skills, level) in skillsByLevel"
+                :key="level"
+                v-show="skills.length > 0"
+            >
+                <h4
+                    :class="levelColor[level]"
+                    class="mb-3 text-xs font-bold tracking-wide uppercase"
+                >
                     {{ levelLabel[level] }}
                 </h4>
                 <div class="flex flex-wrap gap-2">
                     <div
                         v-for="skill in skills"
                         :key="skill.id"
-                        class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:border-indigo-500/50 transition group"
+                        class="group flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 transition hover:border-indigo-500/50"
                     >
-                        <span class="text-sm text-white font-semibold">{{ skill.name }}</span>
+                        <span class="text-sm font-semibold text-white">{{
+                            skill.name
+                        }}</span>
                         <div class="flex gap-0.5">
-                            <span v-for="i in 5" :key="i" class="w-1.5 h-1.5 rounded-full"
-                                :class="i <= level ? 'bg-indigo-400' : 'bg-white/20'"
+                            <span
+                                v-for="i in 5"
+                                :key="i"
+                                class="h-1.5 w-1.5 rounded-full"
+                                :class="
+                                    i <= level ? 'bg-indigo-400' : 'bg-white/20'
+                                "
                             ></span>
                         </div>
                         <button
                             v-if="!readonly"
                             @click="removeSkill(skill.id)"
-                            class="ml-auto opacity-0 group-hover:opacity-100 transition text-red-400 hover:text-red-300"
+                            class="ml-auto text-red-400 opacity-0 transition group-hover:opacity-100 hover:text-red-300"
                             title="Remove skill"
                         >
                             <PhMinus :size="14" />
@@ -164,16 +180,19 @@ async function removeSkill(skillId: number) {
         </div>
 
         <!-- Empty State -->
-        <div v-if="skills.length === 0 && !showAddForm" class="py-8 text-center">
-            <p class="text-sm text-slate-400 mb-4">No skills added yet</p>
+        <div
+            v-if="skills.length === 0 && !showAddForm"
+            class="py-8 text-center"
+        >
+            <p class="mb-4 text-sm text-slate-400">No skills added yet</p>
         </div>
 
         <!-- Add Skill Form -->
-        <div v-if="!readonly" class="mt-6 pt-6 border-t border-white/10">
+        <div v-if="!readonly" class="mt-6 border-t border-white/10 pt-6">
             <button
                 v-if="!showAddForm"
                 @click="showAddForm = true"
-                class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 text-indigo-300 font-semibold transition"
+                class="flex w-full items-center justify-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/20 px-4 py-2 font-semibold text-indigo-300 transition hover:bg-indigo-500/30"
             >
                 <PhPlus :size="16" />
                 Add Skill
@@ -181,20 +200,24 @@ async function removeSkill(skillId: number) {
 
             <form v-else @submit.prevent="addSkill" class="space-y-4">
                 <div>
-                    <label class="text-xs font-semibold text-white mb-1 block">Skill Name</label>
+                    <label class="mb-1 block text-xs font-semibold text-white"
+                        >Skill Name</label
+                    >
                     <input
                         v-model="newSkill.name"
                         type="text"
                         placeholder="e.g., Vue.js, Python, Leadership..."
-                        class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        class="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     />
                 </div>
 
                 <div>
-                    <label class="text-xs font-semibold text-white mb-1 block">Level</label>
+                    <label class="mb-1 block text-xs font-semibold text-white"
+                        >Level</label
+                    >
                     <select
                         v-model.number="newSkill.level"
-                        class="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        class="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     >
                         <option value="1">Novice (1/5)</option>
                         <option value="2">Beginner (2/5)</option>
@@ -208,7 +231,7 @@ async function removeSkill(skillId: number) {
                     <button
                         type="submit"
                         :disabled="loading"
-                        class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white font-semibold transition"
+                        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-indigo-500 px-3 py-2 font-semibold text-white transition hover:bg-indigo-600 disabled:opacity-50"
                     >
                         <PhPlus :size="14" />
                         Add
@@ -216,7 +239,7 @@ async function removeSkill(skillId: number) {
                     <button
                         type="button"
                         @click="showAddForm = false"
-                        class="flex-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white font-semibold transition"
+                        class="flex-1 rounded-lg bg-white/5 px-3 py-2 font-semibold text-white transition hover:bg-white/10"
                     >
                         Cancel
                     </button>

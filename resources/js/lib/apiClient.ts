@@ -1,6 +1,6 @@
 /**
  * Simple API Client Helper
- * 
+ *
  * Wraps fetch calls with common defaults
  */
 
@@ -13,7 +13,7 @@ export const apiClient = {
                 Accept: 'application/json',
             },
         });
-        
+
         if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
         return response.json();
     },
@@ -27,7 +27,7 @@ export const apiClient = {
             },
             body: data ? JSON.stringify(data) : undefined,
         });
-        
+
         if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
         return response.json();
     },
@@ -41,7 +41,7 @@ export const apiClient = {
             },
             body: data ? JSON.stringify(data) : undefined,
         });
-        
+
         if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
         return response.json();
     },
@@ -54,7 +54,7 @@ export const apiClient = {
                 Accept: 'application/json',
             },
         });
-        
+
         if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
         return response.json();
     },

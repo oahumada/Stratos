@@ -1,23 +1,21 @@
 <script setup lang="ts">
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { useTalentPassStore } from '@/stores/talentPassStore';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { useNotification } from '@kyvg/vue3-notification';
 import {
+    PhArchiveBox,
     PhArrowLeft,
-    PhShare,
+    PhCheckCircle,
     PhDownload,
+    PhGlobe,
+    PhLink,
+    PhLock,
     PhPencil,
     PhTrash,
-    PhArchiveBox,
-    PhLink,
-    PhGlobe,
-    PhLock,
-    PhCheckCircle,
 } from '@phosphor-icons/vue';
-import StCardGlass from '@/components/StCardGlass.vue';
-import StBadgeGlass from '@/components/StBadgeGlass.vue';
-import StButtonGlass from '@/components/StButtonGlass.vue';
 import { computed, onMounted, ref } from 'vue';
 
 defineOptions({ layout: AppLayout });
@@ -39,7 +37,7 @@ const talentPassId = ref<number | null>(null);
 // Computed
 const talentPass = computed(() => store.currentTalentPass);
 const completinessPercentage = computed(
-    () => talentPass.value?.completeness || 0
+    () => talentPass.value?.completeness || 0,
 );
 
 const visibilityIcon = computed(() => {
@@ -136,7 +134,11 @@ async function handleExport() {
 // Lifecycle
 onMounted(() => {
     const id = Array.isArray(props.id)
-        ? parseInt(Array.isArray(props.id) ? props.id[0].toString() : props.id.toString())
+        ? parseInt(
+              Array.isArray(props.id)
+                  ? props.id[0].toString()
+                  : props.id.toString(),
+          )
         : parseInt(props.id.toString());
 
     if (id) {
@@ -149,16 +151,26 @@ onMounted(() => {
 <template>
     <Head :title="`${talentPass?.title || 'Talent Pass'}`" />
 
-    <div v-if="loading" class="flex items-center justify-center min-h-screen bg-[#020617]">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+    <div
+        v-if="loading"
+        class="flex min-h-screen items-center justify-center bg-[#020617]"
+    >
+        <div
+            class="h-12 w-12 animate-spin rounded-full border-t-2 border-b-2 border-indigo-500"
+        ></div>
     </div>
 
-    <div v-else-if="!talentPass" class="flex items-center justify-center min-h-screen bg-[#020617]">
+    <div
+        v-else-if="!talentPass"
+        class="flex min-h-screen items-center justify-center bg-[#020617]"
+    >
         <div class="text-center">
-            <h2 class="text-2xl font-bold text-white mb-4">Talent Pass not found</h2>
+            <h2 class="mb-4 text-2xl font-bold text-white">
+                Talent Pass not found
+            </h2>
             <Link
                 href="/talent-pass"
-                class="text-indigo-400 hover:text-indigo-300 font-semibold"
+                class="font-semibold text-indigo-400 hover:text-indigo-300"
             >
                 Back to list
             </Link>
@@ -170,26 +182,31 @@ onMounted(() => {
             <!-- Navigation -->
             <Link
                 href="/talent-pass"
-                class="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 font-semibold mb-6 transition"
+                class="mb-6 inline-flex items-center gap-2 font-semibold text-indigo-400 transition hover:text-indigo-300"
             >
                 <PhArrowLeft :size="18" />
                 Back
             </Link>
 
             <!-- Main Card -->
-            <StCardGlass class="p-8 mb-8">
+            <StCardGlass class="mb-8 p-8">
                 <!-- Header Section -->
-                <div class="flex flex-col md:flex-row justify-between items-start gap-6 mb-8 pb-8 border-b border-white/10">
+                <div
+                    class="mb-8 flex flex-col items-start justify-between gap-6 border-b border-white/10 pb-8 md:flex-row"
+                >
                     <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-2">
+                        <div class="mb-2 flex items-center gap-3">
                             <h1 class="text-4xl font-black text-white">
                                 {{ talentPass.title }}
                             </h1>
                             <StBadgeGlass
                                 :class="{
-                                    'bg-green-500/20 text-green-300': talentPass.status === 'published',
-                                    'bg-amber-500/20 text-amber-300': talentPass.status === 'draft',
-                                    'bg-slate-500/20 text-slate-300': talentPass.status === 'archived',
+                                    'bg-green-500/20 text-green-300':
+                                        talentPass.status === 'published',
+                                    'bg-amber-500/20 text-amber-300':
+                                        talentPass.status === 'draft',
+                                    'bg-slate-500/20 text-slate-300':
+                                        talentPass.status === 'archived',
                                 }"
                             >
                                 {{ talentPass.status }}
@@ -204,27 +221,27 @@ onMounted(() => {
                     <div class="flex gap-2">
                         <Link
                             :href="`/talent-pass/${talentPass.id}/edit`"
-                            class="px-4 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 font-semibold transition flex items-center gap-2"
+                            class="flex items-center gap-2 rounded-lg border border-blue-500/30 bg-blue-500/20 px-4 py-2 font-semibold text-blue-300 transition hover:bg-blue-500/30"
                         >
                             <PhPencil :size="16" />
                             Edit
                         </Link>
                         <button
                             @click="handleExport"
-                            class="px-4 py-2 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 text-indigo-300 font-semibold transition flex items-center gap-2"
+                            class="flex items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-500/20 px-4 py-2 font-semibold text-indigo-300 transition hover:bg-indigo-500/30"
                         >
                             <PhDownload :size="16" />
                             Export
                         </button>
                         <button
                             @click="handleArchive"
-                            class="px-4 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-300 font-semibold transition flex items-center gap-2"
+                            class="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/20 px-4 py-2 font-semibold text-amber-300 transition hover:bg-amber-500/30"
                         >
                             <PhArchiveBox :size="16" />
                         </button>
                         <button
                             @click="handleDelete"
-                            class="px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 font-semibold transition flex items-center gap-2"
+                            class="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/20 px-4 py-2 font-semibold text-red-300 transition hover:bg-red-500/30"
                         >
                             <PhTrash :size="16" />
                         </button>
@@ -233,14 +250,20 @@ onMounted(() => {
 
                 <!-- Summary -->
                 <div v-if="talentPass.summary" class="mb-8">
-                    <h3 class="text-sm font-bold text-slate-400 mb-2">SUMMARY</h3>
-                    <p class="text-white leading-relaxed">{{ talentPass.summary }}</p>
+                    <h3 class="mb-2 text-sm font-bold text-slate-400">
+                        SUMMARY
+                    </h3>
+                    <p class="leading-relaxed text-white">
+                        {{ talentPass.summary }}
+                    </p>
                 </div>
 
                 <!-- Completeness Bar -->
                 <div class="mb-8">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-sm font-semibold text-white flex items-center gap-2">
+                    <div class="mb-2 flex items-center justify-between">
+                        <span
+                            class="flex items-center gap-2 text-sm font-semibold text-white"
+                        >
                             <PhCheckCircle :size="16" class="text-indigo-400" />
                             Profile Completeness
                         </span>
@@ -248,7 +271,7 @@ onMounted(() => {
                             {{ completinessPercentage }}%
                         </span>
                     </div>
-                    <div class="h-3 rounded-full bg-white/5 overflow-hidden">
+                    <div class="h-3 overflow-hidden rounded-full bg-white/5">
                         <div
                             class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500"
                             :style="{ width: `${completinessPercentage}%` }"
@@ -257,26 +280,42 @@ onMounted(() => {
                 </div>
 
                 <!-- Visibility & Meta -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="p-3 rounded-lg bg-white/5 border border-white/10">
-                        <p class="text-xs text-slate-400 mb-1">Visibility</p>
+                <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+                    <div
+                        class="rounded-lg border border-white/10 bg-white/5 p-3"
+                    >
+                        <p class="mb-1 text-xs text-slate-400">Visibility</p>
                         <div class="flex items-center gap-2">
-                            <component :is="visibilityIcon" :size="16" class="text-indigo-400" />
-                            <span class="font-semibold text-white">{{ visibilityLabel }}</span>
+                            <component
+                                :is="visibilityIcon"
+                                :size="16"
+                                class="text-indigo-400"
+                            />
+                            <span class="font-semibold text-white">{{
+                                visibilityLabel
+                            }}</span>
                         </div>
                     </div>
-                    <div class="p-3 rounded-lg bg-white/5 border border-white/10">
-                        <p class="text-xs text-slate-400 mb-1">Skills</p>
-                        <span class="font-bold text-white">{{ talentPass.skills_count || 0 }}</span>
+                    <div
+                        class="rounded-lg border border-white/10 bg-white/5 p-3"
+                    >
+                        <p class="mb-1 text-xs text-slate-400">Skills</p>
+                        <span class="font-bold text-white">{{
+                            talentPass.skills_count || 0
+                        }}</span>
                     </div>
-                    <div class="p-3 rounded-lg bg-white/5 border border-white/10">
-                        <p class="text-xs text-slate-400 mb-1">Experience</p>
+                    <div
+                        class="rounded-lg border border-white/10 bg-white/5 p-3"
+                    >
+                        <p class="mb-1 text-xs text-slate-400">Experience</p>
                         <span class="font-bold text-white">
                             {{ talentPass.experiences_count || 0 }}
                         </span>
                     </div>
-                    <div class="p-3 rounded-lg bg-white/5 border border-white/10">
-                        <p class="text-xs text-slate-400 mb-1">Credentials</p>
+                    <div
+                        class="rounded-lg border border-white/10 bg-white/5 p-3"
+                    >
+                        <p class="mb-1 text-xs text-slate-400">Credentials</p>
                         <span class="font-bold text-white">
                             {{ talentPass.credentials_count || 0 }}
                         </span>
@@ -285,34 +324,42 @@ onMounted(() => {
             </StCardGlass>
 
             <!-- Sections (Placeholder for components) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <StCardGlass class="p-6">
-                    <h3 class="text-lg font-bold text-white mb-4">Skills</h3>
-                    <p class="text-slate-400 text-sm">
+                    <h3 class="mb-4 text-lg font-bold text-white">Skills</h3>
+                    <p class="text-sm text-slate-400">
                         {{ talentPass.skills_count || 0 }} skills added
                     </p>
                 </StCardGlass>
                 <StCardGlass class="p-6">
-                    <h3 class="text-lg font-bold text-white mb-4">Experience</h3>
-                    <p class="text-slate-400 text-sm">
-                        {{ talentPass.experiences_count || 0 }} experiences added
+                    <h3 class="mb-4 text-lg font-bold text-white">
+                        Experience
+                    </h3>
+                    <p class="text-sm text-slate-400">
+                        {{ talentPass.experiences_count || 0 }} experiences
+                        added
                     </p>
                 </StCardGlass>
                 <StCardGlass class="p-6">
-                    <h3 class="text-lg font-bold text-white mb-4">Credentials</h3>
-                    <p class="text-slate-400 text-sm">
-                        {{ talentPass.credentials_count || 0 }} credentials added
+                    <h3 class="mb-4 text-lg font-bold text-white">
+                        Credentials
+                    </h3>
+                    <p class="text-sm text-slate-400">
+                        {{ talentPass.credentials_count || 0 }} credentials
+                        added
                     </p>
                 </StCardGlass>
                 <StCardGlass class="p-6">
-                    <h3 class="text-lg font-bold text-white mb-4">Public View</h3>
-                    <p class="text-slate-400 text-sm mb-3">
+                    <h3 class="mb-4 text-lg font-bold text-white">
+                        Public View
+                    </h3>
+                    <p class="mb-3 text-sm text-slate-400">
                         View this Talent Pass as other users see it.
                     </p>
                     <Link
                         :href="`/public/talent-pass/${talentPass.ulid}`"
                         target="_blank"
-                        class="inline-flex items-center gap-2 px-3 py-2 rounded text-sm bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 transition"
+                        class="inline-flex items-center gap-2 rounded bg-indigo-500/20 px-3 py-2 text-sm text-indigo-300 transition hover:bg-indigo-500/30"
                     >
                         <PhGlobe :size="14" />
                         Open
