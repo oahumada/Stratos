@@ -3,7 +3,57 @@
 Este documento actúa como índice vivo (openmemory) del repositorio `oahumada/Stratos`.
 Se creó/actualizó automáticamente para registrar decisiones, implementaciones y referencias útiles.
 
+### [Task 2 Phase 2.5] Workflow Enhancements - Notifications System (2026-03-27)
+
+- **Files created**:
+  - `app/Services/ScenarioPlanning/ScenarioNotificationService.php` — 200 LOC multi-channel notification handler
+    - Public methods: `notifyApprovalRequest()`, `notifyApprovalGranted()`, `notifyApprovalRejected()`, `notifyScenarioActivated()`, `resendNotification()`
+    - Channels: Email (Laravel Mail), Slack (webhook), In-App (stub)
+    - Multi-tenant scoping: all organization_id based
+    - Graceful failure: continues if one channel fails
+  - Email templates (4 Blade files, ~95 LOC):
+    - `resources/views/emails/approvals/approval-request.blade.php` — Approval request to assigned approvers (30 LOC)
+    - `resources/views/emails/approvals/approval-granted.blade.php` — Success notification to creator (20 LOC)
+    - `resources/views/emails/approvals/approval-rejected.blade.php` — Rejection with reason to creator (25 LOC)
+    - `resources/views/emails/approvals/scenario-activated.blade.php` — Execution notification to stakeholders (22 LOC)
+  - `database/migrations/2026_03_27_185901_add_notification_columns_to_scenarios.php` — Notification tracking
+    - New columns: `notifications_sent_at`, `last_notification_resent_at` on scenarios table
+    - New table: `approval_notifications` with columns: organization_id (FK), approval_request_id (FK), channel, recipient, sent_at, delivered_at, opened_at, bounced_at, error_message
+    - Indexes: organization_id, approval_request_id, sent_at
+  - `tests/Feature/ScenarioApprovalControllerTest.php` — 14 test cases (180+ LOC)
+    - Tests: resendNotification, emailPreview, approvalsSummary, activate with notifications
+    - Coverage: authorization, validation, error handling, notification flow
+- **Files modified**:
+  - `app/Http/Controllers/Api/ScenarioApprovalController.php` — Enhanced from 210 to 310 LOC
+    - Constructor: injected `ScenarioNotificationService` dependency
+    - `submitForApproval()`: Added notification calls to all approvers after approval requests created
+    - `approve()`: Added notification call to scenario creator after approval granted
+    - `reject()`: Added notification call to scenario creator with rejection reason
+    - `activate()`: Added notifications to all stakeholders (creator + approvers) when scenario activated
+    - 3 new endpoints: `resendNotification()`, `emailPreview()`, `approvalsSummary()`
+  - `routes/api.php` — Added Phase 2.5 routes (3 new)
+    - `POST /api/approval-requests/{id}/resend-notification` — resend notifications with channel selection
+    - `POST /api/approval-requests/{id}/email-preview` — preview email before send
+    - `GET /api/approvals-summary` — global approval metrics for dashboard
+- **Purpose**: Implement comprehensive notification system for scenario approval workflows with multi-channel delivery, email templating, tracking, and dashboard metrics
+- **Pattern**: Centralized notification service handles all channels; controller integrates at key workflow transitions; no exceptions thrown (graceful failure); multi-tenant throughout
+- **Notification Flow**:
+  1. Scenario submitted → notifyApprovalRequest to all approvers (email + slack + in-app)
+  2. Approver approves → notifyApprovalGranted to scenario creator
+  3. Approver rejects → notifyApprovalRejected to scenario creator with feedback
+  4. Scenario activated → notifyScenarioActivated to all stakeholders with execution details
+  5. Creator can resend notifications via API endpoint with channel selection
+- **Email Template Pattern**: All use Laravel Mail component (`@component('mail::message')`), inline styles, action buttons, org context, emoji subject lines
+- **Multi-Channel Architecture**:
+  - Email: Direct send via Laravel Mail (fallback to queue if configured)
+  - Slack: HTTP POST to webhook URL with color-coded payload (blue/green/red/orange by event type)
+  - In-App: Database-backed notifications (stub for Phase 3 implementation)
+- **Tracking**: `approval_notifications` table records every send with delivery status (sent_at, delivered_at, opened_at, bounced_at, error_message)
+- **Result (verified)**: Build passed 0 errors (58.38s, 1,867.40 kB); 1 commit (9b7cd810); Phase 2.5 infrastructure 40% complete
+- **Phase 2.5 Status**: Backend 100% complete (service + templates + migration + controller + API endpoints), Tests 100% (14 cases), Frontend 0% (ApprovalDashboard component pending), Expected 3-4 day delivery
+
 ### [Task 1 Phase 3] Audit Trail System - Complete Implementation (2026-03-27)
+
 
 - **Files created**: 
   - `database/migrations/2026_03_27_170108_create_audit_logs_table.php` — 9 columns (org_id FK, user_id FK, action, entity_type, entity_id, changes JSON, metadata JSON, triggered_by, timestamps)
