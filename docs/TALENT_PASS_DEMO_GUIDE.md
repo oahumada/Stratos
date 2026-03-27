@@ -32,16 +32,16 @@
 
 ### Key Statistics
 
-| Metric | Value |
-|--------|-------|
-| Backend Endpoints | 26 APIs |
-| Frontend Pages | 5 Vue3 components |
-| UI Components | 7 reusable Vue components |
-| Test Coverage | 623 backend + 37 E2E browser tests |
-| Database Tables | 4 (talent_passes, skills, credentials, experiences) |
-| Lines of Code | 5,500+ LOC |
-| Deployment Time | ~40 minutes |
-| Performance Target | <500ms PDF export, <200ms search |
+| Metric             | Value                                               |
+| ------------------ | --------------------------------------------------- |
+| Backend Endpoints  | 26 APIs                                             |
+| Frontend Pages     | 5 Vue3 components                                   |
+| UI Components      | 7 reusable Vue components                           |
+| Test Coverage      | 623 backend + 37 E2E browser tests                  |
+| Database Tables    | 4 (talent_passes, skills, credentials, experiences) |
+| Lines of Code      | 5,500+ LOC                                          |
+| Deployment Time    | ~40 minutes                                         |
+| Performance Target | <500ms PDF export, <200ms search                    |
 
 ---
 
@@ -52,17 +52,18 @@
 **URL:** `/talent-pass`
 
 - **Grid Display:** All talent passes in responsive grid (1 col mobile, 2-3 cols desktop)
-- **Quick Stats:** 
-  - Total profiles count
-  - Average completeness %
-  - Published vs. Draft breakdown
+- **Quick Stats:**
+    - Total profiles count
+    - Average completeness %
+    - Published vs. Draft breakdown
 - **Search:** Real-time search by title or summary
 - **Filters:**
-  - By Status (Draft, Published, Archived)
-  - By Visibility (Private, URL Link, Public)
+    - By Status (Draft, Published, Archived)
+    - By Visibility (Private, URL Link, Public)
 - **Actions per Card:** View, Edit, Publish/Archive, Delete
 
 **Demo Instructions:**
+
 ```
 1. Navigate to /talent-pass
 2. Show responsive grid layout
@@ -77,14 +78,15 @@
 **URL:** `/talent-pass/create`
 
 - **Form Fields:**
-  - Title (required, max 100 chars)
-  - Summary (optional, max 1,000 chars)
-  - Privacy & Visibility:
-    - **Private:** Only visible to owner
-    - **Link:** Shareable via ULID URL
-    - **Public:** Indexed, discoverable
+    - Title (required, max 100 chars)
+    - Summary (optional, max 1,000 chars)
+    - Privacy & Visibility:
+        - **Private:** Only visible to owner
+        - **Link:** Shareable via ULID URL
+        - **Public:** Indexed, discoverable
 
 **Demo Instructions:**
+
 ```
 1. Click "Create Talent Pass" button
 2. Fill in:
@@ -101,21 +103,22 @@
 **URL:** `/talent-pass/{id}`
 
 - **Header Section:**
-  - Title, Status badge, Person name
-  - Action buttons: Edit, Export, Archive, Delete
-  - Public share link preview
+    - Title, Status badge, Person name
+    - Action buttons: Edit, Export, Archive, Delete
+    - Public share link preview
 - **Completeness Tracker:**
-  - Visual progress bar (0-100%)
-  - Next steps recommendations
-  - Color-coded status (Excellent, Good, Fair, Incomplete, Just Started)
+    - Visual progress bar (0-100%)
+    - Next steps recommendations
+    - Color-coded status (Excellent, Good, Fair, Incomplete, Just Started)
 - **Stats Grid:**
-  - Skills count
-  - Experience entries
-  - Credentials count
+    - Skills count
+    - Experience entries
+    - Credentials count
 - **Sections:**
-  - (Placeholder cards for future integration)
+    - (Placeholder cards for future integration)
 
 **Demo Instructions:**
+
 ```
 1. From create page, show landing on Detail
 2. Point out completeness indicator (0% → suggestions to add skills)
@@ -130,14 +133,15 @@
 **URL:** `/talent-pass/{id}/edit`
 
 - **Same fields as Create:**
-  - Title
-  - Summary
-  - Visibility options
+    - Title
+    - Summary
+    - Visibility options
 - **Prepopulated Data** from existing profile
 - **Form Validation** with inline error messages
 - **Success Notification** on save
 
 **Demo Instructions:**
+
 ```
 1. From Detail page, click "Edit" button
 2. Change title to "Senior PM - Growth & Scale"
@@ -153,17 +157,18 @@
 **Component:** `SkillsManager.vue`
 
 - **Add Skills:**
-  - Name (text input)
-  - Level (select: 1-5 stars)
-  - Category (optional)
-  - Form validation
+    - Name (text input)
+    - Level (select: 1-5 stars)
+    - Category (optional)
+    - Form validation
 - **Skills Display:**
-  - Grouped by level (Expert, Advanced, Intermediate, Beginner, Novice)
-  - Color-coded badges (Emerald-5, Blue-4, Indigo-3, Amber-2, Slate-1)
-  - Star indicators for visual level display
+    - Grouped by level (Expert, Advanced, Intermediate, Beginner, Novice)
+    - Color-coded badges (Emerald-5, Blue-4, Indigo-3, Amber-2, Slate-1)
+    - Star indicators for visual level display
 - **Remove Skill:** Hover to delete with confirmation
 
 **Demo Instructions:**
+
 ```
 1. On Detail page, click "Add" in Skills section
 2. Add skill: "Product Management" → Level 5
@@ -179,18 +184,19 @@
 **Component:** `ExperienceManager.vue`
 
 - **Add Experience:**
-  - Company name (required)
-  - Position/Job title (required)
-  - Start date (required, date picker)
-  - End date (optional)
-  - "Currently working here" checkbox (disables end date)
-  - Description (optional, max 1,000 chars)
+    - Company name (required)
+    - Position/Job title (required)
+    - Start date (required, date picker)
+    - End date (optional)
+    - "Currently working here" checkbox (disables end date)
+    - Description (optional, max 1,000 chars)
 - **Timeline Display:**
-  - Sorted by date (newest first)
-  - Shows role, company, date range
-  - Description text preview
+    - Sorted by date (newest first)
+    - Shows role, company, date range
+    - Description text preview
 
 **Demo Instructions:**
+
 ```
 1. Click "Add" in Experience section
 2. Fill form:
@@ -212,18 +218,19 @@
 **Component:** `CredentialManager.vue`
 
 - **Add Credential:**
-  - Title (required, e.g., "AWS Solutions Architect")
-  - Issuer (required, e.g., "AWS")
-  - Issue date (required)
-  - Expiry date (optional)
-  - Credential ID/License number (optional)
-  - Verification URL (optional)
+    - Title (required, e.g., "AWS Solutions Architect")
+    - Issuer (required, e.g., "AWS")
+    - Issue date (required)
+    - Expiry date (optional)
+    - Credential ID/License number (optional)
+    - Verification URL (optional)
 - **Display Features:**
-  - Status badges (Active, Expired)
-  - Issue/expiry dates prominently shown
-  - Verification link clickable
+    - Status badges (Active, Expired)
+    - Issue/expiry dates prominently shown
+    - Verification link clickable
 
 **Demo Instructions:**
+
 ```
 1. Click "Add" in Credentials section
 2. Fill form:
@@ -245,18 +252,19 @@
 **URL:** `/public/talent-pass/{ulid}`
 
 - **Public Profile Display:**
-  - No authentication required
-  - ULID-based URL (non-sequential, secure sharing)
-  - Read-only view of profile
-  - No edit/delete buttons visible
-  - Share button visible
+    - No authentication required
+    - ULID-based URL (non-sequential, secure sharing)
+    - Read-only view of profile
+    - No edit/delete buttons visible
+    - Share button visible
 - **Share Dialog:**
-  - Copy link to clipboard
-  - Email share link
-  - LinkedIn share
-  - Twitter share
+    - Copy link to clipboard
+    - Email share link
+    - LinkedIn share
+    - Twitter share
 
 **Demo Instructions:**
+
 ```
 1. From Detail page, click "Share" button
 2. Show share dialog with:
@@ -276,21 +284,22 @@
 **Component:** `CompletenessIndicator.vue`
 
 - **Modes:**
-  - Compact (inline, progress bar + %)
-  - Full (detailed, suggestions, tips)
+    - Compact (inline, progress bar + %)
+    - Full (detailed, suggestions, tips)
 - **Scoring:**
-  - 0-29%: "Just Started" (red)
-  - 30-49%: "Incomplete" (amber)
-  - 50-69%: "Fair" (indigo)
-  - 70-89%: "Good" (blue)
-  - 90-100%: "Excellent" (emerald)
+    - 0-29%: "Just Started" (red)
+    - 30-49%: "Incomplete" (amber)
+    - 50-69%: "Fair" (indigo)
+    - 70-89%: "Good" (blue)
+    - 90-100%: "Excellent" (emerald)
 - **Smart Suggestions:**
-  - "Add your top 5 key skills"
-  - "Include at least 2 work experiences"
-  - "Add professional certifications"
-  - "Write a compelling professional summary"
+    - "Add your top 5 key skills"
+    - "Include at least 2 work experiences"
+    - "Add professional certifications"
+    - "Write a compelling professional summary"
 
 **Demo Instructions:**
+
 ```
 1. Create fresh profile (0%)
 2. Show "Just Started" with amber color
@@ -308,14 +317,15 @@
 **Component:** `ExportMenu.vue`
 
 - **Export Options:**
-  - **PDF:** ATS-friendly resume format
-  - **JSON:** Complete data export (portable)
-  - **LinkedIn:** Share directly to LinkedIn (beta)
+    - **PDF:** ATS-friendly resume format
+    - **JSON:** Complete data export (portable)
+    - **LinkedIn:** Share directly to LinkedIn (beta)
 - **Downloads:**
-  - File naming: `{title}-resume.pdf`, `{title}-data.json`
-  - Browser handles download automatically
+    - File naming: `{title}-resume.pdf`, `{title}-data.json`
+    - Browser handles download automatically
 
 **Demo Instructions:**
+
 ```
 1. On Detail page, click "Export" button
 2. Show dropdown menu with 3 options
@@ -402,13 +412,13 @@ Step 3: Reach Out (2 min)
 
 ### Performance Targets ✅
 
-| Operation | Target | Actual | Status |
-|-----------|--------|--------|--------|
-| List load (50 profiles) | <1s | ~0.8s | ✅ Pass |
-| Detail page load | <500ms | ~350ms | ✅ Pass |
-| PDF export | <500ms | ~450ms | ✅ Pass |
-| Search query | <200ms | ~150ms | ✅ Pass |
-| Add skill | <100ms | ~80ms | ✅ Pass |
+| Operation               | Target | Actual | Status  |
+| ----------------------- | ------ | ------ | ------- |
+| List load (50 profiles) | <1s    | ~0.8s  | ✅ Pass |
+| Detail page load        | <500ms | ~350ms | ✅ Pass |
+| PDF export              | <500ms | ~450ms | ✅ Pass |
+| Search query            | <200ms | ~150ms | ✅ Pass |
+| Add skill               | <100ms | ~80ms  | ✅ Pass |
 
 ### Scalability
 
@@ -421,10 +431,10 @@ Step 3: Reach Out (2 min)
 
 - Real-time dashboard: `/admin/operations`
 - Metrics tracked:
-  - API response times
-  - Database query counts (N+1 detection)
-  - PDF generation queue
-  - Error rates by endpoint
+    - API response times
+    - Database query counts (N+1 detection)
+    - PDF generation queue
+    - Error rates by endpoint
 
 ---
 
@@ -454,12 +464,14 @@ Step 3: Reach Out (2 min)
 ### Deployment Steps
 
 **Phase 1: Database (5 min)**
+
 ```bash
 php artisan migrate --force
 php artisan db:seed --class=TalentPassSeeder
 ```
 
 **Phase 2: API & Backend (10 min)**
+
 ```bash
 composer install --no-dev
 php artisan config:cache
@@ -468,6 +480,7 @@ php artisan event:cache
 ```
 
 **Phase 3: Frontend (10 min)**
+
 ```bash
 npm ci
 npm run build
@@ -475,6 +488,7 @@ php artisan ziggy:generate
 ```
 
 **Phase 4: Assets & Cache (5 min)**
+
 ```bash
 php artisan storage:link
 php artisan cache:clear
@@ -483,12 +497,14 @@ php artisan config:cache
 ```
 
 **Phase 5: Services (5 min)**
+
 ```bash
 php artisan queue:restart
 php artisan schedule:run
 ```
 
 **Phase 6: Verification (5 min)**
+
 ```bash
 php artisan test tests/Feature/TalentPassTest.php
 curl https://your-app/talent-pass
@@ -533,14 +549,14 @@ php artisan migrate:status
 
 ### Common Issues & Solutions
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| **Profile not appearing in list** | Org scoping issue | Check user's organization_id matches profile's org |
-| **Completeness stuck at 0%** | Cache not cleared | Run `php artisan cache:clear` |
-| **PDF export timeout** | Queue backed up | Restart queue: `php artisan queue:restart` |
-| **Public link returns 404** | Invalid ULID | Verify ulid format in URL bar |
-| **Skills not saving** | CSRF token issue | Check cookies enabled in browser |
-| **Mobile layout broken** | CSS not loaded | Hard refresh: `Cmd+Shift+R` (Mac) or `Ctrl+Shift+R` (Windows) |
+| Issue                             | Cause             | Solution                                                      |
+| --------------------------------- | ----------------- | ------------------------------------------------------------- |
+| **Profile not appearing in list** | Org scoping issue | Check user's organization_id matches profile's org            |
+| **Completeness stuck at 0%**      | Cache not cleared | Run `php artisan cache:clear`                                 |
+| **PDF export timeout**            | Queue backed up   | Restart queue: `php artisan queue:restart`                    |
+| **Public link returns 404**       | Invalid ULID      | Verify ulid format in URL bar                                 |
+| **Skills not saving**             | CSRF token issue  | Check cookies enabled in browser                              |
+| **Mobile layout broken**          | CSS not loaded    | Hard refresh: `Cmd+Shift+R` (Mac) or `Ctrl+Shift+R` (Windows) |
 
 ### Debug Mode
 
@@ -593,6 +609,7 @@ A: Yes! Export as JSON and import to other platforms. Open standard.
 
 **Q: Who can see my profile?**  
 A: Depends on visibility:
+
 - **Private:** Only you
 - **Link:** Anyone with the URL
 - **Public:** Anyone on the platform + search engines
@@ -637,6 +654,7 @@ A: Not in v1.0. v2.0 will support CSV/JSON bulk import.
 ### Feedback
 
 Your feedback shapes the roadmap! Share ideas:
+
 - In-app feedback form
 - Feature request: https://feedback.stratos.io
 - Direct email: product@stratos.io
@@ -647,6 +665,7 @@ Your feedback shapes the roadmap! Share ideas:
 Next steps: Schedule deployment window with your infrastructure team.
 
 For questions during demo, reach out to:
+
 - **Product:** omar@stratos.io
 - **Engineering:** tech@stratos.io
 - **Sales:** sales@stratos.io
