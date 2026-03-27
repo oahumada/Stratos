@@ -11,6 +11,10 @@ import {
     PhWarning,
 } from '@phosphor-icons/vue';
 import { computed, onMounted, ref } from 'vue';
+import GaugeChart from '@/components/Admin/GaugeChart.vue';
+import SparklineChart from '@/components/Admin/SparklineChart.vue';
+import OperationsTimeline from '@/components/Admin/OperationsTimeline.vue';
+import AlertPanel from '@/components/Admin/AlertPanel.vue';
 
 defineOptions({
     layout: AppLayout,
@@ -80,6 +84,31 @@ const metrics = ref<SystemMetrics>({
     totalOperations: 42,
     lastCheck: new Date().toISOString(),
 });
+
+// Sparkline data (simulated historical values)
+const historicalMetrics = ref({
+    cpuUsage: [15, 18, 22, 25, 28, 32, 31, 34, 35, 34],
+    memoryUsage: [45, 48, 50, 52, 55, 58, 60, 61, 62, 62],
+    uptime: [99.99, 99.98, 99.98, 99.97, 99.99, 99.98, 99.98, 99.98, 99.98, 99.98],
+});
+
+// Sample alerts
+const alerts = ref([
+    {
+        id: '1',
+        title: 'High Memory Usage',
+        message: 'Memory usage is at 62%. Consider optimizing or scaling.',
+        severity: 'medium' as const,
+        timestamp: new Date(Date.now() - 300000).toISOString(),
+    },
+    {
+        id: '2',
+        title: 'Database Optimization Completed',
+        message: 'The database optimization operation has completed successfully.',
+        severity: 'info' as const,
+        timestamp: new Date(Date.now() - 600000).toISOString(),
+    },
+]);
 
 const filterStatus = ref<string>('all');
 const autoRefresh = ref(true);
@@ -176,90 +205,106 @@ onMounted(() => {
                 </button>
             </div>
 
-            <!-- System Metrics Grid -->
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <!-- Uptime -->
-                <div
-                    class="rounded-lg border border-white/10 bg-white/5 p-4 transition-all hover:border-emerald-500/50"
-                >
-                    <div class="mb-2 flex items-center justify-between">
-                        <p class="text-sm text-slate-400">System Uptime</p>
-                        <PhActivity :size="20" class="text-emerald-400" />
-                    </div>
-                    <p class="text-3xl font-bold text-white">
-                        {{ metrics.uptime }}%
-                    </p>
-                    <div
-                        class="mt-3 h-2 overflow-hidden rounded-full bg-white/5"
-                    >
-                        <div
-                            class="h-full bg-gradient-to-r from-emerald-500 to-green-500"
-                            :style="{ width: `${metrics.uptime}%` }"
-                        ></div>
-                    </div>
-                </div>
+        <!-- Alert Panel -->
+        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+            <h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-white">
+                <PhWarning :size="24" class="text-amber-400" />
+                System Alerts
+            </h2>
+            <AlertPanel :alerts="alerts" />
+        </div>
 
-                <!-- Memory Usage -->
-                <div
-                    class="rounded-lg border border-white/10 bg-white/5 p-4 transition-all hover:border-blue-500/50"
-                >
-                    <div class="mb-2 flex items-center justify-between">
-                        <p class="text-sm text-slate-400">Memory Usage</p>
-                        <PhDatabase :size="20" class="text-blue-400" />
-                    </div>
-                    <p class="text-3xl font-bold text-white">
-                        {{ metrics.memoryUsage }}%
-                    </p>
-                    <div
-                        class="mt-3 h-2 overflow-hidden rounded-full bg-white/5"
-                    >
-                        <div
-                            class="h-full bg-gradient-to-r from-blue-500 to-cyan-500"
-                            :style="{ width: `${metrics.memoryUsage}%` }"
-                        ></div>
-                    </div>
-                </div>
-
-                <!-- CPU Usage -->
-                <div
-                    class="rounded-lg border border-white/10 bg-white/5 p-4 transition-all hover:border-indigo-500/50"
-                >
-                    <div class="mb-2 flex items-center justify-between">
-                        <p class="text-sm text-slate-400">CPU Usage</p>
-                        <PhActivity :size="20" class="text-indigo-400" />
-                    </div>
-                    <p class="text-3xl font-bold text-white">
-                        {{ metrics.cpuUsage }}%
-                    </p>
-                    <div
-                        class="mt-3 h-2 overflow-hidden rounded-full bg-white/5"
-                    >
-                        <div
-                            class="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                            :style="{ width: `${metrics.cpuUsage}%` }"
-                        ></div>
-                    </div>
-                </div>
-
-                <!-- Queue Status -->
-                <div
-                    class="rounded-lg border border-white/10 bg-white/5 p-4 transition-all hover:border-amber-500/50"
-                >
-                    <div class="mb-2 flex items-center justify-between">
-                        <p class="text-sm text-slate-400">Queue Status</p>
-                        <PhClock :size="20" class="text-amber-400" />
-                    </div>
-                    <p class="text-3xl font-bold text-white">
-                        {{ metrics.queuedJobs }}
-                    </p>
-                    <p class="mt-3 text-xs text-slate-400">
-                        <span v-if="metrics.failedJobs > 0" class="text-red-400"
-                            >{{ metrics.failedJobs }} failed</span
-                        >
-                        <span v-else class="text-emerald-400">No failures</span>
-                    </p>
-                </div>
+        <!-- System Metrics Grid with Gauges -->
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <!-- Uptime -->
+            <div
+                class="rounded-lg border border-white/10 bg-white/5 p-6 transition-all hover:border-emerald-500/50 flex flex-col items-center"
+            >
+                <GaugeChart
+                    label="System Uptime"
+                    :value="metrics.uptime"
+                    :max="100"
+                    color="green"
+                    unit="%"
+                    size="medium"
+                />
             </div>
+
+            <!-- Memory Usage -->
+            <div
+                class="rounded-lg border border-white/10 bg-white/5 p-6 transition-all hover:border-blue-500/50 flex flex-col items-center"
+            >
+                <GaugeChart
+                    label="Memory Usage"
+                    :value="metrics.memoryUsage"
+                    :max="100"
+                    :color="metrics.memoryUsage > 80 ? 'red' : metrics.memoryUsage > 60 ? 'amber' : 'blue'"
+                    unit="%"
+                    size="medium"
+                />
+            </div>
+
+            <!-- CPU Usage -->
+            <div
+                class="rounded-lg border border-white/10 bg-white/5 p-6 transition-all hover:border-indigo-500/50 flex flex-col items-center"
+            >
+                <GaugeChart
+                    label="CPU Usage"
+                    :value="metrics.cpuUsage"
+                    :max="100"
+                    :color="metrics.cpuUsage > 80 ? 'red' : metrics.cpuUsage > 60 ? 'amber' : 'blue'"
+                    unit="%"
+                    size="medium"
+                />
+            </div>
+
+            <!-- Queue Status -->
+            <div
+                class="rounded-lg border border-white/10 bg-white/5 p-4 transition-all hover:border-amber-500/50"
+            >
+                <div class="mb-2 flex items-center justify-between">
+                    <p class="text-sm text-slate-400">Queue Status</p>
+                    <PhClock :size="20" class="text-amber-400" />
+                </div>
+                <p class="text-3xl font-bold text-white">
+                    {{ metrics.queuedJobs }}
+                </p>
+                <p class="mt-3 text-xs text-slate-400">
+                    <span v-if="metrics.failedJobs > 0" class="text-red-400"
+                        >{{ metrics.failedJobs }} failed</span
+                    >
+                    <span v-else class="text-emerald-400">No failures</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Metrics Trends (Sparklines) -->
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                <SparklineChart
+                    label="CPU Usage Trend"
+                    :data="historicalMetrics.cpuUsage"
+                    color="blue"
+                    :height="60"
+                />
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                <SparklineChart
+                    label="Memory Usage Trend"
+                    :data="historicalMetrics.memoryUsage"
+                    color="amber"
+                    :height="60"
+                />
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                <SparklineChart
+                    label="System Uptime Trend"
+                    :data="historicalMetrics.uptime"
+                    color="green"
+                    :height="60"
+                />
+            </div>
+        </div>
 
             <!-- Operations Stats -->
             <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -303,7 +348,7 @@ onMounted(() => {
                 </div>
             </div>
 
-            <!-- Operations List -->
+            <!-- Operations Timeline (New Component) -->
             <div class="space-y-4">
                 <div class="flex items-center justify-between">
                     <h2
@@ -338,154 +383,9 @@ onMounted(() => {
                     </div>
                 </div>
 
-                <!-- Operations Table -->
-                <div class="space-y-3">
-                    <div
-                        v-for="operation in filteredOperations"
-                        :key="operation.id"
-                        class="rounded-lg border border-white/10 bg-white/5 p-4 transition-all hover:border-indigo-500/50"
-                    >
-                        <div class="mb-3 flex items-start justify-between">
-                            <div class="flex flex-1 items-center gap-3">
-                                <component
-                                    :is="statusIcon(operation.status)"
-                                    :size="24"
-                                    class="text-indigo-400"
-                                />
-                                <div>
-                                    <p class="font-bold text-white">
-                                        {{ operation.name }}
-                                    </p>
-                                    <p class="text-xs text-slate-400">
-                                        Started
-                                        {{
-                                            operation.createdAt
-                                                ? new Date(
-                                                      operation.createdAt,
-                                                  ).toLocaleString()
-                                                : 'N/A'
-                                        }}
-                                        ago
-                                    </p>
-                                </div>
-                            </div>
-                            <span
-                                :class="statusColor(operation.status)"
-                                class="rounded-full px-3 py-1 text-xs font-bold"
-                            >
-                                {{
-                                    operation.status
-                                        .replace('_', ' ')
-                                        .toUpperCase()
-                                }}
-                            </span>
-                        </div>
-
-                        <!-- Progress Bar -->
-                        <div class="mb-3">
-                            <div class="mb-1 flex items-center justify-between">
-                                <span class="text-xs text-slate-400"
-                                    >Progress</span
-                                >
-                                <span class="text-xs font-bold text-slate-300"
-                                    >{{ operation.progress }}%</span
-                                >
-                            </div>
-                            <div
-                                class="h-2 overflow-hidden rounded-full bg-white/5"
-                            >
-                                <div
-                                    class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300"
-                                    :style="{ width: `${operation.progress}%` }"
-                                ></div>
-                            </div>
-                        </div>
-
-                        <!-- Timeline -->
-                        <div
-                            class="mb-3 flex items-center gap-4 text-xs text-slate-400"
-                        >
-                            <span v-if="operation.startedAt">
-                                Started:
-                                {{
-                                    new Date(
-                                        operation.startedAt,
-                                    ).toLocaleString()
-                                }}
-                            </span>
-                            <span v-if="operation.completedAt">
-                                Completed:
-                                {{
-                                    new Date(
-                                        operation.completedAt,
-                                    ).toLocaleString()
-                                }}
-                            </span>
-                        </div>
-
-                        <!-- Error Message -->
-                        <div
-                            v-if="operation.error"
-                            class="mb-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3"
-                        >
-                            <p class="text-xs font-semibold text-red-300">
-                                Error
-                            </p>
-                            <p class="mt-1 text-xs text-red-200">
-                                {{ operation.error }}
-                            </p>
-                        </div>
-
-                        <!-- Rollback Info -->
-                        <div
-                            v-if="operation.rollback"
-                            class="mb-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3"
-                        >
-                            <p class="text-xs font-semibold text-amber-300">
-                                Rolled Back
-                            </p>
-                            <p class="mt-1 text-xs text-amber-200">
-                                Reason: {{ operation.rollback.reason }}
-                            </p>
-                            <p class="mt-1 text-xs text-amber-300">
-                                Initiated:
-                                {{
-                                    new Date(
-                                        operation.rollback.initiatedAt,
-                                    ).toLocaleString()
-                                }}
-                            </p>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="flex gap-2">
-                            <button
-                                type="button"
-                                class="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-300 transition-colors hover:bg-white/10"
-                            >
-                                View Details
-                            </button>
-                            <button
-                                v-if="operation.status === 'processing'"
-                                @click="
-                                    initiateRollback(
-                                        operation.id,
-                                        'User initiated',
-                                    )
-                                "
-                                type="button"
-                                class="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-bold text-red-300 transition-colors hover:bg-red-500/20"
-                            >
-                                Rollback
-                            </button>
-                            <button
-                                type="button"
-                                class="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-300 transition-colors hover:bg-white/10"
-                            >
-                                <PhDownload :size="14" />
-                            </button>
-                        </div>
-                    </div>
+                <!-- Timeline View -->
+                <div class="rounded-lg border border-white/10 bg-white/5 p-6">
+                    <OperationsTimeline :operations="filteredOperations" />
                 </div>
 
                 <!-- Empty State -->
