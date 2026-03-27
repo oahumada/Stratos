@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\AlertController::index
 * @see app/Http/Controllers/Api/AlertController.php:111
@@ -42,43 +42,6 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\AlertController::index
-* @see app/Http/Controllers/Api/AlertController.php:111
-* @route '/api/alerts/history'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AlertController::index
-* @see app/Http/Controllers/Api/AlertController.php:111
-* @route '/api/alerts/history'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AlertController::index
-* @see app/Http/Controllers/Api/AlertController.php:111
-* @route '/api/alerts/history'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Api\AlertController::show
@@ -147,43 +110,6 @@ show.head = (args: { alert: string | number | { id: string | number } } | [alert
     url: show.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\AlertController::show
-* @see app/Http/Controllers/Api/AlertController.php:126
-* @route '/api/alerts/history/{alert}'
-*/
-const showForm = (args: { alert: string | number | { id: string | number } } | [alert: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AlertController::show
-* @see app/Http/Controllers/Api/AlertController.php:126
-* @route '/api/alerts/history/{alert}'
-*/
-showForm.get = (args: { alert: string | number | { id: string | number } } | [alert: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AlertController::show
-* @see app/Http/Controllers/Api/AlertController.php:126
-* @route '/api/alerts/history/{alert}'
-*/
-showForm.head = (args: { alert: string | number | { id: string | number } } | [alert: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-show.form = showForm
 
 const history = {
     index: Object.assign(index, index),

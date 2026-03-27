@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Deployment\VerificationConfigurationController::show
 * @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:12
@@ -44,43 +44,6 @@ show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Deployment\VerificationConfigurationController::show
-* @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:12
-* @route '/deployment/verification-config'
-*/
-const showForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Deployment\VerificationConfigurationController::show
-* @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:12
-* @route '/deployment/verification-config'
-*/
-showForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Deployment\VerificationConfigurationController::show
-* @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:12
-* @route '/deployment/verification-config'
-*/
-showForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-show.form = showForm
-
-/**
 * @see \App\Http\Controllers\Deployment\VerificationConfigurationController::store
 * @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:21
 * @route '/deployment/verification-config'
@@ -113,28 +76,6 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Deployment\VerificationConfigurationController::store
-* @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:21
-* @route '/deployment/verification-config'
-*/
-const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Deployment\VerificationConfigurationController::store
-* @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:21
-* @route '/deployment/verification-config'
-*/
-storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Deployment\VerificationConfigurationController::status
@@ -179,43 +120,6 @@ status.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: status.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Deployment\VerificationConfigurationController::status
-* @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:52
-* @route '/api/deployment/verification-status'
-*/
-const statusForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: status.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Deployment\VerificationConfigurationController::status
-* @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:52
-* @route '/api/deployment/verification-status'
-*/
-statusForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: status.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Deployment\VerificationConfigurationController::status
-* @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:52
-* @route '/api/deployment/verification-status'
-*/
-statusForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: status.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-status.form = statusForm
 
 const VerificationConfigurationController = { show, store, status }
 

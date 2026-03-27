@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getMatrixData
 * @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:42
@@ -62,43 +62,6 @@ getMatrixData.head = (args: { id: string | number } | [id: string | number ] | s
 })
 
 /**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getMatrixData
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:42
-* @route '/api/scenarios/{id}/step2/data'
-*/
-const getMatrixDataForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getMatrixData.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getMatrixData
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:42
-* @route '/api/scenarios/{id}/step2/data'
-*/
-getMatrixDataForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getMatrixData.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getMatrixData
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:42
-* @route '/api/scenarios/{id}/step2/data'
-*/
-getMatrixDataForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getMatrixData.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getMatrixData.form = getMatrixDataForm
-
-/**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::saveMapping
 * @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:142
 * @route '/api/scenarios/{id}/step2/mappings'
@@ -149,28 +112,6 @@ saveMapping.post = (args: { id: string | number } | [id: string | number ] | str
     url: saveMapping.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::saveMapping
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:142
-* @route '/api/scenarios/{id}/step2/mappings'
-*/
-const saveMappingForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: saveMapping.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::saveMapping
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:142
-* @route '/api/scenarios/{id}/step2/mappings'
-*/
-saveMappingForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: saveMapping.url(args, options),
-    method: 'post',
-})
-
-saveMapping.form = saveMappingForm
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::deleteMapping
@@ -224,38 +165,6 @@ deleteMapping.delete = (args: { id: string | number, mappingId: string | number 
 })
 
 /**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::deleteMapping
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:202
-* @route '/api/scenarios/{id}/step2/mappings/{mappingId}'
-*/
-const deleteMappingForm = (args: { id: string | number, mappingId: string | number } | [id: string | number, mappingId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: deleteMapping.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::deleteMapping
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:202
-* @route '/api/scenarios/{id}/step2/mappings/{mappingId}'
-*/
-deleteMappingForm.delete = (args: { id: string | number, mappingId: string | number } | [id: string | number, mappingId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: deleteMapping.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-deleteMapping.form = deleteMappingForm
-
-/**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::addRole
 * @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:229
 * @route '/api/scenarios/{id}/step2/roles'
@@ -306,28 +215,6 @@ addRole.post = (args: { id: string | number } | [id: string | number ] | string 
     url: addRole.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::addRole
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:229
-* @route '/api/scenarios/{id}/step2/roles'
-*/
-const addRoleForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: addRole.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::addRole
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:229
-* @route '/api/scenarios/{id}/step2/roles'
-*/
-addRoleForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: addRole.url(args, options),
-    method: 'post',
-})
-
-addRole.form = addRoleForm
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getRoleForecasts
@@ -392,43 +279,6 @@ getRoleForecasts.head = (args: { id: string | number } | [id: string | number ] 
 })
 
 /**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getRoleForecasts
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:468
-* @route '/api/scenarios/{id}/step2/role-forecasts'
-*/
-const getRoleForecastsForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getRoleForecasts.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getRoleForecasts
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:468
-* @route '/api/scenarios/{id}/step2/role-forecasts'
-*/
-getRoleForecastsForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getRoleForecasts.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getRoleForecasts
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:468
-* @route '/api/scenarios/{id}/step2/role-forecasts'
-*/
-getRoleForecastsForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getRoleForecasts.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getRoleForecasts.form = getRoleForecastsForm
-
-/**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getSkillGapsMatrix
 * @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:509
 * @route '/api/scenarios/{id}/step2/skill-gaps-matrix'
@@ -489,43 +339,6 @@ getSkillGapsMatrix.head = (args: { id: string | number } | [id: string | number 
     url: getSkillGapsMatrix.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getSkillGapsMatrix
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:509
-* @route '/api/scenarios/{id}/step2/skill-gaps-matrix'
-*/
-const getSkillGapsMatrixForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getSkillGapsMatrix.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getSkillGapsMatrix
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:509
-* @route '/api/scenarios/{id}/step2/skill-gaps-matrix'
-*/
-getSkillGapsMatrixForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getSkillGapsMatrix.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getSkillGapsMatrix
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:509
-* @route '/api/scenarios/{id}/step2/skill-gaps-matrix'
-*/
-getSkillGapsMatrixForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getSkillGapsMatrix.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getSkillGapsMatrix.form = getSkillGapsMatrixForm
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getMatchingResults
@@ -590,43 +403,6 @@ getMatchingResults.head = (args: { id: string | number } | [id: string | number 
 })
 
 /**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getMatchingResults
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:592
-* @route '/api/scenarios/{id}/step2/matching-results'
-*/
-const getMatchingResultsForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getMatchingResults.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getMatchingResults
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:592
-* @route '/api/scenarios/{id}/step2/matching-results'
-*/
-getMatchingResultsForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getMatchingResults.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getMatchingResults
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:592
-* @route '/api/scenarios/{id}/step2/matching-results'
-*/
-getMatchingResultsForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getMatchingResults.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getMatchingResults.form = getMatchingResultsForm
-
-/**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getSuccessionPlans
 * @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:645
 * @route '/api/scenarios/{id}/step2/succession-plans'
@@ -687,43 +463,6 @@ getSuccessionPlans.head = (args: { id: string | number } | [id: string | number 
     url: getSuccessionPlans.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getSuccessionPlans
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:645
-* @route '/api/scenarios/{id}/step2/succession-plans'
-*/
-const getSuccessionPlansForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getSuccessionPlans.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getSuccessionPlans
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:645
-* @route '/api/scenarios/{id}/step2/succession-plans'
-*/
-getSuccessionPlansForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getSuccessionPlans.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getSuccessionPlans
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:645
-* @route '/api/scenarios/{id}/step2/succession-plans'
-*/
-getSuccessionPlansForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getSuccessionPlans.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getSuccessionPlans.form = getSuccessionPlansForm
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getCubeData
@@ -788,43 +527,6 @@ getCubeData.head = (args: { id: string | number } | [id: string | number ] | str
 })
 
 /**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getCubeData
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:802
-* @route '/api/scenarios/{id}/step2/cube'
-*/
-const getCubeDataForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getCubeData.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getCubeData
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:802
-* @route '/api/scenarios/{id}/step2/cube'
-*/
-getCubeDataForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getCubeData.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getCubeData
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:802
-* @route '/api/scenarios/{id}/step2/cube'
-*/
-getCubeDataForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getCubeData.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getCubeData.form = getCubeDataForm
-
-/**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::orchestrateCapabilities
 * @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:373
 * @route '/api/scenarios/{id}/step2/orchestrate-capabilities'
@@ -875,28 +577,6 @@ orchestrateCapabilities.post = (args: { id: string | number } | [id: string | nu
     url: orchestrateCapabilities.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::orchestrateCapabilities
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:373
-* @route '/api/scenarios/{id}/step2/orchestrate-capabilities'
-*/
-const orchestrateCapabilitiesForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: orchestrateCapabilities.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::orchestrateCapabilities
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:373
-* @route '/api/scenarios/{id}/step2/orchestrate-capabilities'
-*/
-orchestrateCapabilitiesForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: orchestrateCapabilities.url(args, options),
-    method: 'post',
-})
-
-orchestrateCapabilities.form = orchestrateCapabilitiesForm
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::approveCube
@@ -951,28 +631,6 @@ approveCube.post = (args: { id: string | number } | [id: string | number ] | str
 })
 
 /**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::approveCube
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:919
-* @route '/api/scenarios/{id}/step2/approve-cube'
-*/
-const approveCubeForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: approveCube.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::approveCube
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:919
-* @route '/api/scenarios/{id}/step2/approve-cube'
-*/
-approveCubeForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: approveCube.url(args, options),
-    method: 'post',
-})
-
-approveCube.form = approveCubeForm
-
-/**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::generateBars
 * @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:985
 * @route '/api/scenarios/{id}/step2/engine/generate-bars'
@@ -1023,28 +681,6 @@ generateBars.post = (args: { id: string | number } | [id: string | number ] | st
     url: generateBars.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::generateBars
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:985
-* @route '/api/scenarios/{id}/step2/engine/generate-bars'
-*/
-const generateBarsForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: generateBars.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Step2RoleCompetencyController::generateBars
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:985
-* @route '/api/scenarios/{id}/step2/engine/generate-bars'
-*/
-generateBarsForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: generateBars.url(args, options),
-    method: 'post',
-})
-
-generateBars.form = generateBarsForm
 
 const Step2RoleCompetencyController = { getMatrixData, saveMapping, deleteMapping, addRole, getRoleForecasts, getSkillGapsMatrix, getMatchingResults, getSuccessionPlans, getCubeData, orchestrateCapabilities, approveCube, generateBars }
 

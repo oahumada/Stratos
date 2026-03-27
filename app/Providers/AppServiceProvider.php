@@ -10,6 +10,7 @@ use App\Services\EvolutionEngineService;
 use App\Services\Intelligence\ImpactEngineService;
 use App\Services\ScenarioAnalysisService;
 use App\Services\ScenarioPlanning\ScenarioTemplateService;
+use App\Services\ScenarioPlanning\WhatIfAnalysisService;
 use App\Services\TalentRoiService;
 use Illuminate\Support\ServiceProvider;
 
@@ -32,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ImpactEngineService::class); // Phase 3: Per-request cache for metrics batching
         $this->app->singleton(MetricsCacheService::class); // Phase 4: Cross-request Redis cache
         $this->app->singleton(ScenarioTemplateService::class); // Phase 3: Template management service
+        $this->app->singleton(WhatIfAnalysisService::class); // Phase 3.2: What-if analysis & sensitivity
     }
 
     /**

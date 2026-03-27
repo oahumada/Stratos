@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\PeopleProfileController::show
 * @see app/Http/Controllers/Api/PeopleProfileController.php:18
@@ -62,43 +62,6 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 })
 
 /**
-* @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:18
-* @route '/api/people/profile/{id}'
-*/
-const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:18
-* @route '/api/people/profile/{id}'
-*/
-showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\PeopleProfileController::show
-* @see app/Http/Controllers/Api/PeopleProfileController.php:18
-* @route '/api/people/profile/{id}'
-*/
-showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-show.form = showForm
-
-/**
 * @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
 * @see app/Http/Controllers/Api/PeopleProfileController.php:100
 * @route '/api/people/profile/{id}/timeline'
@@ -159,43 +122,6 @@ getTimeline.head = (args: { id: string | number } | [id: string | number ] | str
     url: getTimeline.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
-* @see app/Http/Controllers/Api/PeopleProfileController.php:100
-* @route '/api/people/profile/{id}/timeline'
-*/
-const getTimelineForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getTimeline.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
-* @see app/Http/Controllers/Api/PeopleProfileController.php:100
-* @route '/api/people/profile/{id}/timeline'
-*/
-getTimelineForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getTimeline.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\PeopleProfileController::getTimeline
-* @see app/Http/Controllers/Api/PeopleProfileController.php:100
-* @route '/api/people/profile/{id}/timeline'
-*/
-getTimelineForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getTimeline.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getTimeline.form = getTimelineForm
 
 const PeopleProfileController = { show, getTimeline }
 

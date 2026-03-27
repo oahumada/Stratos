@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\CapabilityCompetencyController::store
 * @see app/Http/Controllers/Api/CapabilityCompetencyController.php:34
@@ -49,28 +49,6 @@ store.post = (args: { scenarioId: string | number, capabilityId: string | number
     url: store.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\CapabilityCompetencyController::store
-* @see app/Http/Controllers/Api/CapabilityCompetencyController.php:34
-* @route '/api/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies'
-*/
-const storeForm = (args: { scenarioId: string | number, capabilityId: string | number } | [scenarioId: string | number, capabilityId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\CapabilityCompetencyController::store
-* @see app/Http/Controllers/Api/CapabilityCompetencyController.php:34
-* @route '/api/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies'
-*/
-storeForm.post = (args: { scenarioId: string | number, capabilityId: string | number } | [scenarioId: string | number, capabilityId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(args, options),
-    method: 'post',
-})
-
-store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\CapabilityCompetencyController::update
@@ -125,38 +103,6 @@ update.patch = (args: { scenarioId: string | number, capabilityId: string | numb
     url: update.url(args, options),
     method: 'patch',
 })
-
-/**
-* @see \App\Http\Controllers\Api\CapabilityCompetencyController::update
-* @see app/Http/Controllers/Api/CapabilityCompetencyController.php:132
-* @route '/api/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies/{competencyId}'
-*/
-const updateForm = (args: { scenarioId: string | number, capabilityId: string | number, competencyId: string | number } | [scenarioId: string | number, capabilityId: string | number, competencyId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\CapabilityCompetencyController::update
-* @see app/Http/Controllers/Api/CapabilityCompetencyController.php:132
-* @route '/api/strategic-planning/scenarios/{scenarioId}/capabilities/{capabilityId}/competencies/{competencyId}'
-*/
-updateForm.patch = (args: { scenarioId: string | number, capabilityId: string | number, competencyId: string | number } | [scenarioId: string | number, capabilityId: string | number, competencyId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-update.form = updateForm
 
 const CapabilityCompetencyController = { store, update }
 

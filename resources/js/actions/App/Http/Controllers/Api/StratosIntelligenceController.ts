@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\StratosIntelligenceController::generateBlueprint
 * @see app/Http/Controllers/Api/StratosIntelligenceController.php:44
@@ -50,28 +50,6 @@ generateBlueprint.post = (args: { peopleId: string | number } | [peopleId: strin
     url: generateBlueprint.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::generateBlueprint
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:44
-* @route '/api/learning-blueprints/{peopleId}'
-*/
-const generateBlueprintForm = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: generateBlueprint.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::generateBlueprint
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:44
-* @route '/api/learning-blueprints/{peopleId}'
-*/
-generateBlueprintForm.post = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: generateBlueprint.url(args, options),
-    method: 'post',
-})
-
-generateBlueprint.form = generateBlueprintForm
 
 /**
 * @see \App\Http\Controllers\Api\StratosIntelligenceController::materializeBlueprint
@@ -126,28 +104,6 @@ materializeBlueprint.post = (args: { peopleId: string | number } | [peopleId: st
 })
 
 /**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::materializeBlueprint
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:60
-* @route '/api/learning-blueprints/{peopleId}/materialize'
-*/
-const materializeBlueprintForm = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: materializeBlueprint.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::materializeBlueprint
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:60
-* @route '/api/learning-blueprints/{peopleId}/materialize'
-*/
-materializeBlueprintForm.post = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: materializeBlueprint.url(args, options),
-    method: 'post',
-})
-
-materializeBlueprint.form = materializeBlueprintForm
-
-/**
 * @see \App\Http\Controllers\Api\StratosIntelligenceController::runSentinelScan
 * @see app/Http/Controllers/Api/StratosIntelligenceController.php:78
 * @route '/api/sentinel/scan'
@@ -190,43 +146,6 @@ runSentinelScan.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
     url: runSentinelScan.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::runSentinelScan
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:78
-* @route '/api/sentinel/scan'
-*/
-const runSentinelScanForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: runSentinelScan.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::runSentinelScan
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:78
-* @route '/api/sentinel/scan'
-*/
-runSentinelScanForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: runSentinelScan.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::runSentinelScan
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:78
-* @route '/api/sentinel/scan'
-*/
-runSentinelScanForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: runSentinelScan.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-runSentinelScan.form = runSentinelScanForm
 
 /**
 * @see \App\Http\Controllers\Api\StratosIntelligenceController::getSentinelHealth
@@ -273,43 +192,6 @@ getSentinelHealth.head = (options?: RouteQueryOptions): RouteDefinition<'head'> 
 })
 
 /**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::getSentinelHealth
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:92
-* @route '/api/sentinel/health'
-*/
-const getSentinelHealthForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getSentinelHealth.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::getSentinelHealth
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:92
-* @route '/api/sentinel/health'
-*/
-getSentinelHealthForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getSentinelHealth.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::getSentinelHealth
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:92
-* @route '/api/sentinel/health'
-*/
-getSentinelHealthForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getSentinelHealth.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getSentinelHealth.form = getSentinelHealthForm
-
-/**
 * @see \App\Http\Controllers\Api\StratosIntelligenceController::getGuideSuggestions
 * @see app/Http/Controllers/Api/StratosIntelligenceController.php:112
 * @route '/api/guide/suggestions'
@@ -354,43 +236,6 @@ getGuideSuggestions.head = (options?: RouteQueryOptions): RouteDefinition<'head'
 })
 
 /**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::getGuideSuggestions
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:112
-* @route '/api/guide/suggestions'
-*/
-const getGuideSuggestionsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getGuideSuggestions.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::getGuideSuggestions
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:112
-* @route '/api/guide/suggestions'
-*/
-getGuideSuggestionsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getGuideSuggestions.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::getGuideSuggestions
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:112
-* @route '/api/guide/suggestions'
-*/
-getGuideSuggestionsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getGuideSuggestions.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getGuideSuggestions.form = getGuideSuggestionsForm
-
-/**
 * @see \App\Http\Controllers\Api\StratosIntelligenceController::askGuide
 * @see app/Http/Controllers/Api/StratosIntelligenceController.php:129
 * @route '/api/guide/ask'
@@ -425,28 +270,6 @@ askGuide.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::askGuide
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:129
-* @route '/api/guide/ask'
-*/
-const askGuideForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: askGuide.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::askGuide
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:129
-* @route '/api/guide/ask'
-*/
-askGuideForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: askGuide.url(options),
-    method: 'post',
-})
-
-askGuide.form = askGuideForm
-
-/**
 * @see \App\Http\Controllers\Api\StratosIntelligenceController::completeOnboardingStep
 * @see app/Http/Controllers/Api/StratosIntelligenceController.php:150
 * @route '/api/guide/onboarding/complete'
@@ -479,28 +302,6 @@ completeOnboardingStep.post = (options?: RouteQueryOptions): RouteDefinition<'po
     url: completeOnboardingStep.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::completeOnboardingStep
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:150
-* @route '/api/guide/onboarding/complete'
-*/
-const completeOnboardingStepForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: completeOnboardingStep.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::completeOnboardingStep
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:150
-* @route '/api/guide/onboarding/complete'
-*/
-completeOnboardingStepForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: completeOnboardingStep.url(options),
-    method: 'post',
-})
-
-completeOnboardingStep.form = completeOnboardingStepForm
 
 /**
 * @see \App\Http\Controllers\Api\StratosIntelligenceController::getRetentionForecast
@@ -563,43 +364,6 @@ getRetentionForecast.head = (args: { peopleId: string | number } | [peopleId: st
     url: getRetentionForecast.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::getRetentionForecast
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:28
-* @route '/api/retention-forecast/{peopleId}'
-*/
-const getRetentionForecastForm = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getRetentionForecast.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::getRetentionForecast
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:28
-* @route '/api/retention-forecast/{peopleId}'
-*/
-getRetentionForecastForm.get = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getRetentionForecast.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosIntelligenceController::getRetentionForecast
-* @see app/Http/Controllers/Api/StratosIntelligenceController.php:28
-* @route '/api/retention-forecast/{peopleId}'
-*/
-getRetentionForecastForm.head = (args: { peopleId: string | number } | [peopleId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getRetentionForecast.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getRetentionForecast.form = getRetentionForecastForm
 
 const StratosIntelligenceController = { generateBlueprint, materializeBlueprint, runSentinelScan, getSentinelHealth, getGuideSuggestions, askGuide, completeOnboardingStep, getRetentionForecast }
 

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\RoleDesignerController::approval
 * @see app/Http/Controllers/Api/RoleDesignerController.php:88
@@ -60,43 +60,6 @@ approval.head = (args: { token: string | number } | [token: string | number ] | 
     url: approval.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::approval
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/competency/{token}'
-*/
-const approvalForm = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: approval.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::approval
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/competency/{token}'
-*/
-approvalForm.get = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: approval.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\RoleDesignerController::approval
-* @see app/Http/Controllers/Api/RoleDesignerController.php:88
-* @route '/approve/competency/{token}'
-*/
-approvalForm.head = (args: { token: string | number } | [token: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: approval.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-approval.form = approvalForm
 
 const competency = {
     approval: Object.assign(approval, approval),

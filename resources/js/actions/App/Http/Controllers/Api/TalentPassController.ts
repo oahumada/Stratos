@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::showPublic
 * @see app/Http/Controllers/Api/TalentPassController.php:35
@@ -62,43 +62,6 @@ showPublic.head = (args: { publicId: string | number } | [publicId: string | num
 })
 
 /**
-* @see \App\Http\Controllers\Api\TalentPassController::showPublic
-* @see app/Http/Controllers/Api/TalentPassController.php:35
-* @route '/api/talent-pass/{publicId}'
-*/
-const showPublicForm = (args: { publicId: string | number } | [publicId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showPublic.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::showPublic
-* @see app/Http/Controllers/Api/TalentPassController.php:35
-* @route '/api/talent-pass/{publicId}'
-*/
-showPublicForm.get = (args: { publicId: string | number } | [publicId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showPublic.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::showPublic
-* @see app/Http/Controllers/Api/TalentPassController.php:35
-* @route '/api/talent-pass/{publicId}'
-*/
-showPublicForm.head = (args: { publicId: string | number } | [publicId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showPublic.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-showPublic.form = showPublicForm
-
-/**
 * @see \App\Http\Controllers\Api\TalentPassController::index
 * @see app/Http/Controllers/Api/TalentPassController.php:21
 * @route '/api/talent-passes'
@@ -143,43 +106,6 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Api\TalentPassController::index
-* @see app/Http/Controllers/Api/TalentPassController.php:21
-* @route '/api/talent-passes'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::index
-* @see app/Http/Controllers/Api/TalentPassController.php:21
-* @route '/api/talent-passes'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::index
-* @see app/Http/Controllers/Api/TalentPassController.php:21
-* @route '/api/talent-passes'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
-
-/**
 * @see \App\Http\Controllers\Api\TalentPassController::store
 * @see app/Http/Controllers/Api/TalentPassController.php:69
 * @route '/api/talent-passes'
@@ -212,28 +138,6 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::store
-* @see app/Http/Controllers/Api/TalentPassController.php:69
-* @route '/api/talent-passes'
-*/
-const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::store
-* @see app/Http/Controllers/Api/TalentPassController.php:69
-* @route '/api/talent-passes'
-*/
-storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::show
@@ -300,42 +204,6 @@ showa8ea459a676cdb42753a6a0543b531ab.head = (args: { id: string | number } | [id
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::show
 * @see app/Http/Controllers/Api/TalentPassController.php:55
-* @route '/api/talent-passes/{id}'
-*/
-const showa8ea459a676cdb42753a6a0543b531abForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showa8ea459a676cdb42753a6a0543b531ab.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::show
-* @see app/Http/Controllers/Api/TalentPassController.php:55
-* @route '/api/talent-passes/{id}'
-*/
-showa8ea459a676cdb42753a6a0543b531abForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showa8ea459a676cdb42753a6a0543b531ab.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::show
-* @see app/Http/Controllers/Api/TalentPassController.php:55
-* @route '/api/talent-passes/{id}'
-*/
-showa8ea459a676cdb42753a6a0543b531abForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showa8ea459a676cdb42753a6a0543b531ab.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-showa8ea459a676cdb42753a6a0543b531ab.form = showa8ea459a676cdb42753a6a0543b531abForm
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::show
-* @see app/Http/Controllers/Api/TalentPassController.php:55
 * @route '/api/people/{people_id}/talent-pass'
 */
 const showc401fcb351b8beb578562905cc6306ac = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -395,43 +263,6 @@ showc401fcb351b8beb578562905cc6306ac.head = (args: { people_id: string | number 
     method: 'head',
 })
 
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::show
-* @see app/Http/Controllers/Api/TalentPassController.php:55
-* @route '/api/people/{people_id}/talent-pass'
-*/
-const showc401fcb351b8beb578562905cc6306acForm = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showc401fcb351b8beb578562905cc6306ac.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::show
-* @see app/Http/Controllers/Api/TalentPassController.php:55
-* @route '/api/people/{people_id}/talent-pass'
-*/
-showc401fcb351b8beb578562905cc6306acForm.get = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showc401fcb351b8beb578562905cc6306ac.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::show
-* @see app/Http/Controllers/Api/TalentPassController.php:55
-* @route '/api/people/{people_id}/talent-pass'
-*/
-showc401fcb351b8beb578562905cc6306acForm.head = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: showc401fcb351b8beb578562905cc6306ac.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-showc401fcb351b8beb578562905cc6306ac.form = showc401fcb351b8beb578562905cc6306acForm
-
 export const show = {
     '/api/talent-passes/{id}': showa8ea459a676cdb42753a6a0543b531ab,
     '/api/people/{people_id}/talent-pass': showc401fcb351b8beb578562905cc6306ac,
@@ -490,38 +321,6 @@ update.put = (args: { id: string | number } | [id: string | number ] | string | 
 })
 
 /**
-* @see \App\Http\Controllers\Api\TalentPassController::update
-* @see app/Http/Controllers/Api/TalentPassController.php:92
-* @route '/api/talent-passes/{id}'
-*/
-const updateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PUT',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::update
-* @see app/Http/Controllers/Api/TalentPassController.php:92
-* @route '/api/talent-passes/{id}'
-*/
-updateForm.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PUT',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-update.form = updateForm
-
-/**
 * @see \App\Http\Controllers\Api\TalentPassController::destroy
 * @see app/Http/Controllers/Api/TalentPassController.php:111
 * @route '/api/talent-passes/{id}'
@@ -572,38 +371,6 @@ destroy.delete = (args: { id: string | number } | [id: string | number ] | strin
     url: destroy.url(args, options),
     method: 'delete',
 })
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::destroy
-* @see app/Http/Controllers/Api/TalentPassController.php:111
-* @route '/api/talent-passes/{id}'
-*/
-const destroyForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::destroy
-* @see app/Http/Controllers/Api/TalentPassController.php:111
-* @route '/api/talent-passes/{id}'
-*/
-destroyForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-destroy.form = destroyForm
 
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::publish
@@ -658,28 +425,6 @@ publish.post = (args: { id: string | number } | [id: string | number ] | string 
 })
 
 /**
-* @see \App\Http\Controllers\Api\TalentPassController::publish
-* @see app/Http/Controllers/Api/TalentPassController.php:124
-* @route '/api/talent-passes/{id}/publish'
-*/
-const publishForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: publish.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::publish
-* @see app/Http/Controllers/Api/TalentPassController.php:124
-* @route '/api/talent-passes/{id}/publish'
-*/
-publishForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: publish.url(args, options),
-    method: 'post',
-})
-
-publish.form = publishForm
-
-/**
 * @see \App\Http\Controllers\Api\TalentPassController::archive
 * @see app/Http/Controllers/Api/TalentPassController.php:137
 * @route '/api/talent-passes/{id}/archive'
@@ -732,28 +477,6 @@ archive.post = (args: { id: string | number } | [id: string | number ] | string 
 })
 
 /**
-* @see \App\Http\Controllers\Api\TalentPassController::archive
-* @see app/Http/Controllers/Api/TalentPassController.php:137
-* @route '/api/talent-passes/{id}/archive'
-*/
-const archiveForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: archive.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::archive
-* @see app/Http/Controllers/Api/TalentPassController.php:137
-* @route '/api/talent-passes/{id}/archive'
-*/
-archiveForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: archive.url(args, options),
-    method: 'post',
-})
-
-archive.form = archiveForm
-
-/**
 * @see \App\Http\Controllers\Api\TalentPassController::clone
 * @see app/Http/Controllers/Api/TalentPassController.php:150
 * @route '/api/talent-passes/{id}/clone'
@@ -804,28 +527,6 @@ clone.post = (args: { id: string | number } | [id: string | number ] | string | 
     url: clone.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::clone
-* @see app/Http/Controllers/Api/TalentPassController.php:150
-* @route '/api/talent-passes/{id}/clone'
-*/
-const cloneForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: clone.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::clone
-* @see app/Http/Controllers/Api/TalentPassController.php:150
-* @route '/api/talent-passes/{id}/clone'
-*/
-cloneForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: clone.url(args, options),
-    method: 'post',
-})
-
-clone.form = cloneForm
 
 /**
 * @see \App\Http\Controllers\Api\TalentPassController::exportMethod
@@ -890,43 +591,6 @@ exportMethod.head = (args: { id: string | number } | [id: string | number ] | st
 })
 
 /**
-* @see \App\Http\Controllers\Api\TalentPassController::exportMethod
-* @see app/Http/Controllers/Api/TalentPassController.php:163
-* @route '/api/talent-passes/{id}/export'
-*/
-const exportMethodForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: exportMethod.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::exportMethod
-* @see app/Http/Controllers/Api/TalentPassController.php:163
-* @route '/api/talent-passes/{id}/export'
-*/
-exportMethodForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: exportMethod.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::exportMethod
-* @see app/Http/Controllers/Api/TalentPassController.php:163
-* @route '/api/talent-passes/{id}/export'
-*/
-exportMethodForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: exportMethod.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-exportMethod.form = exportMethodForm
-
-/**
 * @see \App\Http\Controllers\Api\TalentPassController::share
 * @see app/Http/Controllers/Api/TalentPassController.php:184
 * @route '/api/talent-passes/{id}/share'
@@ -979,28 +643,6 @@ share.post = (args: { id: string | number } | [id: string | number ] | string | 
 })
 
 /**
-* @see \App\Http\Controllers\Api\TalentPassController::share
-* @see app/Http/Controllers/Api/TalentPassController.php:184
-* @route '/api/talent-passes/{id}/share'
-*/
-const shareForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: share.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::share
-* @see app/Http/Controllers/Api/TalentPassController.php:184
-* @route '/api/talent-passes/{id}/share'
-*/
-shareForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: share.url(args, options),
-    method: 'post',
-})
-
-share.form = shareForm
-
-/**
 * @see \App\Http\Controllers\Api\TalentPassController::generateCredential
 * @see app/Http/Controllers/Api/TalentPassController.php:0
 * @route '/api/people/{people_id}/talent-pass/issue'
@@ -1051,28 +693,6 @@ generateCredential.post = (args: { people_id: string | number } | [people_id: st
     url: generateCredential.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::generateCredential
-* @see app/Http/Controllers/Api/TalentPassController.php:0
-* @route '/api/people/{people_id}/talent-pass/issue'
-*/
-const generateCredentialForm = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: generateCredential.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\TalentPassController::generateCredential
-* @see app/Http/Controllers/Api/TalentPassController.php:0
-* @route '/api/people/{people_id}/talent-pass/issue'
-*/
-generateCredentialForm.post = (args: { people_id: string | number } | [people_id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: generateCredential.url(args, options),
-    method: 'post',
-})
-
-generateCredential.form = generateCredentialForm
 
 const TalentPassController = { showPublic, index, store, show, update, destroy, publish, archive, clone, exportMethod, share, generateCredential, export: exportMethod }
 

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
 import verificationConfigF9f1e9 from './verification-config'
 import verificationMetricsAcc03a from './verification-metrics'
 import verification from './verification'
@@ -47,43 +47,6 @@ verificationConfig.head = (options?: RouteQueryOptions): RouteDefinition<'head'>
 })
 
 /**
-* @see \App\Http\Controllers\Deployment\VerificationConfigurationController::verificationConfig
-* @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:12
-* @route '/deployment/verification-config'
-*/
-const verificationConfigForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: verificationConfig.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Deployment\VerificationConfigurationController::verificationConfig
-* @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:12
-* @route '/deployment/verification-config'
-*/
-verificationConfigForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: verificationConfig.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Deployment\VerificationConfigurationController::verificationConfig
-* @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:12
-* @route '/deployment/verification-config'
-*/
-verificationConfigForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: verificationConfig.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-verificationConfig.form = verificationConfigForm
-
-/**
 * @see \App\Http\Controllers\Deployment\VerificationConfigurationController::verificationStatus
 * @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:52
 * @route '/api/deployment/verification-status'
@@ -126,43 +89,6 @@ verificationStatus.head = (options?: RouteQueryOptions): RouteDefinition<'head'>
     url: verificationStatus.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Deployment\VerificationConfigurationController::verificationStatus
-* @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:52
-* @route '/api/deployment/verification-status'
-*/
-const verificationStatusForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: verificationStatus.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Deployment\VerificationConfigurationController::verificationStatus
-* @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:52
-* @route '/api/deployment/verification-status'
-*/
-verificationStatusForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: verificationStatus.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Deployment\VerificationConfigurationController::verificationStatus
-* @see app/Http/Controllers/Deployment/VerificationConfigurationController.php:52
-* @route '/api/deployment/verification-status'
-*/
-verificationStatusForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: verificationStatus.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-verificationStatus.form = verificationStatusForm
 
 /**
 * @see \Inertia\Controller::__invoke
@@ -211,43 +137,6 @@ verificationMetrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification-metrics'
-*/
-const verificationMetricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: verificationMetrics.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification-metrics'
-*/
-verificationMetricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: verificationMetrics.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification-metrics'
-*/
-verificationMetricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: verificationMetrics.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-verificationMetrics.form = verificationMetricsForm
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
 * @route '/deployment/verification-hub'
 */
 export const verificationHub = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -288,43 +177,6 @@ verificationHub.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
     url: verificationHub.url(options),
     method: 'head',
 })
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification-hub'
-*/
-const verificationHubForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: verificationHub.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification-hub'
-*/
-verificationHubForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: verificationHub.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification-hub'
-*/
-verificationHubForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: verificationHub.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-verificationHub.form = verificationHubForm
 
 const deployment = {
     verificationConfig: Object.assign(verificationConfig, verificationConfigF9f1e9),

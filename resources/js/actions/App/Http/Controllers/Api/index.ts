@@ -58,6 +58,7 @@ import LmsController from './LmsController'
 import TelemetryController from './TelemetryController'
 import CapabilityCompetencyController from './CapabilityCompetencyController'
 import ScenarioTemplateController from './ScenarioTemplateController'
+import WhatIfAnalysisController from './WhatIfAnalysisController'
 import Step2RoleCompetencyController from './Step2RoleCompetencyController'
 import ImpactReportController from './ImpactReportController'
 import ScenarioIQController from './ScenarioIQController'
@@ -136,6 +137,7 @@ const Api = {
     TelemetryController: Object.assign(TelemetryController, TelemetryController),
     CapabilityCompetencyController: Object.assign(CapabilityCompetencyController, CapabilityCompetencyController),
     ScenarioTemplateController: Object.assign(ScenarioTemplateController, ScenarioTemplateController),
+    WhatIfAnalysisController: Object.assign(WhatIfAnalysisController, WhatIfAnalysisController),
     Step2RoleCompetencyController: Object.assign(Step2RoleCompetencyController, Step2RoleCompetencyController),
     ImpactReportController: Object.assign(ImpactReportController, ImpactReportController),
     ScenarioIQController: Object.assign(ScenarioIQController, ScenarioIQController),

@@ -1240,6 +1240,15 @@ Route::middleware('auth:sanctum')->prefix('strategic-planning')->group(function 
     Route::post('scenario-templates/save-as-template', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'saveAsTemplate']);
     Route::post('scenario-templates/{template}/instantiate', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'instantiate']);
     Route::post('scenario-templates/{template}/clone', [\App\Http\Controllers\Api\ScenarioTemplateController::class, 'clone']);
+
+    // What-If Analysis - Impact simulation & sensitivity analysis
+    Route::post('what-if/headcount-impact', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'analyzeHeadcountImpact']);
+    Route::post('what-if/financial-impact', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'analyzeFinancialImpact']);
+    Route::post('what-if/risk-impact', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'analyzeRiskImpact']);
+    Route::get('what-if/compare', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'compareWithBaseline']);
+    Route::post('what-if/predict-outcomes', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'predictOutcomes']);
+    Route::post('what-if/sensitivity-analysis', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'performSensitivityAnalysis']);
+    Route::post('what-if/comprehensive', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'comprehensiveAnalysis']);
 });
 
 // Talent Engineering

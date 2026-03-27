@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\PxCampaignController::index
 * @see app/Http/Controllers/Api/PxCampaignController.php:15
@@ -44,43 +44,6 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Api\PxCampaignController::index
-* @see app/Http/Controllers/Api/PxCampaignController.php:15
-* @route '/api/px-campaigns'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\PxCampaignController::index
-* @see app/Http/Controllers/Api/PxCampaignController.php:15
-* @route '/api/px-campaigns'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\PxCampaignController::index
-* @see app/Http/Controllers/Api/PxCampaignController.php:15
-* @route '/api/px-campaigns'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
-
-/**
 * @see \App\Http\Controllers\Api\PxCampaignController::store
 * @see app/Http/Controllers/Api/PxCampaignController.php:29
 * @route '/api/px-campaigns'
@@ -113,28 +76,6 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\PxCampaignController::store
-* @see app/Http/Controllers/Api/PxCampaignController.php:29
-* @route '/api/px-campaigns'
-*/
-const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\PxCampaignController::store
-* @see app/Http/Controllers/Api/PxCampaignController.php:29
-* @route '/api/px-campaigns'
-*/
-storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\PxCampaignController::show
@@ -199,43 +140,6 @@ show.head = (args: { px_campaign: string | number } | [px_campaign: string | num
 })
 
 /**
-* @see \App\Http\Controllers\Api\PxCampaignController::show
-* @see app/Http/Controllers/Api/PxCampaignController.php:68
-* @route '/api/px-campaigns/{px_campaign}'
-*/
-const showForm = (args: { px_campaign: string | number } | [px_campaign: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\PxCampaignController::show
-* @see app/Http/Controllers/Api/PxCampaignController.php:68
-* @route '/api/px-campaigns/{px_campaign}'
-*/
-showForm.get = (args: { px_campaign: string | number } | [px_campaign: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\PxCampaignController::show
-* @see app/Http/Controllers/Api/PxCampaignController.php:68
-* @route '/api/px-campaigns/{px_campaign}'
-*/
-showForm.head = (args: { px_campaign: string | number } | [px_campaign: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-show.form = showForm
-
-/**
 * @see \App\Http\Controllers\Api\PxCampaignController::update
 * @see app/Http/Controllers/Api/PxCampaignController.php:80
 * @route '/api/px-campaigns/{px_campaign}'
@@ -298,53 +202,6 @@ update.patch = (args: { px_campaign: string | number } | [px_campaign: string | 
 })
 
 /**
-* @see \App\Http\Controllers\Api\PxCampaignController::update
-* @see app/Http/Controllers/Api/PxCampaignController.php:80
-* @route '/api/px-campaigns/{px_campaign}'
-*/
-const updateForm = (args: { px_campaign: string | number } | [px_campaign: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PUT',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\PxCampaignController::update
-* @see app/Http/Controllers/Api/PxCampaignController.php:80
-* @route '/api/px-campaigns/{px_campaign}'
-*/
-updateForm.put = (args: { px_campaign: string | number } | [px_campaign: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PUT',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\PxCampaignController::update
-* @see app/Http/Controllers/Api/PxCampaignController.php:80
-* @route '/api/px-campaigns/{px_campaign}'
-*/
-updateForm.patch = (args: { px_campaign: string | number } | [px_campaign: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-update.form = updateForm
-
-/**
 * @see \App\Http\Controllers\Api\PxCampaignController::destroy
 * @see app/Http/Controllers/Api/PxCampaignController.php:110
 * @route '/api/px-campaigns/{px_campaign}'
@@ -395,38 +252,6 @@ destroy.delete = (args: { px_campaign: string | number } | [px_campaign: string 
     url: destroy.url(args, options),
     method: 'delete',
 })
-
-/**
-* @see \App\Http\Controllers\Api\PxCampaignController::destroy
-* @see app/Http/Controllers/Api/PxCampaignController.php:110
-* @route '/api/px-campaigns/{px_campaign}'
-*/
-const destroyForm = (args: { px_campaign: string | number } | [px_campaign: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\PxCampaignController::destroy
-* @see app/Http/Controllers/Api/PxCampaignController.php:110
-* @route '/api/px-campaigns/{px_campaign}'
-*/
-destroyForm.delete = (args: { px_campaign: string | number } | [px_campaign: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-destroy.form = destroyForm
 
 const PxCampaignController = { index, store, show, update, destroy }
 

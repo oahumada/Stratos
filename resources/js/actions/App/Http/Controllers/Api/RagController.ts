@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\RagController::ask
 * @see app/Http/Controllers/Api/RagController.php:25
@@ -32,28 +32,6 @@ ask.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: ask.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\RagController::ask
-* @see app/Http/Controllers/Api/RagController.php:25
-* @route '/api/rag/ask'
-*/
-const askForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: ask.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\RagController::ask
-* @see app/Http/Controllers/Api/RagController.php:25
-* @route '/api/rag/ask'
-*/
-askForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: ask.url(options),
-    method: 'post',
-})
-
-ask.form = askForm
 
 const RagController = { ask }
 

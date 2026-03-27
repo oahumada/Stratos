@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\Messaging\ConversationController::index
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:23
@@ -44,43 +44,6 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Api\Messaging\ConversationController::index
-* @see app/Http/Controllers/Api/Messaging/ConversationController.php:23
-* @route '/api/messaging/conversations'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Messaging\ConversationController::index
-* @see app/Http/Controllers/Api/Messaging/ConversationController.php:23
-* @route '/api/messaging/conversations'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Messaging\ConversationController::index
-* @see app/Http/Controllers/Api/Messaging/ConversationController.php:23
-* @route '/api/messaging/conversations'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
-
-/**
 * @see \App\Http\Controllers\Api\Messaging\ConversationController::store
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:69
 * @route '/api/messaging/conversations'
@@ -113,28 +76,6 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\Messaging\ConversationController::store
-* @see app/Http/Controllers/Api/Messaging/ConversationController.php:69
-* @route '/api/messaging/conversations'
-*/
-const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Messaging\ConversationController::store
-* @see app/Http/Controllers/Api/Messaging/ConversationController.php:69
-* @route '/api/messaging/conversations'
-*/
-storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\Messaging\ConversationController::show
@@ -205,43 +146,6 @@ show.head = (args: { conversation: string | { id: string } } | [conversation: st
 })
 
 /**
-* @see \App\Http\Controllers\Api\Messaging\ConversationController::show
-* @see app/Http/Controllers/Api/Messaging/ConversationController.php:103
-* @route '/api/messaging/conversations/{conversation}'
-*/
-const showForm = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Messaging\ConversationController::show
-* @see app/Http/Controllers/Api/Messaging/ConversationController.php:103
-* @route '/api/messaging/conversations/{conversation}'
-*/
-showForm.get = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Messaging\ConversationController::show
-* @see app/Http/Controllers/Api/Messaging/ConversationController.php:103
-* @route '/api/messaging/conversations/{conversation}'
-*/
-showForm.head = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-show.form = showForm
-
-/**
 * @see \App\Http\Controllers\Api\Messaging\ConversationController::update
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:132
 * @route '/api/messaging/conversations/{conversation}'
@@ -300,38 +204,6 @@ update.put = (args: { conversation: string | { id: string } } | [conversation: s
 })
 
 /**
-* @see \App\Http\Controllers\Api\Messaging\ConversationController::update
-* @see app/Http/Controllers/Api/Messaging/ConversationController.php:132
-* @route '/api/messaging/conversations/{conversation}'
-*/
-const updateForm = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PUT',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Messaging\ConversationController::update
-* @see app/Http/Controllers/Api/Messaging/ConversationController.php:132
-* @route '/api/messaging/conversations/{conversation}'
-*/
-updateForm.put = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PUT',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-update.form = updateForm
-
-/**
 * @see \App\Http\Controllers\Api\Messaging\ConversationController::destroy
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:149
 * @route '/api/messaging/conversations/{conversation}'
@@ -388,38 +260,6 @@ destroy.delete = (args: { conversation: string | { id: string } } | [conversatio
     url: destroy.url(args, options),
     method: 'delete',
 })
-
-/**
-* @see \App\Http\Controllers\Api\Messaging\ConversationController::destroy
-* @see app/Http/Controllers/Api/Messaging/ConversationController.php:149
-* @route '/api/messaging/conversations/{conversation}'
-*/
-const destroyForm = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\Messaging\ConversationController::destroy
-* @see app/Http/Controllers/Api/Messaging/ConversationController.php:149
-* @route '/api/messaging/conversations/{conversation}'
-*/
-destroyForm.delete = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-destroy.form = destroyForm
 
 const ConversationController = { index, store, show, update, destroy }
 

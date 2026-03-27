@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\MobileController::registerDevice
 * @see app/Http/Controllers/Api/MobileController.php:51
@@ -32,28 +32,6 @@ registerDevice.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => 
     url: registerDevice.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::registerDevice
-* @see app/Http/Controllers/Api/MobileController.php:51
-* @route '/api/mobile/register-device'
-*/
-const registerDeviceForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: registerDevice.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::registerDevice
-* @see app/Http/Controllers/Api/MobileController.php:51
-* @route '/api/mobile/register-device'
-*/
-registerDeviceForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: registerDevice.url(options),
-    method: 'post',
-})
-
-registerDevice.form = registerDeviceForm
 
 /**
 * @see \App\Http\Controllers\Api\MobileController::getDevices
@@ -98,43 +76,6 @@ getDevices.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: getDevices.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::getDevices
-* @see app/Http/Controllers/Api/MobileController.php:108
-* @route '/api/mobile/devices'
-*/
-const getDevicesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getDevices.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::getDevices
-* @see app/Http/Controllers/Api/MobileController.php:108
-* @route '/api/mobile/devices'
-*/
-getDevicesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getDevices.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::getDevices
-* @see app/Http/Controllers/Api/MobileController.php:108
-* @route '/api/mobile/devices'
-*/
-getDevicesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getDevices.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getDevices.form = getDevicesForm
 
 /**
 * @see \App\Http\Controllers\Api\MobileController::deactivateDevice
@@ -189,38 +130,6 @@ deactivateDevice.delete = (args: { deviceId: string | number } | [deviceId: stri
 })
 
 /**
-* @see \App\Http\Controllers\Api\MobileController::deactivateDevice
-* @see app/Http/Controllers/Api/MobileController.php:137
-* @route '/api/mobile/devices/{deviceId}'
-*/
-const deactivateDeviceForm = (args: { deviceId: string | number } | [deviceId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: deactivateDevice.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::deactivateDevice
-* @see app/Http/Controllers/Api/MobileController.php:137
-* @route '/api/mobile/devices/{deviceId}'
-*/
-deactivateDeviceForm.delete = (args: { deviceId: string | number } | [deviceId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: deactivateDevice.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-deactivateDevice.form = deactivateDeviceForm
-
-/**
 * @see \App\Http\Controllers\Api\MobileController::getApprovals
 * @see app/Http/Controllers/Api/MobileController.php:170
 * @route '/api/mobile/approvals'
@@ -263,43 +172,6 @@ getApprovals.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: getApprovals.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::getApprovals
-* @see app/Http/Controllers/Api/MobileController.php:170
-* @route '/api/mobile/approvals'
-*/
-const getApprovalsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getApprovals.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::getApprovals
-* @see app/Http/Controllers/Api/MobileController.php:170
-* @route '/api/mobile/approvals'
-*/
-getApprovalsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getApprovals.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::getApprovals
-* @see app/Http/Controllers/Api/MobileController.php:170
-* @route '/api/mobile/approvals'
-*/
-getApprovalsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getApprovals.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getApprovals.form = getApprovalsForm
 
 /**
 * @see \App\Http\Controllers\Api\MobileController::approveRequest
@@ -354,28 +226,6 @@ approveRequest.post = (args: { approvalId: string | number } | [approvalId: stri
 })
 
 /**
-* @see \App\Http\Controllers\Api\MobileController::approveRequest
-* @see app/Http/Controllers/Api/MobileController.php:203
-* @route '/api/mobile/approvals/{approvalId}/approve'
-*/
-const approveRequestForm = (args: { approvalId: string | number } | [approvalId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: approveRequest.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::approveRequest
-* @see app/Http/Controllers/Api/MobileController.php:203
-* @route '/api/mobile/approvals/{approvalId}/approve'
-*/
-approveRequestForm.post = (args: { approvalId: string | number } | [approvalId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: approveRequest.url(args, options),
-    method: 'post',
-})
-
-approveRequest.form = approveRequestForm
-
-/**
 * @see \App\Http\Controllers\Api\MobileController::rejectRequest
 * @see app/Http/Controllers/Api/MobileController.php:272
 * @route '/api/mobile/approvals/{approvalId}/reject'
@@ -428,28 +278,6 @@ rejectRequest.post = (args: { approvalId: string | number } | [approvalId: strin
 })
 
 /**
-* @see \App\Http\Controllers\Api\MobileController::rejectRequest
-* @see app/Http/Controllers/Api/MobileController.php:272
-* @route '/api/mobile/approvals/{approvalId}/reject'
-*/
-const rejectRequestForm = (args: { approvalId: string | number } | [approvalId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: rejectRequest.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::rejectRequest
-* @see app/Http/Controllers/Api/MobileController.php:272
-* @route '/api/mobile/approvals/{approvalId}/reject'
-*/
-rejectRequestForm.post = (args: { approvalId: string | number } | [approvalId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: rejectRequest.url(args, options),
-    method: 'post',
-})
-
-rejectRequest.form = rejectRequestForm
-
-/**
 * @see \App\Http\Controllers\Api\MobileController::approvalHistory
 * @see app/Http/Controllers/Api/MobileController.php:337
 * @route '/api/mobile/approvals/history'
@@ -494,43 +322,6 @@ approvalHistory.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
 })
 
 /**
-* @see \App\Http\Controllers\Api\MobileController::approvalHistory
-* @see app/Http/Controllers/Api/MobileController.php:337
-* @route '/api/mobile/approvals/history'
-*/
-const approvalHistoryForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: approvalHistory.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::approvalHistory
-* @see app/Http/Controllers/Api/MobileController.php:337
-* @route '/api/mobile/approvals/history'
-*/
-approvalHistoryForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: approvalHistory.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::approvalHistory
-* @see app/Http/Controllers/Api/MobileController.php:337
-* @route '/api/mobile/approvals/history'
-*/
-approvalHistoryForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: approvalHistory.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-approvalHistory.form = approvalHistoryForm
-
-/**
 * @see \App\Http\Controllers\Api\MobileController::syncQueue
 * @see app/Http/Controllers/Api/MobileController.php:375
 * @route '/api/mobile/offline-queue/sync'
@@ -563,28 +354,6 @@ syncQueue.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: syncQueue.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::syncQueue
-* @see app/Http/Controllers/Api/MobileController.php:375
-* @route '/api/mobile/offline-queue/sync'
-*/
-const syncQueueForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: syncQueue.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::syncQueue
-* @see app/Http/Controllers/Api/MobileController.php:375
-* @route '/api/mobile/offline-queue/sync'
-*/
-syncQueueForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: syncQueue.url(options),
-    method: 'post',
-})
-
-syncQueue.form = syncQueueForm
 
 /**
 * @see \App\Http\Controllers\Api\MobileController::queueStatus
@@ -631,43 +400,6 @@ queueStatus.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Api\MobileController::queueStatus
-* @see app/Http/Controllers/Api/MobileController.php:411
-* @route '/api/mobile/offline-queue/status'
-*/
-const queueStatusForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: queueStatus.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::queueStatus
-* @see app/Http/Controllers/Api/MobileController.php:411
-* @route '/api/mobile/offline-queue/status'
-*/
-queueStatusForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: queueStatus.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::queueStatus
-* @see app/Http/Controllers/Api/MobileController.php:411
-* @route '/api/mobile/offline-queue/status'
-*/
-queueStatusForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: queueStatus.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-queueStatus.form = queueStatusForm
-
-/**
 * @see \App\Http\Controllers\Api\MobileController::deviceStats
 * @see app/Http/Controllers/Api/MobileController.php:440
 * @route '/api/mobile/stats/devices'
@@ -710,43 +442,6 @@ deviceStats.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: deviceStats.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::deviceStats
-* @see app/Http/Controllers/Api/MobileController.php:440
-* @route '/api/mobile/stats/devices'
-*/
-const deviceStatsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: deviceStats.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::deviceStats
-* @see app/Http/Controllers/Api/MobileController.php:440
-* @route '/api/mobile/stats/devices'
-*/
-deviceStatsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: deviceStats.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\MobileController::deviceStats
-* @see app/Http/Controllers/Api/MobileController.php:440
-* @route '/api/mobile/stats/devices'
-*/
-deviceStatsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: deviceStats.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-deviceStats.form = deviceStatsForm
 
 const mobile = {
     registerDevice: Object.assign(registerDevice, registerDevice),

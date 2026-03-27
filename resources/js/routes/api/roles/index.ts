@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see routes/form-schema-complete.php:45
 * @route '/api/roles'
@@ -29,26 +29,6 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
     method: 'post',
 })
-
-/**
-* @see routes/form-schema-complete.php:45
-* @route '/api/roles'
-*/
-const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-/**
-* @see routes/form-schema-complete.php:45
-* @route '/api/roles'
-*/
-storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-store.form = storeForm
 
 /**
 * @see routes/form-schema-complete.php:52
@@ -109,40 +89,6 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 })
 
 /**
-* @see routes/form-schema-complete.php:52
-* @route '/api/roles/{id}'
-*/
-const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see routes/form-schema-complete.php:52
-* @route '/api/roles/{id}'
-*/
-showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see routes/form-schema-complete.php:52
-* @route '/api/roles/{id}'
-*/
-showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-show.form = showForm
-
-/**
 * @see routes/form-schema-complete.php:59
 * @route '/api/roles/{id}'
 */
@@ -192,36 +138,6 @@ update.put = (args: { id: string | number } | [id: string | number ] | string | 
 })
 
 /**
-* @see routes/form-schema-complete.php:59
-* @route '/api/roles/{id}'
-*/
-const updateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PUT',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see routes/form-schema-complete.php:59
-* @route '/api/roles/{id}'
-*/
-updateForm.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PUT',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-update.form = updateForm
-
-/**
 * @see routes/form-schema-complete.php:38
 * @route '/api/roles'
 */
@@ -260,40 +176,6 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
 })
-
-/**
-* @see routes/form-schema-complete.php:38
-* @route '/api/roles'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/form-schema-complete.php:38
-* @route '/api/roles'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/form-schema-complete.php:38
-* @route '/api/roles'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
 
 /**
 * @see routes/form-schema-complete.php:66
@@ -345,36 +227,6 @@ patch.patch = (args: { id: string | number } | [id: string | number ] | string |
 })
 
 /**
-* @see routes/form-schema-complete.php:66
-* @route '/api/roles/{id}'
-*/
-const patchForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: patch.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see routes/form-schema-complete.php:66
-* @route '/api/roles/{id}'
-*/
-patchForm.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: patch.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-patch.form = patchForm
-
-/**
 * @see routes/form-schema-complete.php:73
 * @route '/api/roles/{id}'
 */
@@ -424,36 +276,6 @@ destroy.delete = (args: { id: string | number } | [id: string | number ] | strin
 })
 
 /**
-* @see routes/form-schema-complete.php:73
-* @route '/api/roles/{id}'
-*/
-const destroyForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see routes/form-schema-complete.php:73
-* @route '/api/roles/{id}'
-*/
-destroyForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-destroy.form = destroyForm
-
-/**
 * @see routes/form-schema-complete.php:80
 * @route '/api/roles/search'
 */
@@ -485,26 +307,6 @@ search.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 })
 
 /**
-* @see routes/form-schema-complete.php:80
-* @route '/api/roles/search'
-*/
-const searchForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: search.url(options),
-    method: 'post',
-})
-
-/**
-* @see routes/form-schema-complete.php:80
-* @route '/api/roles/search'
-*/
-searchForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: search.url(options),
-    method: 'post',
-})
-
-search.form = searchForm
-
-/**
 * @see routes/form-schema-complete.php:87
 * @route '/api/roles/search-with-paciente'
 */
@@ -534,26 +336,6 @@ searchWithPaciente.post = (options?: RouteQueryOptions): RouteDefinition<'post'>
     url: searchWithPaciente.url(options),
     method: 'post',
 })
-
-/**
-* @see routes/form-schema-complete.php:87
-* @route '/api/roles/search-with-paciente'
-*/
-const searchWithPacienteForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: searchWithPaciente.url(options),
-    method: 'post',
-})
-
-/**
-* @see routes/form-schema-complete.php:87
-* @route '/api/roles/search-with-paciente'
-*/
-searchWithPacienteForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: searchWithPaciente.url(options),
-    method: 'post',
-})
-
-searchWithPaciente.form = searchWithPacienteForm
 
 const roles = {
     store: Object.assign(store, store),

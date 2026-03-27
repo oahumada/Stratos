@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\StratosMapController::getGravitationalData
 * @see app/Http/Controllers/Api/StratosMapController.php:15
@@ -42,43 +42,6 @@ getGravitationalData.head = (options?: RouteQueryOptions): RouteDefinition<'head
     url: getGravitationalData.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\StratosMapController::getGravitationalData
-* @see app/Http/Controllers/Api/StratosMapController.php:15
-* @route '/api/stratos-maps/gravitational'
-*/
-const getGravitationalDataForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getGravitationalData.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosMapController::getGravitationalData
-* @see app/Http/Controllers/Api/StratosMapController.php:15
-* @route '/api/stratos-maps/gravitational'
-*/
-getGravitationalDataForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getGravitationalData.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosMapController::getGravitationalData
-* @see app/Http/Controllers/Api/StratosMapController.php:15
-* @route '/api/stratos-maps/gravitational'
-*/
-getGravitationalDataForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getGravitationalData.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getGravitationalData.form = getGravitationalDataForm
 
 /**
 * @see \App\Http\Controllers\Api\StratosMapController::getCerberosData
@@ -125,43 +88,6 @@ getCerberosData.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
 })
 
 /**
-* @see \App\Http\Controllers\Api\StratosMapController::getCerberosData
-* @see app/Http/Controllers/Api/StratosMapController.php:55
-* @route '/api/stratos-maps/cerberos'
-*/
-const getCerberosDataForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getCerberosData.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosMapController::getCerberosData
-* @see app/Http/Controllers/Api/StratosMapController.php:55
-* @route '/api/stratos-maps/cerberos'
-*/
-getCerberosDataForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getCerberosData.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosMapController::getCerberosData
-* @see app/Http/Controllers/Api/StratosMapController.php:55
-* @route '/api/stratos-maps/cerberos'
-*/
-getCerberosDataForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getCerberosData.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getCerberosData.form = getCerberosDataForm
-
-/**
 * @see \App\Http\Controllers\Api\StratosMapController::searchPeople
 * @see app/Http/Controllers/Api/StratosMapController.php:138
 * @route '/api/stratos-maps/people/search'
@@ -204,43 +130,6 @@ searchPeople.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: searchPeople.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\StratosMapController::searchPeople
-* @see app/Http/Controllers/Api/StratosMapController.php:138
-* @route '/api/stratos-maps/people/search'
-*/
-const searchPeopleForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: searchPeople.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosMapController::searchPeople
-* @see app/Http/Controllers/Api/StratosMapController.php:138
-* @route '/api/stratos-maps/people/search'
-*/
-searchPeopleForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: searchPeople.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\StratosMapController::searchPeople
-* @see app/Http/Controllers/Api/StratosMapController.php:138
-* @route '/api/stratos-maps/people/search'
-*/
-searchPeopleForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: searchPeople.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-searchPeople.form = searchPeopleForm
 
 const StratosMapController = { getGravitationalData, getCerberosData, searchPeople }
 

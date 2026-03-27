@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\TransformCompetencyController::transform
 * @see app/Http/Controllers/TransformCompetencyController.php:12
@@ -50,28 +50,6 @@ transform.post = (args: { competencyId: string | number } | [competencyId: strin
     url: transform.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\TransformCompetencyController::transform
-* @see app/Http/Controllers/TransformCompetencyController.php:12
-* @route '/api/competencies/{competencyId}/transform'
-*/
-const transformForm = (args: { competencyId: string | number } | [competencyId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: transform.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\TransformCompetencyController::transform
-* @see app/Http/Controllers/TransformCompetencyController.php:12
-* @route '/api/competencies/{competencyId}/transform'
-*/
-transformForm.post = (args: { competencyId: string | number } | [competencyId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: transform.url(args, options),
-    method: 'post',
-})
-
-transform.form = transformForm
 
 const TransformCompetencyController = { transform }
 

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\AnalyticsController::getAnomalies
 * @see app/Http/Controllers/Api/AnalyticsController.php:39
@@ -42,43 +42,6 @@ getAnomalies.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: getAnomalies.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getAnomalies
-* @see app/Http/Controllers/Api/AnalyticsController.php:39
-* @route '/api/analytics/anomalies'
-*/
-const getAnomaliesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getAnomalies.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getAnomalies
-* @see app/Http/Controllers/Api/AnalyticsController.php:39
-* @route '/api/analytics/anomalies'
-*/
-getAnomaliesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getAnomalies.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getAnomalies
-* @see app/Http/Controllers/Api/AnalyticsController.php:39
-* @route '/api/analytics/anomalies'
-*/
-getAnomaliesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getAnomalies.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getAnomalies.form = getAnomaliesForm
 
 /**
 * @see \App\Http\Controllers\Api\AnalyticsController::forecastCompliance
@@ -125,43 +88,6 @@ forecastCompliance.head = (options?: RouteQueryOptions): RouteDefinition<'head'>
 })
 
 /**
-* @see \App\Http\Controllers\Api\AnalyticsController::forecastCompliance
-* @see app/Http/Controllers/Api/AnalyticsController.php:59
-* @route '/api/analytics/predictions/compliance'
-*/
-const forecastComplianceForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: forecastCompliance.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::forecastCompliance
-* @see app/Http/Controllers/Api/AnalyticsController.php:59
-* @route '/api/analytics/predictions/compliance'
-*/
-forecastComplianceForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: forecastCompliance.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::forecastCompliance
-* @see app/Http/Controllers/Api/AnalyticsController.php:59
-* @route '/api/analytics/predictions/compliance'
-*/
-forecastComplianceForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: forecastCompliance.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-forecastCompliance.form = forecastComplianceForm
-
-/**
 * @see \App\Http\Controllers\Api\AnalyticsController::predictDeploymentWindow
 * @see app/Http/Controllers/Api/AnalyticsController.php:72
 * @route '/api/analytics/predictions/deployment-window'
@@ -204,43 +130,6 @@ predictDeploymentWindow.head = (options?: RouteQueryOptions): RouteDefinition<'h
     url: predictDeploymentWindow.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::predictDeploymentWindow
-* @see app/Http/Controllers/Api/AnalyticsController.php:72
-* @route '/api/analytics/predictions/deployment-window'
-*/
-const predictDeploymentWindowForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: predictDeploymentWindow.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::predictDeploymentWindow
-* @see app/Http/Controllers/Api/AnalyticsController.php:72
-* @route '/api/analytics/predictions/deployment-window'
-*/
-predictDeploymentWindowForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: predictDeploymentWindow.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::predictDeploymentWindow
-* @see app/Http/Controllers/Api/AnalyticsController.php:72
-* @route '/api/analytics/predictions/deployment-window'
-*/
-predictDeploymentWindowForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: predictDeploymentWindow.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-predictDeploymentWindow.form = predictDeploymentWindowForm
 
 /**
 * @see \App\Http\Controllers\Api\AnalyticsController::predictResourceNeeds
@@ -287,43 +176,6 @@ predictResourceNeeds.head = (options?: RouteQueryOptions): RouteDefinition<'head
 })
 
 /**
-* @see \App\Http\Controllers\Api\AnalyticsController::predictResourceNeeds
-* @see app/Http/Controllers/Api/AnalyticsController.php:89
-* @route '/api/analytics/predictions/resources'
-*/
-const predictResourceNeedsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: predictResourceNeeds.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::predictResourceNeeds
-* @see app/Http/Controllers/Api/AnalyticsController.php:89
-* @route '/api/analytics/predictions/resources'
-*/
-predictResourceNeedsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: predictResourceNeeds.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::predictResourceNeeds
-* @see app/Http/Controllers/Api/AnalyticsController.php:89
-* @route '/api/analytics/predictions/resources'
-*/
-predictResourceNeedsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: predictResourceNeeds.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-predictResourceNeeds.form = predictResourceNeedsForm
-
-/**
 * @see \App\Http\Controllers\Api\AnalyticsController::assessTransitionRisk
 * @see app/Http/Controllers/Api/AnalyticsController.php:102
 * @route '/api/analytics/predictions/transition-risk'
@@ -356,28 +208,6 @@ assessTransitionRisk.post = (options?: RouteQueryOptions): RouteDefinition<'post
     url: assessTransitionRisk.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::assessTransitionRisk
-* @see app/Http/Controllers/Api/AnalyticsController.php:102
-* @route '/api/analytics/predictions/transition-risk'
-*/
-const assessTransitionRiskForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: assessTransitionRisk.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::assessTransitionRisk
-* @see app/Http/Controllers/Api/AnalyticsController.php:102
-* @route '/api/analytics/predictions/transition-risk'
-*/
-assessTransitionRiskForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: assessTransitionRisk.url(options),
-    method: 'post',
-})
-
-assessTransitionRisk.form = assessTransitionRiskForm
 
 /**
 * @see \App\Http\Controllers\Api\AnalyticsController::getRecommendations
@@ -424,43 +254,6 @@ getRecommendations.head = (options?: RouteQueryOptions): RouteDefinition<'head'>
 })
 
 /**
-* @see \App\Http\Controllers\Api\AnalyticsController::getRecommendations
-* @see app/Http/Controllers/Api/AnalyticsController.php:116
-* @route '/api/analytics/recommendations'
-*/
-const getRecommendationsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getRecommendations.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getRecommendations
-* @see app/Http/Controllers/Api/AnalyticsController.php:116
-* @route '/api/analytics/recommendations'
-*/
-getRecommendationsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getRecommendations.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getRecommendations
-* @see app/Http/Controllers/Api/AnalyticsController.php:116
-* @route '/api/analytics/recommendations'
-*/
-getRecommendationsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getRecommendations.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getRecommendations.form = getRecommendationsForm
-
-/**
 * @see \App\Http\Controllers\Api\AnalyticsController::getCurrentMetrics
 * @see app/Http/Controllers/Api/AnalyticsController.php:143
 * @route '/api/analytics/metrics/current'
@@ -503,43 +296,6 @@ getCurrentMetrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> 
     url: getCurrentMetrics.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getCurrentMetrics
-* @see app/Http/Controllers/Api/AnalyticsController.php:143
-* @route '/api/analytics/metrics/current'
-*/
-const getCurrentMetricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getCurrentMetrics.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getCurrentMetrics
-* @see app/Http/Controllers/Api/AnalyticsController.php:143
-* @route '/api/analytics/metrics/current'
-*/
-getCurrentMetricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getCurrentMetrics.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getCurrentMetrics
-* @see app/Http/Controllers/Api/AnalyticsController.php:143
-* @route '/api/analytics/metrics/current'
-*/
-getCurrentMetricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getCurrentMetrics.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getCurrentMetrics.form = getCurrentMetricsForm
 
 /**
 * @see \App\Http\Controllers\Api\AnalyticsController::getMetricsHistory
@@ -586,43 +342,6 @@ getMetricsHistory.head = (options?: RouteQueryOptions): RouteDefinition<'head'> 
 })
 
 /**
-* @see \App\Http\Controllers\Api\AnalyticsController::getMetricsHistory
-* @see app/Http/Controllers/Api/AnalyticsController.php:160
-* @route '/api/analytics/metrics/history'
-*/
-const getMetricsHistoryForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getMetricsHistory.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getMetricsHistory
-* @see app/Http/Controllers/Api/AnalyticsController.php:160
-* @route '/api/analytics/metrics/history'
-*/
-getMetricsHistoryForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getMetricsHistory.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getMetricsHistory
-* @see app/Http/Controllers/Api/AnalyticsController.php:160
-* @route '/api/analytics/metrics/history'
-*/
-getMetricsHistoryForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getMetricsHistory.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getMetricsHistory.form = getMetricsHistoryForm
-
-/**
 * @see \App\Http\Controllers\Api\AnalyticsController::getMetricsComparison
 * @see app/Http/Controllers/Api/AnalyticsController.php:185
 * @route '/api/analytics/metrics/comparison'
@@ -665,43 +384,6 @@ getMetricsComparison.head = (options?: RouteQueryOptions): RouteDefinition<'head
     url: getMetricsComparison.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getMetricsComparison
-* @see app/Http/Controllers/Api/AnalyticsController.php:185
-* @route '/api/analytics/metrics/comparison'
-*/
-const getMetricsComparisonForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getMetricsComparison.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getMetricsComparison
-* @see app/Http/Controllers/Api/AnalyticsController.php:185
-* @route '/api/analytics/metrics/comparison'
-*/
-getMetricsComparisonForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getMetricsComparison.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getMetricsComparison
-* @see app/Http/Controllers/Api/AnalyticsController.php:185
-* @route '/api/analytics/metrics/comparison'
-*/
-getMetricsComparisonForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getMetricsComparison.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getMetricsComparison.form = getMetricsComparisonForm
 
 /**
 * @see \App\Http\Controllers\Api\AnalyticsController::getLatencyPercentiles
@@ -748,43 +430,6 @@ getLatencyPercentiles.head = (options?: RouteQueryOptions): RouteDefinition<'hea
 })
 
 /**
-* @see \App\Http\Controllers\Api\AnalyticsController::getLatencyPercentiles
-* @see app/Http/Controllers/Api/AnalyticsController.php:203
-* @route '/api/analytics/metrics/latency-percentiles'
-*/
-const getLatencyPercentilesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getLatencyPercentiles.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getLatencyPercentiles
-* @see app/Http/Controllers/Api/AnalyticsController.php:203
-* @route '/api/analytics/metrics/latency-percentiles'
-*/
-getLatencyPercentilesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getLatencyPercentiles.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getLatencyPercentiles
-* @see app/Http/Controllers/Api/AnalyticsController.php:203
-* @route '/api/analytics/metrics/latency-percentiles'
-*/
-getLatencyPercentilesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getLatencyPercentiles.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getLatencyPercentiles.form = getLatencyPercentilesForm
-
-/**
 * @see \App\Http\Controllers\Api\AnalyticsController::getDashboardSummary
 * @see app/Http/Controllers/Api/AnalyticsController.php:221
 * @route '/api/analytics/dashboard-summary'
@@ -827,43 +472,6 @@ getDashboardSummary.head = (options?: RouteQueryOptions): RouteDefinition<'head'
     url: getDashboardSummary.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getDashboardSummary
-* @see app/Http/Controllers/Api/AnalyticsController.php:221
-* @route '/api/analytics/dashboard-summary'
-*/
-const getDashboardSummaryForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getDashboardSummary.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getDashboardSummary
-* @see app/Http/Controllers/Api/AnalyticsController.php:221
-* @route '/api/analytics/dashboard-summary'
-*/
-getDashboardSummaryForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getDashboardSummary.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AnalyticsController::getDashboardSummary
-* @see app/Http/Controllers/Api/AnalyticsController.php:221
-* @route '/api/analytics/dashboard-summary'
-*/
-getDashboardSummaryForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: getDashboardSummary.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-getDashboardSummary.form = getDashboardSummaryForm
 
 const AnalyticsController = { getAnomalies, forecastCompliance, predictDeploymentWindow, predictResourceNeeds, assessTransitionRisk, getRecommendations, getCurrentMetrics, getMetricsHistory, getMetricsComparison, getLatencyPercentiles, getDashboardSummary }
 

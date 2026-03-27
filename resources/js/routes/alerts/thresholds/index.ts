@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\AlertController::index
 * @see app/Http/Controllers/Api/AlertController.php:23
@@ -44,43 +44,6 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Api\AlertController::index
-* @see app/Http/Controllers/Api/AlertController.php:23
-* @route '/api/alerts/thresholds'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AlertController::index
-* @see app/Http/Controllers/Api/AlertController.php:23
-* @route '/api/alerts/thresholds'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AlertController::index
-* @see app/Http/Controllers/Api/AlertController.php:23
-* @route '/api/alerts/thresholds'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
-
-/**
 * @see \App\Http\Controllers\Api\AlertController::store
 * @see app/Http/Controllers/Api/AlertController.php:40
 * @route '/api/alerts/thresholds'
@@ -113,28 +76,6 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\AlertController::store
-* @see app/Http/Controllers/Api/AlertController.php:40
-* @route '/api/alerts/thresholds'
-*/
-const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AlertController::store
-* @see app/Http/Controllers/Api/AlertController.php:40
-* @route '/api/alerts/thresholds'
-*/
-storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\AlertController::show
@@ -205,43 +146,6 @@ show.head = (args: { threshold: string | number | { id: string | number } } | [t
 })
 
 /**
-* @see \App\Http\Controllers\Api\AlertController::show
-* @see app/Http/Controllers/Api/AlertController.php:57
-* @route '/api/alerts/thresholds/{threshold}'
-*/
-const showForm = (args: { threshold: string | number | { id: string | number } } | [threshold: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AlertController::show
-* @see app/Http/Controllers/Api/AlertController.php:57
-* @route '/api/alerts/thresholds/{threshold}'
-*/
-showForm.get = (args: { threshold: string | number | { id: string | number } } | [threshold: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AlertController::show
-* @see app/Http/Controllers/Api/AlertController.php:57
-* @route '/api/alerts/thresholds/{threshold}'
-*/
-showForm.head = (args: { threshold: string | number | { id: string | number } } | [threshold: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-show.form = showForm
-
-/**
 * @see \App\Http\Controllers\Api\AlertController::update
 * @see app/Http/Controllers/Api/AlertController.php:73
 * @route '/api/alerts/thresholds/{threshold}'
@@ -300,38 +204,6 @@ update.patch = (args: { threshold: string | number | { id: string | number } } |
 })
 
 /**
-* @see \App\Http\Controllers\Api\AlertController::update
-* @see app/Http/Controllers/Api/AlertController.php:73
-* @route '/api/alerts/thresholds/{threshold}'
-*/
-const updateForm = (args: { threshold: string | number | { id: string | number } } | [threshold: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AlertController::update
-* @see app/Http/Controllers/Api/AlertController.php:73
-* @route '/api/alerts/thresholds/{threshold}'
-*/
-updateForm.patch = (args: { threshold: string | number | { id: string | number } } | [threshold: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-update.form = updateForm
-
-/**
 * @see \App\Http\Controllers\Api\AlertController::destroy
 * @see app/Http/Controllers/Api/AlertController.php:93
 * @route '/api/alerts/thresholds/{threshold}'
@@ -388,38 +260,6 @@ destroy.delete = (args: { threshold: string | number | { id: string | number } }
     url: destroy.url(args, options),
     method: 'delete',
 })
-
-/**
-* @see \App\Http\Controllers\Api\AlertController::destroy
-* @see app/Http/Controllers/Api/AlertController.php:93
-* @route '/api/alerts/thresholds/{threshold}'
-*/
-const destroyForm = (args: { threshold: string | number | { id: string | number } } | [threshold: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AlertController::destroy
-* @see app/Http/Controllers/Api/AlertController.php:93
-* @route '/api/alerts/thresholds/{threshold}'
-*/
-destroyForm.delete = (args: { threshold: string | number | { id: string | number } } | [threshold: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-destroy.form = destroyForm
 
 const thresholds = {
     index: Object.assign(index, index),

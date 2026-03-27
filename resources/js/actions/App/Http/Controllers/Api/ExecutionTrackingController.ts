@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::index
 * @see app/Http/Controllers/Api/ExecutionTrackingController.php:13
@@ -42,43 +42,6 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\ExecutionTrackingController::index
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:13
-* @route '/api/strategic-planning/mobility/execution-status'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ExecutionTrackingController::index
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:13
-* @route '/api/strategic-planning/mobility/execution-status'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ExecutionTrackingController::index
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:13
-* @route '/api/strategic-planning/mobility/execution-status'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::show
@@ -143,43 +106,6 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 })
 
 /**
-* @see \App\Http\Controllers\Api\ExecutionTrackingController::show
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:59
-* @route '/api/strategic-planning/mobility/execution/{id}'
-*/
-const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ExecutionTrackingController::show
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:59
-* @route '/api/strategic-planning/mobility/execution/{id}'
-*/
-showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ExecutionTrackingController::show
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:59
-* @route '/api/strategic-planning/mobility/execution/{id}'
-*/
-showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-show.form = showForm
-
-/**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::launchLms
 * @see app/Http/Controllers/Api/ExecutionTrackingController.php:78
 * @route '/api/strategic-planning/mobility/execution/launch/{actionId}'
@@ -232,28 +158,6 @@ launchLms.post = (args: { actionId: string | number } | [actionId: string | numb
 })
 
 /**
-* @see \App\Http\Controllers\Api\ExecutionTrackingController::launchLms
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:78
-* @route '/api/strategic-planning/mobility/execution/launch/{actionId}'
-*/
-const launchLmsForm = (args: { actionId: string | number } | [actionId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: launchLms.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ExecutionTrackingController::launchLms
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:78
-* @route '/api/strategic-planning/mobility/execution/launch/{actionId}'
-*/
-launchLmsForm.post = (args: { actionId: string | number } | [actionId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: launchLms.url(args, options),
-    method: 'post',
-})
-
-launchLms.form = launchLmsForm
-
-/**
 * @see \App\Http\Controllers\Api\ExecutionTrackingController::syncProgress
 * @see app/Http/Controllers/Api/ExecutionTrackingController.php:105
 * @route '/api/strategic-planning/mobility/execution/sync/{actionId}'
@@ -304,28 +208,6 @@ syncProgress.post = (args: { actionId: string | number } | [actionId: string | n
     url: syncProgress.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\ExecutionTrackingController::syncProgress
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:105
-* @route '/api/strategic-planning/mobility/execution/sync/{actionId}'
-*/
-const syncProgressForm = (args: { actionId: string | number } | [actionId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: syncProgress.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ExecutionTrackingController::syncProgress
-* @see app/Http/Controllers/Api/ExecutionTrackingController.php:105
-* @route '/api/strategic-planning/mobility/execution/sync/{actionId}'
-*/
-syncProgressForm.post = (args: { actionId: string | number } | [actionId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: syncProgress.url(args, options),
-    method: 'post',
-})
-
-syncProgress.form = syncProgressForm
 
 const ExecutionTrackingController = { index, show, launchLms, syncProgress }
 

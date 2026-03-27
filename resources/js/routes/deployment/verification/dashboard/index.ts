@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../wayfinder'
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
@@ -42,43 +42,6 @@ executive.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: executive.url(options),
     method: 'head',
 })
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/executive'
-*/
-const executiveForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: executive.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/executive'
-*/
-executiveForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: executive.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/executive'
-*/
-executiveForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: executive.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-executive.form = executiveForm
 
 /**
 * @see \Inertia\Controller::__invoke
@@ -127,43 +90,6 @@ operational.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/operational'
-*/
-const operationalForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: operational.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/operational'
-*/
-operationalForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: operational.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/operational'
-*/
-operationalForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: operational.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-operational.form = operationalForm
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
 * @route '/deployment/verification/dashboard/compliance'
 */
 export const compliance = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -204,43 +130,6 @@ compliance.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: compliance.url(options),
     method: 'head',
 })
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/compliance'
-*/
-const complianceForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: compliance.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/compliance'
-*/
-complianceForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: compliance.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/compliance'
-*/
-complianceForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: compliance.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-compliance.form = complianceForm
 
 /**
 * @see \Inertia\Controller::__invoke
@@ -289,43 +178,6 @@ performance.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/performance'
-*/
-const performanceForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: performance.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/performance'
-*/
-performanceForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: performance.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/performance'
-*/
-performanceForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: performance.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-performance.form = performanceForm
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
 * @route '/deployment/verification/dashboard/insights'
 */
 export const insights = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -370,43 +222,6 @@ insights.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/insights'
-*/
-const insightsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: insights.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/insights'
-*/
-insightsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: insights.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/insights'
-*/
-insightsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: insights.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-insights.form = insightsForm
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
 * @route '/deployment/verification/dashboard/realtime'
 */
 export const realtime = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -447,43 +262,6 @@ realtime.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: realtime.url(options),
     method: 'head',
 })
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/realtime'
-*/
-const realtimeForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: realtime.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/realtime'
-*/
-realtimeForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: realtime.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/deployment/verification/dashboard/realtime'
-*/
-realtimeForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: realtime.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-realtime.form = realtimeForm
 
 const dashboard = {
     executive: Object.assign(executive, executive),

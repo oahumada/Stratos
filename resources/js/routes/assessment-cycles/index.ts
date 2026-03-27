@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::index
 * @see app/Http/Controllers/Api/AssessmentCycleController.php:15
@@ -44,43 +44,6 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Api\AssessmentCycleController::index
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:15
-* @route '/api/assessment-cycles'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AssessmentCycleController::index
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:15
-* @route '/api/assessment-cycles'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AssessmentCycleController::index
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:15
-* @route '/api/assessment-cycles'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
-
-/**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::store
 * @see app/Http/Controllers/Api/AssessmentCycleController.php:39
 * @route '/api/assessment-cycles'
@@ -113,28 +76,6 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: store.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\AssessmentCycleController::store
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:39
-* @route '/api/assessment-cycles'
-*/
-const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AssessmentCycleController::store
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:39
-* @route '/api/assessment-cycles'
-*/
-storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: store.url(options),
-    method: 'post',
-})
-
-store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::show
@@ -199,43 +140,6 @@ show.head = (args: { assessment_cycle: string | number } | [assessment_cycle: st
 })
 
 /**
-* @see \App\Http\Controllers\Api\AssessmentCycleController::show
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:79
-* @route '/api/assessment-cycles/{assessment_cycle}'
-*/
-const showForm = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AssessmentCycleController::show
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:79
-* @route '/api/assessment-cycles/{assessment_cycle}'
-*/
-showForm.get = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AssessmentCycleController::show
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:79
-* @route '/api/assessment-cycles/{assessment_cycle}'
-*/
-showForm.head = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-show.form = showForm
-
-/**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::update
 * @see app/Http/Controllers/Api/AssessmentCycleController.php:91
 * @route '/api/assessment-cycles/{assessment_cycle}'
@@ -298,53 +202,6 @@ update.patch = (args: { assessment_cycle: string | number } | [assessment_cycle:
 })
 
 /**
-* @see \App\Http\Controllers\Api\AssessmentCycleController::update
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:91
-* @route '/api/assessment-cycles/{assessment_cycle}'
-*/
-const updateForm = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PUT',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AssessmentCycleController::update
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:91
-* @route '/api/assessment-cycles/{assessment_cycle}'
-*/
-updateForm.put = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PUT',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AssessmentCycleController::update
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:91
-* @route '/api/assessment-cycles/{assessment_cycle}'
-*/
-updateForm.patch = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: update.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'PATCH',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-update.form = updateForm
-
-/**
 * @see \App\Http\Controllers\Api\AssessmentCycleController::destroy
 * @see app/Http/Controllers/Api/AssessmentCycleController.php:128
 * @route '/api/assessment-cycles/{assessment_cycle}'
@@ -395,38 +252,6 @@ destroy.delete = (args: { assessment_cycle: string | number } | [assessment_cycl
     url: destroy.url(args, options),
     method: 'delete',
 })
-
-/**
-* @see \App\Http\Controllers\Api\AssessmentCycleController::destroy
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:128
-* @route '/api/assessment-cycles/{assessment_cycle}'
-*/
-const destroyForm = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\AssessmentCycleController::destroy
-* @see app/Http/Controllers/Api/AssessmentCycleController.php:128
-* @route '/api/assessment-cycles/{assessment_cycle}'
-*/
-destroyForm.delete = (args: { assessment_cycle: string | number } | [assessment_cycle: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: destroy.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'DELETE',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'post',
-})
-
-destroy.form = destroyForm
 
 const assessmentCycles = {
     index: Object.assign(index, index),

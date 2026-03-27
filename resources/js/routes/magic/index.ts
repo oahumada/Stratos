@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Auth\MagicLinkController::request
 * @see app/Http/Controllers/Auth/MagicLinkController.php:18
@@ -32,28 +32,6 @@ request.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: request.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Auth\MagicLinkController::request
-* @see app/Http/Controllers/Auth/MagicLinkController.php:18
-* @route '/magic-link'
-*/
-const requestForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: request.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Auth\MagicLinkController::request
-* @see app/Http/Controllers/Auth/MagicLinkController.php:18
-* @route '/magic-link'
-*/
-requestForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: request.url(options),
-    method: 'post',
-})
-
-request.form = requestForm
 
 /**
 * @see \App\Http\Controllers\Auth\MagicLinkController::login
@@ -122,43 +100,6 @@ login.head = (args: { user: number | { id: number } } | [user: number | { id: nu
     url: login.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Auth\MagicLinkController::login
-* @see app/Http/Controllers/Auth/MagicLinkController.php:50
-* @route '/magic-login/{user}'
-*/
-const loginForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: login.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Auth\MagicLinkController::login
-* @see app/Http/Controllers/Auth/MagicLinkController.php:50
-* @route '/magic-login/{user}'
-*/
-loginForm.get = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: login.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Auth\MagicLinkController::login
-* @see app/Http/Controllers/Auth/MagicLinkController.php:50
-* @route '/magic-login/{user}'
-*/
-loginForm.head = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: login.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-login.form = loginForm
 
 const magic = {
     request: Object.assign(request, request),

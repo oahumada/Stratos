@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults, validateParameters } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults, validateParameters } from './../../wayfinder'
 import foldersF96e0a from './folders'
 import filesDccab9 from './files'
 /**
@@ -46,43 +46,6 @@ hosts.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \Opcodes\LogViewer\Http\Controllers\HostsController::hosts
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/HostsController.php:10
-* @route '/log-viewer/api/hosts'
-*/
-const hostsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: hosts.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\HostsController::hosts
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/HostsController.php:10
-* @route '/log-viewer/api/hosts'
-*/
-hostsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: hosts.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\HostsController::hosts
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/HostsController.php:10
-* @route '/log-viewer/api/hosts'
-*/
-hostsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: hosts.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-hosts.form = hostsForm
-
-/**
 * @see \Opcodes\LogViewer\Http\Controllers\FoldersController::folders
 * @see vendor/opcodesio/log-viewer/src/Http/Controllers/FoldersController.php:16
 * @route '/log-viewer/api/folders'
@@ -125,43 +88,6 @@ folders.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: folders.url(options),
     method: 'head',
 })
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\FoldersController::folders
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FoldersController.php:16
-* @route '/log-viewer/api/folders'
-*/
-const foldersForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: folders.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\FoldersController::folders
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FoldersController.php:16
-* @route '/log-viewer/api/folders'
-*/
-foldersForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: folders.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\FoldersController::folders
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FoldersController.php:16
-* @route '/log-viewer/api/folders'
-*/
-foldersForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: folders.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-folders.form = foldersForm
 
 /**
 * @see \Opcodes\LogViewer\Http\Controllers\FilesController::files
@@ -208,43 +134,6 @@ files.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \Opcodes\LogViewer\Http\Controllers\FilesController::files
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:15
-* @route '/log-viewer/api/files'
-*/
-const filesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: files.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\FilesController::files
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:15
-* @route '/log-viewer/api/files'
-*/
-filesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: files.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\FilesController::files
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:15
-* @route '/log-viewer/api/files'
-*/
-filesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: files.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-files.form = filesForm
-
-/**
 * @see \Opcodes\LogViewer\Http\Controllers\LogsController::logs
 * @see vendor/opcodesio/log-viewer/src/Http/Controllers/LogsController.php:19
 * @route '/log-viewer/api/logs'
@@ -287,43 +176,6 @@ logs.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: logs.url(options),
     method: 'head',
 })
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\LogsController::logs
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/LogsController.php:19
-* @route '/log-viewer/api/logs'
-*/
-const logsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: logs.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\LogsController::logs
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/LogsController.php:19
-* @route '/log-viewer/api/logs'
-*/
-logsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: logs.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\LogsController::logs
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/LogsController.php:19
-* @route '/log-viewer/api/logs'
-*/
-logsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: logs.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-logs.form = logsForm
 
 /**
 * @see \Opcodes\LogViewer\Http\Controllers\IndexController::__invoke
@@ -390,43 +242,6 @@ index.head = (args?: { view?: string | number } | [view: string | number ] | str
     url: index.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\IndexController::__invoke
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/IndexController.php:12
-* @route '/log-viewer/{view?}'
-*/
-const indexForm = (args?: { view?: string | number } | [view: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\IndexController::__invoke
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/IndexController.php:12
-* @route '/log-viewer/{view?}'
-*/
-indexForm.get = (args?: { view?: string | number } | [view: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \Opcodes\LogViewer\Http\Controllers\IndexController::__invoke
-* @see vendor/opcodesio/log-viewer/src/Http/Controllers/IndexController.php:12
-* @route '/log-viewer/{view?}'
-*/
-indexForm.head = (args?: { view?: string | number } | [view: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
 
 const logViewer = {
     hosts: Object.assign(hosts, hosts),

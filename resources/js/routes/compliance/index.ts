@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
 * @see app/Http/Controllers/Api/ComplianceAuditController.php:447
@@ -42,43 +42,6 @@ didDocument.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: didDocument.url(options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
-* @route '/.well-known/did.json'
-*/
-const didDocumentForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: didDocument.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
-* @route '/.well-known/did.json'
-*/
-didDocumentForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: didDocument.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
-* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
-* @route '/.well-known/did.json'
-*/
-didDocumentForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: didDocument.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-didDocument.form = didDocumentForm
 
 const compliance = {
     didDocument: Object.assign(didDocument, didDocument),

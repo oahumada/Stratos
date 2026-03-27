@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see routes/web.php:92
 * @route '/career/{tenant}'
@@ -56,40 +56,6 @@ careers.head = (args: { tenant: string | number } | [tenant: string | number ] |
     url: careers.url(args, options),
     method: 'head',
 })
-
-/**
-* @see routes/web.php:92
-* @route '/career/{tenant}'
-*/
-const careersForm = (args: { tenant: string | number } | [tenant: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: careers.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:92
-* @route '/career/{tenant}'
-*/
-careersForm.get = (args: { tenant: string | number } | [tenant: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: careers.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:92
-* @route '/career/{tenant}'
-*/
-careersForm.head = (args: { tenant: string | number } | [tenant: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: careers.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-careers.form = careersForm
 
 const publicMethod = {
     careers: Object.assign(careers, careers),

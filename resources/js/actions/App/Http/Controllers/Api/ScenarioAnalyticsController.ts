@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\ScenarioAnalyticsController::compareScenarios
 * @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:21
@@ -32,28 +32,6 @@ compareScenarios.post = (options?: RouteQueryOptions): RouteDefinition<'post'> =
     url: compareScenarios.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioAnalyticsController::compareScenarios
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:21
-* @route '/api/scenarios/compare'
-*/
-const compareScenariosForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: compareScenarios.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioAnalyticsController::compareScenarios
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:21
-* @route '/api/scenarios/compare'
-*/
-compareScenariosForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: compareScenarios.url(options),
-    method: 'post',
-})
-
-compareScenarios.form = compareScenariosForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioAnalyticsController::analytics
@@ -124,43 +102,6 @@ analytics.head = (args: { scenario: number | { id: number } } | [scenario: numbe
 })
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioAnalyticsController::analytics
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:67
-* @route '/api/scenarios/{scenario}/analytics'
-*/
-const analyticsForm = (args: { scenario: number | { id: number } } | [scenario: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: analytics.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioAnalyticsController::analytics
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:67
-* @route '/api/scenarios/{scenario}/analytics'
-*/
-analyticsForm.get = (args: { scenario: number | { id: number } } | [scenario: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: analytics.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioAnalyticsController::analytics
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:67
-* @route '/api/scenarios/{scenario}/analytics'
-*/
-analyticsForm.head = (args: { scenario: number | { id: number } } | [scenario: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: analytics.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-analytics.form = analyticsForm
-
-/**
 * @see \App\Http\Controllers\Api\ScenarioAnalyticsController::financialImpact
 * @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:95
 * @route '/api/scenarios/{scenario}/financial-impact'
@@ -227,43 +168,6 @@ financialImpact.head = (args: { scenario: number | { id: number } } | [scenario:
     url: financialImpact.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioAnalyticsController::financialImpact
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:95
-* @route '/api/scenarios/{scenario}/financial-impact'
-*/
-const financialImpactForm = (args: { scenario: number | { id: number } } | [scenario: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: financialImpact.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioAnalyticsController::financialImpact
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:95
-* @route '/api/scenarios/{scenario}/financial-impact'
-*/
-financialImpactForm.get = (args: { scenario: number | { id: number } } | [scenario: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: financialImpact.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioAnalyticsController::financialImpact
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:95
-* @route '/api/scenarios/{scenario}/financial-impact'
-*/
-financialImpactForm.head = (args: { scenario: number | { id: number } } | [scenario: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: financialImpact.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-financialImpact.form = financialImpactForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioAnalyticsController::riskAssessment
@@ -334,43 +238,6 @@ riskAssessment.head = (args: { scenario: number | { id: number } } | [scenario: 
 })
 
 /**
-* @see \App\Http\Controllers\Api\ScenarioAnalyticsController::riskAssessment
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:111
-* @route '/api/scenarios/{scenario}/risk-assessment'
-*/
-const riskAssessmentForm = (args: { scenario: number | { id: number } } | [scenario: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: riskAssessment.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioAnalyticsController::riskAssessment
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:111
-* @route '/api/scenarios/{scenario}/risk-assessment'
-*/
-riskAssessmentForm.get = (args: { scenario: number | { id: number } } | [scenario: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: riskAssessment.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioAnalyticsController::riskAssessment
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:111
-* @route '/api/scenarios/{scenario}/risk-assessment'
-*/
-riskAssessmentForm.head = (args: { scenario: number | { id: number } } | [scenario: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: riskAssessment.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-riskAssessment.form = riskAssessmentForm
-
-/**
 * @see \App\Http\Controllers\Api\ScenarioAnalyticsController::skillGaps
 * @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:127
 * @route '/api/scenarios/{scenario}/skill-gaps'
@@ -437,43 +304,6 @@ skillGaps.head = (args: { scenario: number | { id: number } } | [scenario: numbe
     url: skillGaps.url(args, options),
     method: 'head',
 })
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioAnalyticsController::skillGaps
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:127
-* @route '/api/scenarios/{scenario}/skill-gaps'
-*/
-const skillGapsForm = (args: { scenario: number | { id: number } } | [scenario: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: skillGaps.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioAnalyticsController::skillGaps
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:127
-* @route '/api/scenarios/{scenario}/skill-gaps'
-*/
-skillGapsForm.get = (args: { scenario: number | { id: number } } | [scenario: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: skillGaps.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\ScenarioAnalyticsController::skillGaps
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:127
-* @route '/api/scenarios/{scenario}/skill-gaps'
-*/
-skillGapsForm.head = (args: { scenario: number | { id: number } } | [scenario: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: skillGaps.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-skillGaps.form = skillGapsForm
 
 const ScenarioAnalyticsController = { compareScenarios, analytics, financialImpact, riskAssessment, skillGaps }
 

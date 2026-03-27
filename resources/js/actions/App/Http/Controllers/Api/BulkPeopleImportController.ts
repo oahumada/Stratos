@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::analyze
 * @see app/Http/Controllers/Api/BulkPeopleImportController.php:22
@@ -34,28 +34,6 @@ analyze.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Api\BulkPeopleImportController::analyze
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:22
-* @route '/api/talent/bulk-import/analyze'
-*/
-const analyzeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: analyze.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\BulkPeopleImportController::analyze
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:22
-* @route '/api/talent/bulk-import/analyze'
-*/
-analyzeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: analyze.url(options),
-    method: 'post',
-})
-
-analyze.form = analyzeForm
-
-/**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::stage
 * @see app/Http/Controllers/Api/BulkPeopleImportController.php:176
 * @route '/api/talent/bulk-import/stage'
@@ -88,28 +66,6 @@ stage.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: stage.url(options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\BulkPeopleImportController::stage
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:176
-* @route '/api/talent/bulk-import/stage'
-*/
-const stageForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: stage.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\BulkPeopleImportController::stage
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:176
-* @route '/api/talent/bulk-import/stage'
-*/
-stageForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: stage.url(options),
-    method: 'post',
-})
-
-stage.form = stageForm
 
 /**
 * @see \App\Http\Controllers\Api\BulkPeopleImportController::approveAndCommit
@@ -162,28 +118,6 @@ approveAndCommit.post = (args: { id: string | number } | [id: string | number ] 
     url: approveAndCommit.url(args, options),
     method: 'post',
 })
-
-/**
-* @see \App\Http\Controllers\Api\BulkPeopleImportController::approveAndCommit
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:207
-* @route '/api/talent/bulk-import/{id}/approve'
-*/
-const approveAndCommitForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: approveAndCommit.url(args, options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\Api\BulkPeopleImportController::approveAndCommit
-* @see app/Http/Controllers/Api/BulkPeopleImportController.php:207
-* @route '/api/talent/bulk-import/{id}/approve'
-*/
-approveAndCommitForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: approveAndCommit.url(args, options),
-    method: 'post',
-})
-
-approveAndCommit.form = approveAndCommitForm
 
 const BulkPeopleImportController = { analyze, stage, approveAndCommit }
 

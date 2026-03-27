@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
 import aggregates570a0b from './aggregates'
 /**
 * @see \App\Http\Controllers\Api\IntelligenceAggregatesController::aggregates
@@ -45,43 +45,6 @@ aggregates.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \App\Http\Controllers\Api\IntelligenceAggregatesController::aggregates
-* @see app/Http/Controllers/Api/IntelligenceAggregatesController.php:24
-* @route '/api/intelligence/aggregates'
-*/
-const aggregatesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: aggregates.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\IntelligenceAggregatesController::aggregates
-* @see app/Http/Controllers/Api/IntelligenceAggregatesController.php:24
-* @route '/api/intelligence/aggregates'
-*/
-aggregatesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: aggregates.url(options),
-    method: 'get',
-})
-
-/**
-* @see \App\Http\Controllers\Api\IntelligenceAggregatesController::aggregates
-* @see app/Http/Controllers/Api/IntelligenceAggregatesController.php:24
-* @route '/api/intelligence/aggregates'
-*/
-aggregatesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: aggregates.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-aggregates.form = aggregatesForm
-
-/**
 * @see routes/web.php:265
 * @route '/intelligence/monitoring-hub'
 */
@@ -120,40 +83,6 @@ monitoringHub.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
     url: monitoringHub.url(options),
     method: 'head',
 })
-
-/**
-* @see routes/web.php:265
-* @route '/intelligence/monitoring-hub'
-*/
-const monitoringHubForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: monitoringHub.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:265
-* @route '/intelligence/monitoring-hub'
-*/
-monitoringHubForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: monitoringHub.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:265
-* @route '/intelligence/monitoring-hub'
-*/
-monitoringHubForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: monitoringHub.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-monitoringHub.form = monitoringHubForm
 
 /**
 * @see routes/web.php:269
@@ -196,40 +125,6 @@ qualityDashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
 })
 
 /**
-* @see routes/web.php:269
-* @route '/intelligence/quality-dashboard'
-*/
-const qualityDashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: qualityDashboard.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:269
-* @route '/intelligence/quality-dashboard'
-*/
-qualityDashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: qualityDashboard.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:269
-* @route '/intelligence/quality-dashboard'
-*/
-qualityDashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: qualityDashboard.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-qualityDashboard.form = qualityDashboardForm
-
-/**
 * @see routes/web.php:273
 * @route '/intelligence/agent-metrics'
 */
@@ -270,40 +165,6 @@ agentMetrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:273
-* @route '/intelligence/agent-metrics'
-*/
-const agentMetricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: agentMetrics.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:273
-* @route '/intelligence/agent-metrics'
-*/
-agentMetricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: agentMetrics.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:273
-* @route '/intelligence/agent-metrics'
-*/
-agentMetricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: agentMetrics.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-agentMetrics.form = agentMetricsForm
-
-/**
 * @see routes/web.php:277
 * @route '/intelligence/aggregates'
 */
@@ -342,40 +203,6 @@ metricsDashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
     url: metricsDashboard.url(options),
     method: 'head',
 })
-
-/**
-* @see routes/web.php:277
-* @route '/intelligence/aggregates'
-*/
-const metricsDashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: metricsDashboard.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:277
-* @route '/intelligence/aggregates'
-*/
-metricsDashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: metricsDashboard.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:277
-* @route '/intelligence/aggregates'
-*/
-metricsDashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: metricsDashboard.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-metricsDashboard.form = metricsDashboardForm
 
 const intelligence = {
     aggregates: Object.assign(aggregates, aggregates570a0b),

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
 /**
 * @see routes/web.php:124
 * @route '/departments/org-chart'
@@ -38,40 +38,6 @@ orgChart.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: orgChart.url(options),
     method: 'head',
 })
-
-/**
-* @see routes/web.php:124
-* @route '/departments/org-chart'
-*/
-const orgChartForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: orgChart.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:124
-* @route '/departments/org-chart'
-*/
-orgChartForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: orgChart.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:124
-* @route '/departments/org-chart'
-*/
-orgChartForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: orgChart.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-orgChart.form = orgChartForm
 
 const departments = {
     orgChart: Object.assign(orgChart, orgChart),

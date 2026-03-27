@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see routes/web.php:165
 * @route '/scenario-planning'
@@ -38,40 +38,6 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
 })
-
-/**
-* @see routes/web.php:165
-* @route '/scenario-planning'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:165
-* @route '/scenario-planning'
-*/
-indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:165
-* @route '/scenario-planning'
-*/
-indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: index.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-index.form = indexForm
 
 /**
 * @see routes/web.php:169
@@ -132,40 +98,6 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 })
 
 /**
-* @see routes/web.php:169
-* @route '/scenario-planning/{id}'
-*/
-const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:169
-* @route '/scenario-planning/{id}'
-*/
-showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:169
-* @route '/scenario-planning/{id}'
-*/
-showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: show.url(args, {
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-show.form = showForm
-
-/**
 * @see routes/web.php:174
 * @route '/scenario-planning/analytics'
 */
@@ -204,40 +136,6 @@ analytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: analytics.url(options),
     method: 'head',
 })
-
-/**
-* @see routes/web.php:174
-* @route '/scenario-planning/analytics'
-*/
-const analyticsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: analytics.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:174
-* @route '/scenario-planning/analytics'
-*/
-analyticsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: analytics.url(options),
-    method: 'get',
-})
-
-/**
-* @see routes/web.php:174
-* @route '/scenario-planning/analytics'
-*/
-analyticsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: analytics.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-analytics.form = analyticsForm
 
 const scenarioPlanning = {
     index: Object.assign(index, index),
