@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Scenario;
 use App\Services\ScenarioAnalyticsService;
 use Illuminate\Http\JsonResponse;
