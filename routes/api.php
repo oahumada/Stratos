@@ -1458,6 +1458,13 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
 
     // Real-time monitoring (Alpha-3)
     Route::get('operations/monitor/stream', [\App\Http\Controllers\Api\AdminOperationsController::class, 'monitorStream'])->name('admin.operations.monitor-stream');
+
+    // Audit logs (Phase 3)
+    Route::get('audit-logs', [\App\Http\Controllers\Api\AuditController::class, 'index'])->name('admin.audit-logs.index');
+    Route::get('audit-logs/heatmap', [\App\Http\Controllers\Api\AuditController::class, 'heatmap'])->name('admin.audit-logs.heatmap');
+    Route::get('audit-logs/export', [\App\Http\Controllers\Api\AuditController::class, 'export'])->name('admin.audit-logs.export');
+    Route::get('audit-logs/{entityType}/{entityId}/timeline', [\App\Http\Controllers\Api\AuditController::class, 'entityTimeline'])->name('admin.audit-logs.timeline');
+    Route::get('audit-logs/users/{userId}/activity', [\App\Http\Controllers\Api\AuditController::class, 'userActivity'])->name('admin.audit-logs.user-activity');
 });
 
 // ── Inbound n8n Webhooks (Unauthenticated, secured via X-N8n-Secret header) ──

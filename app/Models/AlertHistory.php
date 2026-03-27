@@ -27,6 +27,15 @@ class AlertHistory extends Model
         'updated_at' => 'datetime',
     ];
 
+    // ─────────────────────────────────────────────────────── Observers ──────
+
+    protected static function booted(): void
+    {
+        static::observe(\App\Observers\AuditObserver::class);
+    }
+
+    // ─────────────────────────────────────────────────────── Relationships ──
+
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
