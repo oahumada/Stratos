@@ -18,6 +18,7 @@ import { Link } from '@inertiajs/vue3';
 import {
     PhBookOpen,
     PhBrain,
+    PhBell,
     PhChalkboardTeacher,
     PhChartBar,
     PhChartLineUp,
@@ -269,6 +270,12 @@ const allNavItems: NavItem[] = [
         href: '/quality/ragas-metrics',
         icon: defineComponent(() => () => h(PhChartBar, { size: 20 })),
         requiredRole: ['admin', 'hr_leader'],
+    },
+    {
+        title: 'Centro de Control',
+        href: '/admin/alert-configuration',
+        icon: defineComponent(() => () => h(PhBell, { size: 20 })),
+        requiredRole: ['admin'],
     },
 ];
 
