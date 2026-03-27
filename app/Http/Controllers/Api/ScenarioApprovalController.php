@@ -6,8 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Scenario;
 use App\Models\ApprovalRequest;
 use App\Services\ScenarioPlanning\ScenarioWorkflowService;
+use App\Services\ScenarioPlanning\ScenarioNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Exception;
 
 /**
  * ScenarioApprovalController
@@ -21,8 +25,10 @@ use Illuminate\Http\JsonResponse;
  */
 class ScenarioApprovalController extends Controller
 {
-    public function __construct(private ScenarioWorkflowService $workflowService)
-    {
+    public function __construct(
+        private ScenarioWorkflowService $workflowService,
+        private ScenarioNotificationService $notificationService
+    ) {
     }
 
     /**
@@ -31,6 +37,7 @@ class ScenarioApprovalController extends Controller
      * POST /api/scenarios/{id}/submit-approval
      * Transitions: draft → pending_approval
      * Creates approval requests for all required approvers
+     * Sends notifications to approvers
      */
     public function submitForApproval(Request $request, int $id): JsonResponse
     {
@@ -55,6 +62,15 @@ class ScenarioApprovalController extends Controller
             return response()->json($result, 422);
         }
 
+        // Send notifications to approvers after approval requests created
+        if (isset($result['approval_requests']) && is_array($result['approval_requests'])) {
+            foreach ($result['approval_requests'] as $approvalRequest) {
+                if ($approvalRequest instanceof ApprovalRequest && $approvalRequest->approver_id) {
+                    $this->notificationService->notifyApprovalRequest($approvalRequest, [$approvalRequest->approver_id]);
+                }
+            }
+        }
+
         return response()->json($result, 201);
     }
 
@@ -64,6 +80,7 @@ class ScenarioApprovalController extends Controller
      * POST /api/approval-requests/{id}/approve
      * Marks approval as approved
      * Transitions scenario if all approvals complete
+     * Sends notifications to stakeholders
      */
     public function approve(Request $request, int $id): JsonResponse
     {
@@ -93,6 +110,9 @@ class ScenarioApprovalController extends Controller
             return response()->json($result, 422);
         }
 
+        // Send approval granted notification
+        $this->notificationService->notifyApprovalGranted($approvalRequest, auth()->user());
+
         return response()->json($result);
     }
 
@@ -102,6 +122,7 @@ class ScenarioApprovalController extends Controller
      * POST /api/approval-requests/{id}/reject
      * Marks approval as rejected
      * Transitions scenario back to draft
+     * Sends notifications to scenario creator
      */
     public function reject(Request $request, int $id): JsonResponse
     {
@@ -130,6 +151,13 @@ class ScenarioApprovalController extends Controller
         if ($result['status'] !== 'success') {
             return response()->json($result, 422);
         }
+
+        // Send rejection notification
+        $this->notificationService->notifyApprovalRejected(
+            $approvalRequest,
+            auth()->user(),
+            $validated['reason']
+        );
 
         return response()->json($result);
     }
@@ -195,6 +223,26 @@ class ScenarioApprovalController extends Controller
 
         if ($result['status'] !== 'success') {
             return response()->json($result, 422);
+        }
+
+        // Get stakeholders to notify (creator + all approvers)
+        $stakeholderIds = array_merge(
+            [$scenario->created_by],
+            ApprovalRequest::where('approvable_id', $scenario->id)
+                ->where('approvable_type', Scenario::class)
+                ->pluck('assigned_to')
+                ->toArray()
+        );
+
+        // Send activation notifications
+        try {
+            $this->notificationService->notifyScenarioActivated($scenario, array_unique($stakeholderIds));
+        } catch (Exception $e) {
+            // Log notification error but don't fail the activation
+            Log::error('Scenario activation notification failed', [
+                'scenario_id' => $scenario->id,
+                'error' => $e->getMessage(),
+            ]);
         }
 
         return response()->json($result);
@@ -273,6 +321,191 @@ class ScenarioApprovalController extends Controller
                     ['task_id' => 7, 'name' => 'Lessons Learned', 'phase' => 4, 'status' => 'pending'],
                 ],
             ],
+        ]);
+    }
+
+    /**
+     * Resend approval notification
+     *
+     * POST /api/approval-requests/{id}/resend-notification
+     * Resends approval request notification to all assigned approvers
+     */
+    public function resendNotification(Request $request, int $id): JsonResponse
+    {
+        $approvalRequest = ApprovalRequest::findOrFail($id);
+
+        // Authorization - scenario creator or admin can resend
+        $scenario = $approvalRequest->approvable;
+        if ($scenario->created_by !== auth()->id() && ! auth()->user()->can('admin')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        // Validate request
+        $validated = $request->validate([
+            'channels' => 'array|nullable',
+            'channels.*' => 'in:email,slack,in_app',
+        ]);
+
+        // Resend notifications
+        try {
+            $result = $this->notificationService->resendNotification(
+                $approvalRequest,
+                $validated['channels'] ?? ['email', 'slack']
+            );
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Notification resent successfully',
+                'results' => $result,
+            ]);
+        } catch (Exception $e) {
+            Log::error('Failed to resend notification', [
+                'approval_request_id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to resend notification',
+            ], 500);
+        }
+    }
+
+    /**
+     * Preview approval email
+     *
+     * POST /api/approval-requests/{id}/email-preview
+     * Returns HTML preview of approval email before sending
+     */
+    public function emailPreview(Request $request, int $id): JsonResponse
+    {
+        $approvalRequest = ApprovalRequest::findOrFail($id);
+
+        // Authorization - scenario creator or assigned approver
+        $scenario = $approvalRequest->approvable;
+        if ($scenario->created_by !== auth()->id() && $approvalRequest->approver_id !== auth()->id()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        try {
+            $approver = $approvalRequest->approver;
+            $scenario = $approvalRequest->approvable;
+
+            // Build approval URLs
+            $approveUrl = route('approvals.approve', ['token' => $approvalRequest->token]);
+            $rejectUrl = route('approvals.reject', ['token' => $approvalRequest->token]);
+
+            // Generate email preview HTML
+            $emailHtml = view('emails.approvals.approval-request', [
+                'approverName' => $approver->name,
+                'scenarioName' => $scenario->name,
+                'submitterName' => $scenario->creator->name,
+                'approvalRequestId' => $approvalRequest->id,
+                'organizationName' => auth()->user()->organization->name,
+                'approveUrl' => $approveUrl,
+                'rejectUrl' => $rejectUrl,
+            ])->render();
+
+            return response()->json([
+                'status' => 'success',
+                'preview' => $emailHtml,
+                'subject' => "Action Required: Approval Request for '{$scenario->name}'",
+                'recipient' => $approver->email,
+            ]);
+        } catch (Exception $e) {
+            Log::error('Failed to generate email preview', [
+                'approval_request_id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to generate email preview',
+            ], 500);
+        }
+    }
+
+    /**
+     * Get approval summary dashboard
+     *
+     * GET /api/approvals-summary
+     * Returns global approval metrics and pending approvals
+     */
+    public function approvalsSummary(Request $request): JsonResponse
+    {
+        $organizationId = auth()->user()->organization_id;
+
+        // Get approval metrics for current user
+        $approvalMetrics = [
+            'total_pending' => ApprovalRequest::where('approver_id', auth()->id())
+                ->where('status', 'pending')
+                ->count(),
+            'total_approved' => ApprovalRequest::where('approver_id', auth()->id())
+                ->where('status', 'approved')
+                ->count(),
+            'total_rejected' => ApprovalRequest::where('approver_id', auth()->id())
+                ->where('status', 'rejected')
+                ->count(),
+        ];
+
+        // Get pending approvals
+        $pendingApprovals = ApprovalRequest::where('approver_id', auth()->id())
+            ->where('status', 'pending')
+            ->with(['approvable', 'approvable.creator'])
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(function ($ar) {
+                $scenario = $ar->approvable;
+                return [
+                    'id' => $ar->id,
+                    'scenario_id' => $scenario->id,
+                    'scenario_name' => $scenario->name,
+                    'submitter' => $scenario->creator->name,
+                    'status' => $ar->status,
+                    'created_at' => $ar->created_at,
+                    'days_pending' => $ar->created_at->diffInDays(now()),
+                ];
+            });
+
+        // Calculate approval rate
+        $totalApprovalsProcessed = $approvalMetrics['total_approved'] + $approvalMetrics['total_rejected'];
+        $approvalRate = $totalApprovalsProcessed > 0
+            ? round(($approvalMetrics['total_approved'] / $totalApprovalsProcessed) * 100, 2)
+            : 0;
+
+        // Calculate average response time (in days)
+        $averageResponseTime = ApprovalRequest::where('approver_id', auth()->id())
+            ->where('status', '!=', 'pending')
+            ->whereBetween('signed_at', [now()->subDays(30), now()])
+            ->averageSeconds = 0;
+
+        if (ApprovalRequest::where('approver_id', auth()->id())
+            ->where('status', '!=', 'pending')
+            ->count() > 0) {
+            $averageResponseTime = ApprovalRequest::where('approver_id', auth()->id())
+                ->where('status', '!=', 'pending')
+                ->avg(
+                    \DB::raw('EXTRACT(DAY FROM signed_at - created_at)')
+                ) ?? 0;
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'metrics' => [
+                'pending' => $approvalMetrics['total_pending'],
+                'approved' => $approvalMetrics['total_approved'],
+                'rejected' => $approvalMetrics['total_rejected'],
+                'approval_rate' => $approvalRate . '%',
+                'average_response_days' => round($averageResponseTime, 1),
+            ],
+            'pending_approvals' => $pendingApprovals,
         ]);
     }
 }
