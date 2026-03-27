@@ -19,8 +19,8 @@
         </div>
 
         <!-- Tab Navigation -->
-        <div class="border-b border-gray-200 dark:border-gray-700">
-            <div class="flex space-x-8">
+        <div class="border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+            <div class="flex space-x-8 min-w-max">
                 <button
                     v-for="tab in tabs"
                     :key="tab.id"
@@ -63,6 +63,25 @@
             <div v-show="activeTab === 'risk'">
                 <RiskAssessment />
             </div>
+
+            <!-- Phase 2: Approval Tab -->
+            <div v-show="activeTab === 'approval'">
+                <ApprovalMatrix :scenario-id="selectedScenarioId" />
+            </div>
+
+            <!-- Phase 2: Workflow Tab -->
+            <div v-show="activeTab === 'workflow'">
+                <WorkflowTimeline 
+                    :decision-status="selectedScenarioStatus"
+                    :submitted-at="selectedScenarioSubmittedAt"
+                    :approved-at="selectedScenarioApprovedAt"
+                />
+            </div>
+
+            <!-- Phase 2: Execution Tab -->
+            <div v-show="activeTab === 'execution'">
+                <ExecutionPlan :execution-plan="selectedScenarioExecutionPlan" />
+            </div>
         </div>
     </div>
 </template>
@@ -73,10 +92,17 @@ import ScenarioComparison from '@/components/ScenarioPlanning/ScenarioComparison
 import ScenarioMetrics from '@/components/ScenarioPlanning/ScenarioMetrics.vue'
 import ScenarioTimeline from '@/components/ScenarioPlanning/ScenarioTimeline.vue'
 import RiskAssessment from '@/components/ScenarioPlanning/RiskAssessment.vue'
+import ApprovalMatrix from '@/components/ScenarioPlanning/ApprovalMatrix.vue'
+import WorkflowTimeline from '@/components/ScenarioPlanning/WorkflowTimeline.vue'
+import ExecutionPlan from '@/components/ScenarioPlanning/ExecutionPlan.vue'
 
 // State
 const activeTab = ref('comparison')
 const selectedScenarioId = ref(1)
+const selectedScenarioStatus = ref('draft')
+const selectedScenarioSubmittedAt = ref(null)
+const selectedScenarioApprovedAt = ref(null)
+const selectedScenarioExecutionPlan = ref(null)
 const showNewScenarioModal = ref(false)
 
 // Tab Configuration
@@ -84,7 +110,10 @@ const tabs = [
     { id: 'comparison', name: '📊 Comparison' },
     { id: 'metrics', name: '📈 Metrics' },
     { id: 'timeline', name: '⏱️ Timeline' },
-    { id: 'risk', name: '⚠️ Risk Assessment' }
+    { id: 'risk', name: '⚠️ Risk Assessment' },
+    { id: 'approval', name: '✔️ Approvals' },
+    { id: 'workflow', name: '🔄 Workflow' },
+    { id: 'execution', name: '🚀 Execution' }
 ]
 
 // Sample Data (Replace with API calls in Phase 2)

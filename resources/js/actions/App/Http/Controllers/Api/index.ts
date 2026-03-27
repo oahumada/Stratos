@@ -21,6 +21,7 @@ import BulkPeopleImportController from './BulkPeopleImportController'
 import SuccessionController from './SuccessionController'
 import MiStratosController from './MiStratosController'
 import SmartAlertController from './SmartAlertController'
+import AlertController from './AlertController'
 import GamificationController from './GamificationController'
 import SupportTicketController from './SupportTicketController'
 import SecurityAccessController from './SecurityAccessController'
@@ -42,6 +43,8 @@ import ScenarioGenerationController from './ScenarioGenerationController'
 import ScenarioGenerationAbacusController from './ScenarioGenerationAbacusController'
 import ScenarioGenerationIntelController from './ScenarioGenerationIntelController'
 import GenerationChunkController from './GenerationChunkController'
+import ScenarioAnalyticsController from './ScenarioAnalyticsController'
+import ScenarioApprovalController from './ScenarioApprovalController'
 import ScenarioSimulationController from './ScenarioSimulationController'
 import ScenarioRoiController from './ScenarioRoiController'
 import ScenarioStrategyController from './ScenarioStrategyController'
@@ -69,6 +72,7 @@ import AutomationController from './AutomationController'
 import MobileController from './MobileController'
 import Messaging from './Messaging'
 import AdminOperationsController from './AdminOperationsController'
+import AuditController from './AuditController'
 import Automation from './Automation'
 
 const Api = {
@@ -95,6 +99,7 @@ const Api = {
     SuccessionController: Object.assign(SuccessionController, SuccessionController),
     MiStratosController: Object.assign(MiStratosController, MiStratosController),
     SmartAlertController: Object.assign(SmartAlertController, SmartAlertController),
+    AlertController: Object.assign(AlertController, AlertController),
     GamificationController: Object.assign(GamificationController, GamificationController),
     SupportTicketController: Object.assign(SupportTicketController, SupportTicketController),
     SecurityAccessController: Object.assign(SecurityAccessController, SecurityAccessController),
@@ -116,6 +121,8 @@ const Api = {
     ScenarioGenerationAbacusController: Object.assign(ScenarioGenerationAbacusController, ScenarioGenerationAbacusController),
     ScenarioGenerationIntelController: Object.assign(ScenarioGenerationIntelController, ScenarioGenerationIntelController),
     GenerationChunkController: Object.assign(GenerationChunkController, GenerationChunkController),
+    ScenarioAnalyticsController: Object.assign(ScenarioAnalyticsController, ScenarioAnalyticsController),
+    ScenarioApprovalController: Object.assign(ScenarioApprovalController, ScenarioApprovalController),
     ScenarioSimulationController: Object.assign(ScenarioSimulationController, ScenarioSimulationController),
     ScenarioRoiController: Object.assign(ScenarioRoiController, ScenarioRoiController),
     ScenarioStrategyController: Object.assign(ScenarioStrategyController, ScenarioStrategyController),
@@ -143,6 +150,7 @@ const Api = {
     MobileController: Object.assign(MobileController, MobileController),
     Messaging: Object.assign(Messaging, Messaging),
     AdminOperationsController: Object.assign(AdminOperationsController, AdminOperationsController),
+    AuditController: Object.assign(AuditController, AuditController),
     Automation: Object.assign(Automation, Automation),
 }
 

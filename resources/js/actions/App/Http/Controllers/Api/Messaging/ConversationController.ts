@@ -141,7 +141,7 @@ store.form = storeForm
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:103
 * @route '/api/messaging/conversations/{conversation}'
 */
-export const show = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const show = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -156,7 +156,7 @@ show.definition = {
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:103
 * @route '/api/messaging/conversations/{conversation}'
 */
-show.url = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions) => {
+show.url = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { conversation: args }
     }
@@ -189,7 +189,7 @@ show.url = (args: { conversation: string | { id: string } } | [conversation: str
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:103
 * @route '/api/messaging/conversations/{conversation}'
 */
-show.get = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+show.get = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -199,7 +199,7 @@ show.get = (args: { conversation: string | { id: string } } | [conversation: str
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:103
 * @route '/api/messaging/conversations/{conversation}'
 */
-show.head = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+show.head = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: show.url(args, options),
     method: 'head',
 })
@@ -209,7 +209,7 @@ show.head = (args: { conversation: string | { id: string } } | [conversation: st
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:103
 * @route '/api/messaging/conversations/{conversation}'
 */
-const showForm = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+const showForm = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: show.url(args, options),
     method: 'get',
 })
@@ -219,7 +219,7 @@ const showForm = (args: { conversation: string | { id: string } } | [conversatio
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:103
 * @route '/api/messaging/conversations/{conversation}'
 */
-showForm.get = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+showForm.get = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: show.url(args, options),
     method: 'get',
 })
@@ -229,7 +229,7 @@ showForm.get = (args: { conversation: string | { id: string } } | [conversation:
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:103
 * @route '/api/messaging/conversations/{conversation}'
 */
-showForm.head = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+showForm.head = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: show.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
@@ -246,7 +246,7 @@ show.form = showForm
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:132
 * @route '/api/messaging/conversations/{conversation}'
 */
-export const update = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+export const update = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
@@ -261,7 +261,7 @@ update.definition = {
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:132
 * @route '/api/messaging/conversations/{conversation}'
 */
-update.url = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions) => {
+update.url = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { conversation: args }
     }
@@ -294,7 +294,7 @@ update.url = (args: { conversation: string | { id: string } } | [conversation: s
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:132
 * @route '/api/messaging/conversations/{conversation}'
 */
-update.put = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+update.put = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
     url: update.url(args, options),
     method: 'put',
 })
@@ -304,7 +304,7 @@ update.put = (args: { conversation: string | { id: string } } | [conversation: s
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:132
 * @route '/api/messaging/conversations/{conversation}'
 */
-const updateForm = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const updateForm = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: update.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'PUT',
@@ -319,7 +319,7 @@ const updateForm = (args: { conversation: string | { id: string } } | [conversat
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:132
 * @route '/api/messaging/conversations/{conversation}'
 */
-updateForm.put = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+updateForm.put = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: update.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'PUT',
@@ -336,7 +336,7 @@ update.form = updateForm
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:149
 * @route '/api/messaging/conversations/{conversation}'
 */
-export const destroy = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+export const destroy = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -351,7 +351,7 @@ destroy.definition = {
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:149
 * @route '/api/messaging/conversations/{conversation}'
 */
-destroy.url = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions) => {
+destroy.url = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { conversation: args }
     }
@@ -384,7 +384,7 @@ destroy.url = (args: { conversation: string | { id: string } } | [conversation: 
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:149
 * @route '/api/messaging/conversations/{conversation}'
 */
-destroy.delete = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+destroy.delete = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(args, options),
     method: 'delete',
 })
@@ -394,7 +394,7 @@ destroy.delete = (args: { conversation: string | { id: string } } | [conversatio
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:149
 * @route '/api/messaging/conversations/{conversation}'
 */
-const destroyForm = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+const destroyForm = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: destroy.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'DELETE',
@@ -409,7 +409,7 @@ const destroyForm = (args: { conversation: string | { id: string } } | [conversa
 * @see app/Http/Controllers/Api/Messaging/ConversationController.php:149
 * @route '/api/messaging/conversations/{conversation}'
 */
-destroyForm.delete = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+destroyForm.delete = (args: { conversation: string | number | { id: string | number } } | [conversation: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: destroy.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'DELETE',
