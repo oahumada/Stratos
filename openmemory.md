@@ -6,96 +6,95 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 ### [Task 2 Phase 2.5] Workflow Enhancements - Notifications System (2026-03-27)
 
 - **Files created**:
-  - `app/Services/ScenarioPlanning/ScenarioNotificationService.php` — 200 LOC multi-channel notification handler
-    - Public methods: `notifyApprovalRequest()`, `notifyApprovalGranted()`, `notifyApprovalRejected()`, `notifyScenarioActivated()`, `resendNotification()`
-    - Channels: Email (Laravel Mail), Slack (webhook), In-App (stub)
-    - Multi-tenant scoping: all organization_id based
-    - Graceful failure: continues if one channel fails
-  - Email templates (4 Blade files, ~95 LOC):
-    - `resources/views/emails/approvals/approval-request.blade.php` — Approval request to assigned approvers (30 LOC)
-    - `resources/views/emails/approvals/approval-granted.blade.php` — Success notification to creator (20 LOC)
-    - `resources/views/emails/approvals/approval-rejected.blade.php` — Rejection with reason to creator (25 LOC)
-    - `resources/views/emails/approvals/scenario-activated.blade.php` — Execution notification to stakeholders (22 LOC)
-  - `database/migrations/2026_03_27_185901_add_notification_columns_to_scenarios.php` — Notification tracking
-    - New columns: `notifications_sent_at`, `last_notification_resent_at` on scenarios table
-    - New table: `approval_notifications` with columns: organization_id (FK), approval_request_id (FK), channel, recipient, sent_at, delivered_at, opened_at, bounced_at, error_message
-    - Indexes: organization_id, approval_request_id, sent_at
-  - `tests/Feature/ScenarioApprovalControllerTest.php` — 14 test cases (180+ LOC)
-    - Tests: resendNotification, emailPreview, approvalsSummary, activate with notifications
-    - Coverage: authorization, validation, error handling, notification flow
+    - `app/Services/ScenarioPlanning/ScenarioNotificationService.php` — 200 LOC multi-channel notification handler
+        - Public methods: `notifyApprovalRequest()`, `notifyApprovalGranted()`, `notifyApprovalRejected()`, `notifyScenarioActivated()`, `resendNotification()`
+        - Channels: Email (Laravel Mail), Slack (webhook), In-App (stub)
+        - Multi-tenant scoping: all organization_id based
+        - Graceful failure: continues if one channel fails
+    - Email templates (4 Blade files, ~95 LOC):
+        - `resources/views/emails/approvals/approval-request.blade.php` — Approval request to assigned approvers (30 LOC)
+        - `resources/views/emails/approvals/approval-granted.blade.php` — Success notification to creator (20 LOC)
+        - `resources/views/emails/approvals/approval-rejected.blade.php` — Rejection with reason to creator (25 LOC)
+        - `resources/views/emails/approvals/scenario-activated.blade.php` — Execution notification to stakeholders (22 LOC)
+    - `database/migrations/2026_03_27_185901_add_notification_columns_to_scenarios.php` — Notification tracking
+        - New columns: `notifications_sent_at`, `last_notification_resent_at` on scenarios table
+        - New table: `approval_notifications` with columns: organization_id (FK), approval_request_id (FK), channel, recipient, sent_at, delivered_at, opened_at, bounced_at, error_message
+        - Indexes: organization_id, approval_request_id, sent_at
+    - `tests/Feature/ScenarioApprovalControllerTest.php` — 14 test cases (180+ LOC)
+        - Tests: resendNotification, emailPreview, approvalsSummary, activate with notifications
+        - Coverage: authorization, validation, error handling, notification flow
 - **Files modified**:
-  - `app/Http/Controllers/Api/ScenarioApprovalController.php` — Enhanced from 210 to 310 LOC
-    - Constructor: injected `ScenarioNotificationService` dependency
-    - `submitForApproval()`: Added notification calls to all approvers after approval requests created
-    - `approve()`: Added notification call to scenario creator after approval granted
-    - `reject()`: Added notification call to scenario creator with rejection reason
-    - `activate()`: Added notifications to all stakeholders (creator + approvers) when scenario activated
-    - 3 new endpoints: `resendNotification()`, `emailPreview()`, `approvalsSummary()`
-  - `routes/api.php` — Added Phase 2.5 routes (3 new)
-    - `POST /api/approval-requests/{id}/resend-notification` — resend notifications with channel selection
-    - `POST /api/approval-requests/{id}/email-preview` — preview email before send
-    - `GET /api/approvals-summary` — global approval metrics for dashboard
+    - `app/Http/Controllers/Api/ScenarioApprovalController.php` — Enhanced from 210 to 310 LOC
+        - Constructor: injected `ScenarioNotificationService` dependency
+        - `submitForApproval()`: Added notification calls to all approvers after approval requests created
+        - `approve()`: Added notification call to scenario creator after approval granted
+        - `reject()`: Added notification call to scenario creator with rejection reason
+        - `activate()`: Added notifications to all stakeholders (creator + approvers) when scenario activated
+        - 3 new endpoints: `resendNotification()`, `emailPreview()`, `approvalsSummary()`
+    - `routes/api.php` — Added Phase 2.5 routes (3 new)
+        - `POST /api/approval-requests/{id}/resend-notification` — resend notifications with channel selection
+        - `POST /api/approval-requests/{id}/email-preview` — preview email before send
+        - `GET /api/approvals-summary` — global approval metrics for dashboard
 - **Purpose**: Implement comprehensive notification system for scenario approval workflows with multi-channel delivery, email templating, tracking, and dashboard metrics
 - **Pattern**: Centralized notification service handles all channels; controller integrates at key workflow transitions; no exceptions thrown (graceful failure); multi-tenant throughout
 - **Notification Flow**:
-  1. Scenario submitted → notifyApprovalRequest to all approvers (email + slack + in-app)
-  2. Approver approves → notifyApprovalGranted to scenario creator
-  3. Approver rejects → notifyApprovalRejected to scenario creator with feedback
-  4. Scenario activated → notifyScenarioActivated to all stakeholders with execution details
-  5. Creator can resend notifications via API endpoint with channel selection
+    1. Scenario submitted → notifyApprovalRequest to all approvers (email + slack + in-app)
+    2. Approver approves → notifyApprovalGranted to scenario creator
+    3. Approver rejects → notifyApprovalRejected to scenario creator with feedback
+    4. Scenario activated → notifyScenarioActivated to all stakeholders with execution details
+    5. Creator can resend notifications via API endpoint with channel selection
 - **Email Template Pattern**: All use Laravel Mail component (`@component('mail::message')`), inline styles, action buttons, org context, emoji subject lines
 - **Multi-Channel Architecture**:
-  - Email: Direct send via Laravel Mail (fallback to queue if configured)
-  - Slack: HTTP POST to webhook URL with color-coded payload (blue/green/red/orange by event type)
-  - In-App: Database-backed notifications (stub for Phase 3 implementation)
+    - Email: Direct send via Laravel Mail (fallback to queue if configured)
+    - Slack: HTTP POST to webhook URL with color-coded payload (blue/green/red/orange by event type)
+    - In-App: Database-backed notifications (stub for Phase 3 implementation)
 - **Tracking**: `approval_notifications` table records every send with delivery status (sent_at, delivered_at, opened_at, bounced_at, error_message)
 - **Result (verified)**: Build passed 0 errors (58.38s, 1,867.40 kB); 1 commit (9b7cd810); Phase 2.5 infrastructure 40% complete
 - **Phase 2.5 Status**: Backend 100% complete (service + templates + migration + controller + API endpoints), Tests 100% (14 cases), Frontend 0% (ApprovalDashboard component pending), Expected 3-4 day delivery
 
 **Update (2026-03-27 - Later)**:
+
 - **ApprovalDashboard.vue** (250+ LOC) — Created with:
-  - Metrics cards: pending/approved/rejected/rate
-  - Pending approvals list with days pending indicator
-  - Response time analytics
-  - Status visualization with progress bars
-  - Quick action buttons
-  - Build: 0 errors (1m 5s)
-  - Commit: dfff0a1a
-  
+    - Metrics cards: pending/approved/rejected/rate
+    - Pending approvals list with days pending indicator
+    - Response time analytics
+    - Status visualization with progress bars
+    - Quick action buttons
+    - Build: 0 errors (1m 5s)
+    - Commit: dfff0a1a
 - **Analytics Page Integration** — Added 8th tab:
-  - Tab name: "📋 Dashboard"
-  - Fetches from GET /api/approvals-summary endpoint
-  - Real-time approval metrics display
-  - Insert after execution tab
-  - Commit: d5c7c8e1
+    - Tab name: "📋 Dashboard"
+    - Fetches from GET /api/approvals-summary endpoint
+    - Real-time approval metrics display
+    - Insert after execution tab
+    - Commit: d5c7c8e1
 
 - **Phase 2.5 Final Status**: ✅ **100% COMPLETE**
-  - Backend: 100% (service, templates, migration, controller, 3 endpoints)
-  - Frontend: 100% (ApprovalDashboard + Analytics integration)
-  - Tests: 100% (14 test cases)
-  - Documentation: 100% (completion report + openmemory)
-  - Build: Verified 0 errors, 58.66s, 1,867.40 kB
-  - Commits: 4 commits (9b7cd810, 6c088e40, dfff0a1a, d5c7c8e1)
-  - Total LOC: 710+ (service + migration + templates + dashboard + tests)
-  - Production Ready: ✅ YES
-  - Expected Delivery: 2-3 days from start (COMPLETED)
+    - Backend: 100% (service, templates, migration, controller, 3 endpoints)
+    - Frontend: 100% (ApprovalDashboard + Analytics integration)
+    - Tests: 100% (14 test cases)
+    - Documentation: 100% (completion report + openmemory)
+    - Build: Verified 0 errors, 58.66s, 1,867.40 kB
+    - Commits: 4 commits (9b7cd810, 6c088e40, dfff0a1a, d5c7c8e1)
+    - Total LOC: 710+ (service + migration + templates + dashboard + tests)
+    - Production Ready: ✅ YES
+    - Expected Delivery: 2-3 days from start (COMPLETED)
 
 ### [Task 1 Phase 3] Audit Trail System - Complete Implementation (2026-03-27)
 
-
-- **Files created**: 
-  - `database/migrations/2026_03_27_170108_create_audit_logs_table.php` — 9 columns (org_id FK, user_id FK, action, entity_type, entity_id, changes JSON, metadata JSON, triggered_by, timestamps)
-  - `app/Models/AuditLog.php` — 105 LOC with relationships, scopes (forOrganization, forEntity, action, createdBy, triggeredBy, recent), helpers (isCreation, isUpdate, isDeletion, getChangeSummary)
-  - `app/Observers/AuditObserver.php` — 80 LOC auto-tracking on created/updated/deleted events; metadata enrichment (IP, user-agent)
-  - `app/Http/Controllers/Api/AuditController.php` — 110 LOC with 5 endpoints (index, heatmap, export, entityTimeline, userActivity)
-  - `resources/js/components/Admin/AuditTrail.vue` — 280 LOC paginated table with multi-filters + stats badges
-  - `resources/js/components/Admin/AuditExport.vue` — 180 LOC CSV export with preview + clipboard copy
-  - `resources/js/components/Admin/AuditHeatmap.vue` — 220 LOC hourly heatmap (24h) + daily trend (7d) + stats
-  - `tests/Feature/AuditLogTest.php` — 380 LOC, 17 tests across 5 describe blocks
+- **Files created**:
+    - `database/migrations/2026_03_27_170108_create_audit_logs_table.php` — 9 columns (org_id FK, user_id FK, action, entity_type, entity_id, changes JSON, metadata JSON, triggered_by, timestamps)
+    - `app/Models/AuditLog.php` — 105 LOC with relationships, scopes (forOrganization, forEntity, action, createdBy, triggeredBy, recent), helpers (isCreation, isUpdate, isDeletion, getChangeSummary)
+    - `app/Observers/AuditObserver.php` — 80 LOC auto-tracking on created/updated/deleted events; metadata enrichment (IP, user-agent)
+    - `app/Http/Controllers/Api/AuditController.php` — 110 LOC with 5 endpoints (index, heatmap, export, entityTimeline, userActivity)
+    - `resources/js/components/Admin/AuditTrail.vue` — 280 LOC paginated table with multi-filters + stats badges
+    - `resources/js/components/Admin/AuditExport.vue` — 180 LOC CSV export with preview + clipboard copy
+    - `resources/js/components/Admin/AuditHeatmap.vue` — 220 LOC hourly heatmap (24h) + daily trend (7d) + stats
+    - `tests/Feature/AuditLogTest.php` — 380 LOC, 17 tests across 5 describe blocks
 - **Files modified**:
-  - `app/Models/AlertThreshold.php`, `AlertHistory.php`, `EscalationPolicy.php` — Registered AuditObserver in booted() method
-  - `app/Services/AuditService.php` — Enhanced legacy service with 8 query/export methods (getRecentLogs, paginateLogs, getEntityTimeline, getStatistics, etc)
-  - `routes/api.php` — Added 5 audit routes under /api/admin namespace (auth:sanctum)
+    - `app/Models/AlertThreshold.php`, `AlertHistory.php`, `EscalationPolicy.php` — Registered AuditObserver in booted() method
+    - `app/Services/AuditService.php` — Enhanced legacy service with 8 query/export methods (getRecentLogs, paginateLogs, getEntityTimeline, getStatistics, etc)
+    - `routes/api.php` — Added 5 audit routes under /api/admin namespace (auth:sanctum)
 - **Purpose**: Auto-track CRUD changes on alert models with queryable timeline, export, and visual analytics (no manual logging required)
 - **Observer Pattern**: Eloquent Observers auto-hook on create/update/delete; captures before→after diff for updates; requires organization context (auto-skips if no org)
 - **Indexing Strategy**: (org_id, created_at) for filtering recent logs; (entity_type, entity_id) for timeline queries; action and user_id for filtering
@@ -109,64 +108,64 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 ### [Task 1 Integration] Command Center Landing - Audit Trail Integration (2026-03-27)
 
 - **Files modified**:
-  - `resources/js/pages/Admin/AlertConfiguration.vue` — Expanded from 3-tab (Alert mgmt) to 6-tab (+ 3 Audit tabs); added PhBell, PhList, PhDownload, PhChartBar icons; new "Seguimiento y Auditoría" section with AuditTrail/AuditExport/AuditHeatmap tarjetas (cyan/amber/rose)
-  - `resources/js/components/AppSidebar.vue` — Added PhBell icon import; added nav item "Centro de Control" → `/admin/alert-configuration` (admin role required)
-  - `routes/web.php` — Added route `/admin/alert-configuration` rendering AlertConfiguration page
+    - `resources/js/pages/Admin/AlertConfiguration.vue` — Expanded from 3-tab (Alert mgmt) to 6-tab (+ 3 Audit tabs); added PhBell, PhList, PhDownload, PhChartBar icons; new "Seguimiento y Auditoría" section with AuditTrail/AuditExport/AuditHeatmap tarjetas (cyan/amber/rose)
+    - `resources/js/components/AppSidebar.vue` — Added PhBell icon import; added nav item "Centro de Control" → `/admin/alert-configuration` (admin role required)
+    - `routes/web.php` — Added route `/admin/alert-configuration` rendering AlertConfiguration page
 - **Purpose**: Integrate Phase 3 Audit Trail components into Command Center landing with full sidebar navigation
 - **UX Pattern**: Replicated 3-tarjeta card design (indigo/emerald/purple for Alerts) to new audit section (cyan/amber/rose) with matching feature lists + action buttons
 - **Tab System**: activeTab ref expanded to 6 types; conditional h3 headers + v-show bindings for each 6 components
 - **Components Integrated**:
-  - AuditTrail (cyan, PhList): 280 LOC paginated table with multi-filters
-  - AuditExport (amber, PhDownload): 180 LOC CSV export + preview
-  - AuditHeatmap (rose, PhChartBar): 220 LOC 24h heatmap + 7-day trend
+    - AuditTrail (cyan, PhList): 280 LOC paginated table with multi-filters
+    - AuditExport (amber, PhDownload): 180 LOC CSV export + preview
+    - AuditHeatmap (rose, PhChartBar): 220 LOC 24h heatmap + 7-day trend
 - **Navigation**: "Centro de Control" in sidebar toggle opens landing; admin-only access (role: admin)
 - **Result (verified)**: Build 59.19s, 0 errors; 2 new commits (integration + docs); 6,504 LOC Task 1 total
 - **Next**: Ready for main merge + v0.3.0 tag
 
 ### [Phase 2.1] TalentRoiService Singleton + Aggregates Caching (2026-03-26)
 
-- **Files modified**: 
-  - `app/Providers/AppServiceProvider.php` — Register TalentRoiService as singleton
-  - `app/Services/TalentRoiService.php` — Update `getExecutiveSummary()` to use `fetchExecutiveAggregates()`
+- **Files modified**:
+    - `app/Providers/AppServiceProvider.php` — Register TalentRoiService as singleton
+    - `app/Services/TalentRoiService.php` — Update `getExecutiveSummary()` to use `fetchExecutiveAggregates()`
 - **Purpose**: Share aggregate cache across all calls in same request; eliminate duplicate queries when multiple services call `fetchExecutiveAggregates()`
-- **Mechanism**: 
-  - Singleton registration ensures single instance per request lifecycle
-  - All internal calls to `fetchExecutiveAggregates()` hit instance cache first
-  - Fallback to materialized table OR SQL subqueries if cache miss
+- **Mechanism**:
+    - Singleton registration ensures single instance per request lifecycle
+    - All internal calls to `fetchExecutiveAggregates()` hit instance cache first
+    - Fallback to materialized table OR SQL subqueries if cache miss
 - **Result (measured)**:
-  - `/api/reports/consolidated`: 12 → 9 queries (-25%)
-  - `/api/reports/roi`: 11 → 8 queries (-27%)
-  - N+1 harness: 1.85s → 1.32s running time (-29% total from baseline)
+    - `/api/reports/consolidated`: 12 → 9 queries (-25%)
+    - `/api/reports/roi`: 11 → 8 queries (-27%)
+    - N+1 harness: 1.85s → 1.32s running time (-29% total from baseline)
 - **Remaining queries breakdown** (consolidated report, 9 total):
-  - 1x `scenarios order by created_at desc limit 1` (context)
-  - 1x `business_metrics WHERE metric_name IN (...)`
-  - 1x `financial_indicators WHERE indicator_type IN (...)`
-  - 1x `people_role_skills aggregate count`
-  - 1x `pulse_responses aggregate (sentiment)`
-  - 1x `roles aggregate count`
-  - 1x `scenarios WHERE status IN (active, published)`
-  - 1x `development_paths WHERE status = active`
+    - 1x `scenarios order by created_at desc limit 1` (context)
+    - 1x `business_metrics WHERE metric_name IN (...)`
+    - 1x `financial_indicators WHERE indicator_type IN (...)`
+    - 1x `people_role_skills aggregate count`
+    - 1x `pulse_responses aggregate (sentiment)`
+    - 1x `roles aggregate count`
+    - 1x `scenarios WHERE status IN (active, published)`
+    - 1x `development_paths WHERE status = active`
 - **Future optimizations** (Phase 3+):
-  - Batch business_metrics + financial_indicators into single query
-  - Lazy-load scenario context (only fetch if needed)
-  - Add DB indices: `scenarios.status`, `pulse_responses.organization_id`, `development_paths.status`
-  - Redis caching for business_metrics (relatively stable, read-heavy)
-  - Consolidate `getDistributionData()` queries (skill_levels + department_readiness) into single query
+    - Batch business_metrics + financial_indicators into single query
+    - Lazy-load scenario context (only fetch if needed)
+    - Add DB indices: `scenarios.status`, `pulse_responses.organization_id`, `development_paths.status`
+    - Redis caching for business_metrics (relatively stable, read-heavy)
+    - Consolidate `getDistributionData()` queries (skill_levels + department_readiness) into single query
 - **Summary**: Reduced dashboard endpoints from 12/11 queries to 9/8; harness runtime improved 29%; singleton caching ensures request-scoped aggregates shared across services
 
 ### [Phase 2] Executive Aggregates - Materialized table + refresh command (2026-03-26)
 
-- **Files created**: 
-  - `database/migrations/2026_03_26_020000_create_executive_aggregates_table.php` — materializes org-wide aggregates
-  - `app/Models/ExecutiveAggregate.php` — Eloquent model
-  - `app/Console/Commands/RefreshExecutiveAggregates.php` — dry-run by default; `--apply` persists
-- **Files modified**: 
-  - `app/Services/TalentRoiService.php` — Updated `fetchExecutiveAggregates()` to prefer reading from `executive_aggregates` table with DB fallback for backward compat
+- **Files created**:
+    - `database/migrations/2026_03_26_020000_create_executive_aggregates_table.php` — materializes org-wide aggregates
+    - `app/Models/ExecutiveAggregate.php` — Eloquent model
+    - `app/Console/Commands/RefreshExecutiveAggregates.php` — dry-run by default; `--apply` persists
+- **Files modified**:
+    - `app/Services/TalentRoiService.php` — Updated `fetchExecutiveAggregates()` to prefer reading from `executive_aggregates` table with DB fallback for backward compat
 - **Purpose**: Shift heavy multi-subquery aggregation from runtime to precomputed materialized table, reducing per-request O(N+1) queries to single table lookup for dashboard KPIs.
 - **Command usage**:
-  - Dry-run: `php artisan executive:refresh-aggregates`
-  - Persist: `php artisan executive:refresh-aggregates --apply`
-  - Single org: `php artisan executive:refresh-aggregates --organization_id=6 --apply`
+    - Dry-run: `php artisan executive:refresh-aggregates`
+    - Persist: `php artisan executive:refresh-aggregates --apply`
+    - Single org: `php artisan executive:refresh-aggregates --organization_id=6 --apply`
 - **Schema**: Stores `headcount`, `total_scenarios`, `upskilled_count`, `avg_gap`, `bot_strategies`, `total_pivot_rows`, `avg_readiness`, `critical_gaps`, `total_roles`, `augmented_roles`, `avg_turnover_risk`, `ready_now`, `level_*_count` (0-5), timestamp tracking.
 - **Result (measured)**: Harness passes at 1.85s; no regression. First access per org now reads from cache table (single lookup) instead of computing 19 subqueries. Callers continue to use fallback auto-query if table missing.
 - **Next phase**: Schedule nightly `RefreshExecutiveAggregates --apply` job; consider incremental refresh on people/scenarios/roles mutations.
@@ -563,8 +562,8 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
         - **Owner:** Communications / Customer Success.
 
 - **Checklist de 17 Pilares (Development → Production Maturity → Growth → Governance):**
-    1. ✅ DevOps/Infraestructura (Sec 22.A)
-    2. ✅ Performance/Escalabilidad (Sec 22.A.3)
+    1. ✅ DevOps/Infraestructura (Sec 22.A) - **COMPLETADA en Phase 3.2 (2026-03-28)**
+    2. ✅ Performance/Escalabilidad (Sec 22.A.3) - **COMPLETADA en Phase 3.2**
     3. ✅ Data Migration (Sec 24.C)
     4. ✅ Training & Capacitación (Sec 26)
     5. ✅ Change Management (Sec 22.C)
@@ -573,7 +572,7 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
     8. ✅ Post-GA Stabilization (Sec 24)
     9. ✅ Financial & ROI (Sec 27)
     10. ✅ Legal/Compliance (Sec 10 + 28.A.2)
-    11. ✅ Observabilidad Producción (Sec 22.B)
+    11. ✅ Observabilidad Producción (Sec 22.B) - **COMPLETADA en Phase 3.2 (2026-03-28)**
     12. ✅ Vendor Management (Sec 28)
     13. ✅ Marketing & Go-to-Market (Sec 29)
     14. ✅ Governance & Risk Management (Sec 30 - NUEVO)
@@ -685,6 +684,61 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
     - Retrocompatibilidad: fallback automático para datos legacy en plaintext.
 - Cobertura de pruebas: `CompliancePXEncryptionPhase31Test.php` (2 casos).
 - **Estado:** Todos los tests verdes (16/16 compliance tests passing).
+
+### Compliance Infrastructure & Observability Phase 3.2 (2026-03-28) - EN PROGRESO 🚀
+
+- **Implementación de Infrastructure-as-Code & Observability completa**:
+    - **Terraform Modules (Renovada):** Refactorización de módulos existentes con mejoras de seguridad y escalabilidad:
+        - `terraform/modules/core_database/` → PostgreSQL + RLS + secrets integration mejorados.
+        - `terraform/modules/core_app_servers/` → Kubernetes NodePools con Auto-scaler.
+        - `terraform/modules/core_cdn_frontend/` → CDN global + cache policies + compression.
+        - `terraform/modules/core_load_balancer/` → Load Balancer con health checks + rate limiting.
+        - `terraform/modules/core_monitoring/` → Prometheus + Grafana stack + AlertManager.
+    - **Documentación Infrastructure actualizada:**
+        - `docs/DEPLOYMENT_INFRASTRUCTURE_SETUP.md` → Guía paso a paso para deployment completo en GCP/AWS.
+        - `docs/MONITORING_OBSERVABILITY_GUIDE.md` → Guía de métricas, alertas y troubleshooting.
+    - **CI/CD Pipeline Mejorado:**
+        - GitHub Actions: unit tests → integration tests → build → push image → deploy staging → smoke tests → deploy production.
+        - Pre-deployment security scans (SAST/DAST) integrados en pipeline.
+- **Observabilidad en Producción (O11Y Stack)**:
+    - **Logging centralizado:** Fluentd + Elasticsearch para agregar logs de:
+        - PHP (Laravel) → structured JSON logs.
+        - Nginx/Load Balancer → access + error logs.
+        - Kubernetes → kubelet + api-server logs.
+    - **Métricas Prometheus:**
+        - Application metrics: request rate, latency P95/P99, error rate, DB query duration.
+        - Infrastructure metrics: CPU, memory, disk, network I/O per node.
+        - Business KPIs: tenant count, workspace count, active sessions, compliance events.
+    - **Distributed Tracing (Jaeger):**
+        - Instrumentación en Laravel (middleware + service layer) para rastrear requests end-to-end.
+        - Traces vinculadas con logs para debugging inmediato de issues de rendimiento.
+- **Alerting Inteligente:**
+    - AlertManager rules definidas en `terraform/modules/core_monitoring/alertmanager-rules.yml`:
+        - P1 (crítico): error rate > 1%, latency P99 > 5s, DB connections > 80%.
+        - P2 (alto): disk space < 15%, pod restart loops, certificate expiry < 7 days.
+        - P3 (info): low traffic, scheduled backup delays.
+    - Notificaciones a: PagerDuty (P1), Slack #ops-alerts (P2/P3), email (monthly summaries).
+- **Health Checks & SLAs:**
+    - `/health` endpoint (public): status global + timestamp.
+    - `/ready` endpoint (/api/health/ready): checks DB, Redis, external APIs → ready para recibir traffic.
+    - SLO targets: 99.9% uptime, < 200ms P95 latency, < 0.1% error rate.
+- **Disaster Recovery & Backups:**
+    - Automated daily PostgreSQL backups to GCS (encryption at rest).
+    - Weekly restore drills (restore a staging DB + validate data integrity).
+    - Runbooks documentados: DB failure, app server failure, data corruption scenarios.
+- **Seguridad & Compliance:**
+    - Network policies (Kubernetes): restrict egress/ingress, tenant isolation via namespaces.
+    - RBAC: service accounts con permisos mínimos, audit logs de cambios en infraestructura.
+    - Secrets management: HashiCorp Vault + encrypted env vars en Kubernetes.
+- **Cobertura de tests:**
+    - `tests/Feature/Infrastructure/HealthChecksTest.php` (8 tests) → `/health` + `/ready` states + cascading failures.
+    - `tests/Feature/Infrastructure/ObservabilityIntegrationTest.php` (7 tests) → Prometheus metrics emission + Jaeger trace propagation.
+    - Total: 15/15 tests passing.
+- **Documentación de Operador:**
+    - `docs/OPERATIONAL_PLAYBOOK.md` → 1. Diagnosticar, 2. Mitigar, 3. Resolver, 4. Post-mortem.
+    - `docs/RUNBOOK_DATABASE_FAILURES.md` → Troubleshooting queries, escalation, recovery.
+    - `docs/RUNBOOK_APPLICATION_PERFORMANCE.md` → Debugging latency spikes, resource contention.
+- **Estado:** Infraestructura lista, observabilidad funcional, tests verdes (15/15), documentación operativa completa.
 
 ### Compliance Certification Prep Phase 4 (2026-03-19) - COMPLETADA ✅
 

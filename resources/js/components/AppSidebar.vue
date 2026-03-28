@@ -16,9 +16,9 @@ import { useTenantStore } from '@/stores/tenantStore';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import {
+    PhBell,
     PhBookOpen,
     PhBrain,
-    PhBell,
     PhChalkboardTeacher,
     PhChartBar,
     PhChartLineUp,

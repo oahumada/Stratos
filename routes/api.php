@@ -1249,6 +1249,14 @@ Route::middleware('auth:sanctum')->prefix('strategic-planning')->group(function 
     Route::post('what-if/predict-outcomes', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'predictOutcomes']);
     Route::post('what-if/sensitivity-analysis', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'performSensitivityAnalysis']);
     Route::post('what-if/comprehensive', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'comprehensiveAnalysis']);
+
+    // Executive Summary - Phase 3.3: Executive dashboards & decision support
+    Route::get('scenarios/{scenarioId}/executive-summary', [\App\Http\Controllers\Api\ExecutiveSummaryController::class, '__invoke']);
+    Route::post('scenarios/{scenarioId}/executive-summary', [\App\Http\Controllers\Api\ExecutiveSummaryController::class, 'generate']);
+    Route::post('scenarios/{scenarioId}/executive-summary/export', [\App\Http\Controllers\Api\ExecutiveSummaryController::class, 'export']);
+
+    // Org Chart - Phase 3.4: Organizational structure visualization
+    Route::get('scenarios/{scenarioId}/org-chart', [\App\Http\Controllers\Api\OrgChartController::class, '__invoke']);
 });
 
 // Talent Engineering

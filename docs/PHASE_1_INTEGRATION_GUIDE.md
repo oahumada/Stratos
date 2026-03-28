@@ -29,7 +29,8 @@ Copy/paste the template below:
                     Scenario Planning
                 </h1>
                 <p class="mt-1 text-gray-600 dark:text-gray-400">
-                    Compare, analyze, and plan organizational transformation scenarios
+                    Compare, analyze, and plan organizational transformation
+                    scenarios
                 </p>
             </div>
             <button
@@ -48,10 +49,10 @@ Copy/paste the template below:
                     :key="tab.id"
                     @click="activeTab = tab.id"
                     :class="[
-                        'py-3 px-1 font-medium text-sm transition',
+                        'px-1 py-3 text-sm font-medium transition',
                         activeTab === tab.id
                             ? 'border-b-2 border-emerald-600 text-emerald-600 dark:text-emerald-400'
-                            : 'border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300'
+                            : 'border-b-2 border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300',
                     ]"
                 >
                     {{ tab.name }}
@@ -68,7 +69,7 @@ Copy/paste the template below:
 
             <!-- Metrics Tab -->
             <div v-show="activeTab === 'metrics'">
-                <ScenarioMetrics 
+                <ScenarioMetrics
                     :scenario-id="selectedScenarioId"
                     :financial-impact="sampleFinancialData"
                     :risk-metrics="sampleRiskData"
@@ -90,24 +91,24 @@ Copy/paste the template below:
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import ScenarioComparison from '@/components/ScenarioPlanning/ScenarioComparison.vue'
-import ScenarioMetrics from '@/components/ScenarioPlanning/ScenarioMetrics.vue'
-import ScenarioTimeline from '@/components/ScenarioPlanning/ScenarioTimeline.vue'
-import RiskAssessment from '@/components/ScenarioPlanning/RiskAssessment.vue'
+import { ref } from 'vue';
+import ScenarioComparison from '@/components/ScenarioPlanning/ScenarioComparison.vue';
+import ScenarioMetrics from '@/components/ScenarioPlanning/ScenarioMetrics.vue';
+import ScenarioTimeline from '@/components/ScenarioPlanning/ScenarioTimeline.vue';
+import RiskAssessment from '@/components/ScenarioPlanning/RiskAssessment.vue';
 
 // State
-const activeTab = ref('comparison')
-const selectedScenarioId = ref(1)
-const showNewScenarioModal = ref(false)
+const activeTab = ref('comparison');
+const selectedScenarioId = ref(1);
+const showNewScenarioModal = ref(false);
 
 // Tab Configuration
 const tabs = [
     { id: 'comparison', name: '📊 Comparison' },
     { id: 'metrics', name: '📈 Metrics' },
     { id: 'timeline', name: '⏱️ Timeline' },
-    { id: 'risk', name: '⚠️ Risk Assessment' }
-]
+    { id: 'risk', name: '⚠️ Risk Assessment' },
+];
 
 // Sample Data (Replace with API calls in Phase 2)
 const sampleScenarios = [
@@ -116,16 +117,16 @@ const sampleScenarios = [
         name: 'Conservative Approach',
         iq: 72,
         timeline_months: 12,
-        cost_estimate: '€2.5M'
+        cost_estimate: '€2.5M',
     },
     {
         id: 2,
         name: 'Aggressive Modernization',
         iq: 88,
         timeline_months: 8,
-        cost_estimate: '€4.2M'
-    }
-]
+        cost_estimate: '€4.2M',
+    },
+];
 
 const sampleFinancialData = {
     total_impact: 285000,
@@ -134,16 +135,16 @@ const sampleFinancialData = {
         training: 45000,
         hiring: 120000,
         reallocation: 78000,
-        external_services: 42000
+        external_services: 42000,
     },
     budget_allocation: {
         Q1: 2024,
         Q2: 2024,
         Q3: 2024,
-        Q4: 2024
+        Q4: 2024,
     },
-    payback_period_months: 8.5
-}
+    payback_period_months: 8.5,
+};
 
 const sampleRiskData = {
     overall_risk: 35,
@@ -152,9 +153,9 @@ const sampleRiskData = {
     risk_items: [
         { name: 'Talent Pool', probability: 0.75, impact: 0.8 },
         { name: 'Market Conditions', probability: 0.5, impact: 0.65 },
-        { name: 'Adoption Rate', probability: 0.3, impact: 0.9 }
-    ]
-}
+        { name: 'Adoption Rate', probability: 0.3, impact: 0.9 },
+    ],
+};
 
 const sampleHeadcountData = {
     current: 150,
@@ -163,10 +164,10 @@ const sampleHeadcountData = {
     by_role: {
         'Data Analyst': 10,
         'ML Engineer': 8,
-        'DevOps': 5,
-        'Business Analyst': 2
-    }
-}
+        DevOps: 5,
+        'Business Analyst': 2,
+    },
+};
 </script>
 
 <style scoped>
@@ -295,6 +296,7 @@ ls -la resources/js/components/ScenarioPlanning/
 ```
 
 Expected output:
+
 ```
 ScenarioComparison.vue
 ScenarioMetrics.vue
@@ -311,6 +313,7 @@ npm run dev
 ```
 
 Watch for errors like:
+
 - `Module not found: @/components/ScenarioPlanning/...`
 - `Failed to load component`
 
@@ -323,34 +326,36 @@ Watch for errors like:
 In Phase 1, the page uses hardcoded sample data. For Phase 2, replace this:
 
 **Before (Sample Data)**:
+
 ```typescript
 const sampleScenarios = [...]
 const sampleFinancialData = {...}
 ```
 
 **After (API Calls)**:
-```typescript
-import { onMounted, ref } from 'vue'
 
-const scenarios = ref([])
-const financialData = ref(null)
-const riskData = ref(null)
+```typescript
+import { onMounted, ref } from 'vue';
+
+const scenarios = ref([]);
+const financialData = ref(null);
+const riskData = ref(null);
 
 onMounted(async () => {
     // Fetch scenarios
-    const scenarioRes = await fetch('/api/scenarios')
-    scenarios.value = await scenarioRes.json()
+    const scenarioRes = await fetch('/api/scenarios');
+    scenarios.value = await scenarioRes.json();
 
     // Fetch analytics for first scenario
     if (scenarios.value.length > 0) {
         const analyticsRes = await fetch(
-            `/api/scenarios/${scenarios.value[0].id}/analytics`
-        )
-        const analytics = await analyticsRes.json()
-        financialData.value = analytics.financial_impact
-        riskData.value = analytics.risk_metrics
+            `/api/scenarios/${scenarios.value[0].id}/analytics`,
+        );
+        const analytics = await analyticsRes.json();
+        financialData.value = analytics.financial_impact;
+        riskData.value = analytics.risk_metrics;
     }
-})
+});
 ```
 
 ### B. API Endpoints Available (Phase 1)
@@ -376,6 +381,7 @@ npm run build
 ```
 
 Expected output:
+
 ```
 ✓ built in 1m 0s
 0 errors
@@ -412,6 +418,7 @@ php artisan test tests/Feature/ScenarioAnalyticsControllerTest.php --compact
 ```
 
 Expected:
+
 ```
 15 tests
 ✓ PASSED
@@ -439,6 +446,7 @@ Expected:
 ### "Cannot find module @/components/ScenarioPlanning/..."
 
 **Solution**: Check file paths:
+
 ```bash
 find resources/js/components -name "*.vue" | grep Scenario
 ```
@@ -446,6 +454,7 @@ find resources/js/components -name "*.vue" | grep Scenario
 ### "Page not found" when navigating to `/scenario-planning`
 
 **Solution**: Verify route exists:
+
 ```bash
 php artisan route:list | grep scenario
 ```
@@ -453,14 +462,16 @@ php artisan route:list | grep scenario
 ### Components render but no data displays
 
 **Solution**: Check browser console for API errors:
+
 - Open DevTools (F12)
 - Click Console tab
 - Look for network errors
 - Verify API endpoints in [ScenarioAnalyticsController](app/Http/Controllers/Api/ScenarioAnalyticsController.php)
 
-### Dark mode not working  
+### Dark mode not working
 
 **Solution**: Verify Tailwind dark mode classes are used:
+
 ```bash
 grep "dark:" resources/js/components/ScenarioPlanning/*.vue | head -5
 ```
@@ -486,7 +497,7 @@ php artisan test tests/Feature/ScenarioAnalyticsControllerTest.php
 Once Phase 1 integration is complete:
 
 1. Document any integration issues discovered
-2. Create feedback ticket for Phase 2 workflow improvements  
+2. Create feedback ticket for Phase 2 workflow improvements
 3. Begin Phase 2 kickoff: Workflow Engine & Approval System
 4. Update [TASK_2_PLANNING_SCENARIO_PLANNING_PHASE2.md](TASK_2_PLANNING_SCENARIO_PLANNING_PHASE2.md) with real metrics
 
