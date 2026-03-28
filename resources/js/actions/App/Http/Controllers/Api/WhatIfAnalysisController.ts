@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\WhatIfAnalysisController::analyzeHeadcountImpact
 * @see app/Http/Controllers/Api/WhatIfAnalysisController.php:35
@@ -32,6 +32,28 @@ analyzeHeadcountImpact.post = (options?: RouteQueryOptions): RouteDefinition<'po
     url: analyzeHeadcountImpact.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\WhatIfAnalysisController::analyzeHeadcountImpact
+* @see app/Http/Controllers/Api/WhatIfAnalysisController.php:35
+* @route '/api/strategic-planning/what-if/headcount-impact'
+*/
+const analyzeHeadcountImpactForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: analyzeHeadcountImpact.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\WhatIfAnalysisController::analyzeHeadcountImpact
+* @see app/Http/Controllers/Api/WhatIfAnalysisController.php:35
+* @route '/api/strategic-planning/what-if/headcount-impact'
+*/
+analyzeHeadcountImpactForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: analyzeHeadcountImpact.url(options),
+    method: 'post',
+})
+
+analyzeHeadcountImpact.form = analyzeHeadcountImpactForm
 
 /**
 * @see \App\Http\Controllers\Api\WhatIfAnalysisController::analyzeFinancialImpact
@@ -68,6 +90,28 @@ analyzeFinancialImpact.post = (options?: RouteQueryOptions): RouteDefinition<'po
 })
 
 /**
+* @see \App\Http\Controllers\Api\WhatIfAnalysisController::analyzeFinancialImpact
+* @see app/Http/Controllers/Api/WhatIfAnalysisController.php:53
+* @route '/api/strategic-planning/what-if/financial-impact'
+*/
+const analyzeFinancialImpactForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: analyzeFinancialImpact.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\WhatIfAnalysisController::analyzeFinancialImpact
+* @see app/Http/Controllers/Api/WhatIfAnalysisController.php:53
+* @route '/api/strategic-planning/what-if/financial-impact'
+*/
+analyzeFinancialImpactForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: analyzeFinancialImpact.url(options),
+    method: 'post',
+})
+
+analyzeFinancialImpact.form = analyzeFinancialImpactForm
+
+/**
 * @see \App\Http\Controllers\Api\WhatIfAnalysisController::analyzeRiskImpact
 * @see app/Http/Controllers/Api/WhatIfAnalysisController.php:71
 * @route '/api/strategic-planning/what-if/risk-impact'
@@ -100,6 +144,28 @@ analyzeRiskImpact.post = (options?: RouteQueryOptions): RouteDefinition<'post'> 
     url: analyzeRiskImpact.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\WhatIfAnalysisController::analyzeRiskImpact
+* @see app/Http/Controllers/Api/WhatIfAnalysisController.php:71
+* @route '/api/strategic-planning/what-if/risk-impact'
+*/
+const analyzeRiskImpactForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: analyzeRiskImpact.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\WhatIfAnalysisController::analyzeRiskImpact
+* @see app/Http/Controllers/Api/WhatIfAnalysisController.php:71
+* @route '/api/strategic-planning/what-if/risk-impact'
+*/
+analyzeRiskImpactForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: analyzeRiskImpact.url(options),
+    method: 'post',
+})
+
+analyzeRiskImpact.form = analyzeRiskImpactForm
 
 /**
 * @see \App\Http\Controllers\Api\WhatIfAnalysisController::compareWithBaseline
@@ -146,6 +212,43 @@ compareWithBaseline.head = (options?: RouteQueryOptions): RouteDefinition<'head'
 })
 
 /**
+* @see \App\Http\Controllers\Api\WhatIfAnalysisController::compareWithBaseline
+* @see app/Http/Controllers/Api/WhatIfAnalysisController.php:99
+* @route '/api/strategic-planning/what-if/compare'
+*/
+const compareWithBaselineForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: compareWithBaseline.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\WhatIfAnalysisController::compareWithBaseline
+* @see app/Http/Controllers/Api/WhatIfAnalysisController.php:99
+* @route '/api/strategic-planning/what-if/compare'
+*/
+compareWithBaselineForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: compareWithBaseline.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\WhatIfAnalysisController::compareWithBaseline
+* @see app/Http/Controllers/Api/WhatIfAnalysisController.php:99
+* @route '/api/strategic-planning/what-if/compare'
+*/
+compareWithBaselineForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: compareWithBaseline.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+compareWithBaseline.form = compareWithBaselineForm
+
+/**
 * @see \App\Http\Controllers\Api\WhatIfAnalysisController::predictOutcomes
 * @see app/Http/Controllers/Api/WhatIfAnalysisController.php:122
 * @route '/api/strategic-planning/what-if/predict-outcomes'
@@ -178,6 +281,28 @@ predictOutcomes.post = (options?: RouteQueryOptions): RouteDefinition<'post'> =>
     url: predictOutcomes.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\WhatIfAnalysisController::predictOutcomes
+* @see app/Http/Controllers/Api/WhatIfAnalysisController.php:122
+* @route '/api/strategic-planning/what-if/predict-outcomes'
+*/
+const predictOutcomesForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: predictOutcomes.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\WhatIfAnalysisController::predictOutcomes
+* @see app/Http/Controllers/Api/WhatIfAnalysisController.php:122
+* @route '/api/strategic-planning/what-if/predict-outcomes'
+*/
+predictOutcomesForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: predictOutcomes.url(options),
+    method: 'post',
+})
+
+predictOutcomes.form = predictOutcomesForm
 
 /**
 * @see \App\Http\Controllers\Api\WhatIfAnalysisController::performSensitivityAnalysis
@@ -214,6 +339,28 @@ performSensitivityAnalysis.post = (options?: RouteQueryOptions): RouteDefinition
 })
 
 /**
+* @see \App\Http\Controllers\Api\WhatIfAnalysisController::performSensitivityAnalysis
+* @see app/Http/Controllers/Api/WhatIfAnalysisController.php:149
+* @route '/api/strategic-planning/what-if/sensitivity-analysis'
+*/
+const performSensitivityAnalysisForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: performSensitivityAnalysis.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\WhatIfAnalysisController::performSensitivityAnalysis
+* @see app/Http/Controllers/Api/WhatIfAnalysisController.php:149
+* @route '/api/strategic-planning/what-if/sensitivity-analysis'
+*/
+performSensitivityAnalysisForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: performSensitivityAnalysis.url(options),
+    method: 'post',
+})
+
+performSensitivityAnalysis.form = performSensitivityAnalysisForm
+
+/**
 * @see \App\Http\Controllers\Api\WhatIfAnalysisController::comprehensiveAnalysis
 * @see app/Http/Controllers/Api/WhatIfAnalysisController.php:167
 * @route '/api/strategic-planning/what-if/comprehensive'
@@ -246,6 +393,28 @@ comprehensiveAnalysis.post = (options?: RouteQueryOptions): RouteDefinition<'pos
     url: comprehensiveAnalysis.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\WhatIfAnalysisController::comprehensiveAnalysis
+* @see app/Http/Controllers/Api/WhatIfAnalysisController.php:167
+* @route '/api/strategic-planning/what-if/comprehensive'
+*/
+const comprehensiveAnalysisForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: comprehensiveAnalysis.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\WhatIfAnalysisController::comprehensiveAnalysis
+* @see app/Http/Controllers/Api/WhatIfAnalysisController.php:167
+* @route '/api/strategic-planning/what-if/comprehensive'
+*/
+comprehensiveAnalysisForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: comprehensiveAnalysis.url(options),
+    method: 'post',
+})
+
+comprehensiveAnalysis.form = comprehensiveAnalysisForm
 
 const WhatIfAnalysisController = { analyzeHeadcountImpact, analyzeFinancialImpact, analyzeRiskImpact, compareWithBaseline, predictOutcomes, performSensitivityAnalysis, comprehensiveAnalysis }
 

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\AdminOperationsController::index
 * @see app/Http/Controllers/Api/AdminOperationsController.php:29
@@ -42,6 +42,43 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Api\AdminOperationsController::index
+* @see app/Http/Controllers/Api/AdminOperationsController.php:29
+* @route '/api/admin/operations'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AdminOperationsController::index
+* @see app/Http/Controllers/Api/AdminOperationsController.php:29
+* @route '/api/admin/operations'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AdminOperationsController::index
+* @see app/Http/Controllers/Api/AdminOperationsController.php:29
+* @route '/api/admin/operations'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Api\AdminOperationsController::preview
@@ -96,6 +133,28 @@ preview.post = (args: { id: string | number } | [id: string | number ] | string 
 })
 
 /**
+* @see \App\Http\Controllers\Api\AdminOperationsController::preview
+* @see app/Http/Controllers/Api/AdminOperationsController.php:52
+* @route '/api/admin/operations/{id}/preview'
+*/
+const previewForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: preview.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AdminOperationsController::preview
+* @see app/Http/Controllers/Api/AdminOperationsController.php:52
+* @route '/api/admin/operations/{id}/preview'
+*/
+previewForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: preview.url(args, options),
+    method: 'post',
+})
+
+preview.form = previewForm
+
+/**
 * @see \App\Http\Controllers\Api\AdminOperationsController::execute
 * @see app/Http/Controllers/Api/AdminOperationsController.php:87
 * @route '/api/admin/operations/{id}/execute'
@@ -146,6 +205,28 @@ execute.post = (args: { id: string | number } | [id: string | number ] | string 
     url: execute.url(args, options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\AdminOperationsController::execute
+* @see app/Http/Controllers/Api/AdminOperationsController.php:87
+* @route '/api/admin/operations/{id}/execute'
+*/
+const executeForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: execute.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AdminOperationsController::execute
+* @see app/Http/Controllers/Api/AdminOperationsController.php:87
+* @route '/api/admin/operations/{id}/execute'
+*/
+executeForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: execute.url(args, options),
+    method: 'post',
+})
+
+execute.form = executeForm
 
 /**
 * @see \App\Http\Controllers\Api\AdminOperationsController::cancel
@@ -200,6 +281,28 @@ cancel.post = (args: { id: string | number } | [id: string | number ] | string |
 })
 
 /**
+* @see \App\Http\Controllers\Api\AdminOperationsController::cancel
+* @see app/Http/Controllers/Api/AdminOperationsController.php:138
+* @route '/api/admin/operations/{id}/cancel'
+*/
+const cancelForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: cancel.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AdminOperationsController::cancel
+* @see app/Http/Controllers/Api/AdminOperationsController.php:138
+* @route '/api/admin/operations/{id}/cancel'
+*/
+cancelForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: cancel.url(args, options),
+    method: 'post',
+})
+
+cancel.form = cancelForm
+
+/**
 * @see \App\Http\Controllers\Api\AdminOperationsController::monitorStream
 * @see app/Http/Controllers/Api/AdminOperationsController.php:436
 * @route '/api/admin/operations/monitor/stream'
@@ -242,6 +345,43 @@ monitorStream.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
     url: monitorStream.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Api\AdminOperationsController::monitorStream
+* @see app/Http/Controllers/Api/AdminOperationsController.php:436
+* @route '/api/admin/operations/monitor/stream'
+*/
+const monitorStreamForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: monitorStream.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AdminOperationsController::monitorStream
+* @see app/Http/Controllers/Api/AdminOperationsController.php:436
+* @route '/api/admin/operations/monitor/stream'
+*/
+monitorStreamForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: monitorStream.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AdminOperationsController::monitorStream
+* @see app/Http/Controllers/Api/AdminOperationsController.php:436
+* @route '/api/admin/operations/monitor/stream'
+*/
+monitorStreamForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: monitorStream.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+monitorStream.form = monitorStreamForm
 
 const AdminOperationsController = { index, preview, execute, cancel, monitorStream }
 

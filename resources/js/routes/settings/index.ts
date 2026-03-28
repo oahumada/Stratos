@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see routes/web.php:239
 * @route '/settings/rbac'
@@ -38,6 +38,40 @@ rbac.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: rbac.url(options),
     method: 'head',
 })
+
+/**
+* @see routes/web.php:239
+* @route '/settings/rbac'
+*/
+const rbacForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: rbac.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:239
+* @route '/settings/rbac'
+*/
+rbacForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: rbac.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:239
+* @route '/settings/rbac'
+*/
+rbacForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: rbac.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+rbac.form = rbacForm
 
 const settings = {
     rbac: Object.assign(rbac, rbac),

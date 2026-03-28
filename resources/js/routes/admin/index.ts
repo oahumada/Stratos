@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 import auditLogs from './audit-logs'
 /**
 * @see routes/web.php:45
@@ -41,6 +41,40 @@ operations.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see routes/web.php:45
+* @route '/admin/operations'
+*/
+const operationsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: operations.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:45
+* @route '/admin/operations'
+*/
+operationsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: operations.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:45
+* @route '/admin/operations'
+*/
+operationsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: operations.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+operations.form = operationsForm
+
+/**
 * @see routes/web.php:50
 * @route '/admin/alert-configuration'
 */
@@ -79,6 +113,40 @@ alertConfiguration.head = (options?: RouteQueryOptions): RouteDefinition<'head'>
     url: alertConfiguration.url(options),
     method: 'head',
 })
+
+/**
+* @see routes/web.php:50
+* @route '/admin/alert-configuration'
+*/
+const alertConfigurationForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: alertConfiguration.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:50
+* @route '/admin/alert-configuration'
+*/
+alertConfigurationForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: alertConfiguration.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:50
+* @route '/admin/alert-configuration'
+*/
+alertConfigurationForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: alertConfiguration.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+alertConfiguration.form = alertConfigurationForm
 
 const admin = {
     operations: Object.assign(operations, operations),

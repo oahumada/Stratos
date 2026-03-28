@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 import thresholds from './thresholds'
 import history from './history'
 /**
@@ -60,6 +60,28 @@ acknowledge.post = (args: { alert: string | number | { id: string | number } } |
 })
 
 /**
+* @see \App\Http\Controllers\Api\AlertController::acknowledge
+* @see app/Http/Controllers/Api/AlertController.php:140
+* @route '/api/alerts/history/{alert}/acknowledge'
+*/
+const acknowledgeForm = (args: { alert: string | number | { id: string | number } } | [alert: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: acknowledge.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::acknowledge
+* @see app/Http/Controllers/Api/AlertController.php:140
+* @route '/api/alerts/history/{alert}/acknowledge'
+*/
+acknowledgeForm.post = (args: { alert: string | number | { id: string | number } } | [alert: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: acknowledge.url(args, options),
+    method: 'post',
+})
+
+acknowledge.form = acknowledgeForm
+
+/**
 * @see \App\Http\Controllers\Api\AlertController::resolve
 * @see app/Http/Controllers/Api/AlertController.php:160
 * @route '/api/alerts/history/{alert}/resolve'
@@ -116,6 +138,28 @@ resolve.post = (args: { alert: string | number | { id: string | number } } | [al
     url: resolve.url(args, options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::resolve
+* @see app/Http/Controllers/Api/AlertController.php:160
+* @route '/api/alerts/history/{alert}/resolve'
+*/
+const resolveForm = (args: { alert: string | number | { id: string | number } } | [alert: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: resolve.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::resolve
+* @see app/Http/Controllers/Api/AlertController.php:160
+* @route '/api/alerts/history/{alert}/resolve'
+*/
+resolveForm.post = (args: { alert: string | number | { id: string | number } } | [alert: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: resolve.url(args, options),
+    method: 'post',
+})
+
+resolve.form = resolveForm
 
 /**
 * @see \App\Http\Controllers\Api\AlertController::mute
@@ -176,6 +220,28 @@ mute.post = (args: { alert: string | number | { id: string | number } } | [alert
 })
 
 /**
+* @see \App\Http\Controllers\Api\AlertController::mute
+* @see app/Http/Controllers/Api/AlertController.php:176
+* @route '/api/alerts/history/{alert}/mute'
+*/
+const muteForm = (args: { alert: string | number | { id: string | number } } | [alert: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: mute.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::mute
+* @see app/Http/Controllers/Api/AlertController.php:176
+* @route '/api/alerts/history/{alert}/mute'
+*/
+muteForm.post = (args: { alert: string | number | { id: string | number } } | [alert: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: mute.url(args, options),
+    method: 'post',
+})
+
+mute.form = muteForm
+
+/**
 * @see \App\Http\Controllers\Api\AlertController::unacknowledged
 * @see app/Http/Controllers/Api/AlertController.php:192
 * @route '/api/alerts/unacknowledged'
@@ -218,6 +284,43 @@ unacknowledged.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
     url: unacknowledged.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::unacknowledged
+* @see app/Http/Controllers/Api/AlertController.php:192
+* @route '/api/alerts/unacknowledged'
+*/
+const unacknowledgedForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: unacknowledged.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::unacknowledged
+* @see app/Http/Controllers/Api/AlertController.php:192
+* @route '/api/alerts/unacknowledged'
+*/
+unacknowledgedForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: unacknowledged.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::unacknowledged
+* @see app/Http/Controllers/Api/AlertController.php:192
+* @route '/api/alerts/unacknowledged'
+*/
+unacknowledgedForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: unacknowledged.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+unacknowledged.form = unacknowledgedForm
 
 /**
 * @see \App\Http\Controllers\Api\AlertController::critical
@@ -264,6 +367,43 @@ critical.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Api\AlertController::critical
+* @see app/Http/Controllers/Api/AlertController.php:204
+* @route '/api/alerts/critical'
+*/
+const criticalForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: critical.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::critical
+* @see app/Http/Controllers/Api/AlertController.php:204
+* @route '/api/alerts/critical'
+*/
+criticalForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: critical.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::critical
+* @see app/Http/Controllers/Api/AlertController.php:204
+* @route '/api/alerts/critical'
+*/
+criticalForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: critical.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+critical.form = criticalForm
+
+/**
 * @see \App\Http\Controllers\Api\AlertController::statistics
 * @see app/Http/Controllers/Api/AlertController.php:216
 * @route '/api/alerts/statistics'
@@ -308,6 +448,43 @@ statistics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Api\AlertController::statistics
+* @see app/Http/Controllers/Api/AlertController.php:216
+* @route '/api/alerts/statistics'
+*/
+const statisticsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: statistics.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::statistics
+* @see app/Http/Controllers/Api/AlertController.php:216
+* @route '/api/alerts/statistics'
+*/
+statisticsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: statistics.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::statistics
+* @see app/Http/Controllers/Api/AlertController.php:216
+* @route '/api/alerts/statistics'
+*/
+statisticsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: statistics.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+statistics.form = statisticsForm
+
+/**
 * @see \App\Http\Controllers\Api\AlertController::bulkAcknowledge
 * @see app/Http/Controllers/Api/AlertController.php:240
 * @route '/api/alerts/bulk-acknowledge'
@@ -340,6 +517,28 @@ bulkAcknowledge.post = (options?: RouteQueryOptions): RouteDefinition<'post'> =>
     url: bulkAcknowledge.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::bulkAcknowledge
+* @see app/Http/Controllers/Api/AlertController.php:240
+* @route '/api/alerts/bulk-acknowledge'
+*/
+const bulkAcknowledgeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: bulkAcknowledge.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::bulkAcknowledge
+* @see app/Http/Controllers/Api/AlertController.php:240
+* @route '/api/alerts/bulk-acknowledge'
+*/
+bulkAcknowledgeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: bulkAcknowledge.url(options),
+    method: 'post',
+})
+
+bulkAcknowledge.form = bulkAcknowledgeForm
 
 /**
 * @see \App\Http\Controllers\Api\AlertController::exportMethod
@@ -384,6 +583,43 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: exportMethod.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::exportMethod
+* @see app/Http/Controllers/Api/AlertController.php:268
+* @route '/api/alerts/export/history'
+*/
+const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportMethod.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::exportMethod
+* @see app/Http/Controllers/Api/AlertController.php:268
+* @route '/api/alerts/export/history'
+*/
+exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportMethod.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AlertController::exportMethod
+* @see app/Http/Controllers/Api/AlertController.php:268
+* @route '/api/alerts/export/history'
+*/
+exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportMethod.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+exportMethod.form = exportMethodForm
 
 const alerts = {
     thresholds: Object.assign(thresholds, thresholds),

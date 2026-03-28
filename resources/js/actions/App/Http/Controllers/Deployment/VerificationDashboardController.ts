@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Deployment\VerificationDashboardController::metrics
 * @see app/Http/Controllers/Deployment/VerificationDashboardController.php:16
@@ -42,6 +42,43 @@ metrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: metrics.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::metrics
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:16
+* @route '/api/deployment/verification/metrics'
+*/
+const metricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: metrics.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::metrics
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:16
+* @route '/api/deployment/verification/metrics'
+*/
+metricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: metrics.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::metrics
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:16
+* @route '/api/deployment/verification/metrics'
+*/
+metricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: metrics.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+metrics.form = metricsForm
 
 /**
 * @see \App\Http\Controllers\Deployment\VerificationDashboardController::complianceMetrics
@@ -88,6 +125,43 @@ complianceMetrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> 
 })
 
 /**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::complianceMetrics
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:40
+* @route '/api/deployment/verification/compliance-metrics'
+*/
+const complianceMetricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: complianceMetrics.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::complianceMetrics
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:40
+* @route '/api/deployment/verification/compliance-metrics'
+*/
+complianceMetricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: complianceMetrics.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::complianceMetrics
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:40
+* @route '/api/deployment/verification/compliance-metrics'
+*/
+complianceMetricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: complianceMetrics.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+complianceMetrics.form = complianceMetricsForm
+
+/**
 * @see \App\Http\Controllers\Deployment\VerificationDashboardController::metricsHistory
 * @see app/Http/Controllers/Deployment/VerificationDashboardController.php:71
 * @route '/api/deployment/verification/metrics-history'
@@ -130,6 +204,43 @@ metricsHistory.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
     url: metricsHistory.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::metricsHistory
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:71
+* @route '/api/deployment/verification/metrics-history'
+*/
+const metricsHistoryForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: metricsHistory.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::metricsHistory
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:71
+* @route '/api/deployment/verification/metrics-history'
+*/
+metricsHistoryForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: metricsHistory.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::metricsHistory
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:71
+* @route '/api/deployment/verification/metrics-history'
+*/
+metricsHistoryForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: metricsHistory.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+metricsHistory.form = metricsHistoryForm
 
 /**
 * @see \App\Http\Controllers\Deployment\VerificationDashboardController::realtimeEvents
@@ -176,6 +287,43 @@ realtimeEvents.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
 })
 
 /**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::realtimeEvents
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:0
+* @route '/api/deployment/verification/realtime-events'
+*/
+const realtimeEventsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: realtimeEvents.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::realtimeEvents
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:0
+* @route '/api/deployment/verification/realtime-events'
+*/
+realtimeEventsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: realtimeEvents.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::realtimeEvents
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:0
+* @route '/api/deployment/verification/realtime-events'
+*/
+realtimeEventsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: realtimeEvents.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+realtimeEvents.form = realtimeEventsForm
+
+/**
 * @see \App\Http\Controllers\Deployment\VerificationDashboardController::realtimeEventsStream
 * @see app/Http/Controllers/Deployment/VerificationDashboardController.php:99
 * @route '/api/deployment/verification/realtime-events-stream'
@@ -220,6 +368,43 @@ realtimeEventsStream.head = (options?: RouteQueryOptions): RouteDefinition<'head
 })
 
 /**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::realtimeEventsStream
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:99
+* @route '/api/deployment/verification/realtime-events-stream'
+*/
+const realtimeEventsStreamForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: realtimeEventsStream.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::realtimeEventsStream
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:99
+* @route '/api/deployment/verification/realtime-events-stream'
+*/
+realtimeEventsStreamForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: realtimeEventsStream.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::realtimeEventsStream
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:99
+* @route '/api/deployment/verification/realtime-events-stream'
+*/
+realtimeEventsStreamForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: realtimeEventsStream.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+realtimeEventsStream.form = realtimeEventsStreamForm
+
+/**
 * @see \App\Http\Controllers\Deployment\VerificationDashboardController::exportMetrics
 * @see app/Http/Controllers/Deployment/VerificationDashboardController.php:160
 * @route '/api/deployment/verification/export-metrics'
@@ -262,6 +447,43 @@ exportMetrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
     url: exportMetrics.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::exportMetrics
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:160
+* @route '/api/deployment/verification/export-metrics'
+*/
+const exportMetricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportMetrics.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::exportMetrics
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:160
+* @route '/api/deployment/verification/export-metrics'
+*/
+exportMetricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportMetrics.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationDashboardController::exportMetrics
+* @see app/Http/Controllers/Deployment/VerificationDashboardController.php:160
+* @route '/api/deployment/verification/export-metrics'
+*/
+exportMetricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportMetrics.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+exportMetrics.form = exportMetricsForm
 
 const VerificationDashboardController = { metrics, complianceMetrics, metricsHistory, realtimeEvents, realtimeEventsStream, exportMetrics }
 

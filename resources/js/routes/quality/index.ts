@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see routes/web.php:251
 * @route '/quality-hub'
@@ -38,6 +38,40 @@ hub.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: hub.url(options),
     method: 'head',
 })
+
+/**
+* @see routes/web.php:251
+* @route '/quality-hub'
+*/
+const hubForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: hub.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:251
+* @route '/quality-hub'
+*/
+hubForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: hub.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:251
+* @route '/quality-hub'
+*/
+hubForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: hub.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+hub.form = hubForm
 
 /**
 * @see routes/web.php:255
@@ -80,6 +114,40 @@ ragasMetrics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see routes/web.php:255
+* @route '/quality/ragas-metrics'
+*/
+const ragasMetricsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: ragasMetrics.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:255
+* @route '/quality/ragas-metrics'
+*/
+ragasMetricsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: ragasMetrics.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:255
+* @route '/quality/ragas-metrics'
+*/
+ragasMetricsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: ragasMetrics.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+ragasMetrics.form = ragasMetricsForm
+
+/**
 * @see routes/web.php:259
 * @route '/quality/compliance-audit'
 */
@@ -118,6 +186,40 @@ complianceAudit.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
     url: complianceAudit.url(options),
     method: 'head',
 })
+
+/**
+* @see routes/web.php:259
+* @route '/quality/compliance-audit'
+*/
+const complianceAuditForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: complianceAudit.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:259
+* @route '/quality/compliance-audit'
+*/
+complianceAuditForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: complianceAudit.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:259
+* @route '/quality/compliance-audit'
+*/
+complianceAuditForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: complianceAudit.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+complianceAudit.form = complianceAuditForm
 
 const quality = {
     hub: Object.assign(hub, hub),

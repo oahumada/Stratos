@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\AgentController::index
 * @see app/Http/Controllers/Api/AgentController.php:16
@@ -42,6 +42,43 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Api\AgentController::index
+* @see app/Http/Controllers/Api/AgentController.php:16
+* @route '/api/agents'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AgentController::index
+* @see app/Http/Controllers/Api/AgentController.php:16
+* @route '/api/agents'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AgentController::index
+* @see app/Http/Controllers/Api/AgentController.php:16
+* @route '/api/agents'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Api\AgentController::update
@@ -96,6 +133,38 @@ update.put = (args: { agent: string | number } | [agent: string | number ] | str
 })
 
 /**
+* @see \App\Http\Controllers\Api\AgentController::update
+* @see app/Http/Controllers/Api/AgentController.php:71
+* @route '/api/agents/{agent}'
+*/
+const updateForm = (args: { agent: string | number } | [agent: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AgentController::update
+* @see app/Http/Controllers/Api/AgentController.php:71
+* @route '/api/agents/{agent}'
+*/
+updateForm.put = (args: { agent: string | number } | [agent: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+update.form = updateForm
+
+/**
 * @see \App\Http\Controllers\Api\AgentController::testAgent
 * @see app/Http/Controllers/Api/AgentController.php:52
 * @route '/api/agents/test'
@@ -128,6 +197,28 @@ testAgent.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: testAgent.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\AgentController::testAgent
+* @see app/Http/Controllers/Api/AgentController.php:52
+* @route '/api/agents/test'
+*/
+const testAgentForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: testAgent.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\AgentController::testAgent
+* @see app/Http/Controllers/Api/AgentController.php:52
+* @route '/api/agents/test'
+*/
+testAgentForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: testAgent.url(options),
+    method: 'post',
+})
+
+testAgent.form = testAgentForm
 
 const AgentController = { index, update, testAgent }
 

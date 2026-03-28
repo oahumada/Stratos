@@ -4,12 +4,9 @@
         <div class="flex items-center gap-3">
             <button
                 :class="{
-                    'rounded-lg px-4 py-2 font-semibold transition-all':
-                        true,
-                    'bg-indigo-600 text-white':
-                        view === 'current',
-                    'bg-gray-200 text-gray-700':
-                        view !== 'current',
+                    'rounded-lg px-4 py-2 font-semibold transition-all': true,
+                    'bg-indigo-600 text-white': view === 'current',
+                    'bg-gray-200 text-gray-700': view !== 'current',
                 }"
                 @click="view = 'current'"
             >
@@ -17,12 +14,9 @@
             </button>
             <button
                 :class="{
-                    'rounded-lg px-4 py-2 font-semibold transition-all':
-                        true,
-                    'bg-indigo-600 text-white':
-                        view === 'overlay',
-                    'bg-gray-200 text-gray-700':
-                        view !== 'overlay',
+                    'rounded-lg px-4 py-2 font-semibold transition-all': true,
+                    'bg-indigo-600 text-white': view === 'overlay',
+                    'bg-gray-200 text-gray-700': view !== 'overlay',
                 }"
                 @click="view = 'overlay'"
             >
@@ -30,12 +24,9 @@
             </button>
             <button
                 :class="{
-                    'rounded-lg px-4 py-2 font-semibold transition-all':
-                        true,
-                    'bg-indigo-600 text-white':
-                        view === 'delta',
-                    'bg-gray-200 text-gray-700':
-                        view !== 'delta',
+                    'rounded-lg px-4 py-2 font-semibold transition-all': true,
+                    'bg-indigo-600 text-white': view === 'delta',
+                    'bg-gray-200 text-gray-700': view !== 'delta',
                 }"
                 @click="view = 'delta'"
             >
@@ -64,12 +55,19 @@
         </div>
 
         <!-- Org Chart Canvas -->
-        <div class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+        <div
+            class="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
+        >
             <div v-if="loading" class="py-8 text-center text-gray-500">
                 Loading org chart...
             </div>
 
-            <svg v-else :width="svgWidth" :height="svgHeight" class="mb-4 rounded border border-gray-100">
+            <svg
+                v-else
+                :width="svgWidth"
+                :height="svgHeight"
+                class="mb-4 rounded border border-gray-100"
+            >
                 <!-- Connections -->
                 <g class="connections">
                     <line
@@ -89,7 +87,10 @@
                     <g
                         v-for="node in visibleNodes"
                         :key="`node-${node.id}`"
-                        @click="selectedRole = selectedRole?.id === node.id ? null : node"
+                        @click="
+                            selectedRole =
+                                selectedRole?.id === node.id ? null : node
+                        "
                         class="cursor-pointer"
                     >
                         <!-- Role Box -->
@@ -127,10 +128,14 @@
                         </text>
 
                         <!-- Status Badge -->
-                        <text v-if="node.status" :x="node.x + 5" :y="node.y + 70"
+                        <text
+                            v-if="node.status"
+                            :x="node.x + 5"
+                            :y="node.y + 70"
                             class="font-tiny"
                             font-size="10"
-                            :fill="getStatusColor(node.status)">
+                            :fill="getStatusColor(node.status)"
+                        >
                             {{ node.statusLabel }}
                         </text>
                     </g>
@@ -138,31 +143,48 @@
             </svg>
 
             <!-- Selected Role Details -->
-            <div v-if="selectedRole" class="space-y-3 rounded-lg bg-indigo-50 p-4 dark:bg-indigo-900/20">
+            <div
+                v-if="selectedRole"
+                class="space-y-3 rounded-lg bg-indigo-50 p-4 dark:bg-indigo-900/20"
+            >
                 <h4 class="font-semibold">{{ selectedRole.title }}</h4>
 
                 <div class="grid grid-cols-2 gap-2 text-sm">
                     <div>
-                        <span class="block text-xs font-semibold text-gray-600">Current Count</span>
-                        <span class="text-lg font-bold">{{ selectedRole.current_count }}</span>
+                        <span class="block text-xs font-semibold text-gray-600"
+                            >Current Count</span
+                        >
+                        <span class="text-lg font-bold">{{
+                            selectedRole.current_count
+                        }}</span>
                     </div>
                     <div>
-                        <span class="block text-xs font-semibold text-gray-600">Planned Change</span>
-                        <span :class="{
-                            'text-lg font-bold': true,
-                            'text-green-600': selectedRole.delta > 0,
-                            'text-red-600': selectedRole.delta < 0,
-                        }">
-                            {{ selectedRole.delta > 0 ? '+' : '' }}{{ selectedRole.delta }}
+                        <span class="block text-xs font-semibold text-gray-600"
+                            >Planned Change</span
+                        >
+                        <span
+                            :class="{
+                                'text-lg font-bold': true,
+                                'text-green-600': selectedRole.delta > 0,
+                                'text-red-600': selectedRole.delta < 0,
+                            }"
+                        >
+                            {{ selectedRole.delta > 0 ? '+' : ''
+                            }}{{ selectedRole.delta }}
                         </span>
                     </div>
                 </div>
 
                 <div v-if="selectedRole.successors?.length">
-                    <p class="text-xs font-semibold text-gray-600">Successor Candidates</p>
+                    <p class="text-xs font-semibold text-gray-600">
+                        Successor Candidates
+                    </p>
                     <ul class="mt-2 space-y-1">
-                        <li v-for="succ in selectedRole.successors" :key="succ"
-                            class="text-sm text-gray-700">
+                        <li
+                            v-for="succ in selectedRole.successors"
+                            :key="succ"
+                            class="text-sm text-gray-700"
+                        >
                             • {{ succ }}
                         </li>
                     </ul>
@@ -174,21 +196,27 @@
         <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
             <div class="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
                 <p class="text-xs text-gray-600">Total Roles</p>
-                <p class="text-2xl font-bold text-blue-600">{{ orgChart?.roles?.length || 0 }}</p>
+                <p class="text-2xl font-bold text-blue-600">
+                    {{ orgChart?.roles?.length || 0 }}
+                </p>
             </div>
             <div class="rounded-lg bg-green-50 p-3 dark:bg-green-900/20">
                 <p class="text-xs text-gray-600">New Positions</p>
-                <p class="text-2xl font-bold text-green-600">+{{ org ChartHeadcountAdded }}</p>
+                <p class="text-2xl font-bold text-green-600">
+                    +{{ org ChartHeadcountAdded }}
+                </p>
             </div>
             <div class="rounded-lg bg-red-50 p-3 dark:bg-red-900/20">
                 <p class="text-xs text-gray-600">Reductions</p>
-                <p class="text-2xl font-bold text-red-600">-{{ orgChartHeadcountRemoved }}</p>
+                <p class="text-2xl font-bold text-red-600">
+                    -{{ orgChartHeadcountRemoved }}
+                </p>
             </div>
             <div class="rounded-lg bg-yellow-50 p-3 dark:bg-yellow-900/20">
                 <p class="text-xs text-gray-600">Impact</p>
-                <p class="text-2xl font-bold text-yellow-600">{{
-                    orgChartHeadcountAdded - orgChartHeadcountRemoved
-                }}</p>
+                <p class="text-2xl font-bold text-yellow-600">
+                    {{ orgChartHeadcountAdded - orgChartHeadcountRemoved }}
+                </p>
             </div>
         </div>
     </div>
@@ -224,7 +252,12 @@ const visibleNodes = computed(() => {
         current_count: role.count,
         delta: role.delta || 0,
         status: role.delta > 0 ? 'new' : role.delta < 0 ? 'remove' : null,
-        statusLabel: role.delta > 0 ? '+' + role.delta : role.delta < 0 ? role.delta : 'stable',
+        statusLabel:
+            role.delta > 0
+                ? '+' + role.delta
+                : role.delta < 0
+                  ? role.delta
+                  : 'stable',
         successors: role.successors || [],
         x: (idx % 3) * 250 + 50,
         y: Math.floor(idx / 3) * 150 + 50,
@@ -237,13 +270,21 @@ const connectionLines = computed(() => {
 });
 
 const orgChartHeadcountAdded = computed(() => {
-    return orgChart.value?.roles?.reduce((sum: number, r: any) => 
-        sum + Math.max(0, r.delta || 0), 0) || 0;
+    return (
+        orgChart.value?.roles?.reduce(
+            (sum: number, r: any) => sum + Math.max(0, r.delta || 0),
+            0,
+        ) || 0
+    );
 });
 
 const orgChartHeadcountRemoved = computed(() => {
-    return orgChart.value?.roles?.reduce((sum: number, r: any) =>
-        sum + Math.max(0, -(r.delta || 0)), 0) || 0;
+    return (
+        orgChart.value?.roles?.reduce(
+            (sum: number, r: any) => sum + Math.max(0, -(r.delta || 0)),
+            0,
+        ) || 0
+    );
 });
 
 onMounted(async () => {
@@ -252,7 +293,7 @@ onMounted(async () => {
     loading.value = true;
     try {
         const response = await apiClient.get(
-            `/strategic-planning/scenarios/${scenarioId.value}/org-chart`
+            `/strategic-planning/scenarios/${scenarioId.value}/org-chart`,
         );
         orgChart.value = response.data?.data;
     } catch (err) {

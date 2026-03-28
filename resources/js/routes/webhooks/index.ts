@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\Automation\N8nController::n8n
 * @see app/Http/Controllers/Api/Automation/N8nController.php:14
@@ -32,6 +32,28 @@ n8n.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: n8n.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\Automation\N8nController::n8n
+* @see app/Http/Controllers/Api/Automation/N8nController.php:14
+* @route '/api/webhooks/n8n'
+*/
+const n8nForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: n8n.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\Automation\N8nController::n8n
+* @see app/Http/Controllers/Api/Automation/N8nController.php:14
+* @route '/api/webhooks/n8n'
+*/
+n8nForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: n8n.url(options),
+    method: 'post',
+})
+
+n8n.form = n8nForm
 
 const webhooks = {
     n8n: Object.assign(n8n, n8n),

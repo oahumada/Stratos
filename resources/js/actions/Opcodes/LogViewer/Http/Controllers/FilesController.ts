@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \Opcodes\LogViewer\Http\Controllers\FilesController::index
 * @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:15
@@ -42,6 +42,43 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
 })
+
+/**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::index
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:15
+* @route '/log-viewer/api/files'
+*/
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::index
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:15
+* @route '/log-viewer/api/files'
+*/
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::index
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:15
+* @route '/log-viewer/api/files'
+*/
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+index.form = indexForm
 
 /**
 * @see \Opcodes\LogViewer\Http\Controllers\FilesController::requestDownload
@@ -106,6 +143,43 @@ requestDownload.head = (args: { fileIdentifier: string | number } | [fileIdentif
 })
 
 /**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::requestDownload
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:35
+* @route '/log-viewer/api/files/{fileIdentifier}/download/request'
+*/
+const requestDownloadForm = (args: { fileIdentifier: string | number } | [fileIdentifier: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: requestDownload.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::requestDownload
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:35
+* @route '/log-viewer/api/files/{fileIdentifier}/download/request'
+*/
+requestDownloadForm.get = (args: { fileIdentifier: string | number } | [fileIdentifier: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: requestDownload.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::requestDownload
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:35
+* @route '/log-viewer/api/files/{fileIdentifier}/download/request'
+*/
+requestDownloadForm.head = (args: { fileIdentifier: string | number } | [fileIdentifier: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: requestDownload.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+requestDownload.form = requestDownloadForm
+
+/**
 * @see \Opcodes\LogViewer\Http\Controllers\FilesController::clearCache
 * @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:59
 * @route '/log-viewer/api/files/{fileIdentifier}/clear-cache'
@@ -156,6 +230,28 @@ clearCache.post = (args: { fileIdentifier: string | number } | [fileIdentifier: 
     url: clearCache.url(args, options),
     method: 'post',
 })
+
+/**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::clearCache
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:59
+* @route '/log-viewer/api/files/{fileIdentifier}/clear-cache'
+*/
+const clearCacheForm = (args: { fileIdentifier: string | number } | [fileIdentifier: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: clearCache.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::clearCache
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:59
+* @route '/log-viewer/api/files/{fileIdentifier}/clear-cache'
+*/
+clearCacheForm.post = (args: { fileIdentifier: string | number } | [fileIdentifier: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: clearCache.url(args, options),
+    method: 'post',
+})
+
+clearCache.form = clearCacheForm
 
 /**
 * @see \Opcodes\LogViewer\Http\Controllers\FilesController::deleteMethod
@@ -210,6 +306,38 @@ deleteMethod.delete = (args: { fileIdentifier: string | number } | [fileIdentifi
 })
 
 /**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::deleteMethod
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:81
+* @route '/log-viewer/api/files/{fileIdentifier}'
+*/
+const deleteMethodForm = (args: { fileIdentifier: string | number } | [fileIdentifier: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: deleteMethod.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::deleteMethod
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:81
+* @route '/log-viewer/api/files/{fileIdentifier}'
+*/
+deleteMethodForm.delete = (args: { fileIdentifier: string | number } | [fileIdentifier: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: deleteMethod.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+deleteMethod.form = deleteMethodForm
+
+/**
 * @see \Opcodes\LogViewer\Http\Controllers\FilesController::clearCacheAll
 * @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:72
 * @route '/log-viewer/api/clear-cache-all'
@@ -244,6 +372,28 @@ clearCacheAll.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => (
 })
 
 /**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::clearCacheAll
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:72
+* @route '/log-viewer/api/clear-cache-all'
+*/
+const clearCacheAllForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: clearCacheAll.url(options),
+    method: 'post',
+})
+
+/**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::clearCacheAll
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:72
+* @route '/log-viewer/api/clear-cache-all'
+*/
+clearCacheAllForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: clearCacheAll.url(options),
+    method: 'post',
+})
+
+clearCacheAll.form = clearCacheAllForm
+
+/**
 * @see \Opcodes\LogViewer\Http\Controllers\FilesController::deleteMultipleFiles
 * @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:98
 * @route '/log-viewer/api/delete-multiple-files'
@@ -276,6 +426,28 @@ deleteMultipleFiles.post = (options?: RouteQueryOptions): RouteDefinition<'post'
     url: deleteMultipleFiles.url(options),
     method: 'post',
 })
+
+/**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::deleteMultipleFiles
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:98
+* @route '/log-viewer/api/delete-multiple-files'
+*/
+const deleteMultipleFilesForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: deleteMultipleFiles.url(options),
+    method: 'post',
+})
+
+/**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::deleteMultipleFiles
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:98
+* @route '/log-viewer/api/delete-multiple-files'
+*/
+deleteMultipleFilesForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: deleteMultipleFiles.url(options),
+    method: 'post',
+})
+
+deleteMultipleFiles.form = deleteMultipleFilesForm
 
 /**
 * @see \Opcodes\LogViewer\Http\Controllers\FilesController::download
@@ -338,6 +510,43 @@ download.head = (args: { fileIdentifier: string | number } | [fileIdentifier: st
     url: download.url(args, options),
     method: 'head',
 })
+
+/**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::download
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:52
+* @route '/log-viewer/api/files/{fileIdentifier}/download'
+*/
+const downloadForm = (args: { fileIdentifier: string | number } | [fileIdentifier: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: download.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::download
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:52
+* @route '/log-viewer/api/files/{fileIdentifier}/download'
+*/
+downloadForm.get = (args: { fileIdentifier: string | number } | [fileIdentifier: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: download.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Opcodes\LogViewer\Http\Controllers\FilesController::download
+* @see vendor/opcodesio/log-viewer/src/Http/Controllers/FilesController.php:52
+* @route '/log-viewer/api/files/{fileIdentifier}/download'
+*/
+downloadForm.head = (args: { fileIdentifier: string | number } | [fileIdentifier: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: download.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+download.form = downloadForm
 
 const FilesController = { index, requestDownload, clearCache, deleteMethod, clearCacheAll, deleteMultipleFiles, download, delete: deleteMethod }
 

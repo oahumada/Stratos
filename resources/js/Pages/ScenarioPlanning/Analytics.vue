@@ -92,6 +92,21 @@
             <div v-show="activeTab === 'dashboard'">
                 <ApprovalDashboard />
             </div>
+
+            <!-- Phase 3.3: Executive Summary Tab -->
+            <div v-show="activeTab === 'executive'">
+                <ExecutiveSummary :scenario-id="selectedScenarioId" />
+            </div>
+
+            <!-- Phase 3.4: Org Chart Tab -->
+            <div v-show="activeTab === 'orgchart'">
+                <OrgChartOverlay :scenario-id="selectedScenarioId" />
+            </div>
+
+            <!-- Phase 3.4: What-If Analysis Tab -->
+            <div v-show="activeTab === 'whatif'">
+                <WhatIfAnalyzer :scenario-id="selectedScenarioId" />
+            </div>
         </div>
     </div>
 </template>
@@ -105,6 +120,10 @@ import ScenarioComparison from '@/components/ScenarioPlanning/ScenarioComparison
 import ScenarioMetrics from '@/components/ScenarioPlanning/ScenarioMetrics.vue';
 import ScenarioTimeline from '@/components/ScenarioPlanning/ScenarioTimeline.vue';
 import WorkflowTimeline from '@/components/ScenarioPlanning/WorkflowTimeline.vue';
+// Phase 3.3-3.4: Executive Summary & Visualization Components
+import ExecutiveSummary from '@/components/ScenarioPlanning/ExecutiveSummary.vue';
+import OrgChartOverlay from '@/components/ScenarioPlanning/OrgChartOverlay.vue';
+import WhatIfAnalyzer from '@/components/ScenarioPlanning/WhatIfAnalyzer.vue';
 import { ref } from 'vue';
 
 // State
@@ -126,6 +145,10 @@ const tabs = [
     { id: 'workflow', name: '🔄 Workflow' },
     { id: 'execution', name: '🚀 Execution' },
     { id: 'dashboard', name: '📋 Dashboard' },
+    // Phase 3.3-3.4: Executive Insights
+    { id: 'executive', name: '👔 Executive Summary' },
+    { id: 'orgchart', name: '🏢 Org Chart' },
+    { id: 'whatif', name: '🎯 What-If Analysis' },
 ];
 
 // Sample Data (Replace with API calls in Phase 2)

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\Automation\N8nController::handleWebhook
 * @see app/Http/Controllers/Api/Automation/N8nController.php:14
@@ -32,6 +32,28 @@ handleWebhook.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => (
     url: handleWebhook.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\Automation\N8nController::handleWebhook
+* @see app/Http/Controllers/Api/Automation/N8nController.php:14
+* @route '/api/webhooks/n8n'
+*/
+const handleWebhookForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: handleWebhook.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\Automation\N8nController::handleWebhook
+* @see app/Http/Controllers/Api/Automation/N8nController.php:14
+* @route '/api/webhooks/n8n'
+*/
+handleWebhookForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: handleWebhook.url(options),
+    method: 'post',
+})
+
+handleWebhook.form = handleWebhookForm
 
 const N8nController = { handleWebhook }
 

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Deployment\VerificationHubController::schedulerStatus
 * @see app/Http/Controllers/Deployment/VerificationHubController.php:24
@@ -42,6 +42,43 @@ schedulerStatus.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
     url: schedulerStatus.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::schedulerStatus
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:24
+* @route '/api/deployment/verification/scheduler-status'
+*/
+const schedulerStatusForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: schedulerStatus.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::schedulerStatus
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:24
+* @route '/api/deployment/verification/scheduler-status'
+*/
+schedulerStatusForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: schedulerStatus.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::schedulerStatus
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:24
+* @route '/api/deployment/verification/scheduler-status'
+*/
+schedulerStatusForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: schedulerStatus.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+schedulerStatus.form = schedulerStatusForm
 
 /**
 * @see \App\Http\Controllers\Deployment\VerificationHubController::recentTransitions
@@ -88,6 +125,43 @@ recentTransitions.head = (options?: RouteQueryOptions): RouteDefinition<'head'> 
 })
 
 /**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::recentTransitions
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:56
+* @route '/api/deployment/verification/transitions'
+*/
+const recentTransitionsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: recentTransitions.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::recentTransitions
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:56
+* @route '/api/deployment/verification/transitions'
+*/
+recentTransitionsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: recentTransitions.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::recentTransitions
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:56
+* @route '/api/deployment/verification/transitions'
+*/
+recentTransitionsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: recentTransitions.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+recentTransitions.form = recentTransitionsForm
+
+/**
 * @see \App\Http\Controllers\Deployment\VerificationHubController::notifications
 * @see app/Http/Controllers/Deployment/VerificationHubController.php:90
 * @route '/api/deployment/verification/notifications'
@@ -132,6 +206,43 @@ notifications.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 })
 
 /**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::notifications
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:90
+* @route '/api/deployment/verification/notifications'
+*/
+const notificationsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: notifications.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::notifications
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:90
+* @route '/api/deployment/verification/notifications'
+*/
+notificationsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: notifications.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::notifications
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:90
+* @route '/api/deployment/verification/notifications'
+*/
+notificationsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: notifications.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+notifications.form = notificationsForm
+
+/**
 * @see \App\Http\Controllers\Deployment\VerificationHubController::testNotification
 * @see app/Http/Controllers/Deployment/VerificationHubController.php:132
 * @route '/api/deployment/verification/test-notification'
@@ -164,6 +275,28 @@ testNotification.post = (options?: RouteQueryOptions): RouteDefinition<'post'> =
     url: testNotification.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::testNotification
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:132
+* @route '/api/deployment/verification/test-notification'
+*/
+const testNotificationForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: testNotification.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::testNotification
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:132
+* @route '/api/deployment/verification/test-notification'
+*/
+testNotificationForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: testNotification.url(options),
+    method: 'post',
+})
+
+testNotification.form = testNotificationForm
 
 /**
 * @see \App\Http\Controllers\Deployment\VerificationHubController::configuration
@@ -210,6 +343,43 @@ configuration.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 })
 
 /**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::configuration
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:164
+* @route '/api/deployment/verification/configuration'
+*/
+const configurationForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: configuration.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::configuration
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:164
+* @route '/api/deployment/verification/configuration'
+*/
+configurationForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: configuration.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::configuration
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:164
+* @route '/api/deployment/verification/configuration'
+*/
+configurationForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: configuration.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+configuration.form = configurationForm
+
+/**
 * @see \App\Http\Controllers\Deployment\VerificationHubController::auditLogs
 * @see app/Http/Controllers/Deployment/VerificationHubController.php:204
 * @route '/api/deployment/verification/audit-logs'
@@ -254,6 +424,43 @@ auditLogs.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::auditLogs
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:204
+* @route '/api/deployment/verification/audit-logs'
+*/
+const auditLogsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: auditLogs.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::auditLogs
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:204
+* @route '/api/deployment/verification/audit-logs'
+*/
+auditLogsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: auditLogs.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::auditLogs
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:204
+* @route '/api/deployment/verification/audit-logs'
+*/
+auditLogsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: auditLogs.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+auditLogs.form = auditLogsForm
+
+/**
 * @see \App\Http\Controllers\Deployment\VerificationHubController::dryRunSimulation
 * @see app/Http/Controllers/Deployment/VerificationHubController.php:244
 * @route '/api/deployment/verification/dry-run'
@@ -286,6 +493,28 @@ dryRunSimulation.post = (options?: RouteQueryOptions): RouteDefinition<'post'> =
     url: dryRunSimulation.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::dryRunSimulation
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:244
+* @route '/api/deployment/verification/dry-run'
+*/
+const dryRunSimulationForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: dryRunSimulation.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::dryRunSimulation
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:244
+* @route '/api/deployment/verification/dry-run'
+*/
+dryRunSimulationForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: dryRunSimulation.url(options),
+    method: 'post',
+})
+
+dryRunSimulation.form = dryRunSimulationForm
 
 /**
 * @see \App\Http\Controllers\Deployment\VerificationHubController::complianceReport
@@ -330,6 +559,43 @@ complianceReport.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
     url: complianceReport.url(options),
     method: 'head',
 })
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::complianceReport
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:335
+* @route '/api/deployment/verification/compliance-report'
+*/
+const complianceReportForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: complianceReport.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::complianceReport
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:335
+* @route '/api/deployment/verification/compliance-report'
+*/
+complianceReportForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: complianceReport.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Deployment\VerificationHubController::complianceReport
+* @see app/Http/Controllers/Deployment/VerificationHubController.php:335
+* @route '/api/deployment/verification/compliance-report'
+*/
+complianceReportForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: complianceReport.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+complianceReport.form = complianceReportForm
 
 const VerificationHubController = { schedulerStatus, recentTransitions, notifications, testNotification, configuration, auditLogs, dryRunSimulation, complianceReport }
 

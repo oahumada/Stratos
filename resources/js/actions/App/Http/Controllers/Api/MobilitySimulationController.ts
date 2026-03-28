@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::simulate
 * @see app/Http/Controllers/Api/MobilitySimulationController.php:26
@@ -32,6 +32,28 @@ simulate.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: simulate.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\MobilitySimulationController::simulate
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:26
+* @route '/api/strategic-planning/mobility/simulate'
+*/
+const simulateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: simulate.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\MobilitySimulationController::simulate
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:26
+* @route '/api/strategic-planning/mobility/simulate'
+*/
+simulateForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: simulate.url(options),
+    method: 'post',
+})
+
+simulate.form = simulateForm
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::organizationImpact
@@ -78,6 +100,43 @@ organizationImpact.head = (options?: RouteQueryOptions): RouteDefinition<'head'>
 })
 
 /**
+* @see \App\Http\Controllers\Api\MobilitySimulationController::organizationImpact
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:80
+* @route '/api/strategic-planning/mobility/organization-impact'
+*/
+const organizationImpactForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: organizationImpact.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\MobilitySimulationController::organizationImpact
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:80
+* @route '/api/strategic-planning/mobility/organization-impact'
+*/
+organizationImpactForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: organizationImpact.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\MobilitySimulationController::organizationImpact
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:80
+* @route '/api/strategic-planning/mobility/organization-impact'
+*/
+organizationImpactForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: organizationImpact.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+organizationImpact.form = organizationImpactForm
+
+/**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::saveScenario
 * @see app/Http/Controllers/Api/MobilitySimulationController.php:102
 * @route '/api/strategic-planning/mobility/save-scenario'
@@ -110,6 +169,28 @@ saveScenario.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: saveScenario.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\MobilitySimulationController::saveScenario
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:102
+* @route '/api/strategic-planning/mobility/save-scenario'
+*/
+const saveScenarioForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: saveScenario.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\MobilitySimulationController::saveScenario
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:102
+* @route '/api/strategic-planning/mobility/save-scenario'
+*/
+saveScenarioForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: saveScenario.url(options),
+    method: 'post',
+})
+
+saveScenario.form = saveScenarioForm
 
 /**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::materialize
@@ -164,6 +245,28 @@ materialize.post = (args: { id: string | number } | [id: string | number ] | str
 })
 
 /**
+* @see \App\Http\Controllers\Api\MobilitySimulationController::materialize
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:143
+* @route '/api/strategic-planning/mobility/scenarios/{id}/materialize'
+*/
+const materializeForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: materialize.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\MobilitySimulationController::materialize
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:143
+* @route '/api/strategic-planning/mobility/scenarios/{id}/materialize'
+*/
+materializeForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: materialize.url(args, options),
+    method: 'post',
+})
+
+materialize.form = materializeForm
+
+/**
 * @see \App\Http\Controllers\Api\MobilitySimulationController::getAiSuggestions
 * @see app/Http/Controllers/Api/MobilitySimulationController.php:212
 * @route '/api/strategic-planning/mobility/ai-suggestions'
@@ -196,6 +299,28 @@ getAiSuggestions.post = (options?: RouteQueryOptions): RouteDefinition<'post'> =
     url: getAiSuggestions.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\MobilitySimulationController::getAiSuggestions
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:212
+* @route '/api/strategic-planning/mobility/ai-suggestions'
+*/
+const getAiSuggestionsForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: getAiSuggestions.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\MobilitySimulationController::getAiSuggestions
+* @see app/Http/Controllers/Api/MobilitySimulationController.php:212
+* @route '/api/strategic-planning/mobility/ai-suggestions'
+*/
+getAiSuggestionsForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: getAiSuggestions.url(options),
+    method: 'post',
+})
+
+getAiSuggestions.form = getAiSuggestionsForm
 
 const MobilitySimulationController = { simulate, organizationImpact, saveScenario, materialize, getAiSuggestions }
 

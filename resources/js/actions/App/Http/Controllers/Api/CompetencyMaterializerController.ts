@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\CompetencyMaterializerController::generateBlueprint
 * @see app/Http/Controllers/Api/CompetencyMaterializerController.php:23
@@ -52,6 +52,28 @@ generateBlueprint.post = (args: { id: string | number } | [id: string | number ]
 })
 
 /**
+* @see \App\Http\Controllers\Api\CompetencyMaterializerController::generateBlueprint
+* @see app/Http/Controllers/Api/CompetencyMaterializerController.php:23
+* @route '/api/strategic-planning/competencies/{id}/generate-blueprint'
+*/
+const generateBlueprintForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: generateBlueprint.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\CompetencyMaterializerController::generateBlueprint
+* @see app/Http/Controllers/Api/CompetencyMaterializerController.php:23
+* @route '/api/strategic-planning/competencies/{id}/generate-blueprint'
+*/
+generateBlueprintForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: generateBlueprint.url(args, options),
+    method: 'post',
+})
+
+generateBlueprint.form = generateBlueprintForm
+
+/**
 * @see \App\Http\Controllers\Api\CompetencyMaterializerController::materialize
 * @see app/Http/Controllers/Api/CompetencyMaterializerController.php:44
 * @route '/api/strategic-planning/competencies/{id}/materialize'
@@ -102,6 +124,28 @@ materialize.post = (args: { id: string | number } | [id: string | number ] | str
     url: materialize.url(args, options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\CompetencyMaterializerController::materialize
+* @see app/Http/Controllers/Api/CompetencyMaterializerController.php:44
+* @route '/api/strategic-planning/competencies/{id}/materialize'
+*/
+const materializeForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: materialize.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\CompetencyMaterializerController::materialize
+* @see app/Http/Controllers/Api/CompetencyMaterializerController.php:44
+* @route '/api/strategic-planning/competencies/{id}/materialize'
+*/
+materializeForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: materialize.url(args, options),
+    method: 'post',
+})
+
+materialize.form = materializeForm
 
 const CompetencyMaterializerController = { generateBlueprint, materialize }
 

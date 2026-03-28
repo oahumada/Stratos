@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\Messaging\ParticipantController::store
 * @see app/Http/Controllers/Api/Messaging/ParticipantController.php:22
@@ -58,6 +58,28 @@ store.post = (args: { conversation: string | { id: string } } | [conversation: s
 })
 
 /**
+* @see \App\Http\Controllers\Api\Messaging\ParticipantController::store
+* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:22
+* @route '/api/messaging/conversations/{conversation}/participants'
+*/
+const storeForm = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\Messaging\ParticipantController::store
+* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:22
+* @route '/api/messaging/conversations/{conversation}/participants'
+*/
+storeForm.post = (args: { conversation: string | { id: string } } | [conversation: string | { id: string } ] | string | { id: string }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: store.url(args, options),
+    method: 'post',
+})
+
+store.form = storeForm
+
+/**
 * @see \App\Http\Controllers\Api\Messaging\ParticipantController::destroy
 * @see app/Http/Controllers/Api/Messaging/ParticipantController.php:53
 * @route '/api/messaging/conversations/{conversation}/participants/{participant}'
@@ -111,6 +133,38 @@ destroy.delete = (args: { conversation: string | { id: string }, participant: st
     url: destroy.url(args, options),
     method: 'delete',
 })
+
+/**
+* @see \App\Http\Controllers\Api\Messaging\ParticipantController::destroy
+* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:53
+* @route '/api/messaging/conversations/{conversation}/participants/{participant}'
+*/
+const destroyForm = (args: { conversation: string | { id: string }, participant: string | { id: string } } | [conversation: string | { id: string }, participant: string | { id: string } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\Messaging\ParticipantController::destroy
+* @see app/Http/Controllers/Api/Messaging/ParticipantController.php:53
+* @route '/api/messaging/conversations/{conversation}/participants/{participant}'
+*/
+destroyForm.delete = (args: { conversation: string | { id: string }, participant: string | { id: string } } | [conversation: string | { id: string }, participant: string | { id: string } ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: destroy.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+destroy.form = destroyForm
 
 const participants = {
     store: Object.assign(store, store),

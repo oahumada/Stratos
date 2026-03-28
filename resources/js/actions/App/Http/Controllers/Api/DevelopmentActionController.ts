@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\DevelopmentActionController::updateStatus
 * @see app/Http/Controllers/Api/DevelopmentActionController.php:23
@@ -50,6 +50,38 @@ updateStatus.patch = (args: { id: string | number } | [id: string | number ] | s
     url: updateStatus.url(args, options),
     method: 'patch',
 })
+
+/**
+* @see \App\Http\Controllers\Api\DevelopmentActionController::updateStatus
+* @see app/Http/Controllers/Api/DevelopmentActionController.php:23
+* @route '/api/development-actions/{id}/status'
+*/
+const updateStatusForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updateStatus.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PATCH',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\DevelopmentActionController::updateStatus
+* @see app/Http/Controllers/Api/DevelopmentActionController.php:23
+* @route '/api/development-actions/{id}/status'
+*/
+updateStatusForm.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updateStatus.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PATCH',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+updateStatus.form = updateStatusForm
 
 /**
 * @see \App\Http\Controllers\Api\DevelopmentActionController::launchLms
@@ -104,6 +136,28 @@ launchLms.post = (args: { id: string | number } | [id: string | number ] | strin
 })
 
 /**
+* @see \App\Http\Controllers\Api\DevelopmentActionController::launchLms
+* @see app/Http/Controllers/Api/DevelopmentActionController.php:55
+* @route '/api/development-actions/{id}/launch-lms'
+*/
+const launchLmsForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: launchLms.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\DevelopmentActionController::launchLms
+* @see app/Http/Controllers/Api/DevelopmentActionController.php:55
+* @route '/api/development-actions/{id}/launch-lms'
+*/
+launchLmsForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: launchLms.url(args, options),
+    method: 'post',
+})
+
+launchLms.form = launchLmsForm
+
+/**
 * @see \App\Http\Controllers\Api\DevelopmentActionController::syncLms
 * @see app/Http/Controllers/Api/DevelopmentActionController.php:73
 * @route '/api/development-actions/{id}/sync-lms'
@@ -154,6 +208,28 @@ syncLms.post = (args: { id: string | number } | [id: string | number ] | string 
     url: syncLms.url(args, options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\DevelopmentActionController::syncLms
+* @see app/Http/Controllers/Api/DevelopmentActionController.php:73
+* @route '/api/development-actions/{id}/sync-lms'
+*/
+const syncLmsForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: syncLms.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\DevelopmentActionController::syncLms
+* @see app/Http/Controllers/Api/DevelopmentActionController.php:73
+* @route '/api/development-actions/{id}/sync-lms'
+*/
+syncLmsForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: syncLms.url(args, options),
+    method: 'post',
+})
+
+syncLms.form = syncLmsForm
 
 const DevelopmentActionController = { updateStatus, launchLms, syncLms }
 

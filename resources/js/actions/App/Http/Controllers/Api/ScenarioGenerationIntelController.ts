@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\ScenarioGenerationIntelController::generate
 * @see app/Http/Controllers/Api/ScenarioGenerationIntelController.php:15
@@ -32,6 +32,28 @@ generate.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: generate.url(options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioGenerationIntelController::generate
+* @see app/Http/Controllers/Api/ScenarioGenerationIntelController.php:15
+* @route '/api/strategic-planning/scenarios/generate/intel'
+*/
+const generateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: generate.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\ScenarioGenerationIntelController::generate
+* @see app/Http/Controllers/Api/ScenarioGenerationIntelController.php:15
+* @route '/api/strategic-planning/scenarios/generate/intel'
+*/
+generateForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: generate.url(options),
+    method: 'post',
+})
+
+generate.form = generateForm
 
 const ScenarioGenerationIntelController = { generate }
 

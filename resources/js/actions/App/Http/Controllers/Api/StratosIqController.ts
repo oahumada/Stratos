@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\StratosIqController::getTrends
 * @see app/Http/Controllers/Api/StratosIqController.php:24
@@ -62,6 +62,43 @@ getTrends.head = (args: { organizationId: string | number } | [organizationId: s
 })
 
 /**
+* @see \App\Http\Controllers\Api\StratosIqController::getTrends
+* @see app/Http/Controllers/Api/StratosIqController.php:24
+* @route '/api/stratos-iq/{organizationId}'
+*/
+const getTrendsForm = (args: { organizationId: string | number } | [organizationId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getTrends.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\StratosIqController::getTrends
+* @see app/Http/Controllers/Api/StratosIqController.php:24
+* @route '/api/stratos-iq/{organizationId}'
+*/
+getTrendsForm.get = (args: { organizationId: string | number } | [organizationId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getTrends.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\StratosIqController::getTrends
+* @see app/Http/Controllers/Api/StratosIqController.php:24
+* @route '/api/stratos-iq/{organizationId}'
+*/
+getTrendsForm.head = (args: { organizationId: string | number } | [organizationId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: getTrends.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+getTrends.form = getTrendsForm
+
+/**
 * @see \App\Http\Controllers\Api\StratosIqController::captureSnapshot
 * @see app/Http/Controllers/Api/StratosIqController.php:40
 * @route '/api/stratos-iq/{organizationId}/snapshot'
@@ -112,6 +149,28 @@ captureSnapshot.post = (args: { organizationId: string | number } | [organizatio
     url: captureSnapshot.url(args, options),
     method: 'post',
 })
+
+/**
+* @see \App\Http\Controllers\Api\StratosIqController::captureSnapshot
+* @see app/Http/Controllers/Api/StratosIqController.php:40
+* @route '/api/stratos-iq/{organizationId}/snapshot'
+*/
+const captureSnapshotForm = (args: { organizationId: string | number } | [organizationId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: captureSnapshot.url(args, options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Api\StratosIqController::captureSnapshot
+* @see app/Http/Controllers/Api/StratosIqController.php:40
+* @route '/api/stratos-iq/{organizationId}/snapshot'
+*/
+captureSnapshotForm.post = (args: { organizationId: string | number } | [organizationId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: captureSnapshot.url(args, options),
+    method: 'post',
+})
+
+captureSnapshot.form = captureSnapshotForm
 
 const StratosIqController = { getTrends, captureSnapshot }
 
