@@ -17,6 +17,7 @@
         "laravel/socialite": "^5.24",
         "laravel/tinker": "^2.10.1",
         "laravel/wayfinder": "^0.1.9",
+        "mpdf/mpdf": "*",
         "opcodesio/log-viewer": "^3.21",
         "predis/predis": "^3.3",
         "sentry/sentry-laravel": "^4.21"
