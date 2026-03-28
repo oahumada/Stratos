@@ -1255,6 +1255,12 @@ Route::middleware('auth:sanctum')->prefix('strategic-planning')->group(function 
     Route::post('scenarios/{scenarioId}/executive-summary', [\App\Http\Controllers\Api\ExecutiveSummaryController::class, 'generate']);
     Route::post('scenarios/{scenarioId}/executive-summary/export', [\App\Http\Controllers\Api\ExecutiveSummaryController::class, 'export']);
 
+    // Executive Summary Export - Phase 3.3: PDF/PPTX export endpoints
+    Route::post('scenarios/{scenarioId}/executive-summary/export/pdf', [\App\Http\Controllers\Api\ExportController::class, 'exportPdf']);
+    Route::post('scenarios/{scenarioId}/executive-summary/export/pptx', [\App\Http\Controllers\Api\ExportController::class, 'exportPptx']);
+    Route::get('scenarios/{scenarioId}/executive-summary/download', [\App\Http\Controllers\Api\ExportController::class, 'download']);
+    Route::get('strategic-planning/exports/{format}/status', [\App\Http\Controllers\Api\ExportController::class, 'status']);
+
     // Org Chart - Phase 3.4: Organizational structure visualization
     Route::get('scenarios/{scenarioId}/org-chart', [\App\Http\Controllers\Api\OrgChartController::class, '__invoke']);
 });
