@@ -19,6 +19,7 @@
         "laravel/wayfinder": "^0.1.9",
         "mpdf/mpdf": "*",
         "opcodesio/log-viewer": "^3.21",
+        "phpoffice/phppresentation": "*",
         "predis/predis": "^3.3",
         "sentry/sentry-laravel": "^4.21"
     },

@@ -2,8 +2,6 @@
 
 namespace Tests\Unit;
 
-use App\Models\Organization;
-use App\Models\Scenario;
 use App\Services\ScenarioPlanning\ExecutiveSummaryService;
 use App\Services\ScenarioPlanning\ExportService;
 use PHPUnit\Framework\TestCase;
@@ -12,7 +10,9 @@ use ReflectionClass;
 class ExportServiceMpdfTest extends TestCase
 {
     private ExportService $exportService;
+
     private $organization;
+
     private $scenario;
 
     protected function setUp(): void
@@ -239,5 +239,36 @@ class ExportServiceMpdfTest extends TestCase
         $this->assertIsString($html);
         $this->assertNotEmpty($html);
     }
-}
 
+    public function test_build_pptx_presentation_generates_five_slides(): void
+    {
+        if (! class_exists(\PhpOffice\PhpPresentation\PhpPresentation::class)) {
+            $this->markTestSkipped('PHPPresentation package is not installed in current environment.');
+        }
+
+        $reflection = new ReflectionClass($this->exportService);
+        $method = $reflection->getMethod('buildPptxPresentation');
+        $method->setAccessible(true);
+
+        $presentation = $method->invoke($this->exportService, $this->getMockSummary(), $this->scenario);
+
+        $this->assertInstanceOf(\PhpOffice\PhpPresentation\PhpPresentation::class, $presentation);
+        $this->assertCount(5, $presentation->getAllSlides());
+    }
+
+    public function test_build_pptx_presentation_sets_document_title(): void
+    {
+        if (! class_exists(\PhpOffice\PhpPresentation\PhpPresentation::class)) {
+            $this->markTestSkipped('PHPPresentation package is not installed in current environment.');
+        }
+
+        $reflection = new ReflectionClass($this->exportService);
+        $method = $reflection->getMethod('buildPptxPresentation');
+        $method->setAccessible(true);
+
+        $presentation = $method->invoke($this->exportService, $this->getMockSummary(), $this->scenario);
+
+        $this->assertStringContainsString('Executive Summary', $presentation->getDocumentProperties()->getTitle());
+        $this->assertStringContainsString($this->scenario->name, $presentation->getDocumentProperties()->getTitle());
+    }
+}
