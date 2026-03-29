@@ -54,6 +54,41 @@
                 </div>
             </div>
 
+            <!-- Loading State -->
+            <div
+                v-if="loadingComparison"
+                class="mb-4 flex items-center gap-3 rounded-lg bg-blue-50 px-4 py-3 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
+            >
+                <svg
+                    class="h-5 w-5 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                >
+                    <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                    />
+                    <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                </svg>
+                <span class="text-sm font-medium">Loading comparison data…</span>
+            </div>
+
+            <!-- Error State -->
+            <div
+                v-if="comparisonError"
+                class="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-300"
+            >
+                {{ comparisonError }}
+            </div>
+
             <!-- Comparison Grid -->
             <div v-if="selectedScenarios.length > 0" class="overflow-x-auto">
                 <table class="w-full border-collapse text-sm">
@@ -300,7 +335,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { apiClient } from '@/services/apiClient';
+import { onMounted, ref, watch } from 'vue';
 
 interface Scenario {
     id: number;
@@ -319,7 +355,8 @@ interface Scenario {
 const showScenarioSelector = ref(false);
 const selectedScenarios = ref<Scenario[]>([]);
 const availableScenarios = ref<Scenario[]>([]);
-const { get, post } = useFetch();
+const loadingComparison = ref(false);
+const comparisonError = ref<string | null>(null);
 
 onMounted(() => {
     loadAvailableScenarios();
@@ -327,12 +364,60 @@ onMounted(() => {
 
 const loadAvailableScenarios = async () => {
     try {
-        const response = await get('/api/scenarios');
-        availableScenarios.value = response.data;
+        const response = await apiClient.get('/api/scenarios');
+        availableScenarios.value = Array.isArray(response.data)
+            ? response.data
+            : (response.data?.data ?? []);
     } catch (error) {
         console.error('Failed to load scenarios:', error);
     }
 };
+
+/**
+ * Fetch enriched comparison data from the API when 2+ scenarios selected.
+ * Merges IQ, financial_impact, risk_score and skill_gaps back into selectedScenarios.
+ */
+const fetchComparison = async () => {
+    if (selectedScenarios.value.length < 2) {
+        return;
+    }
+
+    loadingComparison.value = true;
+    comparisonError.value = null;
+
+    try {
+        const ids = selectedScenarios.value.map((s) => s.id);
+        const response = await apiClient.post('/api/scenarios/compare', {
+            scenario_ids: ids,
+        });
+
+        const comparisonItems: Scenario[] = response.data?.comparison ?? [];
+
+        // Enrich selectedScenarios with API data
+        selectedScenarios.value = selectedScenarios.value.map((selected) => {
+            const enriched = comparisonItems.find(
+                (item) => item.id === selected.id,
+            );
+            return enriched ? { ...selected, ...enriched } : selected;
+        });
+    } catch (error: any) {
+        console.error('Failed to fetch comparison data:', error);
+        comparisonError.value =
+            error?.response?.data?.message ?? 'Failed to load comparison data.';
+    } finally {
+        loadingComparison.value = false;
+    }
+};
+
+// Auto-fetch comparison whenever the set of selected scenarios changes
+watch(
+    () => selectedScenarios.value.map((s) => s.id).join(','),
+    () => {
+        if (selectedScenarios.value.length >= 2) {
+            fetchComparison();
+        }
+    },
+);
 
 const addScenario = (scenario: Scenario) => {
     if (
@@ -350,6 +435,7 @@ const removeScenario = (index: number) => {
 
 const clearComparison = () => {
     selectedScenarios.value = [];
+    comparisonError.value = null;
 };
 
 const calculateVariance = (metric: string): string => {
@@ -413,7 +499,7 @@ const exportComparison = () => {
     const rows = [
         [
             'IQ Score',
-            ...selectedScenarios.value.map((s) => s.iq.toString()),
+            ...selectedScenarios.value.map((s) => (s.iq ?? 0).toString()),
             calculateVariance('iq') + '%',
         ],
         ['Status', ...selectedScenarios.value.map((s) => s.status), '-'],
@@ -422,19 +508,19 @@ const exportComparison = () => {
             ...selectedScenarios.value.map(
                 (s) =>
                     '$' +
-                    (s.financial_impact?.total_impact / 1000).toFixed(0) +
+                    ((s.financial_impact?.total_impact ?? 0) / 1000).toFixed(0) +
                     'K',
             ),
             calculateFinanceVariance() + '%',
         ],
         [
             'Risk Score',
-            ...selectedScenarios.value.map((s) => s.risk_score + '/100'),
+            ...selectedScenarios.value.map((s) => (s.risk_score ?? 0) + '/100'),
             calculateVariance('risk_score') + '%',
         ],
         [
             'Skill Gaps',
-            ...selectedScenarios.value.map((s) => s.skill_gaps + ' gaps'),
+            ...selectedScenarios.value.map((s) => (s.skill_gaps ?? 0) + ' gaps'),
             calculateVariance('skill_gaps') + '%',
         ],
     ];

@@ -47,7 +47,8 @@ class ExportService
             );
 
             // Build HTML content for PDF
-            $htmlContent = $this->buildPdfContent($summary, $scenario);
+            $theme = $this->getTemplateTheme($options['template'] ?? 'default');
+            $htmlContent = $this->buildPdfContent($summary, $scenario, $theme);
 
             // Initialize mPDF with configuration
             $mpdf = new Mpdf([
@@ -115,7 +116,8 @@ class ExportService
             );
 
             // Build PPTX presentation
-            $presentation = $this->buildPptxPresentation($summary, $scenario);
+            $theme = $this->getTemplateTheme($options['template'] ?? 'default');
+            $presentation = $this->buildPptxPresentation($summary, $scenario, $theme);
 
             // Ensure directory exists
             Storage::makeDirectory('exports/pptx', 0755, true);
@@ -155,8 +157,12 @@ class ExportService
      *   4. Risk Assessment
      *   5. Next Steps action items
      */
-    private function buildPptxPresentation(array $summary, mixed $scenario): PhpPresentation
+    private function buildPptxPresentation(array $summary, mixed $scenario, array $theme = []): PhpPresentation
     {
+        // Strip '#' prefix from hex for PhpPresentation Color class
+        $colorHex = ltrim($theme['primary'] ?? '#1e3a8a', '#');
+        $colorHex = strtoupper($colorHex);
+
         $presentation = new PhpPresentation;
 
         $presentation->getDocumentProperties()
@@ -167,19 +173,19 @@ class ExportService
             ->setSubject('Scenario Analysis')
             ->setKeywords('strategy planning executive scenario');
 
-        $this->buildTitleSlide($presentation->getActiveSlide(), $summary, $scenario);
-        $this->buildKpiSlide($presentation->createSlide(), $summary);
-        $this->buildRecommendationSlide($presentation->createSlide(), $summary);
-        $this->buildRiskSlide($presentation->createSlide(), $summary);
-        $this->buildNextStepsSlide($presentation->createSlide(), $summary);
+        $this->buildTitleSlide($presentation->getActiveSlide(), $summary, $scenario, $colorHex);
+        $this->buildKpiSlide($presentation->createSlide(), $summary, $colorHex);
+        $this->buildRecommendationSlide($presentation->createSlide(), $summary, $colorHex);
+        $this->buildRiskSlide($presentation->createSlide(), $summary, $colorHex);
+        $this->buildNextStepsSlide($presentation->createSlide(), $summary, $colorHex);
 
         return $presentation;
     }
 
     /** Slide 1: Title slide */
-    private function buildTitleSlide(mixed $slide, array $summary, mixed $scenario): void
+    private function buildTitleSlide(mixed $slide, array $summary, mixed $scenario, string $colorHex = '1E3A8A'): void
     {
-        $slide->setBackground($this->makeSolidBackground('1E3A8A'));
+        $slide->setBackground($this->makeSolidBackground($colorHex));
 
         $title = $slide->createRichTextShape()
             ->setHeight(120)->setWidth(760)->setOffsetX(100)->setOffsetY(130);
@@ -214,10 +220,10 @@ class ExportService
     }
 
     /** Slide 2: KPI table */
-    private function buildKpiSlide(mixed $slide, array $summary): void
+    private function buildKpiSlide(mixed $slide, array $summary, string $colorHex = '1E3A8A'): void
     {
         $slide->setBackground($this->makeSolidBackground('F8FAFC'));
-        $this->addSlideTitle($slide, 'Key Performance Indicators', '1E3A8A');
+        $this->addSlideTitle($slide, 'Key Performance Indicators', $colorHex);
 
         $kpis = $summary['kpis'] ?? [];
         $yOffset = 120;
@@ -273,10 +279,10 @@ class ExportService
     }
 
     /** Slide 3: Decision Recommendation */
-    private function buildRecommendationSlide(mixed $slide, array $summary): void
+    private function buildRecommendationSlide(mixed $slide, array $summary, string $colorHex = '1E3A8A'): void
     {
         $slide->setBackground($this->makeSolidBackground('F0F9FF'));
-        $this->addSlideTitle($slide, 'Decision Recommendation', '1E3A8A');
+        $this->addSlideTitle($slide, 'Decision Recommendation', $colorHex);
 
         $rec = $summary['decision_recommendation'] ?? [];
         $recommendation = $rec['recommendation'] ?? 'Analysis in progress';
@@ -286,7 +292,7 @@ class ExportService
         $badge = $slide->createRichTextShape()
             ->setHeight(60)->setWidth(620)->setOffsetX(100)->setOffsetY(130);
         $badge->getFill()->setFillType(Fill::FILL_SOLID)
-            ->setStartColor(new Color('FF1E40AF'));
+            ->setStartColor(new Color('FF'.$colorHex));
         $badge->getActiveParagraph()->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_CENTER)
             ->setVertical(Alignment::VERTICAL_CENTER);
@@ -296,7 +302,7 @@ class ExportService
         $confLabel = $slide->createRichTextShape()
             ->setHeight(30)->setWidth(300)->setOffsetX(100)->setOffsetY(210);
         $confLabel->createTextRun("Confidence: {$confidence}%")
-            ->getFont()->setBold(true)->setSize(13)->setColor(new Color('FF1E3A8A'));
+            ->getFont()->setBold(true)->setSize(13)->setColor(new Color('FF'.$colorHex));
 
         $barFilled = max(0, min(10, (int) round($confidence / 10)));
         $bar = $slide->createRichTextShape()
@@ -310,15 +316,15 @@ class ExportService
             $reasonBox->getFill()->setFillType(Fill::FILL_SOLID)
                 ->setStartColor(new Color('FFDBEAFE'));
             $reasonBox->createTextRun("Reasoning:\n".$reasoning)
-                ->getFont()->setSize(11)->setColor(new Color('FF1E3A8A'));
+                ->getFont()->setSize(11)->setColor(new Color('FF'.$colorHex));
         }
     }
 
     /** Slide 4: Risk Assessment */
-    private function buildRiskSlide(mixed $slide, array $summary): void
+    private function buildRiskSlide(mixed $slide, array $summary, string $colorHex = '1E3A8A'): void
     {
         $slide->setBackground($this->makeSolidBackground('FFF7ED'));
-        $this->addSlideTitle($slide, 'Risk Assessment', 'B45309');
+        $this->addSlideTitle($slide, 'Risk Assessment', $colorHex);
 
         $risks = $summary['risks'] ?? [];
 
@@ -384,10 +390,10 @@ class ExportService
     }
 
     /** Slide 5: Next Steps */
-    private function buildNextStepsSlide(mixed $slide, array $summary): void
+    private function buildNextStepsSlide(mixed $slide, array $summary, string $colorHex = '1E3A8A'): void
     {
         $slide->setBackground($this->makeSolidBackground('F0FDF4'));
-        $this->addSlideTitle($slide, 'Next Steps', '166534');
+        $this->addSlideTitle($slide, 'Next Steps', $colorHex);
 
         $nextSteps = $summary['next_steps'] ?? [];
 
@@ -452,14 +458,67 @@ class ExportService
     }
 
     /**
+     * Return a theme color/style configuration for the given template name.
+     *
+     * Supported templates:
+     *  - default   Blue corporate (Stratos brand)
+     *  - executive Dark navy + gold accent (boardroom style)
+     *  - minimal   Clean gray + white (light print-friendly)
+     *
+     * @param  string  $template  Template identifier
+     * @return array{primary: string, accent: string, header_bg: string, header_text: string, badge: string, font_family: string}
+     */
+    private function getTemplateTheme(string $template): array
+    {
+        return match ($template) {
+            'executive' => [
+                'primary' => '#0f172a',
+                'accent' => '#d97706',
+                'header_bg' => 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                'header_text' => '#f8fafc',
+                'badge' => '#d97706',
+                'link_color' => '#f59e0b',
+                'font_family' => "'Georgia', 'Times New Roman', serif",
+            ],
+            'minimal' => [
+                'primary' => '#374151',
+                'accent' => '#6b7280',
+                'header_bg' => 'linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)',
+                'header_text' => '#1f2937',
+                'badge' => '#6b7280',
+                'link_color' => '#374151',
+                'font_family' => "'Arial', 'Helvetica', sans-serif",
+            ],
+            default => [
+                'primary' => '#1e3a8a',
+                'accent' => '#1e40af',
+                'header_bg' => 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)',
+                'header_text' => '#ffffff',
+                'badge' => '#1e40af',
+                'link_color' => '#3b82f6',
+                'font_family' => "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+            ],
+        };
+    }
+
+    /**
      * Build PDF content with professional HTML template
      *
      * @param  array  $summary  Executive summary data
      * @param  mixed  $scenario  Scenario model or object with scenario data
+     * @param  array  $theme  Template theme colors (from getTemplateTheme)
      * @return string HTML content for PDF rendering via mPDF
      */
-    private function buildPdfContent(array $summary, mixed $scenario): string
+    private function buildPdfContent(array $summary, mixed $scenario, array $theme = []): string
     {
+        // Resolve theme values (fall back to default corporate blue)
+        $themePrimary = $theme['primary'] ?? '#1e3a8a';
+        $themeAccent = $theme['accent'] ?? '#1e40af';
+        $themeHeaderBg = $theme['header_bg'] ?? 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)';
+        $themeHeaderText = $theme['header_text'] ?? '#ffffff';
+        $themeLinkColor = $theme['link_color'] ?? '#3b82f6';
+        $themeFontFamily = $theme['font_family'] ?? "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+
         $generatedAt = $summary['generated_at'] ?? now()->format('Y-m-d H:i:s');
         $kpiRows = '';
 
@@ -504,14 +563,14 @@ HTML;
             $reasoningText = htmlspecialchars((string) ($recommendation['reasoning'] ?? 'Analysis in progress...'), ENT_QUOTES, 'UTF-8');
 
             $recommendationHtml = <<<HTML
-        <div style="margin-top: 20px; border-left: 4px solid #1e40af; padding: 15px; background-color: #f0f9ff;">
-            <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 14px;">Decision Recommendation</h3>
+        <div style="margin-top: 20px; border-left: 4px solid $themeAccent; padding: 15px; background-color: #f0f9ff;">
+            <h3 style="margin: 0 0 10px 0; color: $themeAccent; font-size: 14px;">Decision Recommendation</h3>
             <p style="margin: 5px 0; font-weight: bold; font-size: 12px;">Recommendation:</p>
-            <p style="margin: 0 0 10px 0; font-size: 12px; color: #1e3a8a;">
+            <p style="margin: 0 0 10px 0; font-size: 12px; color: $themePrimary;">
                 $recommendationText
             </p>
             <p style="margin: 5px 0; font-weight: bold; font-size: 12px;">Confidence Level: {$confidence}%</p>
-            <p style="margin: 5px 0; font-family: monospace; letter-spacing: 2px; font-size: 10px; color: #3b82f6;">
+            <p style="margin: 5px 0; font-family: monospace; letter-spacing: 2px; font-size: 10px; color: $themeLinkColor;">
                 $confidenceBar
             </p>
             <p style="margin: 10px 0 0 0; font-size: 11px; color: #475569; font-style: italic;">
@@ -524,7 +583,7 @@ HTML;
         // Build risk assessment section if available
         $riskHtml = '';
         if (! empty($summary['risks'])) {
-            $riskHtml = '<h3 style="margin-top: 20px; page-break-inside: avoid; color: #1e3a8a; font-size: 14px;">Risk Assessment</h3>';
+            $riskHtml = '<h3 style="margin-top: 20px; page-break-inside: avoid; color: '.$themePrimary.'; font-size: 14px;">Risk Assessment</h3>';
             $riskHtml .= '<table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px;">';
             $riskHtml .= '<tr style="background-color: #f3f4f6;"><th style="border: 1px solid #d1d5db; padding: 8px; text-align: left;">Risk Category</th><th style="border: 1px solid #d1d5db; padding: 8px;">Severity</th><th style="border: 1px solid #d1d5db; padding: 8px;">Mitigation</th></tr>';
 
@@ -560,7 +619,7 @@ HTML;
         // Build next steps section if available
         $nextStepsHtml = '';
         if (! empty($summary['next_steps'])) {
-            $nextStepsHtml = '<h3 style="margin-top: 20px; page-break-inside: avoid; color: #1e3a8a; font-size: 14px;">Next Steps & Action Items</h3>';
+            $nextStepsHtml = '<h3 style="margin-top: 20px; page-break-inside: avoid; color: '.$themePrimary.'; font-size: 14px;">Next Steps & Action Items</h3>';
             $nextStepsHtml .= '<ol style="margin: 10px 0; padding-left: 20px; font-size: 11px;">';
 
             foreach ($summary['next_steps'] as $step) {
@@ -587,18 +646,18 @@ HTML;
     <title>Executive Summary - $scenarioName</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: $themeFontFamily;
             color: #1f2937;
             line-height: 1.6;
             margin: 0;
         }
         
         .header {
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-            color: white;
+            background: $themeHeaderBg;
+            color: $themeHeaderText;
             padding: 30px 20px;
             margin: -15px -15px 0 -15px;
-            border-bottom: 4px solid #0284c7;
+            border-bottom: 4px solid $themeAccent;
         }
         
         .header h1 {
@@ -624,15 +683,15 @@ HTML;
         }
         
         h2 {
-            color: #1e3a8a;
+            color: $themePrimary;
             font-size: 16px;
             margin: 25px 0 15px 0;
-            border-bottom: 2px solid #3b82f6;
+            border-bottom: 2px solid $themeLinkColor;
             padding-bottom: 8px;
         }
         
         h3 {
-            color: #1e3a8a;
+            color: $themePrimary;
             font-size: 13px;
             margin: 15px 0 10px 0;
         }

@@ -3,7 +3,7 @@
 namespace App\Services\ScenarioPlanning;
 
 use App\Models\Scenario;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * ExecutiveSummaryService — Generate executive summaries for scenarios
@@ -20,19 +20,46 @@ class ExecutiveSummaryService
     public function __construct(
         private WhatIfAnalysisService $whatIfService,
         private ScenarioTemplateService $templateService,
-    ) {
+    ) {}
+
+    /**
+     * Invalidate cached executive summary and org chart for a scenario
+     */
+    public function invalidateCache(int $scenarioId): void
+    {
+        Cache::forget("executive-summary-{$scenarioId}");
+        Cache::forget("org-chart-{$scenarioId}");
     }
 
     /**
      * Generate comprehensive executive summary for a scenario
      *
-     * @param  int  $scenarioId
      * @param  array<string, mixed>  $options  Options: {baseline_scenario_id?, include_recommendations?}
      * @return array<string, mixed>
      */
     public function generateExecutiveSummary(int $scenarioId, array $options = []): array
     {
         $scenario = Scenario::findOrFail($scenarioId);
+
+        // Cache scenario-scoped summaries (no baseline) for 15 minutes
+        $useCache = empty($options['baseline_scenario_id']);
+        $cacheKey = "executive-summary-{$scenarioId}";
+
+        if ($useCache) {
+            return Cache::remember($cacheKey, 900, fn () => $this->buildSummary($scenario, $scenarioId, $options));
+        }
+
+        return $this->buildSummary($scenario, $scenarioId, $options);
+    }
+
+    /**
+     * Internal builder — runs the full analysis computation
+     *
+     * @param  array<string, mixed>  $options
+     * @return array<string, mixed>
+     */
+    private function buildSummary(Scenario $scenario, int $scenarioId, array $options): array
+    {
 
         // Collect all analyses
         $headcountAnalysis = $this->whatIfService->analyzeHeadcountImpact($scenarioId, [
@@ -93,7 +120,6 @@ class ExecutiveSummaryService
     /**
      * Build KPI cards for executive dashboard (6-8 cards)
      *
-     * @param  Scenario  $scenario
      * @param  array<string, mixed>  $headcountAnalysis
      * @param  array<string, mixed>  $financialAnalysis
      * @param  array<string, mixed>  $riskAnalysis
@@ -114,7 +140,7 @@ class ExecutiveSummaryService
             'unit' => '$M',
             'status' => $financialAnalysis['budget_variance_pct'] > 20 ? 'warning' : 'success',
             'trend' => $financialAnalysis['budget_variance'] > 0 ? '+' : '',
-            'comparison' => $financialAnalysis['budget_variance_pct'] . '%',
+            'comparison' => $financialAnalysis['budget_variance_pct'].'%',
             'icon' => '💰',
         ];
 
@@ -136,7 +162,7 @@ class ExecutiveSummaryService
             'unit' => $headcountAnalysis['headcount_delta'] > 0 ? 'Hires' : 'Reductions',
             'status' => abs($headcountAnalysis['headcount_delta']) < 20 ? 'success' : 'warning',
             'trend' => $headcountAnalysis['headcount_delta'] > 0 ? '+' : '-',
-            'comparison' => $headcountAnalysis['expected_coverage'] . '% coverage',
+            'comparison' => $headcountAnalysis['expected_coverage'].'% coverage',
             'icon' => '👥',
         ];
 
@@ -146,7 +172,7 @@ class ExecutiveSummaryService
             'value' => $scenario->timeline_weeks ?? 12,
             'unit' => 'weeks',
             'status' => ($scenario->timeline_weeks ?? 12) < 8 ? 'warning' : 'success',
-            'trend' => $headcountAnalysis['weeks_to_full_capacity'] . 'w to full',
+            'trend' => $headcountAnalysis['weeks_to_full_capacity'].'w to full',
             'comparison' => 'until mature',
             'icon' => '⏱️',
         ];
@@ -164,7 +190,7 @@ class ExecutiveSummaryService
                 default => 'info',
             },
             'trend' => $riskAnalysis['risk_level'],
-            'comparison' => count($riskAnalysis['individual_risks']) . ' risks',
+            'comparison' => count($riskAnalysis['individual_risks']).' risks',
             'icon' => '⚠️',
         ];
 
@@ -210,7 +236,6 @@ class ExecutiveSummaryService
     /**
      * Generate executive decision recommendation
      *
-     * @param  Scenario  $scenario
      * @param  array<int, array<string, mixed>>  $kpis
      * @param  array<string, mixed>  $riskAnalysis
      * @return array<string, mixed>
@@ -308,7 +333,6 @@ class ExecutiveSummaryService
     /**
      * Assess executive readiness (activation readiness)
      *
-     * @param  Scenario  $scenario
      * @param  array<int, array<string, mixed>>  $kpis
      * @param  array<string, mixed>  $riskAnalysis
      * @return array<string, mixed>
@@ -395,10 +419,8 @@ class ExecutiveSummaryService
     /**
      * Calculate success probability based on various factors
      *
-     * @param  Scenario  $scenario
      * @param  array<string, mixed>  $headcountAnalysis
      * @param  array<string, mixed>  $riskAnalysis
-     * @return float
      */
     private function calculateSuccessProbability(
         Scenario $scenario,
@@ -438,7 +460,6 @@ class ExecutiveSummaryService
     /**
      * Generate next steps based on recommendation
      *
-     * @param  string  $decision
      * @param  array<int, array<string, mixed>>  $kpis
      * @param  array<string, mixed>  $riskAnalysis
      * @return array<int, string>
