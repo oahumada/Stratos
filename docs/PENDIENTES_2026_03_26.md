@@ -601,13 +601,14 @@ $delta = $plannedCount - $currentCount
 
 ---
 
-**Commit (Latest):** `390a6fb2` - feat(export): mPDF real PDF generation - Executive Summary to PDF with professional HTML template ✅
+**Commit (Latest):** `ebdc0d4a` - fix(tests): stabilize unit migrations and dashboard assertions ✅
 
 **Build Verification:** ✅ npm run build (0 errors, 1m 31s)
-**Test Execution:** ✅ php artisan test tests/Feature/ExportServiceTest.php --compact (12/12 passing)
+**Test Execution:** ✅ vendor/bin/pest tests/Unit --compact (146/146 passing)
+**Git Push:** ✅ `git push origin main` completado sin bypass (`--no-verify` no requerido)
 **Syntax Verification:** ✅ php -l (all files valid)
 
-**Result:** ✅ **PRODUCTION-READY FOR STAGING DEPLOYMENT**
+**Result:** ✅ **TEST SUITE UNITARIA ESTABILIZADA + PRE-PUSH GREEN**
 
 ---
 
