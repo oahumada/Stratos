@@ -11,32 +11,46 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('scenarios')) {
+            return;
+        }
+
         Schema::table('scenarios', function (Blueprint $table) {
-            // Workflow state columns
-            $table->string('decision_status')->default('draft')->after('status');
-            $table->string('execution_status')->default('planned')->after('decision_status');
+            if (! Schema::hasColumn('scenarios', 'decision_status')) {
+                $table->string('decision_status')->default('draft');
+            }
 
-            // Submission tracking
-            $table->unsignedBigInteger('submitted_by')->nullable()->after('execution_status');
-            $table->timestamp('submitted_at')->nullable()->after('submitted_by');
+            if (! Schema::hasColumn('scenarios', 'execution_status')) {
+                $table->string('execution_status')->default('planned');
+            }
 
-            // Approval tracking
-            $table->unsignedBigInteger('approved_by')->nullable()->after('submitted_at');
-            $table->timestamp('approved_at')->nullable()->after('approved_by');
+            if (! Schema::hasColumn('scenarios', 'submitted_by')) {
+                $table->unsignedBigInteger('submitted_by')->nullable();
+            }
 
-            // Rejection tracking
-            $table->unsignedBigInteger('rejected_by')->nullable()->after('approved_at');
-            $table->timestamp('rejected_at')->nullable()->after('rejected_by');
-            $table->text('rejection_reason')->nullable()->after('rejected_at');
+            if (! Schema::hasColumn('scenarios', 'submitted_at')) {
+                $table->timestamp('submitted_at')->nullable();
+            }
 
-            // Indices for performance
-            $table->index('decision_status');
-            $table->index('execution_status');
+            if (! Schema::hasColumn('scenarios', 'approved_by')) {
+                $table->unsignedBigInteger('approved_by')->nullable();
+            }
 
-            // Foreign keys
-            $table->foreign('submitted_by')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('approved_by')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('rejected_by')->references('id')->on('users')->onDelete('set null');
+            if (! Schema::hasColumn('scenarios', 'approved_at')) {
+                $table->timestamp('approved_at')->nullable();
+            }
+
+            if (! Schema::hasColumn('scenarios', 'rejected_by')) {
+                $table->unsignedBigInteger('rejected_by')->nullable();
+            }
+
+            if (! Schema::hasColumn('scenarios', 'rejected_at')) {
+                $table->timestamp('rejected_at')->nullable();
+            }
+
+            if (! Schema::hasColumn('scenarios', 'rejection_reason')) {
+                $table->text('rejection_reason')->nullable();
+            }
         });
     }
 
@@ -45,28 +59,30 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('scenarios', function (Blueprint $table) {
-            // Drop foreign keys
-            $table->dropForeign(['submitted_by']);
-            $table->dropForeign(['approved_by']);
-            $table->dropForeign(['rejected_by']);
+        if (! Schema::hasTable('scenarios')) {
+            return;
+        }
 
-            // Drop indices
-            $table->dropIndex(['decision_status']);
-            $table->dropIndex(['execution_status']);
+        $columns = [
+            'decision_status',
+            'execution_status',
+            'submitted_by',
+            'submitted_at',
+            'approved_by',
+            'approved_at',
+            'rejected_by',
+            'rejected_at',
+            'rejection_reason',
+        ];
 
-            // Drop columns
-            $table->dropColumn([
-                'decision_status',
-                'execution_status',
-                'submitted_by',
-                'submitted_at',
-                'approved_by',
-                'approved_at',
-                'rejected_by',
-                'rejected_at',
-                'rejection_reason',
-            ]);
+        $columnsToDrop = array_values(array_filter($columns, fn (string $column): bool => Schema::hasColumn('scenarios', $column)));
+
+        if ($columnsToDrop === []) {
+            return;
+        }
+
+        Schema::table('scenarios', function (Blueprint $table) use ($columnsToDrop) {
+            $table->dropColumn($columnsToDrop);
         });
     }
 };

@@ -140,8 +140,8 @@ describe('Admin Dashboard Components Unit Tests', function () {
             $data
         );
 
-        expect(min($normalized))->toBe(0.0);
-        expect(max($normalized))->toBe(100.0);
+        expect(min($normalized))->toEqual(0.0);
+        expect(max($normalized))->toEqual(100.0);
     });
 
     /**
