@@ -782,16 +782,15 @@ $delta = $plannedCount - $currentCount
 **Items Ready to Start (in order of priority):**
 
 1. **[NEXT - Week 1]** LMS Nativo Hardening - Fase 1
-   - Course builder UI enhancement
-   - Assessment engine + progress tracking
-   - Multimedia support (video streaming)
-   - Est: 1 semana | 🟡 MEDIA-ALTA
-   
+    - Course builder UI enhancement
+    - Assessment engine + progress tracking
+    - Multimedia support (video streaming)
+    - Est: 1 semana | 🟡 MEDIA-ALTA
 2. **[NEXT - Week 1-2]** Scenario Planning Phase 2 - Sucesión & Riesgos
-   - Career succession planning (skill-based matching)
-   - Talent risk analytics (volatility, retention scoring)
-   - Executive readiness dashboard
-   - Est: 2 semanas | 🔴 CRÍTICA
+    - Career succession planning (skill-based matching)
+    - Talent risk analytics (volatility, retention scoring)
+    - Executive readiness dashboard
+    - Est: 2 semanas | 🔴 CRÍTICA
 
 ---
 

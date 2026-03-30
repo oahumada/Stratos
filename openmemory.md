@@ -6145,10 +6145,13 @@ Remote Status: ACCEPTED
 ## V2.0 Sprint 1 - Parallel Track Specifications (2026-03-29)
 
 ### Overview
+
 Completed comprehensive documentation for V2.0 Sprint 1 parallel track execution (Apr 1-21, 2026). Two independent tracks will execute concurrently: **Track A (LMS Frontend Hardening, 2 weeks)** and **Track B (Scenario Planning Phase 2 Backend, 3 weeks)** with strategic synchronization points.
 
 ### Track A: LMS Hardening Frontend (Apr 1-18, 2 weeks)
+
 **File:** [V2.0_TRACK_A_LMS_SPECIFICATION.md](docs/V2.0_TRACK_A_LMS_SPECIFICATION.md) (2,800+ LOC)
+
 - 9 main components + 18 subcomponents (~2,500 LOC frontend)
 - Components: CourseBuilder, LessonEditor, AssessmentBuilder, AssessmentTaker, AssessmentResults, LearningProgress, CohortsAnalytics, VideoPlayer, InteractiveModule
 - Dependencies: hls.js, apexcharts, draggable-plus, tiptap
@@ -6156,7 +6159,9 @@ Completed comprehensive documentation for V2.0 Sprint 1 parallel track execution
 - 5 phases (A1-A5) with daily checklists and implementation details
 
 ### Track B: Scenario Planning Phase 2 Backend (Apr 1-21, 3 weeks)
+
 **File:** [V2.0_TRACK_B_SCENARIO_PLANNING_SPEC.md](docs/V2.0_TRACK_B_SCENARIO_PLANNING_SPEC.md) (3,700+ LOC)
+
 - 6 Eloquent models (SuccessionCandidate, TalentRiskIndicator, RiskMitigation, TransformationPhase, TransformationTask, DevelopmentPlan)
 - 3 services: SuccessionPlanningService, TalentRiskAnalyticsService, TransformationRoadmapService
 - 3 controllers with 20+ API endpoints
@@ -6165,19 +6170,23 @@ Completed comprehensive documentation for V2.0 Sprint 1 parallel track execution
 - 5 phases (B1-B5) with detailed daily breakdowns
 
 ### Sprint Master Plan
+
 **File:** [V2.0_SPRINT_1_OVERVIEW.md](docs/V2.0_SPRINT_1_OVERVIEW.md) (2,200+ LOC)
+
 - Parallel execution strategy with 7 sync points (Apr 1, 4-5, 10, 15, 18, 21)
 - Branch strategy: feature/lms-hardening-v2.0, feature/scenario-planning-phase2-v2.0
 - Daily async standups (Yesterday/Today/Blockers/Heads Up)
 - Code review gates at Apr 4-5, 10, 18, 21
 
 ### Total Deliverables
+
 ✅ 3 specification documents (8,700+ LOC total)
 ✅ Commit: 6dfdb751 (Mar 29, 2026)
 ✅ Push: origin/main (00374c15..6dfdb751)
 ✅ Both tracks fully specified with daily checklists, test specs, success metrics
 
 ### Next Steps (Apr 1)
+
 1. Create feature branches from main
 2. Initialize Track A: CourseBuilder component skeleton
 3. Initialize Track B: Create 6 Eloquent models + migrations
@@ -6186,3 +6195,97 @@ Completed comprehensive documentation for V2.0 Sprint 1 parallel track execution
 ---
 
 **Session Summary:** V2.0 Sprint 1 planning complete. Comprehensive 8,700+ LOC of specifications created for parallel Track A (LMS Frontend, 2 weeks) and Track B (Scenario Planning Phase 2 Backend, 3 weeks) starting Apr 1, 2026. Both tracks documented with daily checklists, sync points, test specifications, and success metrics. Repository ready for Apr 1 kickoff. Commits: 884532b4 (Priority 3 v1.2 complete), 00374c15 (v2.0 roadmap), 6dfdb751 (Sprint 1 specs).
+
+---
+
+## LMS ↔ Talent Pass ↔ Certificate Integration Analysis (2026-03-29)
+
+### Overview
+
+Completed comprehensive gap analysis and architecture design for automatic certificate integration between LMS completion, TalentPass credentials, and certificate templates. Identified critical gap: LMS completion awards XP points but generates NO certificate artifact and does NOT sync to TalentPass. Designed SmartCertificateBridge architecture with 3 new DB tables, CertificateService, and refined product decision framework.
+
+### Current State Analysis
+
+**LMS Stack (Complete):**
+- Models: LmsCourse, LmsModule, LmsLesson, LmsEnrollment (45-35 LOC each)
+- LmsService with 5 providers: mock, internal, moodle, LinkedIn Learning, Udemy Business
+- Gamification: XP points awarded on course completion ✅
+- **Gap:** NO certificate issuance or TalentPass integration
+
+**Talent Pass Stack (Complete but Disconnected):**
+- Models: TalentPass, TalentPassSkill, TalentPassCredential, TalentPassExperience
+- TalentPassCredential can store certificates but — NO auto-population from LMS
+- VerifiableCredential model exists (future blockchain, unused)
+
+### Proposed Architecture: SmartCertificateBridge
+
+**3 New DB Tables:**
+1. `lms_certificates` — Core tracking (status, issued_at, expires_at, template_id, recertification_skill_id, talent_pass_credential_id)
+2. `certificate_templates` — Per-org customization (html_content, logo_url, placeholders, is_default)
+3. `skill_recertification_policies` — Expiry rules per skill (recertification_required, valid_for_months)
+
+**Core Service Layer:**
+- CertificateService (750 LOC spec): issueCertificateOnCompletion(), syncToTalentPass(), generateCertificatePdf(), revokeCertificate()
+- Enhanced LmsService.syncProgress() to trigger certificate issuance on completion
+- 5+ API endpoints for certificate management, bulk sync, revocation
+
+### Product Decisions Finalized ✅
+
+**LOCKED Decisions (Ready for implementation):**
+1. ✅ **Certificate Templates** — Per-organization customization via certificate_templates table (org_id FK)
+2. ✅ **Expiry Policy** — Variable per skill via skill_recertification_policies, NOT global per org
+3. ✅ **Auto-Feature** — User choice ONLY (NOT auto-featured in TalentPass)
+4. ✅ **Email Notifications** — Configurable recipients (participant|manager|rrhh), TalentPass channel now (email future)
+
+**DEFERRED Decisions (v2.1+):**
+- D5: Share mechanism (public links only via TalentPass for now)
+- D6: Revocation audit (basic tracking now, full audit trail v2.1)
+- D7: Digital signature (SHA256 hash only, org signing v2.1)
+- D8: Gamification (separate from certs, XP already awarded)
+
+### Implementation Roadmap
+
+**Sprint 1 Integration (Apr 1-21, 2026):**
+- Phase 1 (Backend, 3 days): Create 3 DB tables, LmsCertificate model + relationships, CertificateService skeleton
+- Phase 2 (Frontend, 2 days): Certificate badge in AssessmentResults, history in LearningProgress, TalentPass sync UI
+- Phase 3 (Automation, 2 days): Batch sync cron, certificate revocation workflow, notifications
+
+**Track A Integration Point:** A2.3 AssessmentResults requires certificate badge display + "Add to Talent Pass" button
+**Track B Extension:** Certificate issuance could extend Timeline to May 5 (optional, depends on priority)
+
+**Total Estimated:** 1 week (5 business days) | 1,900+ LOC | 25+ tests
+
+### File Reference
+
+**Analysis Document:** [ANALISIS_LMS_TALENTPASS_CERTIFICATE_INTEGRATION.md](docs/ANALISIS_LMS_TALENTPASS_CERTIFICATE_INTEGRATION.md) (600+ LOC)
+- Current state analysis (LMS complete, TalentPass disconnected)
+- Gap identification (zero integration between LMS completion and TP credentials)
+- Proposed architecture (3 DB tables, CertificateService, API endpoints, frontend changes)
+- DB schema definitions (complete with migrations)
+- Eloquent models (LmsCertificate, CertificateTemplate, SkillRecertificationPolicy)
+- CertificateService specification (750 LOC with all methods documented)
+- Product decisions (4 locked, 4 deferred)
+- Implementation roadmap (3 phases, Timeline, Estimates)
+
+### Commits
+
+- **047a7579** — docs(analysis): LMS ↔ Talent Pass ↔ Certificate Integration Architecture (initial)
+- **[Current Session]** — docs(refine): Product decision integration + model definitions + service spec updates
+
+### Next Actions
+
+1. **[Optional]** Clarify remaining 4 product questions (Q5-Q8 deferred)
+2. **[Priority]** Update Track A spec (A2.3 AssessmentResults) to include certificate requirements
+3. **[Implementation]** Developer kickoff: Choose certificate feature as Apr 1 launch item OR defer to May sprint
+4. **[Optional]** Create admin UI specifications for certificate_templates + skill_recertification_policies management
+
+### Status
+
+✅ **Analysis Complete** — Architecture designed, product decisions locked (1-4), deferred decisions documented (5-8)
+✅ **Specifications Complete** — 3 DB tables, models, service, API endpoints, frontend integration points documented
+✅ **Product-Ready** — Framework ready for implementation decision at Sprint 1 kickoff (Apr 1)
+⏳ **Implementation Pending** — Awaiting developer go/no-go for Apr 1 launch window
+
+---
+
+**Session Summary:** V2.0 Sprint 1 planning complete + LMS-Talent Pass integration analysis finalized. Comprehensive 8,700+ LOC specifications (Track A + B + LMS-TP analysis) documented with product decisions locked. Repository ready for Apr 1 kickoff. All product questions addressed (1-4 locked, 5-8 deferred). Commits: 884532b4, 00374c15, 6dfdb751, 047a7579 (+ this session's updates).
