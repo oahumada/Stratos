@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LmsCard from '@/components/Landing/LmsCard.vue';
 import AgentConfigurationModal from '@/components/TalentAgents/AgentConfigurationModal.vue';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
@@ -330,6 +331,11 @@ onMounted(fetchAgents);
                         </v-btn>
                     </v-card-actions>
                 </v-card>
+            </v-col>
+
+            <!-- Tarjeta LMS (acceso rápido) -->
+            <v-col cols="12" md="4">
+                <LmsCard />
             </v-col>
 
             <!-- AI System Metrics -->

@@ -51,5 +51,10 @@ class EventServiceProvider extends ServiceProvider
         Login::class => [LogSuccessfulLogin::class],
         Logout::class => [LogSuccessfulLogout::class],
         Failed::class => [LogFailedLogin::class],
+        \App\Events\CertificateIssued::class => [
+            \App\Listeners\SendCertificateNotification::class,
+            \App\Listeners\AuditCertificateIssued::class,
+            \App\Listeners\SyncCertificateToExternal::class,
+        ],
     ];
 }

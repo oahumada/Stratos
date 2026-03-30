@@ -9,12 +9,14 @@ class ScenarioPolicy
 {
     public function view(User $user, Scenario $scenario): bool
     {
-        return ($user->organization_id ?? null) === ($scenario->organization_id ?? null);
+        $userOrg = $user->current_organization_id ?? $user->organization_id ?? null;
+        return $userOrg === ($scenario->organization_id ?? null);
     }
 
     public function viewAcceptedPrompt(User $user, Scenario $scenario): bool
     {
-        if (($user->organization_id ?? null) !== ($scenario->organization_id ?? null)) {
+        $userOrg = $user->current_organization_id ?? $user->organization_id ?? null;
+        if ($userOrg !== ($scenario->organization_id ?? null)) {
             return false;
         }
 
@@ -33,5 +35,33 @@ class ScenarioPolicy
 
         // Allow owner/creator of scenario to view
         return ($scenario->created_by ?? null) === ($user->id ?? null);
+    }
+
+    public function activate(User $user, Scenario $scenario): bool
+    {
+        $userOrg = $user->current_organization_id ?? $user->organization_id ?? null;
+        if ($userOrg !== ($scenario->organization_id ?? null)) {
+            return false;
+        }
+
+        // Owners and admins can activate
+        if (($scenario->created_by ?? null) === ($user->id ?? null)) {
+            return true;
+        }
+
+        $role = $user->role ?? null;
+        if (in_array($role, ['admin', 'owner', 'superadmin'], true)) {
+            return true;
+        }
+
+        if (property_exists($user, 'is_admin') && (bool) $user->is_admin) {
+            return true;
+        }
+
+        if (method_exists($user, 'hasRole') && ($user->hasRole('admin') || $user->hasRole('owner'))) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -60,6 +60,14 @@ class User extends Authenticatable
         return $this->belongsTo(Organization::class);
     }
 
+    /**
+     * Query scope to find users by system role (test-friendly replacement for Spatie role scope).
+     */
+    public function scopeRole($query, string $role)
+    {
+        return $query->where('role', $role);
+    }
+
     public function people(): HasOne
     {
         return $this->hasOne(People::class);

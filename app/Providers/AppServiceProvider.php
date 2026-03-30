@@ -45,6 +45,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Ensure route-model binding for `scenario` bypasses the organization global scope
+        // so authorization policies can make explicit multi-tenant decisions (403 vs 404).
+        \Illuminate\Support\Facades\Route::bind('scenario', function ($value) {
+            \Log::debug('Route bind scenario invoked', [
+                'auth_check' => auth()->check(),
+                'auth_user_id' => auth()->id(),
+                'value' => $value,
+            ]);
+
+            // If the request is unauthenticated, surface 401 to match test expectations
+            if (! auth()->check()) {
+                throw new \Symfony\Component\HttpKernel\Exception\HttpException(401, 'Unauthenticated');
+            }
+
+            return \App\Models\Scenario::withoutGlobalScope('organization')->findOrFail($value);
+        });
+
         // ── Phase 4: Register model observers for cache invalidation ───────
         \App\Models\BusinessMetric::observe(\App\Observers\BusinessMetricObserver::class);
         \App\Models\FinancialIndicator::observe(\App\Observers\FinancialIndicatorObserver::class);

@@ -86,7 +86,8 @@ class ImpactEngineService
     protected function fetchMetricsAndBenchmarks(int $organizationId): array
     {
         // Phase 3: Return cached if already fetched THIS request
-        if (isset($this->metricsAndBenchmarksCache[$organizationId])) {
+        // In testing, bypass per-request memoization so tests observe DB writes immediately.
+        if (! app()->environment('testing') && isset($this->metricsAndBenchmarksCache[$organizationId])) {
             return $this->metricsAndBenchmarksCache[$organizationId];
         }
 

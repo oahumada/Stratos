@@ -121,7 +121,7 @@ class ScenarioWorkflowService
             'scenario_id' => $scenario->id,
             'decision_status' => 'pending_approval',
             'approvals_required' => count($approvers),
-            'approval_requests' => $approvalRequests->map(fn($ar) => [
+            'approval_requests' => collect($approvalRequests)->map(fn($ar) => [
                 'id' => $ar->id,
                 'token' => $ar->token,
                 'approver_id' => $ar->approver_id,

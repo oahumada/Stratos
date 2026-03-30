@@ -893,8 +893,22 @@ $delta = $plannedCount - $currentCount
 - [ ] Analytics de progreso de aprendizaje (completion %, skill matching)
 - [ ] Soporte para contenido multimedia (video streaming, interactive modules)
 - [ ] Certificate generation y tracking
-- **Est. Complejidad:** MEDIA
-- **Tiempo:** 1-2 semanas
+    - [ ] Añadir migración `lms_certificates` (tabla principal de certificados)
+    - [ ] Crear modelo `LmsCertificate` y `CertificateTemplate` (Eloquent)
+    - [ ] Implementar `CertificateService` (issue/revoke/generatePdf/validate hash)
+    - [ ] Sincronizar automáticamente a `TalentPassCredential` (`syncToTalentPass`)
+    - [ ] Integrar emisión automática en `LmsService::syncProgress()` al detectar completion
+    - [ ] Resolver derivación de `person_id` para `DevelopmentAction` (usar `DevelopmentPath.people_id` o migración que añada `person_id`)
+    - [ ] Diseñar e implementar **LMS Admin Agent** (crear cuenta participante, invitaciones, enroll, emitir/firmar certificados, cerrar curso, seguimiento)
+    - [ ] Exponer APIs: `GET /api/lms/certificates/...`, `GET /api/lms/certificates/{id}/verification`, `POST /api/lms/certificates/{id}/revoke`
+    - [ ] Contratos/events: emitir `CertificateIssued` y `CertificateRevoked` (payload con person_id, certificate_id, skill tags)
+    - [ ] Tests: unitarios + E2E (firma/verificación/revocation flow)
+
+    - [ ] UX: Añadir tarjeta en el landing de `Stratos Growth` para acceso rápido al LMS (link hacia el LMS landing)
+    - [ ] Crear `LMS Landing Page` (resources/js/Pages/LMS/Landing.vue) — página independiente con resumen del LMS, CTAs y espacio reservado para CMS-driven content (contenido dinámico a definir más adelante)
+
+- **Est. Complejidad:** MEDIA-ALTA
+- **Tiempo:** 2-3 semanas
 - **COSTO:** ✅ ZERO
 
 #### B. **Scenario Planning Phase 2** 👥 (Sucesión & Riesgos)

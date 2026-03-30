@@ -22,6 +22,14 @@ describe('ScenarioAnalyticsController', function () {
                 ->for($this->organization)
                 ->create(['name' => 'Cost Optimization', 'code' => 'CO-001']);
 
+            \Log::debug('Test created scenarios', [
+                'scenario1_id' => $scenario1->id,
+                'scenario2_id' => $scenario2->id,
+                'scenario1_org' => $scenario1->organization_id ?? null,
+                'scenario2_org' => $scenario2->organization_id ?? null,
+                'user_org' => $this->user->current_organization_id ?? null,
+            ]);
+
             $response = $this->postJson('/api/scenarios/compare', [
                 'scenario_ids' => [$scenario1->id, $scenario2->id],
             ]);
@@ -254,7 +262,7 @@ describe('ScenarioAnalyticsController', function () {
 
     describe('authorization', function () {
         it('requires authentication', function () {
-            Sanctum::actingAs(null);
+            test()->sanctumActingAs(null);
 
             $response = $this->getJson('/api/scenarios/1/analytics');
 

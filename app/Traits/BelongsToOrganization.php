@@ -14,20 +14,27 @@ trait BelongsToOrganization
     {
         static::addGlobalScope('organization', function (Builder $builder) {
             $user = Auth::user();
-            // If the user is logged in and has an organization_id, filter by it.
-            // We exclude models like Organizations itself if it were to use this trait.
-            if ($user && $user->organization_id) {
+            // If the user is logged in and has an organization context, filter by it.
+            // Prefer `current_organization_id` when available (tests and multi-org sessions),
+            // fallback to `organization_id` for backwards compatibility.
+            $orgId = null;
+            if ($user) {
+                $orgId = $user->current_organization_id ?? $user->organization_id ?? null;
+            }
+
+            if ($orgId) {
                 $model = new static;
                 $table = $model->getTable();
-                $builder->where("{$table}.organization_id", $user->organization_id);
+                $builder->where("{$table}.organization_id", $orgId);
             }
         });
 
         static::creating(function ($model) {
             if (empty($model->organization_id) && Auth::check()) {
                 $user = Auth::user();
-                if ($user->organization_id) {
-                    $model->organization_id = $user->organization_id;
+                $orgId = $user->current_organization_id ?? $user->organization_id ?? null;
+                if ($orgId) {
+                    $model->organization_id = $orgId;
                 }
             }
         });

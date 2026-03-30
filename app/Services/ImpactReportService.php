@@ -36,6 +36,9 @@ class ImpactReportService
             $scenario = Scenario::with(['roles.skills', 'capabilities'])->findOrFail((int) $scenarioOrId);
         }
 
+        // Ensure we have the scenario id variable for downstream helpers
+        $scenarioId = $scenario->id;
+
         $iq = $this->scenarioAnalytics->calculateScenarioIQ($scenario);
         $impact = $this->scenarioAnalytics->calculateImpact($scenario);
         $confidence = $this->scenarioAnalytics->getConfidenceScore($scenario->id);

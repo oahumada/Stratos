@@ -165,5 +165,20 @@ class SystemAgentsSeeder extends Seeder
                 'capabilities_config' => ['simulation_fidelity' => 'vhigh', 'complexity_management' => 'high'],
             ]
         );
+
+        // LMS Operator agent: manages onboarding, enrollments, invitations and certificate lifecycle
+        Agent::updateOrCreate(
+            ['name' => 'Operador LMS'],
+            [
+                'role_description' => 'Agente operador encargado de orquestar onboarding, inscripciones, invitaciones y emisión de certificados en el LMS',
+                'persona' => 'Operativo, confiable y orientado a procesos. Automatiza la creación de cuentas, envía invitaciones, gestiona enrollments y coordina la emisión y firma de certificados.',
+                'type' => 'operator',
+                'provider' => 'internal',
+                'model' => 'lms-operator',
+                'is_active' => true,
+                'expertise_areas' => ['lms_onboarding', 'enrollment', 'invitation', 'certificate_issuance', 'certificate_signing', 'follow_up'],
+                'capabilities_config' => ['reliability' => 'high', 'automation_level' => 'high'],
+            ]
+        );
     }
 }

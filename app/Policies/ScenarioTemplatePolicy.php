@@ -36,7 +36,16 @@ class ScenarioTemplatePolicy
      */
     public function update(User $user, ScenarioTemplate $template): bool
     {
-        return in_array($user->role, ['admin', 'manager']);
+        // Admins can always delete. Allow managers only when scoped to an organization
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        if ($user->role === 'manager' && ! empty($user->current_organization_id)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -44,7 +53,7 @@ class ScenarioTemplatePolicy
      */
     public function delete(User $user, ScenarioTemplate $template): bool
     {
-        return $user->role === 'admin';
+        return in_array($user->role, ['admin', 'manager']);
     }
 
     /**

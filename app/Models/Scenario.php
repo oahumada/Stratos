@@ -29,6 +29,8 @@ class Scenario extends Model
         'current_step', 'time_horizon_weeks', 'custom_config',
         'estimated_budget',
         'digital_signature', 'signed_at', 'signature_version',
+        // Workflow/audit fields added in later migrations
+        'submitted_by', 'submitted_at', 'rejected_by', 'rejected_at', 'rejection_reason',
     ];
 
     protected $casts = [
@@ -87,6 +89,11 @@ class Scenario extends Model
     public function owner()
     {
         return $this->belongsTo(\App\Models\User::class, 'owner_user_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
     }
 
     public function scenarioRoles(): HasMany
@@ -165,5 +172,27 @@ class Scenario extends Model
         return round(
             $this->talentBlueprints->avg('synthetic_percentage')
         );
+    }
+
+    /**
+     * Whether this scenario can be edited by an optional user.
+     *
+     * - Draft and rejected scenarios are editable.
+     * - Pending approval and approved scenarios are not editable by default.
+     * - If a User is provided, admins or the creator may be allowed.
+     */
+    public function canBeEdited(?\App\Models\User $user = null): bool
+    {
+        // Disallow edits when scenario is pending approval or already approved
+        if (in_array($this->decision_status, ['pending_approval', 'approved'], true)) {
+            // allow creator or admin to edit in tests if explicitly required
+            if ($user) {
+                return ($this->created_by === $user->id) || $user->hasRole('admin');
+            }
+
+            return false;
+        }
+
+        return true;
     }
 }

@@ -3,6 +3,7 @@
 use App\Models\{AlertHistory, AlertThreshold, Organization, User};
 
 describe('AlertThreshold Model', function () {
+    let $organization;
 
     beforeEach(function () {
         $this->organization = Organization::factory()->create();
@@ -94,6 +95,8 @@ describe('AlertThreshold Model', function () {
 });
 
 describe('AlertHistory Model', function () {
+    let $organization;
+    let $user;
 
     beforeEach(function () {
         $this->organization = Organization::factory()->create();
@@ -155,8 +158,7 @@ describe('AlertHistory Model', function () {
         });
 
         it('filters critical severity alerts', function () {
-            // Placeholder for critical severity test
-            expect(true)->toBeTrue();
+            
         });
     });
 });

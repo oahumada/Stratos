@@ -33,7 +33,18 @@ class ScenarioAnalyticsController extends Controller
             ->where('organization_id', $organizationId)
             ->get();
 
+        // For debug: also check which scenarios exist regardless of org
+        $allScenarios = Scenario::whereIn('id', $scenarioIds)->get();
+
         if ($scenarios->count() !== count($scenarioIds)) {
+            \Log::debug('Scenario compare authorization failure', [
+                'requested_ids' => $scenarioIds,
+                'found_ids' => $scenarios->pluck('id')->toArray(),
+                'all_found' => $allScenarios->map(function($s){ return ['id'=>$s->id,'org'=>$s->organization_id]; })->toArray(),
+                'organization_id' => $organizationId,
+                'user_id' => auth()->id(),
+            ]);
+
             return response()->json(['message' => 'One or more scenarios not found or unauthorized'], 403);
         }
 
@@ -89,6 +100,20 @@ class ScenarioAnalyticsController extends Controller
     }
 
     /**
+     * ID-based wrapper so unauthenticated requests hit auth middleware before model resolution.
+     */
+    public function analyticsById(int $id): JsonResponse
+    {
+        if (! auth()->check()) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $scenario = Scenario::withoutGlobalScope('organization')->findOrFail($id);
+
+        return $this->analytics($scenario);
+    }
+
+    /**
      * Calculate financial impact for a scenario
      * GET /api/scenarios/{scenario}/financial-impact
      */
@@ -102,6 +127,17 @@ class ScenarioAnalyticsController extends Controller
             'scenario_id' => $scenario->id,
             'financial_impact' => $impact,
         ]);
+    }
+
+    public function financialImpactById(int $id): JsonResponse
+    {
+        if (! auth()->check()) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $scenario = Scenario::withoutGlobalScope('organization')->findOrFail($id);
+
+        return $this->financialImpact($scenario);
     }
 
     /**
@@ -120,6 +156,17 @@ class ScenarioAnalyticsController extends Controller
         ]);
     }
 
+    public function riskAssessmentById(int $id): JsonResponse
+    {
+        if (! auth()->check()) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $scenario = Scenario::withoutGlobalScope('organization')->findOrFail($id);
+
+        return $this->riskAssessment($scenario);
+    }
+
     /**
      * Get skill gaps analysis for a scenario
      * GET /api/scenarios/{scenario}/skill-gaps
@@ -134,6 +181,17 @@ class ScenarioAnalyticsController extends Controller
             'scenario_id' => $scenario->id,
             'skill_gaps' => $gaps,
         ]);
+    }
+
+    public function skillGapsById(int $id): JsonResponse
+    {
+        if (! auth()->check()) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $scenario = Scenario::withoutGlobalScope('organization')->findOrFail($id);
+
+        return $this->skillGaps($scenario);
     }
 
     /**

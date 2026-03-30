@@ -116,6 +116,18 @@ trait HasSystemRole
     }
 
     /**
+     * Assign a system role to the user (test-friendly replacement for Spatie assignRole).
+     */
+    public function assignRole(string $role): self
+    {
+        $this->role = $role;
+        $this->save();
+        $this->clearPermissionCache();
+
+        return $this;
+    }
+
+    /**
      * Get the system role display name.
      */
     public function getRoleDisplayName(): string

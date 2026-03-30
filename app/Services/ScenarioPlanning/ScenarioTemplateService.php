@@ -7,8 +7,9 @@ use App\Models\Scenario;
 use App\Models\ScenarioTemplate;
 use App\Services\WorkforcePlanningService;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\Paginator;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 /**
@@ -32,9 +33,9 @@ class ScenarioTemplateService
      *
      * @param  array<string, mixed>  $filters  Filters: type, industry, is_active, search
      * @param  int  $perPage  Results per page
-     * @return Paginator
+    * @return LengthAwarePaginator
      */
-    public function getTemplates(array $filters = [], int $perPage = 15): Paginator
+    public function getTemplates(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         $query = ScenarioTemplate::query();
 
@@ -220,6 +221,39 @@ class ScenarioTemplateService
         // Add organization context if provided
         if ($organizationId) {
             $scenarioData['organization_id'] = $organizationId;
+        }
+
+        // Ensure required temporal fields and horizon are set to avoid DB NOT NULL errors
+        $timelineWeeks = $scenarioData['timeline_weeks'] ?? null;
+        if ($timelineWeeks) {
+            $scenarioData['horizon_months'] = (int) ceil($timelineWeeks / 4);
+            $scenarioData['start_date'] = now()->toDateString();
+            $scenarioData['end_date'] = now()->addWeeks((int) $timelineWeeks)->toDateString();
+        } else {
+            // sensible defaults when timeline not provided
+            $scenarioData['horizon_months'] = $scenarioData['horizon_months'] ?? 6;
+            $scenarioData['start_date'] = $scenarioData['start_date'] ?? now()->toDateString();
+            $scenarioData['end_date'] = $scenarioData['end_date'] ?? now()->addMonths($scenarioData['horizon_months'])->toDateString();
+        }
+
+        // Fiscal year (required by schema)
+        $scenarioData['fiscal_year'] = $scenarioData['fiscal_year'] ?? now()->year;
+
+        // Set audit/ownership fields from current user when available
+        $currentUserId = auth()->id() ?? null;
+        if (Schema::hasColumn('scenarios', 'created_by')) {
+            $scenarioData['created_by'] = $currentUserId;
+        }
+        if (Schema::hasColumn('scenarios', 'owner_user_id')) {
+            $scenarioData['owner_user_id'] = $currentUserId;
+        }
+
+        // Only include optional columns if they exist in the schema
+        if (! Schema::hasColumn('scenarios', 'budget')) {
+            unset($scenarioData['budget']);
+        }
+        if (! Schema::hasColumn('scenarios', 'timeline_weeks')) {
+            unset($scenarioData['timeline_weeks']);
         }
 
         // Create scenario

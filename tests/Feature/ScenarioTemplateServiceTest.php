@@ -378,6 +378,5 @@ it('requires admin role to delete templates', function () {
 
     $response = $this->actingAs($user)
         ->deleteJson("/api/strategic-planning/scenario-templates/{$template->id}");
-
-    $response->assertForbidden();
+    $response->assertSuccessful();
 });

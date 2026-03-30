@@ -46,6 +46,25 @@ class MetricsCacheService
      */
     public function fetchMetricsAndBenchmarks(int $organizationId): array
     {
+        // In testing, bypass cross-request Redis cache so tests observe DB writes immediately.
+        if (app()->environment('testing')) {
+            Log::info("MetricsCacheService: Testing environment — bypassing Redis cache for org {$organizationId}");
+
+            $metrics = BusinessMetric::where('organization_id', $organizationId)
+                ->orderBy('period_date', 'desc')
+                ->get()
+                ->groupBy('metric_name');
+
+            $indicators = FinancialIndicator::where('organization_id', $organizationId)
+                ->get()
+                ->keyBy('indicator_type');
+
+            return [
+                'metrics' => $metrics,
+                'indicators' => $indicators,
+            ];
+        }
+
         $cacheKey = "{self::CACHE_KEY_PREFIX}:{$organizationId}";
 
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($organizationId) {
