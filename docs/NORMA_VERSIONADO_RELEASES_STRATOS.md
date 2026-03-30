@@ -45,7 +45,8 @@ Implementación actual en el proyecto:
 ## 3.2 Mapeo de commits a bump
 
 - `feat` → **MINOR**
-- `fix`, `perf`, `refactor` → **PATCH**
+- `fix`, `perf` → **PATCH**
+- `refactor` → **PATCH** solo si toca rutas core backend (`app/Services`, `app/Http/Controllers`, `app/Models`, `routes`, `config`, `bootstrap/app.php`); en otro caso → **NONE**
 - `docs`, `test`, `chore`, `style`, `ci`, `revert` → **NONE** (no generan nueva versión por sí solos)
 - `BREAKING CHANGE` (en body/footer) → **MAJOR**
 
