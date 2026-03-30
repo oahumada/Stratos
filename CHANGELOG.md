@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file. See [standa
 * **alpha-1-phase-2:** Implement operation callbacks + factory + tests ([4d2e3b7](https://github.com/oahumada/Strato/commit/4d2e3b772e350b87fb76ea04cae686955fa0d5a4))
 * **alpha-1:** Admin Operations infrastructure - Phase 1 base ([03fde6c](https://github.com/oahumada/Strato/commit/03fde6c76c6cdef297dfac0e06210a777642e0b6))
 * **alpha-1:** Frontend build + Admin Operations components ([5957648](https://github.com/oahumada/Strato/commit/595764899f26282d18245c4db61f860a5fd6343c))
+* **docs(v2.0):** Lock certificate governance decisions in Sprint specs (full revocation audit, organizational digital signature, certification-driven badges/levels) ([8b8ea33](https://github.com/oahumada/Strato/commit/8b8ea336))
 
 ## [0.3.0](https://github.com/oahumada/Strato/compare/v1.0.0-mvp...v0.3.0) (2026-03-25)
 
