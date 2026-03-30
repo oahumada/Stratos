@@ -23,17 +23,17 @@
     {
       "type": "test",
       "section": "✅ Tests",
-      "hidden": false
+      "hidden": true
     },
     {
       "type": "docs",
       "section": "📚 Documentación",
-      "hidden": false
+      "hidden": true
     },
     {
       "type": "style",
       "section": "🎨 Estilos",
-      "hidden": false
+      "hidden": true
     },
     {
       "type": "chore",
@@ -48,7 +48,7 @@
     {
       "type": "revert",
       "section": "⏮️ Reversiones",
-      "hidden": false
+      "hidden": true
     }
   ],
   "commitUrlFormat": "https://github.com/oahumada/Stratos/commit/{{hash}}",

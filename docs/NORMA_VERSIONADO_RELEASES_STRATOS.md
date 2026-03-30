@@ -108,6 +108,23 @@ BREAKING CHANGE: se elimina campo legacy "avg_latency" y se reemplaza por "p95_d
 
 ## 5. Flujo oficial de release
 
+### 5.0 Rol del `CHANGELOG.md` dentro del flujo
+
+`CHANGELOG.md` es el **registro oficial de releases**, no el diario de trabajo del repositorio.
+
+Reglas:
+
+1. **No se actualiza manualmente en cada commit** como práctica normal.
+2. **Se actualiza automáticamente al ejecutar un release** (`standard-version`).
+3. Debe reflejar cambios con impacto de producto/operación, no necesariamente todo el ruido técnico del día a día.
+4. Por defecto, Stratos prioriza un changelog **ejecutivo y legible**, ocultando categorías de bajo valor para release notes (`docs`, `test`, `style`, `chore`, `ci`, `revert`).
+
+Uso recomendado:
+
+- Commit semántico durante desarrollo.
+- Release automático/manual en `main`.
+- `CHANGELOG.md` se convierte en la salida consolidada del release.
+
 ## 5.1 Flujo estándar
 
 1. Integrar cambios con commits semánticos.

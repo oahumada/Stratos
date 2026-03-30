@@ -6335,3 +6335,10 @@ Operationalize a clear versioning path from MVP to production starting immediate
 - Use `patch` for urgent fixes.
 - Promote to `v1.0.0` only after criteria in policy section 3.4 are met.
 
+### Changelog Strategy Update
+
+- `CHANGELOG.md` is now treated as an executive release artifact, not a per-commit work log.
+- `standard-version` remains the single source for changelog updates during releases.
+- Hidden by default in release notes: `docs`, `test`, `style`, `chore`, `ci`, `revert`.
+- Visible by default: `feat`, `fix`, `perf`, `refactor` (subject to versioning rules).
+
