@@ -213,15 +213,19 @@ Para activar auto-release + changelog al hacer push en `main`:
 
 ```bash
 git config stratos.autoReleaseOnPush true
-git config stratos.autoReleaseBranch main
 ```
 
 Comportamiento:
 
 1. Corre tests unitarios en `pre-push`.
 2. Calcula bump sugerido.
-3. Si auto-release está activo, ejecuta `standard-version` automáticamente.
-4. Aborta ese push intencionalmente para que el siguiente `git push --follow-tags` incluya commit/tag de release.
+3. En ramas distintas de `main` funciona en **modo sugerencia** (no versiona ni toca changelog).
+4. Solo en `main`, si auto-release está activo, ejecuta `standard-version` automáticamente.
+5. Aborta ese push intencionalmente para que el siguiente `git push --follow-tags` incluya commit/tag de release.
+
+Regla dura:
+
+- **Auto-release y generación automática de changelog están permitidos únicamente en `main`.**
 
 ---
 
