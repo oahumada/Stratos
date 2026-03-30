@@ -777,17 +777,29 @@ $delta = $plannedCount - $currentCount
 
 ## 📊 Trabajo de Mediano Plazo (Próximas 2-4 semanas)
 
+### ✅ **NEXT:** V2.0 Sprint 1 Kickoff (Apr 1, 2026)
+
+**Items Ready to Start (in order of priority):**
+
+1. **[NEXT - Week 1]** LMS Nativo Hardening - Fase 1
+   - Course builder UI enhancement
+   - Assessment engine + progress tracking
+   - Multimedia support (video streaming)
+   - Est: 1 semana | 🟡 MEDIA-ALTA
+   
+2. **[NEXT - Week 1-2]** Scenario Planning Phase 2 - Sucesión & Riesgos
+   - Career succession planning (skill-based matching)
+   - Talent risk analytics (volatility, retention scoring)
+   - Executive readiness dashboard
+   - Est: 2 semanas | 🔴 CRÍTICA
+
+---
+
 ### 3. **Admin Panel Polish** 🛠️
 
 - **Estado:** Admin Operations fase 5 ✅ COMPLETO
-- **Pendiente:**
-    - [ ] Agregar más operaciones administrativas
-    - [ ] Mejorar UX dashboard con gráficos
-    - [ ] Implementar alertas de SLA
-    - [ ] Auditoría avanzada (filtros, exports)
-- **Tiempo:** 2-3 días
-- **Prioridad:** MEDIA
-- **COSTO:** ✅ ZERO
+- **Status:** 🔄 BACKLOG PARA V2.0 Q3
+- Será postergado a favor de LMS Hardening + Scenario Planning Phase 2 (higher strategic value)
 
 ### 4. **LMS Nativo Hardening** 📚
 
@@ -817,13 +829,14 @@ $delta = $plannedCount - $currentCount
 ### 6. **Scenario Planning Phase 2** 👥
 
 - **Estado:** Fase 1 completada (basic planning)
-- **Pendiente - Fase 2:**
-    - [ ] Scenario planning avanzado
-    - [ ] Talent risk analytics
-    - [ ] Career succession planning
-    - [ ] Integration con People Experience
+- **Pendiente - Fase 2 (V2.0 Sprint 1):**
+    - [ ] Career succession planning avanzado (skill-based matching, readiness scoring)
+    - [ ] Talent risk analytics framework (volatility index, retention probability scoring)
+    - [ ] Workforce transformation roadmap (phased milestones, implementation tracking)
+    - [ ] Executive readiness assessment dashboard (vs. scenario requirements)
+    - [ ] Integration con People Experience (development tracking, coaching plans)
 - **Tiempo:** 2-3 semanas
-- **Prioridad:** ALTA (estratégico)
+- **Prioridad:** 🔴 CRÍTICA (Estratégica)
 - **COSTO:** ✅ ZERO
 
 ---
@@ -868,37 +881,123 @@ $delta = $plannedCount - $currentCount
 
 ---
 
-## 📈 Roadmap Q2 (Abril-Junio 2026)
+## � V2.0 SPRINT STRUCTURE (Abril-Junio 2026)
 
-### A. **Escala Inteligente**
+### ✅ V2.0 Sprint 1 (Apr 1-14): **LMS Hardening + Scenario Planning Phase 2**
 
-- [ ] Scale messaging para teams (group chats)
-- [ ] Integración con Telegram
-- [ ] Archiving y compliance retention
+**Prioridad:** 🔴 CRÍTICA (Estratégico)
+
+#### A. **LMS Nativo Hardening** 📚
+
+- [ ] Mejorar UX de cursos (course builder, assessment UI)
+- [ ] Integración SSO con LinkedIn Learning (OAuth 2.0)
+- [ ] Analytics de progreso de aprendizaje (completion %, skill matching)
+- [ ] Soporte para contenido multimedia (video streaming, interactive modules)
+- [ ] Certificate generation y tracking
 - **Est. Complejidad:** MEDIA
+- **Tiempo:** 1-2 semanas
+- **COSTO:** ✅ ZERO
 
-### B. **Analytics & Business Intelligence**
+#### B. **Scenario Planning Phase 2** 👥 (Sucesión & Riesgos)
 
-- [ ] Dashboard executivo (talent insights)
-- [ ] Predictive Analytics para retention
-- [ ] Skills gap analysis at enterprise level
+- [ ] Career succession planning avanzado (skill matching, readiness scoring)
+- [ ] Talent risk analytics (volatility index, retention probability)
+- [ ] Workforce transformation roadmap (phased planning, milestones)
+- [ ] Integration con People Experience (talent development tracking)
+- [ ] Executive readiness dashboard (vs. scenario requirements)
 - **Est. Complejidad:** ALTA
+- **Tiempo:** 2-3 semanas
+- **COSTO:** ✅ ZERO
 
-### C. **Ecosystem Integrations** (POSTERGAR - NO PRIORITARIO)\*\*~~ 🛑
+**Sprints 1 Deliverables:**
 
-- [ ] SAP SuccessFactors API
-- [ ] Workday connector
-- [ ] Azure AD / Okta SSO refinement
-- [ ] Calendar sync (Google Calendar, Outlook)
+- [ ] LMS: 5+ backend APIs, 3 Vue components, assessment engine
+- [ ] Scenario: Succession model, risk framework, dashboard
+- [ ] Tests: 50+ unit + 5 E2E
+- [ ] Build: ✅ Production-ready
+
+---
+
+### ⏳ V2.0 Sprint 2 (Apr 15-28): **Escala Inteligente (Messaging Teams + Telegram)**
+
+**Prioridad:** 🟡 ALTA
+
+#### C. **Escala Inteligente - Messaging Teams**
+
+- [ ] Group chat creation (workspace organization)
+- [ ] Channel moderation (roles, permissions, pinned messages)
+- [ ] Telegram bot integration (send/receive messages via Telegram)
+- [ ] Message archiving (compliance, retention policies)
+- [ ] Rich notifications (mentions, threads, digests)
+- **Est. Complejidad:** MEDIA
+- **Tiempo:** 2 semanas
+- **COSTO:** ✅ ZERO (Telegram API gratuita)
+
+**Sprint 2 Deliverables:**
+
+- [ ] Backend: Group chat models, Telegram connector, permissions system
+- [ ] Frontend: Channel UI, member management, thread view
+- [ ] Tests: 30+ tests
+- [ ] API: 8 new endpoints
+
+---
+
+### ⏳ V2.0 Sprint 3 (Mayo): **Analytics & Business Intelligence Dashboard**
+
+**Prioridad:** 🟡 ALTA (Ejecutivo)
+
+#### D. **Analytics & BI - Executive Dashboard**
+
+- [ ] Talent insights dashboard (headcount trends, skills inventory, risks)
+- [ ] Predictive analytics para retention (churn prediction model, risk scoring)
+- [ ] Skills gap analysis (enterprise-wide competency mapping, recommendations)
+- [ ] Org health metrics (engagement, development velocity, succession readiness)
+- [ ] Custom reporting (exportable dashboards, scheduled reports)
+- **Est. Complejidad:** ALTA
+- **Tiempo:** 2-3 semanas
+- **COSTO:** ✅ ZERO (sin ML cloud services)
+
+**Sprint 3 Deliverables:**
+
+- [ ] BI data warehouse (materialized views for analytics)
+- [ ] Prediction model (retention churn, based on historical patterns)
+- [ ] Dashboard: 6+ interactive visualizations
+- [ ] Reports: PDF/CSV export with scheduling
+- [ ] Tests: 25+ tests
+
+---
+
+### 🔄 V2.0 Sprint 4+ (Junio+): **Community Features + Integrations**
+
+**Prioridad:** 🟢 MEDIA (Future-ready)
+
+#### E. **Community Features**
+
+- [ ] Internal social network (profiles, activity feeds, connections)
+- [ ] Skill communities / guilds (topic-based groups, expertise leaderboards)
+- [ ] Peer mentoring system (matching, session scheduling, feedback)
+- [ ] Knowledge sharing (wikis, Q&A forum, document repository)
 - **Est. Complejidad:** MEDIA
 
-### D. **Community Features**
+#### F. **Ecosystem Integrations** (INICIAL PHASE)
 
-- [ ] Internal social network
-- [ ] Skill communities / guilds
-- [ ] Peer mentoring system
-- [ ] Knowledge sharing (wikis, Q&A)
-- **Est. Complejidad:** MEDIA
+- [ ] SAP SuccessFactors API connector (employee data sync)
+- [ ] Workday connector (payroll/org data integration)
+- [ ] Azure AD / Okta SSO refinement (SAML 2.0 metadata)
+- [ ] Google Calendar integration (meeting availability sync)
+- [ ] Outlook Calendar integration
+- **Est. Complejidad:** MEDIA-ALTA
+
+---
+
+## 📈 Roadmap Q2 (Referencia Rápida)
+
+| Sprint       | Features                                  | Prioridad  | Tiempo    | Estado     |
+| ------------ | ----------------------------------------- | ---------- | --------- | ---------- |
+| **V2.0-S1**  | LMS Hardening + Scenario Planning Phase 2 | 🔴 CRÍTICA | Apr 1-14  | ⏳ NEXT    |
+| **V2.0-S2**  | Messaging Teams + Telegram                | 🟡 ALTA    | Apr 15-28 | ⏳ Queue   |
+| **V2.0-S3**  | Analytics & BI Dashboard                  | 🟡 ALTA    | Mayo 1-21 | ⏳ Queue   |
+| **V2.0-S4+** | Community + Integrations                  | 🟢 MEDIA   | Junio+    | 🔮 Backlog |
 
 ---
 
