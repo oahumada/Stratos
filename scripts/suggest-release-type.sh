@@ -26,4 +26,20 @@ if echo "${COMMITS}" | grep -Eq '^[^|]+\|feat(\(|:)' ; then
   exit 0
 fi
 
+if echo "${COMMITS}" | grep -Eq '^[^|]+\|(fix|perf|refactor)(\(|:)' ; then
+  echo "patch"
+  exit 0
+fi
+
+# No-bump commits only (docs/test/chore/style/ci/revert) -> none
+if echo "${COMMITS}" | grep -Eq '^[^|]+\|(docs|test|chore|style|ci|revert)(\(|:)' ; then
+  # If there are unknown/non-conventional commits mixed in, default to patch for safety
+  if echo "${COMMITS}" | grep -Ev '^[^|]+\|(docs|test|chore|style|ci|revert)(\(|:)|^[^|]+\|$' | grep -q '.'; then
+    echo "patch"
+  else
+    echo "none"
+  fi
+  exit 0
+fi
+
 echo "patch"

@@ -45,7 +45,8 @@ Implementación actual en el proyecto:
 ## 3.2 Mapeo de commits a bump
 
 - `feat` → **MINOR**
-- `fix`, `perf`, `refactor`, `docs`, `test`, `chore` → **PATCH**
+- `fix`, `perf`, `refactor` → **PATCH**
+- `docs`, `test`, `chore`, `style`, `ci`, `revert` → **NONE** (no generan nueva versión por sí solos)
 - `BREAKING CHANGE` (en body/footer) → **MAJOR**
 
 ## 3.3 Política pre-1.0.0
