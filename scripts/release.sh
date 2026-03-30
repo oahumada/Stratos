@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script para crear releases con versionado semántico y changelog automático
-# Uso: ./scripts/release.sh [major|minor|patch|alpha|beta|rc|auto]
+# Uso: ./scripts/release.sh [major|minor|patch|alpha|beta|rc|auto] [--allow-empty]
 
 set -e
 
@@ -17,6 +17,14 @@ NC='\033[0m' # No Color
 echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
 echo -e "${BLUE}  🚀 Asistente de Releases - Stratos${NC}"
 echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}\n"
+
+ALLOW_EMPTY_RELEASE="false"
+
+for arg in "$@"; do
+    if [ "$arg" = "--allow-empty" ]; then
+        ALLOW_EMPTY_RELEASE="true"
+    fi
+done
 
 # Verificar que no hay cambios sin commitear
 if ! git diff-index --quiet HEAD --; then
@@ -66,6 +74,16 @@ else
 fi
 
 echo -e "${GREEN}✓ Tipo de release: ${RELEASE_TYPE}${NC}\n"
+
+SUGGESTED_RELEASE_TYPE="$(./scripts/suggest-release-type.sh)"
+
+if [ "$RELEASE_TYPE" != "auto" ] && [ "$ALLOW_EMPTY_RELEASE" != "true" ] && [ "$SUGGESTED_RELEASE_TYPE" = "none" ]; then
+    echo -e "${YELLOW}⚠️  No hay commits versionables desde el último tag.${NC}"
+    echo -e "${YELLOW}Se evita crear una release vacía para no ensuciar el changelog.${NC}\n"
+    echo -e "${CYAN}Sugerencia actual: ${SUGGESTED_RELEASE_TYPE}${NC}"
+    echo -e "${CYAN}Si realmente quieres forzarla, usa:${NC} ./scripts/release.sh ${RELEASE_TYPE} --allow-empty\n"
+    exit 1
+fi
 
 # Generar cambios y calcular nueva versión
 echo -e "${CYAN}📊 Analizando commits...${NC}\n"

@@ -6342,3 +6342,10 @@ Operationalize a clear versioning path from MVP to production starting immediate
 - Hidden by default in release notes: `docs`, `test`, `style`, `chore`, `ci`, `revert`.
 - Visible by default: `feat`, `fix`, `perf`, `refactor` (subject to versioning rules).
 
+### Empty Release Guard (2026-03-29)
+
+- Validation of the executive changelog flow exposed a new edge case: when all commits since the last tag are non-versioning, `standard-version` can still create an empty pre-release entry.
+- `scripts/release.sh` now checks `./scripts/suggest-release-type.sh` before releasing and blocks manual `patch|minor|major|alpha|beta|rc` runs when the suggestion is `none`.
+- Exceptional empty releases are still possible only with explicit override: `--allow-empty`.
+- `docs/NORMA_VERSIONADO_RELEASES_STRATOS.md` now documents this as an active release rule to keep `CHANGELOG.md` clean and executive.
+

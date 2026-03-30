@@ -152,6 +152,11 @@ o pre-release por fase:
 4. Validar que se actualizó `CHANGELOG.md` y se creó tag `vX.Y.Z`.
 5. Publicar tag y release notes.
 
+Regla adicional:
+
+- Si no existen commits versionables desde el último tag, el script de release debe **bloquear la generación** para evitar entradas vacías en `CHANGELOG.md`.
+- Solo se permite una release vacía de forma excepcional usando `--allow-empty`.
+
 ## 5.2 Release gates (mínimos obligatorios)
 
 Antes de publicar una versión:
@@ -226,7 +231,10 @@ El hook `pre-push` incorpora sugerencia automática de bump (`major|minor|patch`
 
 - `BREAKING CHANGE` o `!` en commit → `major`
 - `feat` → `minor`
-- otros tipos (`fix`, `docs`, `refactor`, `perf`, etc.) → `patch`
+- `fix`, `perf` → `patch`
+- `refactor` → `patch` solo si toca rutas core backend; si no, `none`
+- `docs`, `test`, `chore`, `style`, `ci`, `revert` → `none`
+- si no hay cambios versionables → `none`
 
 Para activar auto-release + changelog al hacer push en `main`:
 
