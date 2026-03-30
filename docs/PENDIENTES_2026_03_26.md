@@ -592,16 +592,16 @@ $delta = $plannedCount - $currentCount
 3. ✅ Performance profiling (2 hours) - baseline completed: `ExecutiveSummaryServiceTest` wall ~5.56s, `ExportServiceTest` wall ~0.56s
 4. ⏳ Queue async export jobs (Laravel Jobs) (1-2 hours)
 
-**Priority 3 - Enhancement (v1.2+):**
+**Priority 3 - Enhancement (v1.2+):** ✅ COMPLETADO
 
-1. ⏳ Succession planning integration (org-chart successors)
-2. ⏳ Performance optimization (caching, query scoping)
-3. ⏳ Additional export templates (custom branding)
-4. ⏳ Scenario comparison in executive summary
+1. ✅ Succession planning integration (org-chart successors) — `OrgChartController`: succession data per role node + `succession_coverage` stats
+2. ✅ Performance optimization (caching, query scoping) — `ExecutiveSummaryService`: `Cache::remember` 15 min TTL + `invalidateCache()`; OrgChart cache
+3. ✅ Additional export templates (custom branding) — `ExportService`: `getTemplateTheme()` con 3 temas (default/executive/minimal)
+4. ✅ Scenario comparison in executive summary — `ScenarioComparison.vue`: `apiClient` + `POST /api/scenarios/compare` + watch + spinner/error
 
 ---
 
-**Commit (Latest):** `ebdc0d4a` - fix(tests): stabilize unit migrations and dashboard assertions ✅
+**Commit (Latest):** `884532b4` - feat(v1.2): Priority 3 enhancements ✅
 
 **Build Verification:** ✅ npm run build (0 errors, 1m 31s)
 **Test Execution:** ✅ vendor/bin/pest tests/Unit --compact (146/146 passing)
