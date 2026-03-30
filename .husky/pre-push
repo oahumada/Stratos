@@ -1,9 +1,7 @@
+#!/usr/bin/env sh
 
+echo "[husky] pre-push: running unit tests + intelligent release suggestion"
 
-echo "[husky] pre-push: running unit tests only (Feature/Integration tests run in CI)"
-
-# Run only Unit tests (fast, no DB dependency).
-# Feature tests are environment-sensitive and run in CI instead.
 if [ -f composer.json ]; then
   echo "Running Pest unit tests..."
   vendor/bin/pest tests/Unit --compact || {
@@ -14,4 +12,32 @@ else
   echo "composer.json not found; skipping Pest"
 fi
 
-echo "[husky] pre-push: unit tests passed"
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
+SUGGESTED_BUMP="$(./scripts/suggest-release-type.sh 2>/dev/null || echo patch)"
+LAST_TAG="$(git describe --tags --abbrev=0 2>/dev/null || echo none)"
+
+echo "[husky] release suggestion: ${SUGGESTED_BUMP} (last tag: ${LAST_TAG}, branch: ${CURRENT_BRANCH})"
+
+AUTO_RELEASE_ON_PUSH="$(git config --bool stratos.autoReleaseOnPush || echo false)"
+AUTO_RELEASE_BRANCH="$(git config --get stratos.autoReleaseBranch || echo main)"
+
+if [ "${AUTO_RELEASE_ON_PUSH}" = "true" ] && [ "${CURRENT_BRANCH}" = "${AUTO_RELEASE_BRANCH}" ] && [ "${SUGGESTED_BUMP}" != "none" ]; then
+  echo "[husky] auto-release enabled: generating changelog + version bump (${SUGGESTED_BUMP})"
+
+  if ! git diff-index --quiet HEAD --; then
+    echo "[husky] working tree is not clean; aborting push"
+    echo "[husky] commit/stash your changes and retry"
+    exit 1
+  fi
+
+  npx standard-version --release-as "${SUGGESTED_BUMP}" || {
+    echo "[husky] standard-version failed; aborting push"
+    exit 1
+  }
+
+  echo "[husky] release commit/tag created. Push aborted intentionally."
+  echo "[husky] now run: git push --follow-tags"
+  exit 1
+fi
+
+echo "[husky] pre-push checks passed"

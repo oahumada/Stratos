@@ -201,6 +201,28 @@ npm run release:minor
 npm run release:major
 ```
 
+### 6.2 Pre-push inteligente (opcional, recomendado para maintainers)
+
+El hook `pre-push` incorpora sugerencia automática de bump (`major|minor|patch`) según commits desde el último tag:
+
+- `BREAKING CHANGE` o `!` en commit → `major`
+- `feat` → `minor`
+- otros tipos (`fix`, `docs`, `refactor`, `perf`, etc.) → `patch`
+
+Para activar auto-release + changelog al hacer push en `main`:
+
+```bash
+git config stratos.autoReleaseOnPush true
+git config stratos.autoReleaseBranch main
+```
+
+Comportamiento:
+
+1. Corre tests unitarios en `pre-push`.
+2. Calcula bump sugerido.
+3. Si auto-release está activo, ejecuta `standard-version` automáticamente.
+4. Aborta ese push intencionalmente para que el siguiente `git push --follow-tags` incluya commit/tag de release.
+
 ---
 
 ## 7. Gobernanza y responsabilidades (RACI mínimo)
