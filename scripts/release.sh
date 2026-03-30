@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script para crear releases con versionado semántico y changelog automático
-# Uso: ./scripts/release.sh [major|minor|patch]
+# Uso: ./scripts/release.sh [major|minor|patch|alpha|beta|rc|auto]
 
 set -e
 
@@ -15,7 +15,7 @@ MAGENTA='\033[0;35m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
-echo -e "${BLUE}  🚀 Asistente de Releases - Strato${NC}"
+echo -e "${BLUE}  🚀 Asistente de Releases - Stratos${NC}"
 echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar que no hay cambios sin commitear
@@ -45,14 +45,20 @@ if [ -z "$1" ]; then
     echo "   1) patch  - Fixes (1.0.0 → 1.0.1)"
     echo "   2) minor  - Nuevas features (1.0.0 → 1.1.0)"
     echo "   3) major  - Breaking changes (1.0.0 → 2.0.0)"
-    echo "   4) auto   - Detectar automáticamente"
-    read -p "Elige (1-4): " type_choice
+    echo "   4) alpha  - Pre-release alpha (ej: 1.2.0-alpha.0)"
+    echo "   5) beta   - Pre-release beta (ej: 1.2.0-beta.0)"
+    echo "   6) rc     - Release candidate (ej: 1.2.0-rc.0)"
+    echo "   7) auto   - Detectar automáticamente"
+    read -p "Elige (1-7): " type_choice
     
     case $type_choice in
         1) RELEASE_TYPE="patch" ;;
         2) RELEASE_TYPE="minor" ;;
         3) RELEASE_TYPE="major" ;;
-        4) RELEASE_TYPE="auto" ;;
+        4) RELEASE_TYPE="alpha" ;;
+        5) RELEASE_TYPE="beta" ;;
+        6) RELEASE_TYPE="rc" ;;
+        7) RELEASE_TYPE="auto" ;;
         *) echo -e "${RED}Opción inválida${NC}"; exit 1 ;;
     esac
 else
@@ -69,6 +75,8 @@ if [ "$RELEASE_TYPE" = "auto" ]; then
     npx standard-version --dry-run 2>/dev/null | grep "bumping version" || true
     echo -e "\nEjecutando: npx standard-version\n"
     npx standard-version
+elif [ "$RELEASE_TYPE" = "alpha" ] || [ "$RELEASE_TYPE" = "beta" ] || [ "$RELEASE_TYPE" = "rc" ]; then
+    npx standard-version --prerelease "$RELEASE_TYPE"
 else
     npx standard-version --release-as "$RELEASE_TYPE"
 fi
@@ -110,7 +118,7 @@ if [ "$push_confirm" = "y" ] || [ "$push_confirm" = "Y" ]; then
     
     # Mostrar link de GitHub
     echo -e "${YELLOW}📎 Enlace del release:${NC}"
-    echo -e "${CYAN}https://github.com/oahumada/Strato/releases/tag/${TAG}${NC}\n"
+    echo -e "${CYAN}https://github.com/oahumada/Stratos/releases/tag/${TAG}${NC}\n"
 else
     echo -e "${YELLOW}⚠️  Push cancelado${NC}"
     echo -e "${CYAN}Los cambios están locales. Haz push manualmente:${NC}"

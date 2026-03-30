@@ -6305,3 +6305,33 @@ Completed comprehensive gap analysis and architecture design for automatic certi
 ---
 
 **Session Summary:** V2.0 Sprint 1 planning complete + LMS-Talent Pass integration analysis finalized. Comprehensive 8,700+ LOC specifications (Track A + B + LMS-TP analysis) documented with product decisions locked. Repository ready for Apr 1 kickoff. All product questions addressed (1-4 locked, 5-8 deferred). Commits: 884532b4, 00374c15, 6dfdb751, 047a7579 (+ this session's updates).
+
+---
+
+## Versioning Governance Activation (2026-03-29)
+
+### Objective
+
+Operationalize a clear versioning path from MVP to production starting immediately.
+
+### Implemented Changes
+
+- `scripts/release.sh`
+    - Added pre-release modes: `alpha`, `beta`, `rc`.
+    - Menu updated to support 7 options (`patch`, `minor`, `major`, `alpha`, `beta`, `rc`, `auto`).
+    - Updated release link branding from `Strato` to `Stratos`.
+- `package.json`
+    - Added scripts: `release:alpha`, `release:beta`, `release:rc`.
+- `.versionrc.json`
+    - Updated repository URLs to `https://github.com/oahumada/Stratos/...` for commits/compare/issues.
+- `docs/NORMA_VERSIONADO_RELEASES_STRATOS.md`
+    - Bumped policy version to **1.1**.
+    - Added maturity ladder: `v0.x` → `alpha` → `beta` → `rc` → `v1.0.0`.
+    - Added immediate activation section with official commands effective 2026-03-29.
+
+### Operational Rule (Active Now)
+
+- Use pre-releases (`alpha`/`beta`/`rc`) for major blocks before GA.
+- Use `patch` for urgent fixes.
+- Promote to `v1.0.0` only after criteria in policy section 3.4 are met.
+

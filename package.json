@@ -29,7 +29,10 @@
         "release": "cd .. && ./scripts/release.sh",
         "release:patch": "cd .. && ./scripts/release.sh patch",
         "release:minor": "cd .. && ./scripts/release.sh minor",
-        "release:major": "cd .. && ./scripts/release.sh major"
+        "release:major": "cd .. && ./scripts/release.sh major",
+        "release:alpha": "cd .. && ./scripts/release.sh alpha",
+        "release:beta": "cd .. && ./scripts/release.sh beta",
+        "release:rc": "cd .. && ./scripts/release.sh rc"
     },
     "devDependencies": {
         "@axe-core/playwright": "^4.8.0",

@@ -1,7 +1,7 @@
 # 📐 Norma Interna de Versionado y Releases — Stratos
 
 **Estado:** Vigente  
-**Versión de la norma:** 1.0  
+**Versión de la norma:** 1.1  
 **Alcance:** Todo cambio que llegue a ramas de integración/release y afecte backend, frontend, infraestructura o documentación operativa.
 
 ---
@@ -63,6 +63,21 @@ Mientras el producto esté en `0.x`:
 2. Existen al menos 2 ciclos consecutivos sin incidentes críticos P0/P1 en flujos core.
 3. La documentación operativa y de release está validada por responsables técnicos y operativos.
 
+## 3.5 Escalera de madurez (MVP → Producción)
+
+Stratos adopta explícitamente la siguiente secuencia:
+
+1. `v0.x` → producto en evolución controlada (MVP/Alpha interna).
+2. `v0.x-alpha.N` → validación temprana funcional.
+3. `v0.x-beta.N` → estabilización y validación ampliada.
+4. `v0.x-rc.N` → candidato final sin cambios estructurales grandes.
+5. `v1.0.0` → release general (GA) para operación productiva.
+
+Regla operativa:
+
+- Desde `rc`, solo entran `fix`, `perf`, `docs` críticos y ajustes de hardening.
+- `feat` en fase `rc` requiere aprobación explícita de Product + Tech Lead.
+
 ---
 
 ## 4. Convención de commits (obligatoria)
@@ -105,6 +120,14 @@ o modo automático:
 
 ```bash
 ./scripts/release.sh auto
+```
+
+o pre-release por fase:
+
+```bash
+./scripts/release.sh alpha
+./scripts/release.sh beta
+./scripts/release.sh rc
 ```
 
 4. Validar que se actualizó `CHANGELOG.md` y se creó tag `vX.Y.Z`.
@@ -158,6 +181,25 @@ Resultado esperado:
 - **PATCH**: bajo demanda (hotfix o corrección rápida).
 - **MINOR**: quincenal o mensual (bloques de valor).
 - **MAJOR**: por hito estratégico, no por calendario.
+
+### 6.1 Activación inmediata (vigente desde 2026-03-29)
+
+Esta política entra en vigor inmediatamente con las siguientes reglas de ejecución:
+
+1. Para bloques de funcionalidad grandes previos a GA usar `alpha`/`beta`/`rc`.
+2. Para correcciones urgentes usar `patch`.
+3. No elevar a `v1.0.0` hasta cumplir criterios de 3.4.
+
+Comandos oficiales desde hoy:
+
+```bash
+npm run release:alpha
+npm run release:beta
+npm run release:rc
+npm run release:patch
+npm run release:minor
+npm run release:major
+```
 
 ---
 
