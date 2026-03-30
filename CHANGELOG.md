@@ -2,6 +2,128 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.1-alpha.0](https://github.com/oahumada/Stratos/compare/v0.4.0...v0.4.1-alpha.0) (2026-03-30)
+
+
+### ⚡ Mejoras de Rendimiento
+
+* N+1 audit & fixes — batch aggregates, scenario cache, N+1 scan harness, docs ([2a7a4cb](https://github.com/oahumada/Stratos/commit/2a7a4cb68ed12c64aa1cfa0e99b1f08db086400e))
+* register TalentRoiService as singleton and use fetchExecutiveAggregates in getExecutiveSummary ([07bf4d1](https://github.com/oahumada/Stratos/commit/07bf4d1a878e1753762cbf87b55e1ebac9641412))
+
+
+### ✅ Tests
+
+* **E2E:** Scenario Planning comprehensive integration tests - 8 critical endpoints ([d450ea5](https://github.com/oahumada/Stratos/commit/d450ea5d82df2faa7a4a06e85076c0a22d0e124f))
+* Phase 2 comprehensive test suite - 45+ test cases ([38d6d70](https://github.com/oahumada/Stratos/commit/38d6d701abdfedef9cfada86b326b03f36d11ae7))
+* replace Slack with Telegram in deployment and operations documentation ([d1301c8](https://github.com/oahumada/Stratos/commit/d1301c8f4e4c6c7707b446c7ee5bd07431aa53c0))
+
+
+### 🐛 Correcciones de Bugs
+
+* Add Controller import and fix Pest test syntax ([1fe8778](https://github.com/oahumada/Stratos/commit/1fe8778ca0156ce00fe58ceb45959b026cadbc1a))
+* AuditHeatmap.vue syntax error - remove orphaned closing paren ([599ae85](https://github.com/oahumada/Stratos/commit/599ae8520fada91dd63e4f336cfdd5e1ad48f512))
+* Complete production build fixes - Talent Pass Polish Phase ([05104ea](https://github.com/oahumada/Stratos/commit/05104eaf9324077576e82b4a10928188c3075f6a))
+* ExecutiveSummary test fixtures - all 9 tests now passing ✅ ([64fa9f5](https://github.com/oahumada/Stratos/commit/64fa9f541f9aefa570830c7f7983cff1bef9764d))
+* **tests:** resolve Pest uses() conflicts and replace faker slug in GuideFaqFactory ([be1a12e](https://github.com/oahumada/Stratos/commit/be1a12e8d39bef7a67b573945467c2185c04c491))
+* **tests:** stabilize unit migrations and dashboard assertions ([ebdc0d4](https://github.com/oahumada/Stratos/commit/ebdc0d4ad82339821fdd08cdaac96d2fb965b0d5))
+
+
+### 📚 Documentación
+
+* Add 5 comprehensive operational guides for Messaging MVP staging deployment ([68e3ef6](https://github.com/oahumada/Stratos/commit/68e3ef6c704f9c644bb50fba73d8fd8f85dae1ae))
+* Add comprehensive execution roadmap - Options A, B, C ([99560bc](https://github.com/oahumada/Stratos/commit/99560bce4e8f7de04e22cb647f740179d7eac27e))
+* Add comprehensive Opción A deployment checklist ([837c7ee](https://github.com/oahumada/Stratos/commit/837c7eeeab24d1a81e155bc6646d8707265e535b))
+* Add comprehensive Task 2 planning document (Scenario Planning Phase 2) ([0496f08](https://github.com/oahumada/Stratos/commit/0496f089acfc7b7b69f85fe45728834cf38245be))
+* Add comprehensive test execution documentation and verification scripts ([d2a5067](https://github.com/oahumada/Stratos/commit/d2a506785f5ae0ac58f9629432dabf84422ed8d3))
+* add N+1 problem explanation and clarify UI impact ([f48ec62](https://github.com/oahumada/Stratos/commit/f48ec62137a73f36147cb69bf01691a8375f3f5a))
+* Add Phase 1 component integration guide with step-by-step instructions ([0a289a9](https://github.com/oahumada/Stratos/commit/0a289a96b53a97ffd7d159e1db081e857291ac36))
+* Add Phase 1 execution summary and completion report ([343a0d5](https://github.com/oahumada/Stratos/commit/343a0d5babcb6c2e8efd727c3978dc5db0169a67))
+* Add Phase 1 integration complete report and success criteria verification ([af6a660](https://github.com/oahumada/Stratos/commit/af6a660a89bdac35454b38693da2f27c63ea48ae))
+* Add Phase 2 completion report with full deliverables summary ([43b14d3](https://github.com/oahumada/Stratos/commit/43b14d38ce22f4e9e1fd52030e45dfb8f73f09f0))
+* add Phase 2 completion summary and updated PR draft ([c065907](https://github.com/oahumada/Stratos/commit/c065907e3eb7782b61636dc108b07ca01e62c965))
+* Add Phase 2.5 completion report and update openmemory ([6c088e4](https://github.com/oahumada/Stratos/commit/6c088e404f11a150d343019a7822f54eec2043db))
+* **analysis:** LMS ↔ Talent Pass ↔ Certificate Integration Architecture ([047a757](https://github.com/oahumada/Stratos/commit/047a7579484a138eb007b7437026272e5d25a04a))
+* **changelog:** add v2.0 certificate governance release note ([987e471](https://github.com/oahumada/Stratos/commit/987e471c3a8957d20bb38ae3fe30e62312ac02a3))
+* Complete Demo Guide & Technical Architecture for Talent Pass ([bfbad5a](https://github.com/oahumada/Stratos/commit/bfbad5aae83a57233581a1ffcf8f651a4b336787))
+* Complete Talent Pass CV 2.0 deployment planning ([901e513](https://github.com/oahumada/Stratos/commit/901e513e53f75a2c6e871d3d00343c6f005590fb))
+* finalize Phase 2 N+1 optimization summary ([a913fb6](https://github.com/oahumada/Stratos/commit/a913fb6ed431f0fd582dcc7fc6e228062a00f850))
+* Finalize Phase 3 - Talent Pass documentation complete ([22bb805](https://github.com/oahumada/Stratos/commit/22bb80545127d9dd6d594214a570d16614925c02))
+* Mark Messaging MVP as MERGED & COMPLETE ([2efbbc5](https://github.com/oahumada/Stratos/commit/2efbbc50e962f537486fcb0bb65deb90aa5387c8))
+* Mark Phase 2.5 as 100% complete and production ready ([c0dd165](https://github.com/oahumada/Stratos/commit/c0dd16581f34f2b3e2b65b4e5448b8884f94eca6))
+* Mark Task 1 complete - v0.3.0 merged to main ([3f808c0](https://github.com/oahumada/Stratos/commit/3f808c0d9b608427dedafced0ec0b1033a62b2d5))
+* **memory:** V2.0 Sprint 1 parallel track planning complete ([d3e5a0a](https://github.com/oahumada/Stratos/commit/d3e5a0a51172ae038089b7c6ab4a83c40f2856b2))
+* Messaging MVP staging deployment plan & quick-start guide ([fc4982d](https://github.com/oahumada/Stratos/commit/fc4982d804723e97eb0d697742ad7e6ab64d6811))
+* **pendientes:** mark Priority 3 v1.2 enhancements as completed [884532b4] ([e66ed39](https://github.com/oahumada/Stratos/commit/e66ed3902066e393381455a2dfff3b13ecad7d36))
+* **pendientes:** update test stabilization and push status ([c8019c5](https://github.com/oahumada/Stratos/commit/c8019c556c6e3e1aa75a7275790debaddbfc8889))
+* Phase 3 completion report — 31% total harness speedup ([906fa94](https://github.com/oahumada/Stratos/commit/906fa94ef008bdd6ca4123137789fb55a6010a86))
+* Phase 3 comprehensive documentation update ([51c368c](https://github.com/oahumada/Stratos/commit/51c368c3b934b88151e860aac2afb594668a2f78))
+* Phase 3.3-3.4 completion - Executive Summary & Org Chart (1,610 LOC, 6/9 tests) ([7781395](https://github.com/oahumada/Stratos/commit/77813956c0c5e2b490032515556b167c0972b3e9))
+* Phase 4 final — Redis caching architecture complete ([40e2012](https://github.com/oahumada/Stratos/commit/40e2012359e37cdd8136741e18fe6c88cab4fd35))
+* Phase 5 completion - Admin Operations Alpha-1,2,3,4 DELIVERED + Messaging MVP ready ([80d45e8](https://github.com/oahumada/Stratos/commit/80d45e87262abf04fffbd6fea67929ea96ea6987))
+* Phase 5 completion - Staging deployment ready ([8d1bdfc](https://github.com/oahumada/Stratos/commit/8d1bdfc2bbc6171fb0878a4b37ebefeff7c4898d))
+* record Phase 2.1 singleton caching improvements ([be0e7a1](https://github.com/oahumada/Stratos/commit/be0e7a1662585e9b047da9ef3ce20b992dd9811a))
+* Record Task 1 Command Center integration in openmemory ([d9cd73c](https://github.com/oahumada/Stratos/commit/d9cd73cdcfadd19e879d5fba5644e64960e1ec81))
+* **refine:** LMS-Talent Pass Integration - Product decisions locked, models & service spec finalized ([8c4d449](https://github.com/oahumada/Stratos/commit/8c4d449b35e6cb282bf89eb61026d2ccbbbfcca5))
+* session closure — Phase 2 complete with 29% harness speedup ([f18c0b7](https://github.com/oahumada/Stratos/commit/f18c0b7c8c6a6f73a8fb35dbe34ad2a1f9643396))
+* Task 1 Phase 1 execution summary - UX components complete ([afd9cd1](https://github.com/oahumada/Stratos/commit/afd9cd1ab935c26080755ba7d1931a572d835b05))
+* Task 1 Phase 2 execution summary - SLA Alerting system complete ([a67d91d](https://github.com/oahumada/Stratos/commit/a67d91d6646552234578455b2654702e9d53983b))
+* Task 1 Phase 3 execution summary - Audit Trail system complete ([6aecfad](https://github.com/oahumada/Stratos/commit/6aecfad91da8918a0714513973a0e6ac2694e411))
+* Update documentation - Talent Pass v1.0 COMPLETE ([c938455](https://github.com/oahumada/Stratos/commit/c9384554d54a6cb6e7d12c20aa8bdced038ec83b))
+* update openmemory with Phase 2 executive aggregates implementation ([c9da208](https://github.com/oahumada/Stratos/commit/c9da2082711a54f511983c6669fe3388cf48ac01))
+* Update PENDIENTES - 5 operational guides ready for Mar 27 deployment ([b69b6c0](https://github.com/oahumada/Stratos/commit/b69b6c0a5e24f76c5678958bf4aff407e731ab0b))
+* Update PENDIENTES & ROADMAP with N+1 Optimization Suite complete ([b85f556](https://github.com/oahumada/Stratos/commit/b85f55651af3485258d7decbb12f8c38cf57a386))
+* Update roadmap with operational guides & Talent Pass deployment planning ([3405e72](https://github.com/oahumada/Stratos/commit/3405e7255cbe22f7bdcfd860d30946ce5bda751c))
+* Update ROADMAP_STATUS with Mar 26 completions ([60ae881](https://github.com/oahumada/Stratos/commit/60ae881b7ce365c5cca1be2559316add40cdc2ee))
+* Update Task 1 completion status - Command Center integration complete ([63775f5](https://github.com/oahumada/Stratos/commit/63775f59d2980741ea423ea11ca7e14fb83cc2b9))
+* **v2.0:** Define V2.0 Sprint structure — LMS Hardening + Scenario Planning Phase 2 + Messaging Teams/BI/Community roadmap ([00374c1](https://github.com/oahumada/Stratos/commit/00374c15eb0fface7320855f431f2db89bcb43a5))
+* **v2.0:** lock revocation audit, org signature and gamification decisions across sprint specs ([8b8ea33](https://github.com/oahumada/Stratos/commit/8b8ea3361fe1f78297accd2404d3f993c74995a4))
+* **v2.0:** Sprint 1 parallel track specifications — LMS Hardening + Scenario Planning Phase 2 ([6dfdb75](https://github.com/oahumada/Stratos/commit/6dfdb7518222df88cc98d384de84bd65c9981744))
+
+
+### ✨ Nuevas Funcionalidades
+
+* Add ApprovalDashboard.vue component for Phase 2.5 ([dfff0a1](https://github.com/oahumada/Stratos/commit/dfff0a1a62b368834dcceaad9f43c0d589143c1e))
+* Add E2E Browser Tests for Talent Pass (Pest v4) ([3a77a46](https://github.com/oahumada/Stratos/commit/3a77a46f55a17f1ecdc9d7ca63d20591bf053f65))
+* add Phase 2 materialized executive aggregates table and refresh command ([5a9dc1a](https://github.com/oahumada/Stratos/commit/5a9dc1a8a80c02b7450ad2cd85d30ae44b57ba5c))
+* Add ScenarioAnalyticsController and Phase 1 analytics API endpoints ([b2e6a16](https://github.com/oahumada/Stratos/commit/b2e6a160e3aa748f2d20597abfa74d870ad1d01c))
+* Add UX-enhanced admin dashboard components (Gauges, Sparklines, Timeline, Alerts) ([c8d0b8f](https://github.com/oahumada/Stratos/commit/c8d0b8f9416daf492ce94774c388e79cd916e748))
+* Admin Operations Dashboard page ([cd25434](https://github.com/oahumada/Stratos/commit/cd254346161cb27385f2e00dd16ac84e0087b370))
+* **admin:** operation completion notifications (event, listener, notification, tests) ([12b83b4](https://github.com/oahumada/Stratos/commit/12b83b4b8c66b5388f2cac0e6f854dd1546330d7))
+* **alpha-1:** admin operations dashboard complete - controller, routes, UI, tests ([0f25116](https://github.com/oahumada/Stratos/commit/0f25116a8a0c29824b5c35de7ce667e4ba9b4431))
+* Complete 5 Talent Pass components (CompletenessIndicator, ExperienceManager, CredentialManager, ExportMenu, ShareDialog) ([d27008d](https://github.com/oahumada/Stratos/commit/d27008d97cd76cf947fe5aab5140e7c777c87bb2))
+* Complete Phase 2.5 notifications system ([9b7cd81](https://github.com/oahumada/Stratos/commit/9b7cd810fc46adf06ec8ff2ea70254f6dd7e6d94))
+* Create Phase 1 Vue components (ScenarioComparison, Timeline, Metrics, RiskAssessment) ([b8a8d7f](https://github.com/oahumada/Stratos/commit/b8a8d7f0092b27c21c281732a0f3d077bc1a1b6e))
+* Create Phase 2 frontend workflow components (Timeline, ApprovalCard, ExecutionPlan) and integrate with Analytics landing page ([8366377](https://github.com/oahumada/Stratos/commit/83663771026944a1b0790e625e22c0084d583173))
+* **export:** complete PPTX generation and validate performance baseline ([215963a](https://github.com/oahumada/Stratos/commit/215963acb2ca870a5294a713581b82fa8fb38143))
+* **export:** mPDF real PDF generation - Executive Summary to PDF with professional HTML template ([390a6fb](https://github.com/oahumada/Stratos/commit/390a6fb2b023b6929a4cc98731b23cef3d30e514))
+* Implement AdminOperationLockService for concurrency management ([a6811fd](https://github.com/oahumada/Stratos/commit/a6811fdbfe25251e03b7688757e5f7781a5fd28f))
+* Implement Phase 2 backend (workflow service, approval controller, migration) and initial tests ([69dd2be](https://github.com/oahumada/Stratos/commit/69dd2bec3332ccfb2a1805d1352a31b02321ad5c))
+* Implement ScenarioTemplateService for Phase 3 template management ([24e2909](https://github.com/oahumada/Stratos/commit/24e290911fc2c1b694c7bab6bb6dbb8cd9176505))
+* implement WhatIfAnalysisService for Phase 3.2 impact simulation ([05f4263](https://github.com/oahumada/Stratos/commit/05f4263c11b108345d7163e7736c848a96ff3511))
+* Integrate ApprovalDashboard into Analytics landing page ([d5c7c8e](https://github.com/oahumada/Stratos/commit/d5c7c8e139a368afb5a6d450a8a730e78264d5e3))
+* Integrate Audit Trail components into Command Center landing with menu navigation ([fe296a2](https://github.com/oahumada/Stratos/commit/fe296a23618d094b7ecae82df2484420109a5c40))
+* Integrate Phase 1 Analytics components into ScenarioPlanning section ([35ef261](https://github.com/oahumada/Stratos/commit/35ef2610cf54ae0c7cd4d132ecbbf265820f0695))
+* Phase 2 SLA Alerting - Services, Controller, and API routes ([64b89fe](https://github.com/oahumada/Stratos/commit/64b89feb0cff50a682656e1b42718ad12ad93db9))
+* Phase 2 SLA Alerting - Vue 3 frontend components ([21e3782](https://github.com/oahumada/Stratos/commit/21e378235e7efee63863902ea4bf476c4e70c806))
+* Phase 2 SLA Alerting system - Database migrations and Eloquent models ([cb3804e](https://github.com/oahumada/Stratos/commit/cb3804e6600440647025ac46e12a7f3b06f4c0e1))
+* Phase 3 - Batch business_metrics and financial_indicators queries ([87c2c88](https://github.com/oahumada/Stratos/commit/87c2c882088f1601603f7cfeede0aec27f1ed687))
+* Phase 3 Audit Trail System - Auto-tracking, timeline, export, heatmap ([a73e0c8](https://github.com/oahumada/Stratos/commit/a73e0c889f8800e8b30a52302677ec3bdea1273c))
+* Phase 3 Completion - All 4 steps DONE ✅ ([7b923c8](https://github.com/oahumada/Stratos/commit/7b923c88dfbd3eab383b3ddf8410b95b37f66320))
+* Phase 3 Control Center Landing - Alert management UI with 3 options (configuration, history, escalation) ([4336a8d](https://github.com/oahumada/Stratos/commit/4336a8d86faca2072814ac6a45f587d3bb7915cf))
+* Phase 3.3 Export Service - PDF/PPTX infrastructure (stubs for actual generation) ([97af2cb](https://github.com/oahumada/Stratos/commit/97af2cbe752e46e104f99e6063d5f526552f6f4f))
+* Phase 3.3-3.4 - Executive Summary Dashboard & Org Chart Visualization ([233185f](https://github.com/oahumada/Stratos/commit/233185f166a95e16e58ee6e017a34d0ed8e2e787))
+* Phase 4 - Cross-request Redis caching for business_metrics + financial_indicators ([21d5d80](https://github.com/oahumada/Stratos/commit/21d5d80dbf33774d5923709f90154a0c2d9fd3dc))
+* Phase 4.1 - Auto-invalidation of Redis cache via model observers ([e4aa3b1](https://github.com/oahumada/Stratos/commit/e4aa3b12f43101a6e1fde1cb1b4a402ae50a7279))
+* Phase 5 - Database indices, cache warming & monitoring ([e17d4db](https://github.com/oahumada/Stratos/commit/e17d4db4e299c304c754c0832c61bf1ec5100276))
+* Phase 9 Admin Operations dashboard + integration testing ([a15f7c9](https://github.com/oahumada/Stratos/commit/a15f7c9013831d7b0a44ab7148ce755398481563))
+* Refactor admin operation event handling and add real-time event tests ([2898ad2](https://github.com/oahumada/Stratos/commit/2898ad2a27c09a8b9da459cb5d4b15b21cd2c214))
+* Register AuditObserver on Alert models + add audit API routes ([d66fae1](https://github.com/oahumada/Stratos/commit/d66fae1595c3265358460ba26f92d9c74563b334))
+* Talent Pass frontend pages (Index, Create, Edit, Show, PublicView) + routes ([9c7258c](https://github.com/oahumada/Stratos/commit/9c7258cf90d29926bc94421e2515829d8c623e50))
+* talent-pass frontend bootstrap + deployment execution plan ([4c41c6e](https://github.com/oahumada/Stratos/commit/4c41c6e5ab0f40dd3f70adbc96c174801186db49))
+* Task 1 - Admin Dashboard Polish (Phase 1) - UX components ready ([fb98ef3](https://github.com/oahumada/Stratos/commit/fb98ef38221195c1c450fe7e67b2aa7ac34a8158))
+* **v1.2:** Priority 3 enhancements — succession OrgChart, response cache, export templates, scenario comparison ([884532b](https://github.com/oahumada/Stratos/commit/884532b419b480b8467f2b68f486bd6f8d645d29))
+* **versioning:** add intelligent pre-push release suggestion and optional auto-release ([6657810](https://github.com/oahumada/Stratos/commit/6657810639b33055203033855d3a6cc6c3cff568))
+
 ## [0.4.0](https://github.com/oahumada/Strato/compare/v0.3.0...v0.4.0) (2026-03-25)
 
 
