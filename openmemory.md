@@ -6207,12 +6207,14 @@ Completed comprehensive gap analysis and architecture design for automatic certi
 ### Current State Analysis
 
 **LMS Stack (Complete):**
+
 - Models: LmsCourse, LmsModule, LmsLesson, LmsEnrollment (45-35 LOC each)
 - LmsService with 5 providers: mock, internal, moodle, LinkedIn Learning, Udemy Business
 - Gamification: XP points awarded on course completion ✅
 - **Gap:** NO certificate issuance or TalentPass integration
 
 **Talent Pass Stack (Complete but Disconnected):**
+
 - Models: TalentPass, TalentPassSkill, TalentPassCredential, TalentPassExperience
 - TalentPassCredential can store certificates but — NO auto-population from LMS
 - VerifiableCredential model exists (future blockchain, unused)
@@ -6220,11 +6222,13 @@ Completed comprehensive gap analysis and architecture design for automatic certi
 ### Proposed Architecture: SmartCertificateBridge
 
 **3 New DB Tables:**
+
 1. `lms_certificates` — Core tracking (status, issued_at, expires_at, template_id, recertification_skill_id, talent_pass_credential_id)
 2. `certificate_templates` — Per-org customization (html_content, logo_url, placeholders, is_default)
 3. `skill_recertification_policies` — Expiry rules per skill (recertification_required, valid_for_months)
 
 **Core Service Layer:**
+
 - CertificateService (750 LOC spec): issueCertificateOnCompletion(), syncToTalentPass(), generateCertificatePdf(), revokeCertificate()
 - Enhanced LmsService.syncProgress() to trigger certificate issuance on completion
 - 5+ API endpoints for certificate management, bulk sync, revocation
@@ -6232,20 +6236,23 @@ Completed comprehensive gap analysis and architecture design for automatic certi
 ### Product Decisions Finalized ✅
 
 **LOCKED Decisions (Ready for implementation):**
+
 1. ✅ **Certificate Templates** — Per-organization customization via certificate_templates table (org_id FK)
 2. ✅ **Expiry Policy** — Variable per skill via skill_recertification_policies, NOT global per org
 3. ✅ **Auto-Feature** — User choice ONLY (NOT auto-featured in TalentPass)
 4. ✅ **Email Notifications** — Configurable recipients (participant|manager|rrhh), TalentPass channel now (email future)
+5. ✅ **Revocation Audit** — Full revocation tracking with structured audit timeline
+6. ✅ **Digital Signature** — Sign certificate PDFs with organizational certificates
+7. ✅ **Gamification Integration** — Certificates award extra badges/levels and drive learning path progression
 
 **DEFERRED Decisions (v2.1+):**
+
 - D5: Share mechanism (public links only via TalentPass for now)
-- D6: Revocation audit (basic tracking now, full audit trail v2.1)
-- D7: Digital signature (SHA256 hash only, org signing v2.1)
-- D8: Gamification (separate from certs, XP already awarded)
 
 ### Implementation Roadmap
 
 **Sprint 1 Integration (Apr 1-21, 2026):**
+
 - Phase 1 (Backend, 3 days): Create 3 DB tables, LmsCertificate model + relationships, CertificateService skeleton
 - Phase 2 (Frontend, 2 days): Certificate badge in AssessmentResults, history in LearningProgress, TalentPass sync UI
 - Phase 3 (Automation, 2 days): Batch sync cron, certificate revocation workflow, notifications
@@ -6258,13 +6265,14 @@ Completed comprehensive gap analysis and architecture design for automatic certi
 ### File Reference
 
 **Analysis Document:** [ANALISIS_LMS_TALENTPASS_CERTIFICATE_INTEGRATION.md](docs/ANALISIS_LMS_TALENTPASS_CERTIFICATE_INTEGRATION.md) (600+ LOC)
+
 - Current state analysis (LMS complete, TalentPass disconnected)
 - Gap identification (zero integration between LMS completion and TP credentials)
 - Proposed architecture (3 DB tables, CertificateService, API endpoints, frontend changes)
 - DB schema definitions (complete with migrations)
 - Eloquent models (LmsCertificate, CertificateTemplate, SkillRecertificationPolicy)
 - CertificateService specification (750 LOC with all methods documented)
-- Product decisions (4 locked, 4 deferred)
+- Product decisions (7 locked, 1 deferred)
 - Implementation roadmap (3 phases, Timeline, Estimates)
 
 ### Commits
@@ -6274,15 +6282,23 @@ Completed comprehensive gap analysis and architecture design for automatic certi
 
 ### Next Actions
 
-1. **[Optional]** Clarify remaining 4 product questions (Q5-Q8 deferred)
+1. **[Optional]** Clarify remaining 1 product question (Q5 deferred)
 2. **[Priority]** Update Track A spec (A2.3 AssessmentResults) to include certificate requirements
 3. **[Implementation]** Developer kickoff: Choose certificate feature as Apr 1 launch item OR defer to May sprint
 4. **[Optional]** Create admin UI specifications for certificate_templates + skill_recertification_policies management
 
 ### Status
 
-✅ **Analysis Complete** — Architecture designed, product decisions locked (1-4), deferred decisions documented (5-8)
+✅ **Analysis Complete** — Architecture designed, product decisions locked (1-4, 6-8), deferred decision documented (5)
 ✅ **Specifications Complete** — 3 DB tables, models, service, API endpoints, frontend integration points documented
+
+### Update (2026-03-29 - Decision Propagation)
+
+- Product confirmations integrated into sprint deliverables docs:
+    - [V2.0_TRACK_A_LMS_SPECIFICATION.md](docs/V2.0_TRACK_A_LMS_SPECIFICATION.md): certificate verification card, revocation timeline, certification-driven badges/levels in learning path.
+    - [V2.0_SPRINT_1_OVERVIEW.md](docs/V2.0_SPRINT_1_OVERVIEW.md): cross-track addendum, sync milestone, and completion checklist items for revocation/signature/gamification.
+    - [V2.0_TRACK_B_SCENARIO_PLANNING_SPEC.md](docs/V2.0_TRACK_B_SCENARIO_PLANNING_SPEC.md): backend contract support for revocation audit events, organizational signature verification, and gamification triggers.
+- Decision status updated in planning narrative: 1-4 and 6-8 locked, only decision 5 remains deferred.
 ✅ **Product-Ready** — Framework ready for implementation decision at Sprint 1 kickoff (Apr 1)
 ⏳ **Implementation Pending** — Awaiting developer go/no-go for Apr 1 launch window
 

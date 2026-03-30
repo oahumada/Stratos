@@ -38,7 +38,7 @@ TalentPass (person_id, title, summary, status, visibility)
 **Estado:**
 
 - ✅ TalentPassCredential existe y es flexible
-    public function issueCertificateOnCompletion(LmsEnrollment $enrollment): ?LmsCertificate {
+  public function issueCertificateOnCompletion(LmsEnrollment $enrollment): ?LmsCertificate {
 - ❌ Pero NO hay automatización de auto-sincronización desde LMS
 
 #### Certificate/Evidence Related (2 modelos)
@@ -715,6 +715,7 @@ GET /api/talent-pass/{id}/certificates
 ## 🔟 Decisiones de Producto (FINALIZADO 2026-03-29)
 
 ✅ **DECISION 1: Certificate Templates — Per-Organization Customization**
+
 - **User Input:** "Sí, cada organización con su template"
 - **Storage:** New `certificate_templates` table with org_id FK
 - **Fields:** name, html_content, logo_url, background_url, text_color, accent_color, font_family
@@ -724,6 +725,7 @@ GET /api/talent-pass/{id}/certificates
 - **Status:** ✅ LOCKED - Schema & model definitions complete
 
 ✅ **DECISION 2: Expiry Policy — Skill-Based Recertification**
+
 - **User Input:** "Expiran de acuerdo a las necesidades de recertificación que se deben establecer por cada competencia/skill"
 - **Storage:** New `skill_recertification_policies` table with skill_id FK
 - **Fields:** recertification_required (bool), valid_for_months (int/null), renewal_notice_days, renewal_course_id
@@ -735,6 +737,7 @@ GET /api/talent-pass/{id}/certificates
 - **Status:** ✅ LOCKED - Schema & model definitions complete
 
 ✅ **DECISION 3: Auto-Feature in TalentPass — User Choice ONLY**
+
 - **User Input:** "No lo entiendo" → Clarified: NO auto-featured
 - **Behavior:** Certificate issued → stored private in TalentPass → User manually chooses visibility
 - **Implementation:** lms_certificates.auto_synced_to_talent_pass_at = NOW (auto-sync), but is_featured = false
@@ -744,6 +747,7 @@ GET /api/talent-pass/{id}/certificates
 - **Status:** ✅ LOCKED - TalentPass integration flow reflects user-driven visibility control
 
 ✅ **DECISION 4: Email Notifications — Configurable Recipients, TalentPass Channel Now**
+
 - **User Input:** "Dar opción de email al participante, jefatura o encargado de RRHH, por ahora via talent pass"
 - **Recipients:** Array of 'participant' | 'manager' | 'rrhh' (or combinations)
 - **Storage:** metadata['notification_recipients'] = ['participant', 'manager'] (example)
@@ -754,35 +758,41 @@ GET /api/talent-pass/{id}/certificates
 - **Status:** ✅ LOCKED - Metadata supports both channels; TalentPass only for now
 
 ⏸️ **DECISION 5: Share Mechanism — TalentPass Only (For Now)**
+
 - **Clarification:** Public shareable links deferred
 - **Current:** Only via TalentPass public profile (when featured)
 - **Framework:** Future: certificate-specific QR code, direct link share
 - **Implementation:** TalentPass URL is primary share mechanism in Apr-May 2026
 - **Status:** ⏸️ DEFERRED - Design for v2.1 (May 2026+)
 
-⏸️ **DECISION 6: Revocation Audit — Basic Tracking Now**
-- **Basic (Sprint 1):** metadata['revoked_reason'], metadata['revoked_at'], revoked_by
-- **Future:** Full audit trail with revision history, who approved, timeline
-- **Implementation:** CertificateService.revokeCertificate() stores basic metadata
-- **Status:** ⏸️ DEFERRED - Full audit trail in v2.1
+✅ **DECISION 6: Revocation Audit — Full Revocation Tracking**
 
-⏸️ **DECISION 7: Digital Signature — Hash Only (For Now)**
-- **Basic (Sprint 1):** SHA256 hash stored in certificate_hash for PDF integrity
-- **Future:** Organizational certificate signing, key management
-- **Implementation:** CertificateService.generateCertificatePdf() computes & stores hash
-- **Use Case:** Simple verification that PDF hasn't been tampered
-- **Status:** ⏸️ DEFERRED - Org digital signing in v2.1
+- **User Input:** "Audit: ¿Track completo de revocaciones? SI"
+- **Scope:** Trazabilidad completa end-to-end (creación de revocación, aprobación, motivo, actor, timestamp, cambios)
+- **Implementation:** `lms_certificates.metadata['revocation_audit']` con historial estructurado + campos rápidos (`revoked_reason`, `revoked_at`, `revoked_by`)
+- **Service:** CertificateService.revokeCertificate() registra eventos de revocación y actualizaciones subsecuentes
+- **Status:** ✅ LOCKED - Implementar en Sprint 1
 
-⏸️ **DECISION 8: Gamification Badges — Separate System**
-- **Clarification:** Certificates ≠ Badges (different artifact types)
-- **Current:** XP points awarded on LMS completion (✅ DONE)
-- **Future:** Separate badge/achievement system for organizational milestones
-- **No Change:** Certificate flow doesn't influence gamification
-- **Status:** ✅ NO ACTION - XP already awarded, badges separate initiative
+✅ **DECISION 7: Digital Signature — Organizational Certificate Signing**
+
+- **User Input:** "Digital Signature: ¿Sign PDFs con cert organizacional? SI"
+- **Scope:** Certificados PDF firmados con certificado organizacional (no solo hash)
+- **Implementation:** CertificateService.generateCertificatePdf() firma PDF + conserva `certificate_hash` para verificación de integridad
+- **Requirements:** Gestión de llaves/certificados por organización + rotación + validación de firma
+- **Status:** ✅ LOCKED - Implementar en Sprint 1
+
+✅ **DECISION 8: Gamification — Certificates Drive Badges/Levels**
+
+- **User Input:** "Gamification: ¿Certificados ganan badges/levels extra? SI es la base del learning path"
+- **Scope:** Certificados emitidos alimentan progreso del learning path y otorgan badges/levels adicionales
+- **Implementation:** Al emitir certificado, actualizar `UserGamification` + hitos de learning path + achievements
+- **Frontend:** Badges de certificado visibles en LearningProgress y AssessmentResults
+- **Status:** ✅ LOCKED - Implementar en Sprint 1
 
 ---
 
 **Status:** ✅ **PRODUCT DECISIONS FINALIZED** (Mar 29, 2026)
-- ✅ Decisions 1-4: LOCKED ← Ready for immediate implementation
-- ⏸️ Decisions 5-8: DEFERRED ← Documented for v2.1 planning
+
+- ✅ Decisions 1-4, 6-8: LOCKED ← Ready for immediate implementation
+- ⏸️ Decision 5: DEFERRED ← Documented for v2.1 planning
 - **Next:** Implement Certificate Infrastructure in Sprint 1 (Apr 1-21)
