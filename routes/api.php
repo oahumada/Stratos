@@ -458,6 +458,39 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/approval-requests/{id}/email-preview', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'emailPreview']);
     Route::get('/approvals-summary', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'approvalsSummary']);
 
+    // ── Scenario Planning Phase 2: Succession Planning, Talent Risk & Transformation ──
+    // Succession Planning API
+    Route::get('/scenarios/{id}/succession/candidates', [\App\Http\Controllers\Api\SuccessionPlanningController::class, 'indexCandidates'])->name('succession.index-candidates');
+    Route::post('/scenarios/{id}/succession/candidates', [\App\Http\Controllers\Api\SuccessionPlanningController::class, 'storeCandidates'])->name('succession.store-candidates');
+    Route::patch('/succession-candidates/{id}', [\App\Http\Controllers\Api\SuccessionPlanningController::class, 'updateCandidate'])->name('succession.update-candidate');
+    Route::delete('/succession-candidates/{id}', [\App\Http\Controllers\Api\SuccessionPlanningController::class, 'deleteCandidate'])->name('succession.delete-candidate');
+    Route::get('/scenarios/{id}/succession/coverage', [\App\Http\Controllers\Api\SuccessionPlanningController::class, 'getCoverage'])->name('succession.coverage');
+    Route::post('/scenarios/{id}/succession/analyze', [\App\Http\Controllers\Api\SuccessionPlanningController::class, 'analyze'])->name('succession.analyze');
+    Route::get('/scenarios/{id}/succession/development-plans', [\App\Http\Controllers\Api\SuccessionPlanningController::class, 'listDevelopmentPlans'])->name('succession.list-plans');
+    Route::post('/succession-candidates/{id}/development-plans', [\App\Http\Controllers\Api\SuccessionPlanningController::class, 'createDevelopmentPlan'])->name('succession.create-plan');
+
+    // Talent Risk API
+    Route::get('/scenarios/{id}/risks/indicators', [\App\Http\Controllers\Api\TalentRiskController::class, 'indexIndicators'])->name('risks.index-indicators');
+    Route::post('/scenarios/{id}/risks/analyze', [\App\Http\Controllers\Api\TalentRiskController::class, 'analyze'])->name('risks.analyze');
+    Route::get('/scenarios/{id}/risks/summary', [\App\Http\Controllers\Api\TalentRiskController::class, 'getSummary'])->name('risks.summary');
+    Route::get('/scenarios/{id}/risks/{riskType}/details', [\App\Http\Controllers\Api\TalentRiskController::class, 'getDetailsByType'])->name('risks.details-by-type');
+    Route::post('/risks/{id}/mitigations', [\App\Http\Controllers\Api\TalentRiskController::class, 'recordMitigation'])->name('risks.record-mitigation');
+    Route::get('/risks/{id}/mitigations', [\App\Http\Controllers\Api\TalentRiskController::class, 'listMitigations'])->name('risks.list-mitigations');
+    Route::patch('/mitigations/{id}/status', [\App\Http\Controllers\Api\TalentRiskController::class, 'updateMitigationStatus'])->name('risks.update-status');
+    Route::get('/scenarios/{id}/risks/heatmap', [\App\Http\Controllers\Api\TalentRiskController::class, 'getRiskHeatmap'])->name('risks.heatmap');
+
+    // Transformation Roadmap API
+    Route::get('/scenarios/{id}/transformation/roadmap', [\App\Http\Controllers\Api\TransformationRoadmapController::class, 'getRoadmap'])->name('roadmap.get');
+    Route::post('/scenarios/{id}/transformation/generate', [\App\Http\Controllers\Api\TransformationRoadmapController::class, 'generate'])->name('roadmap.generate');
+    Route::get('/scenarios/{id}/transformation/phases', [\App\Http\Controllers\Api\TransformationRoadmapController::class, 'listPhases'])->name('roadmap.list-phases');
+    Route::patch('/phases/{id}', [\App\Http\Controllers\Api\TransformationRoadmapController::class, 'updatePhase'])->name('roadmap.update-phase');
+    Route::get('/phases/{id}/tasks', [\App\Http\Controllers\Api\TransformationRoadmapController::class, 'listTasks'])->name('roadmap.list-tasks');
+    Route::post('/scenarios/{id}/transformation/tasks', [\App\Http\Controllers\Api\TransformationRoadmapController::class, 'createTask'])->name('roadmap.create-task');
+    Route::patch('/tasks/{id}', [\App\Http\Controllers\Api\TransformationRoadmapController::class, 'updateTask'])->name('roadmap.update-task');
+    Route::patch('/tasks/{id}/status', [\App\Http\Controllers\Api\TransformationRoadmapController::class, 'updateTaskStatus'])->name('roadmap.update-status');
+    Route::get('/scenarios/{id}/transformation/blockers', [\App\Http\Controllers\Api\TransformationRoadmapController::class, 'getBlockers'])->name('roadmap.blockers');
+    Route::post('/scenarios/{id}/transformation/export', [\App\Http\Controllers\Api\TransformationRoadmapController::class, 'exportRoadmap'])->name('roadmap.export');
+
     // Scenario Planning - Simulation & Strategic Talent Modeling
     Route::prefix('strategic-planning')->group(
         function () {
