@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0](https://github.com/oahumada/Stratos/compare/v0.5.2...v0.6.0) (2026-03-31)
+
+
+### ✨ Nuevas Funcionalidades
+
+* Scenario Planning Phase 2 - Complete implementation ([5674ab4](https://github.com/oahumada/Stratos/commit/5674ab496515a7147e7acfc58fc18829cc7ff93e))
+
 ### [0.5.2](https://github.com/oahumada/Stratos/compare/v0.5.1...v0.5.2) (2026-03-31)
 
 
