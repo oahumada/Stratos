@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.7.1](https://github.com/oahumada/Stratos/compare/v0.7.0...v0.7.1) (2026-03-31)
+
+
+### 🐛 Correcciones de Bugs
+
+* **lms:** close phase 1-2 certificate revocation gaps ([dea5a0a](https://github.com/oahumada/Stratos/commit/dea5a0ad9fb12412d3a0fbe69c69f78bfa2aa94d))
+
 ## [0.7.0](https://github.com/oahumada/Stratos/compare/v0.6.0...v0.7.0) (2026-03-31)
 
 
