@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.1](https://github.com/oahumada/Stratos/compare/v0.5.0...v0.5.1) (2026-03-31)
+
+
+### 🐛 Correcciones de Bugs
+
+* **scenario-generation:** auto-accept import when generation completes (support headless flows/tests) ([c3e0cfc](https://github.com/oahumada/Stratos/commit/c3e0cfcf3b865a43649d13484234d703ebff91f9))
+
 ## [0.5.0](https://github.com/oahumada/Stratos/compare/v0.4.1-alpha.0...v0.5.0) (2026-03-31)
 
 ### ✨ Nuevas Funcionalidades
