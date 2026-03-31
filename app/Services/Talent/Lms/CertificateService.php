@@ -2,9 +2,10 @@
 
 namespace App\Services\Talent\Lms;
 
+use App\Events\CertificateRevoked;
 use App\Models\LmsCertificate;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class CertificateService
 {
@@ -39,9 +40,9 @@ class CertificateService
     }
 
     /**
-     * Revoke a certificate (mark revoked and emit event in future).
+     * Revoke a certificate and dispatch revocation event.
      */
-    public function revoke(LmsCertificate $certificate, string $reason = null): LmsCertificate
+    public function revoke(LmsCertificate $certificate, ?string $reason = null): LmsCertificate
     {
         $certificate->is_revoked = true;
         $meta = $certificate->meta ?? [];
@@ -49,6 +50,8 @@ class CertificateService
         $meta['revoked_at'] = now()->toDateTimeString();
         $certificate->meta = $meta;
         $certificate->save();
+
+        CertificateRevoked::dispatch($certificate, $reason);
 
         return $certificate;
     }

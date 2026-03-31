@@ -399,6 +399,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/lms/certificates/{id}', [\App\Http\Controllers\Api\Lms\CertificateController::class, 'show'])->middleware('permission:lms.certify');
     Route::get('/lms/certificates/{id}/download', [\App\Http\Controllers\Api\Lms\CertificateController::class, 'download'])->middleware('permission:lms.certify');
     Route::get('/lms/certificates/{id}/verify', [\App\Http\Controllers\Api\Lms\CertificateController::class, 'verify']);
+    Route::get('/lms/certificates/{id}/verification', [\App\Http\Controllers\Api\Lms\CertificateController::class, 'verify']);
     Route::post('/lms/certificates/{id}/revoke', [\App\Http\Controllers\Api\Lms\CertificateController::class, 'revoke'])->middleware('permission:lms.certify');
 
     // Social Learning & Mentorship Knowledge Transfer

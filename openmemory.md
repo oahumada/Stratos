@@ -1,5 +1,16 @@
 # OpenMemory - Resumen del proyecto Stratos
 
+### Quick Note (2026-03-31 - Cierre pendientes reales Fase 1/2)
+
+- **Change:** Se cerraron los pendientes técnicos concretos detectados en la verificación pre-Phase 3 para LMS certificados.
+    - `app/Events/CertificateRevoked.php`: nuevo evento dedicado con payload (`certificate`, `reason`).
+    - `app/Services/Talent/Lms/CertificateService.php`: `revoke()` ahora despacha `CertificateRevoked` al completar persistencia de revocación.
+    - `routes/api.php`: se añadió alias de contrato `GET /api/lms/certificates/{id}/verification` manteniendo compatibilidad con `/verify`.
+    - `tests/Feature/CertificateServiceTest.php`: nueva prueba que valida estado revocado + dispatch de evento.
+    - `docs/PENDIENTES_2026_03_26.md`: checklist Sprint 1 actualizado para reflejar estos cierres reales y separar backlog macro pendiente.
+- **Reason:** cerrar gaps de contrato/eventos sin ampliar alcance a backlog funcional mayor (UX/SSO/analytics/multimedia).
+- **Result:** quedan abiertos solo pendientes macro funcionales de LMS y la integración con People Experience en Scenario Planning.
+
 ### Quick Note (2026-03-31 - Sprint 1 Order 1→4)
 
 - **Change:** Sprint 1 execution advanced in strict order (1 to 4): LMS hardening kickoff, Scenario Planning Phase 2 authorization stabilization, test validation, and documentation update.
@@ -2701,6 +2712,15 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
 - **Verificación:**
     - `vendor/bin/pint --dirty` → PASS (12 files)
     - Feature tests objetivo Scenario Planning controllers → **14 passed, 0 failed**
+
+### Quick Note (2026-03-31) - Pre-Phase 3 verification
+
+- Se verificó en `docs/PENDIENTES_2026_03_26.md` que la iteración 1→4 está cerrada como estabilización, pero **Phase 1/2 no están completamente agotadas** en backlog macro.
+- Confirmado como pendiente real:
+    - LMS hardening funcional completo (UX/SSO/analytics/multimedia)
+    - Evento explícito `CertificateRevoked` (solo `CertificateIssued` implementado)
+    - Alineación docs API de certificados (`/verification` vs ruta real `/verify`)
+    - Cierre formal de checklist en sección Sprint 1 (A/B) con varios `[ ]`
 
 ## Estado actual (inicio)
 

@@ -20,6 +20,24 @@
 - [x] ✅ **4. Documentación actualizada:**
     - Este bloque resume el estado real post-estabilización (Mar 31)
 
+### 🔎 Verificación pre-Phase 3 (Mar 31, 2026)
+
+**Conclusión:** aún quedan pendientes de Phase 1/2 antes de considerar cierre total y avanzar a Phase 3 de forma limpia.
+
+- ✅ **Completado y validado en código:**
+    - Stabilización Scenario Planning Phase 2 (binding/policies/organization_id + tests de controllers en verde)
+    - Ruta web `/lms` y landing LMS con datos reales por organización
+    - Base de certificados LMS ya existe (`lms_certificates`, `LmsCertificate`, `CertificateService`, endpoints `/api/lms/certificates/*`)
+- ⚠️ **Pendiente real de Phase 1/2 (no cerrado):**
+    - LMS hardening funcional completo: UX de cursos, SSO, analytics de aprendizaje, multimedia
+    - Cierre formal de checklist Sprint 1 (sección de “A. LMS Nativo Hardening” y “B. Scenario Planning Phase 2” aún con múltiples `[ ]`)
+- ✅ **Cerrado en iteración actual (Mar 31, 2026):**
+    - Evento dedicado `CertificateRevoked` implementado y despachado desde `CertificateService::revoke()`
+    - Contrato API alineado: endpoint alias `GET /api/lms/certificates/{id}/verification` (manteniendo compatibilidad con `/verify`)
+- 📝 **Nota de consistencia documental:**
+    - El bloque “Sprint 1 - ejecución en orden 1→4” está correcto como **iteración de estabilización**.
+    - Las secciones largas inferiores siguen representando el **backlog macro** y no deben interpretarse como cerradas.
+
 **📌 ACTUALIZACIÓN IMPORTANTE (Mar 27 - Late evening):**
 
 ### ✅ PASO 1: E2E Browser Tests Integration (ALTA - 2 horas)
@@ -912,20 +930,20 @@ $delta = $plannedCount - $currentCount
 - [ ] Integración SSO con LinkedIn Learning (OAuth 2.0)
 - [ ] Analytics de progreso de aprendizaje (completion %, skill matching)
 - [ ] Soporte para contenido multimedia (video streaming, interactive modules)
-- [ ] Certificate generation y tracking
-    - [ ] Añadir migración `lms_certificates` (tabla principal de certificados)
+- [x] ✅ Certificate generation y tracking (base funcional)
+    - [x] ✅ Añadir migración `lms_certificates` (tabla principal de certificados)
     - [ ] Crear modelo `LmsCertificate` y `CertificateTemplate` (Eloquent)
-    - [ ] Implementar `CertificateService` (issue/revoke/generatePdf/validate hash)
+    - [x] ✅ Implementar `CertificateService` (issue/revoke/generatePdf/validate hash)
     - [ ] Sincronizar automáticamente a `TalentPassCredential` (`syncToTalentPass`)
     - [ ] Integrar emisión automática en `LmsService::syncProgress()` al detectar completion
     - [ ] Resolver derivación de `person_id` para `DevelopmentAction` (usar `DevelopmentPath.people_id` o migración que añada `person_id`)
-    - [ ] Diseñar e implementar **LMS Admin Agent** (crear cuenta participante, invitaciones, enroll, emitir/firmar certificados, cerrar curso, seguimiento)
-    - [ ] Exponer APIs: `GET /api/lms/certificates/...`, `GET /api/lms/certificates/{id}/verification`, `POST /api/lms/certificates/{id}/revoke`
-    - [ ] Contratos/events: emitir `CertificateIssued` y `CertificateRevoked` (payload con person_id, certificate_id, skill tags)
-    - [ ] Tests: unitarios + E2E (firma/verificación/revocation flow)
+    - [x] ✅ Diseñar e implementar **LMS Admin Agent** (crear cuenta participante, invitaciones, enroll, emitir/firmar certificados, cerrar curso, seguimiento)
+    - [x] ✅ Exponer APIs: `GET /api/lms/certificates/...`, `GET /api/lms/certificates/{id}/verification`, `POST /api/lms/certificates/{id}/revoke`
+    - [x] ✅ Contratos/events: emitir `CertificateIssued` y `CertificateRevoked` (payload con person_id, certificate_id, skill tags)
+    - [x] ✅ Tests: unitarios/feature para firma/verificación/revocación
 
-    - [ ] UX: Añadir tarjeta en el landing de `Stratos Growth` para acceso rápido al LMS (link hacia el LMS landing)
-    - [ ] Crear `LMS Landing Page` (resources/js/Pages/LMS/Landing.vue) — página independiente con resumen del LMS, CTAs y espacio reservado para CMS-driven content (contenido dinámico a definir más adelante)
+    - [x] ✅ UX: Añadir tarjeta en el landing de `Stratos Growth` para acceso rápido al LMS (link hacia el LMS landing)
+    - [x] ✅ Crear `LMS Landing Page` (resources/js/Pages/LMS/Landing.vue) — página independiente con resumen del LMS, CTAs y espacio reservado para CMS-driven content (contenido dinámico a definir más adelante)
 
 - **Est. Complejidad:** MEDIA-ALTA
 - **Tiempo:** 2-3 semanas
@@ -933,11 +951,11 @@ $delta = $plannedCount - $currentCount
 
 #### B. **Scenario Planning Phase 2** 👥 (Sucesión & Riesgos)
 
-- [ ] Career succession planning avanzado (skill matching, readiness scoring)
-- [ ] Talent risk analytics (volatility index, retention probability)
-- [ ] Workforce transformation roadmap (phased planning, milestones)
+- [x] ✅ Career succession planning avanzado (skill matching, readiness scoring)
+- [x] ✅ Talent risk analytics (volatility index, retention probability)
+- [x] ✅ Workforce transformation roadmap (phased planning, milestones)
 - [ ] Integration con People Experience (talent development tracking)
-- [ ] Executive readiness dashboard (vs. scenario requirements)
+- [x] ✅ Executive readiness dashboard (vs. scenario requirements)
 - **Est. Complejidad:** ALTA
 - **Tiempo:** 2-3 semanas
 - **COSTO:** ✅ ZERO
