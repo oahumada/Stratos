@@ -17,7 +17,9 @@ const props = withDefaults(defineProps<Props>(), {
     size: 'medium',
 });
 
-const percentage = computed(() => Math.min((props.value / props.max) * 100, 100));
+const percentage = computed(() =>
+    Math.min((props.value / props.max) * 100, 100),
+);
 
 const gaugeSize = computed(() => {
     switch (props.size) {
@@ -55,7 +57,7 @@ const gaugeStrokeWidth = computed(() => {
 const circumference = computed(() => 2 * Math.PI * gaugeRadius.value);
 
 const strokeDashoffset = computed(
-    () => circumference.value - (circumference.value * percentage.value) / 100
+    () => circumference.value - (circumference.value * percentage.value) / 100,
 );
 
 const colorClasses = computed(() => {
@@ -105,7 +107,7 @@ const textSize = computed(() => {
         <div :class="`relative ${gaugeSize} mx-auto`">
             <svg
                 :viewBox="`0 0 ${gaugeRadius * 2 + 20} ${gaugeRadius * 2 + 20}`"
-                class="w-full h-full"
+                class="h-full w-full"
             >
                 <!-- Background circle -->
                 <circle
@@ -138,7 +140,9 @@ const textSize = computed(() => {
             </svg>
 
             <!-- Center text -->
-            <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <div
+                class="absolute inset-0 flex flex-col items-center justify-center"
+            >
                 <div :class="`font-bold ${textColorClasses} ${textSize}`">
                     {{ Math.round(value) }}{{ unit }}
                 </div>
@@ -146,7 +150,9 @@ const textSize = computed(() => {
         </div>
 
         <!-- Label -->
-        <p class="text-center text-sm font-medium text-gray-700 dark:text-gray-300">
+        <p
+            class="text-center text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
             {{ label }}
         </p>
     </div>

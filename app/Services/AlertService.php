@@ -25,6 +25,22 @@ class AlertService
         }
 
         foreach ($thresholds as $threshold) {
+            // If there's an existing recent unacknowledged alert, return it
+            $recentAlert = $threshold->alertHistories()
+                ->triggered()
+                ->whereNull('acknowledged_at')
+                ->latest('triggered_at')
+                ->first();
+
+            if ($recentAlert) {
+                if ($value > $threshold->threshold) {
+                    return $recentAlert;
+                }
+
+                // value not above threshold, continue to next threshold
+                continue;
+            }
+
             if ($this->shouldTriggerThreshold($threshold, $value)) {
                 return $this->createAlert($threshold, $value);
             }
@@ -45,9 +61,11 @@ class AlertService
             ->latest('triggered_at')
             ->first();
 
-        // If unacknowledged alert exists, check if value is still above threshold
+        // If there's already a recent unacknowledged alert for this threshold,
+        // do not create a duplicate alert. Only create when there is no recent
+        // unacknowledged alert and the value exceeds threshold.
         if ($recentAlert) {
-            return $value > $threshold->threshold;
+            return false;
         }
 
         // New alert: trigger if value exceeds threshold
@@ -128,7 +146,7 @@ class AlertService
     public function getCriticalAlerts(int $organizationId): Collection
     {
         return AlertHistory::forOrganization($organizationId)
-            ->critical()
+            ->whereIn('severity', ['critical', 'high'])
             ->whereNull('resolved_at')
             ->latest('triggered_at')
             ->get();
@@ -236,6 +254,6 @@ class AlertService
             $created->push($threshold);
         }
 
-        return $created;
+        return Collection::make($created->all());
     }
 }

@@ -380,7 +380,10 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
                         });
                     } catch (err) {
                         // don't bubble errors from auto-accept during polling
-                        console.debug('[scenarioGenerationStore] auto-accept failed', err);
+                        console.debug(
+                            '[scenarioGenerationStore] auto-accept failed',
+                            err,
+                        );
                     }
                 })();
             }

@@ -8,13 +8,14 @@ class StoreAlertThresholdRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create', \App\Models\AlertThreshold::class);
+        // Delegate authorization to controller (tenant/org checks happen there)
+        return (bool) $this->user();
     }
 
     public function rules(): array
     {
         return [
-            'metric' => 'required|string|max:100|unique:alert_thresholds,metric,NULL,id,organization_id,' . $this->user()->organization_id,
+            'metric' => 'required|string|max:100|unique:alert_thresholds,metric,NULL,id,organization_id,'.$this->user()->organization_id,
             'threshold' => 'required|numeric|min:0|max:999999.99',
             'severity' => 'required|in:critical,high,medium,low,info',
             'is_active' => 'boolean',

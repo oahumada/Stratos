@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {
     PhCheckCircle,
-    PhWarning,
     PhCrownSimple,
     PhInfo,
+    PhWarning,
     PhX,
 } from '@phosphor-icons/vue';
 import { ref } from 'vue';
@@ -101,13 +101,15 @@ const formatTime = (dateString: string) => {
 </script>
 
 <template>
-    <div v-if="visibleAlerts().length === 0" class="text-center py-8">
+    <div v-if="visibleAlerts().length === 0" class="py-8 text-center">
         <PhCheckCircle
             weight="fill"
             class="mx-auto mb-3 text-green-600 dark:text-green-400"
             :size="32"
         />
-        <p class="text-sm text-gray-600 dark:text-gray-400">All systems operating normally</p>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+            All systems operating normally
+        </p>
     </div>
 
     <div v-else class="space-y-3">
@@ -122,7 +124,7 @@ const formatTime = (dateString: string) => {
         >
             <div class="flex items-start justify-between gap-3">
                 <!-- Icon -->
-                <div class="flex-shrink-0 mt-0.5">
+                <div class="mt-0.5 flex-shrink-0">
                     <PhCrownSimple
                         v-if="getIcon(alert.severity) === 'critical'"
                         weight="fill"
@@ -144,14 +146,14 @@ const formatTime = (dateString: string) => {
                 </div>
 
                 <!-- Content -->
-                <div class="flex-1 min-w-0">
+                <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-2">
                         <h3 class="font-semibold text-gray-900 dark:text-white">
                             {{ alert.title }}
                         </h3>
                         <span
                             :class="[
-                                'inline-block px-2 py-0.5 text-xs font-semibold rounded-full',
+                                'inline-block rounded-full px-2 py-0.5 text-xs font-semibold',
                                 getSeverityColor(alert.severity).badge,
                             ]"
                         >
@@ -169,7 +171,7 @@ const formatTime = (dateString: string) => {
                 <!-- Dismiss button -->
                 <button
                     @click="dismissAlert(alert.id)"
-                    class="flex-shrink-0 p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+                    class="flex-shrink-0 rounded p-1 transition-colors hover:bg-black/10 dark:hover:bg-white/10"
                     :aria-label="`Dismiss ${alert.title}`"
                 >
                     <PhX :size="20" class="text-gray-500 dark:text-gray-400" />

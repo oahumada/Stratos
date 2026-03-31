@@ -43,21 +43,37 @@ const neuralId = Math.random().toString(36).substring(7).toUpperCase();
 
         <!-- Subtle pulsing center light -->
         <div
-            class="pointer-events-none absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 animate-pulse-subtle rounded-full bg-white/2 blur-[150px]"
+            class="animate-pulse-subtle pointer-events-none absolute top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/2 blur-[150px]"
         ></div>
 
         <!-- Neural Grain / Digital Dust -->
-        <div class="pointer-events-none absolute inset-0 z-5 bg-noise opacity-[0.03] mix-blend-overlay"></div>
+        <div
+            class="bg-noise pointer-events-none absolute inset-0 z-5 opacity-[0.03] mix-blend-overlay"
+        ></div>
 
         <!-- Bit-Stream Tracking Elements -->
-        <div class="pointer-events-none absolute top-10 left-10 z-10 hidden flex-col gap-1 md:flex">
-            <span class="text-[7px] font-black tracking-widest text-white/20 uppercase">Core Synchronization: ACTIVE</span>
-            <span class="text-[6px] font-mono text-white/10 uppercase">H_NEURAL_LINK [{{ neuralId }}]</span>
+        <div
+            class="pointer-events-none absolute top-10 left-10 z-10 hidden flex-col gap-1 md:flex"
+        >
+            <span
+                class="text-[7px] font-black tracking-widest text-white/20 uppercase"
+                >Core Synchronization: ACTIVE</span
+            >
+            <span class="font-mono text-[6px] text-white/10 uppercase"
+                >H_NEURAL_LINK [{{ neuralId }}]</span
+            >
         </div>
-        
-        <div class="pointer-events-none absolute top-10 right-10 z-10 hidden flex-col items-end gap-1 md:flex">
-            <span class="text-[7px] font-black tracking-widest text-indigo-400/30 uppercase italic-quote">Stratos OS v2.4.12</span>
-            <span class="text-[6px] font-mono text-white/10 uppercase">S_LATENCY_TX: 14MS</span>
+
+        <div
+            class="pointer-events-none absolute top-10 right-10 z-10 hidden flex-col items-end gap-1 md:flex"
+        >
+            <span
+                class="italic-quote text-[7px] font-black tracking-widest text-indigo-400/30 uppercase"
+                >Stratos OS v2.4.12</span
+            >
+            <span class="font-mono text-[6px] text-white/10 uppercase"
+                >S_LATENCY_TX: 14MS</span
+            >
         </div>
 
         <div class="z-10 w-full max-w-[440px]">

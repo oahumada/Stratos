@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
-import StButtonGlass from '@/components/StButtonGlass.vue';
 import StButtonCyber from '@/components/StButtonCyber.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -39,10 +39,10 @@ const submitMagicLink = () => {
 
 <template>
     <AuthBase
-    title="Ingreso"
-    description="Portal de orquestación de Ingeniería de Talento"
+        title="Ingreso"
+        description="Portal de orquestación de Ingeniería de Talento"
     >
-    <template #default>
+        <template #default>
             <div class="px-6 py-10 md:px-12 md:py-14">
                 <Head title="Ingresar" />
                 <!-- Notifications -->
@@ -255,7 +255,6 @@ const submitMagicLink = () => {
                     </div>
                 </form>
             </div>
-            
         </template>
     </AuthBase>
 </template>

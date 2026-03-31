@@ -96,9 +96,7 @@
                             {{ selectedConversation.title }}
                         </h2>
                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                            {{
-                                selectedConversation.participant_count
-                            }}
+                            {{ selectedConversation.participant_count }}
                             participantes
                         </p>
                     </div>

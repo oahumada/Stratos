@@ -21,9 +21,11 @@ return new class extends Migration
             $table->enum('severity', ['critical', 'high', 'medium', 'low'])->default('high');
             $table->enum('status', ['triggered', 'acknowledged', 'resolved', 'muted'])->default('triggered');
             $table->decimal('metric_value', 10, 2)->nullable();
+            $table->timestamp('resolved_at')->nullable();
+            $table->timestamp('muted_at')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
-            
+
             $table->index(['organization_id', 'triggered_at']);
             $table->index(['alert_threshold_id', 'status']);
         });

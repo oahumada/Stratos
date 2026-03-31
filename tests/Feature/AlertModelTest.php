@@ -1,6 +1,9 @@
 <?php
 
-use App\Models\{AlertHistory, AlertThreshold, Organization, User};
+use App\Models\AlertHistory;
+use App\Models\AlertThreshold;
+use App\Models\Organization;
+use App\Models\User;
 
 describe('AlertThreshold Model', function () {
 
@@ -19,7 +22,7 @@ describe('AlertThreshold Model', function () {
         $threshold = AlertThreshold::factory()->create(['organization_id' => $this->organization->id]);
         AlertHistory::factory(3)->create(['alert_threshold_id' => $threshold->id]);
 
-        expect($threshold->alertHistories())->toHaveCount(3);
+        expect($threshold->alertHistories)->toHaveCount(3);
     });
 
     describe('Scopes', function () {
@@ -113,7 +116,7 @@ describe('AlertHistory Model', function () {
             'alert_threshold_id' => $threshold->id,
         ]);
 
-        expect($history->alertThreshold())->toBeInstanceOf(AlertThreshold::class)
+        expect($history->alertThreshold)->toBeInstanceOf(AlertThreshold::class)
             ->and($history->alertThreshold->id)->toBe($threshold->id);
     });
 

@@ -8,7 +8,8 @@ class UpdateAlertThresholdRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('update', $this->route('threshold'));
+        // Delegate authorization to controller (organization ownership checked there)
+        return (bool) $this->user();
     }
 
     public function rules(): array
@@ -16,7 +17,7 @@ class UpdateAlertThresholdRequest extends FormRequest
         $threshold = $this->route('threshold');
 
         return [
-            'metric' => 'sometimes|string|max:100|unique:alert_thresholds,metric,' . $threshold->id . ',id,organization_id,' . $this->user()->organization_id,
+            'metric' => 'sometimes|string|max:100|unique:alert_thresholds,metric,'.$threshold->id.',id,organization_id,'.$this->user()->organization_id,
             'threshold' => 'sometimes|numeric|min:0|max:999999.99',
             'severity' => 'sometimes|in:critical,high,medium,low,info',
             'is_active' => 'sometimes|boolean',

@@ -160,7 +160,7 @@ const modules = computed(() => [
     },
     {
         title: 'Impact Analytics (HCVA)',
-        description: impactSummary.value 
+        description: impactSummary.value
             ? `HCVA Actual: $${Math.round(impactSummary.value.hcva_average).toLocaleString()} USD`
             : 'Calculando eficiencia del capital humano en tiempo real...',
         icon: PhChartLineUp,
@@ -187,7 +187,7 @@ const modules = computed(() => [
     },
     {
         title: 'Riesgo de Reemplazo',
-        description: impactSummary.value 
+        description: impactSummary.value
             ? `Costo potencial: $${Math.round(impactSummary.value.total_replacement_risk_usd).toLocaleString()} USD`
             : 'Escaneando vulnerabilidades de rotación...',
         icon: PhTarget,

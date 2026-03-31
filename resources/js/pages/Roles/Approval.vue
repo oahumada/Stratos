@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import StButtonGlass from '@/components/StButtonGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { 
-    PhSealCheck, 
-    PhFileText, 
-    PhSignature, 
-    PhCheckCircle, 
-    PhXCircle,
+import {
     PhBriefcase,
-    PhTarget,
-    PhListChecks,
+    PhCheckCircle,
+    PhFileText,
     PhInfo,
-    PhStar,
+    PhListChecks,
     PhMagicWand,
+    PhSealCheck,
+    PhSignature,
+    PhStar,
+    PhTarget,
+    PhXCircle,
 } from '@phosphor-icons/vue';
 import axios from 'axios';
-import StCardGlass from '@/components/StCardGlass.vue';
-import StButtonGlass from '@/components/StButtonGlass.vue';
-import StBadgeGlass from '@/components/StBadgeGlass.vue';
+import { onMounted, ref } from 'vue';
 
 const props = defineProps<{
     token: string;
@@ -59,7 +59,7 @@ interface RoleCompetency {
         required_level?: number;
         rationale?: string;
         [key: string]: any;
-    }
+    };
 }
 
 onMounted(async () => {
@@ -69,7 +69,7 @@ onMounted(async () => {
             approval.value = response.data.approval;
             role.value = response.data.approvable;
             approver.value = response.data.approver;
-            
+
             // Prefill form
             form.value.description = role.value.description || '';
             form.value.purpose = role.value.purpose || '';
@@ -78,7 +78,8 @@ onMounted(async () => {
             error.value = 'No se pudo cargar la solicitud de aprobación.';
         }
     } catch (err: any) {
-        error.value = err.response?.data?.message || 'Error al conectar con el servidor.';
+        error.value =
+            err.response?.data?.message || 'Error al conectar con el servidor.';
     } finally {
         loading.value = false;
     }
@@ -132,13 +133,13 @@ const getRoleCompetencies = (item: any): RoleCompetency[] => {
             criticity: comp.pivot?.criticity || 'medium',
             is_core: comp.pivot?.is_core || false,
             rationale: comp.pivot?.rationale,
-            pivot: comp.pivot
+            pivot: comp.pivot,
         }));
-    } 
+    }
     // 2. Fallback: Extract from skills.competencies
     else if (item.skills && item.skills.length > 0) {
         const compMap = new Map<string | number, RoleCompetency>();
-        
+
         item.skills.forEach((skill: any) => {
             if (skill.competencies && skill.competencies.length > 0) {
                 skill.competencies.forEach((comp: any) => {
@@ -150,38 +151,49 @@ const getRoleCompetencies = (item: any): RoleCompetency[] => {
                             description: comp.description || skill.description,
                             status: comp.status || 'proposed',
                             required_level: skill.pivot?.required_level || 3,
-                            criticity: skill.pivot?.is_critical ? 'high' : 'medium',
+                            criticity: skill.pivot?.is_critical
+                                ? 'high'
+                                : 'medium',
                             is_core: skill.pivot?.is_critical || false,
-                            rationale: skill.pivot?.rationale || skill.description,
+                            rationale:
+                                skill.pivot?.rationale || skill.description,
                             pivot: {
-                                required_level: skill.pivot?.required_level || 3,
-                                rationale: skill.pivot?.rationale || skill.description
-                            }
+                                required_level:
+                                    skill.pivot?.required_level || 3,
+                                rationale:
+                                    skill.pivot?.rationale || skill.description,
+                            },
                         });
                     }
                 });
             }
         });
-        
+
         result = Array.from(compMap.values());
     }
     // 3. Fallback: Check AI suggested competencies in config
-    else if (item?.ai_archetype_config?.core_competencies && item.ai_archetype_config.core_competencies.length > 0) {
-        result = item.ai_archetype_config.core_competencies.map((comp: any, index: number) => ({
-            id: `ai-${index}`,
-            name: comp.name,
-            category: 'IA Suggestion',
-            description: comp.rationale || 'Sugerencia generada por el Diseñador IA',
-            status: 'proposed',
-            required_level: comp.level || 3,
-            criticity: 'medium',
-            is_core: true,
-            rationale: comp.rationale,
-            pivot: {
+    else if (
+        item?.ai_archetype_config?.core_competencies &&
+        item.ai_archetype_config.core_competencies.length > 0
+    ) {
+        result = item.ai_archetype_config.core_competencies.map(
+            (comp: any, index: number) => ({
+                id: `ai-${index}`,
+                name: comp.name,
+                category: 'IA Suggestion',
+                description:
+                    comp.rationale || 'Sugerencia generada por el Diseñador IA',
+                status: 'proposed',
                 required_level: comp.level || 3,
-                rationale: comp.rationale
-            }
-        }));
+                criticity: 'medium',
+                is_core: true,
+                rationale: comp.rationale,
+                pivot: {
+                    required_level: comp.level || 3,
+                    rationale: comp.rationale,
+                },
+            }),
+        );
     }
 
     return result;
@@ -190,14 +202,19 @@ const getRoleCompetencies = (item: any): RoleCompetency[] => {
 const handleApprove = async () => {
     submitting.value = true;
     try {
-        const response = await axios.post(`/api/approvals/${props.token}/approve`, form.value);
+        const response = await axios.post(
+            `/api/approvals/${props.token}/approve`,
+            form.value,
+        );
         if (response.data.status === 'success') {
             success.value = true;
         } else {
             alert(response.data.message || 'Error al aprobar.');
         }
     } catch (err: any) {
-        alert(err.response?.data?.message || 'Error en el proceso de aprobación.');
+        alert(
+            err.response?.data?.message || 'Error en el proceso de aprobación.',
+        );
     } finally {
         submitting.value = false;
     }
@@ -205,61 +222,109 @@ const handleApprove = async () => {
 
 const formatSuggestions = (suggestions: string) => {
     if (!suggestions) return [];
-    
-    return suggestions.split('\n').filter(line => line.trim().length > 0).map(line => {
-        const cleanLine = line.trim();
-        const isItem = /^[*-]\s|^\d+\.\s/.test(cleanLine);
-        const text = isItem ? cleanLine.replace(/^[*-]\s|^\d+\.\s/, '') : cleanLine;
-        
-        return { text, isItem };
-    });
+
+    return suggestions
+        .split('\n')
+        .filter((line) => line.trim().length > 0)
+        .map((line) => {
+            const cleanLine = line.trim();
+            const isItem = /^[*-]\s|^\d+\.\s/.test(cleanLine);
+            const text = isItem
+                ? cleanLine.replace(/^[*-]\s|^\d+\.\s/, '')
+                : cleanLine;
+
+            return { text, isItem };
+        });
 };
 </script>
 
 <template>
-    <div class="approval-page min-h-screen bg-slate-950 text-white py-12 px-4">
+    <div class="approval-page min-h-screen bg-slate-950 px-4 py-12 text-white">
         <Head title="Aprobación de Rol Directivo" />
-        
-        <div class="max-w-4xl mx-auto">
+
+        <div class="mx-auto max-w-4xl">
             <!-- Header Section -->
-            <div class="text-center mb-12">
-                <div class="d-inline-flex pa-4 rounded-circle bg-indigo-500/10 border border-indigo-500/20 mb-6 glow-indigo">
-                    <PhSealCheck :size="48" weight="duotone" class="text-indigo-400" />
+            <div class="mb-12 text-center">
+                <div
+                    class="d-inline-flex pa-4 rounded-circle glow-indigo mb-6 border border-indigo-500/20 bg-indigo-500/10"
+                >
+                    <PhSealCheck
+                        :size="48"
+                        weight="duotone"
+                        class="text-indigo-400"
+                    />
                 </div>
-                <h1 class="text-h3 font-weight-black mb-2 font-premium tracking-tight">
+                <h1
+                    class="text-h3 font-weight-black font-premium mb-2 tracking-tight"
+                >
                     Firma de Validación de Rol
                 </h1>
-                <p class="text-h6 text-slate-400 font-weight-medium">
+                <p class="text-h6 font-weight-medium text-slate-400">
                     Stratos Talent Engineering & Intelligence
                 </p>
             </div>
 
             <div v-if="loading" class="d-flex flex-column align-center py-12">
-                <v-progress-circular indeterminate color="indigo-accent-2" size="64" width="6" />
-                <p class="mt-6 text-slate-400 animate-pulse">Cargando protocolo de validación...</p>
+                <v-progress-circular
+                    indeterminate
+                    color="indigo-accent-2"
+                    size="64"
+                    width="6"
+                />
+                <p class="mt-6 animate-pulse text-slate-400">
+                    Cargando protocolo de validación...
+                </p>
             </div>
 
-            <div v-else-if="error" class="text-center py-12">
-                <div class="pa-8 bg-red-500/10 border border-red-500/20 rounded-xl max-w-md mx-auto">
-                    <PhXCircle :size="64" class="text-red-400 mb-4 mx-auto" />
-                    <h3 class="text-h5 font-weight-bold mb-2">Enlace no válido</h3>
-                    <p class="text-slate-400 mb-6">{{ error }}</p>
-                    <StButtonGlass variant="secondary" @click="router.visit('/')">
+            <div v-else-if="error" class="py-12 text-center">
+                <div
+                    class="pa-8 mx-auto max-w-md rounded-xl border border-red-500/20 bg-red-500/10"
+                >
+                    <PhXCircle :size="64" class="mx-auto mb-4 text-red-400" />
+                    <h3 class="text-h5 font-weight-bold mb-2">
+                        Enlace no válido
+                    </h3>
+                    <p class="mb-6 text-slate-400">{{ error }}</p>
+                    <StButtonGlass
+                        variant="secondary"
+                        @click="router.visit('/')"
+                    >
                         Volver al Inicio
                     </StButtonGlass>
                 </div>
             </div>
 
-            <div v-else-if="success" class="text-center py-12">
-                <div class="pa-10 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl max-w-xl mx-auto glass-glow-emerald">
-                    <PhCheckCircle :size="80" weight="duotone" class="text-emerald-400 mb-6 mx-auto" />
-                    <h2 class="text-h4 font-weight-bold mb-4">Firmado Exitosamente</h2>
-                    <p class="text-h6 text-slate-300 mb-2">El rol <span class="text-white font-weight-bold">{{ role.name }}</span> ha sido validado.</p>
-                    <p class="text-body-1 text-slate-400 mb-8">
-                        La configuración ha sido sellada digitalmente y materializada en el catálogo activo de la organización.
+            <div v-else-if="success" class="py-12 text-center">
+                <div
+                    class="pa-10 glass-glow-emerald mx-auto max-w-xl rounded-2xl border border-emerald-500/20 bg-emerald-500/10"
+                >
+                    <PhCheckCircle
+                        :size="80"
+                        weight="duotone"
+                        class="mx-auto mb-6 text-emerald-400"
+                    />
+                    <h2 class="text-h4 font-weight-bold mb-4">
+                        Firmado Exitosamente
+                    </h2>
+                    <p class="text-h6 mb-2 text-slate-300">
+                        El rol
+                        <span class="font-weight-bold text-white">{{
+                            role.name
+                        }}</span>
+                        ha sido validado.
                     </p>
-                    <div class="pa-4 bg-black/40 rounded-lg border border-emerald-500/30 mb-8 font-mono text-xs text-emerald-200 break-all">
-                        SEAL_ID: {{ approval.digital_signature || 'DIGITAL_SIGNATURE_GENERATE' }}
+                    <p class="text-body-1 mb-8 text-slate-400">
+                        La configuración ha sido sellada digitalmente y
+                        materializada en el catálogo activo de la organización.
+                    </p>
+                    <div
+                        class="pa-4 mb-8 rounded-lg border border-emerald-500/30 bg-black/40 font-mono text-xs break-all text-emerald-200"
+                    >
+                        SEAL_ID:
+                        {{
+                            approval.digital_signature ||
+                            'DIGITAL_SIGNATURE_GENERATE'
+                        }}
                     </div>
                     <StButtonGlass variant="primary" @click="router.visit('/')">
                         Ir al Tablero Principal
@@ -267,28 +332,70 @@ const formatSuggestions = (suggestions: string) => {
                 </div>
             </div>
 
-            <div v-else class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div
+                v-else
+                class="animate-in space-y-8 duration-700 fade-in slide-in-from-bottom-4"
+            >
                 <!-- Info Banner -->
-                <StCardGlass class="pa-6 border-indigo-500/30 overflow-hidden relative">
-                    <div class="absolute inset-0 bg-linear-to-r from-indigo-500/5 to-transparent"></div>
+                <StCardGlass
+                    class="pa-6 relative overflow-hidden border-indigo-500/30"
+                >
+                    <div
+                        class="absolute inset-0 bg-linear-to-r from-indigo-500/5 to-transparent"
+                    ></div>
                     <v-row align="center">
                         <v-col cols="12" md="8">
                             <div class="d-flex align-center mb-2">
-                                <StBadgeGlass variant="primary" size="sm" class="mr-3">SOLICITUD PENDIENTE</StBadgeGlass>
-                                <span class="text-caption text-slate-400 uppercase tracking-widest font-weight-bold">Token de Seguridad: {{ props.token.substring(0,8) }}...</span>
+                                <StBadgeGlass
+                                    variant="primary"
+                                    size="sm"
+                                    class="mr-3"
+                                    >SOLICITUD PENDIENTE</StBadgeGlass
+                                >
+                                <span
+                                    class="text-caption font-weight-bold tracking-widest text-slate-400 uppercase"
+                                    >Token de Seguridad:
+                                    {{ props.token.substring(0, 8) }}...</span
+                                >
                             </div>
-                            <h2 class="text-h4 font-weight-bold text-white mb-2">{{ role.name }}</h2>
+                            <h2
+                                class="text-h4 font-weight-bold mb-2 text-white"
+                            >
+                                {{ role.name }}
+                            </h2>
                             <p class="text-body-1 text-slate-300">
-                                Estimado/a <span class="text-white font-weight-bold">{{ approver?.full_name || 'Responsable' }}</span>, se requiere su revisión y firma para oficializar este nuevo diseño de rol.
+                                Estimado/a
+                                <span class="font-weight-bold text-white">{{
+                                    approver?.full_name || 'Responsable'
+                                }}</span
+                                >, se requiere su revisión y firma para
+                                oficializar este nuevo diseño de rol.
                             </p>
                         </v-col>
                         <v-col cols="12" md="4" class="text-md-right">
-                            <v-avatar size="64" class="border-2 border-indigo-500/30 mb-2">
-                                <v-img v-if="approver?.avatar_url" :src="approver.avatar_url" />
-                                <span v-else class="text-h5">{{ approver?.full_name?.[0] || 'R' }}</span>
+                            <v-avatar
+                                size="64"
+                                class="mb-2 border-2 border-indigo-500/30"
+                            >
+                                <v-img
+                                    v-if="approver?.avatar_url"
+                                    :src="approver.avatar_url"
+                                />
+                                <span v-else class="text-h5">{{
+                                    approver?.full_name?.[0] || 'R'
+                                }}</span>
                             </v-avatar>
-                            <div class="text-subtitle-2 font-weight-bold text-white">{{ approver?.full_name }}</div>
-                            <div class="text-caption text-slate-400">{{ approver?.job_title || 'Responsable de Aprobación' }}</div>
+                            <div
+                                class="text-subtitle-2 font-weight-bold text-white"
+                            >
+                                {{ approver?.full_name }}
+                            </div>
+                            <div class="text-caption text-slate-400">
+                                {{
+                                    approver?.job_title ||
+                                    'Responsable de Aprobación'
+                                }}
+                            </div>
                         </v-col>
                     </v-row>
                 </StCardGlass>
@@ -297,8 +404,13 @@ const formatSuggestions = (suggestions: string) => {
                 <div class="grid grid-cols-1 gap-6">
                     <section>
                         <div class="d-flex align-center mb-4">
-                            <PhFileText :size="24" class="text-indigo-400 mr-2" />
-                            <h3 class="text-h5 font-weight-bold">Definición de Misión</h3>
+                            <PhFileText
+                                :size="24"
+                                class="mr-2 text-indigo-400"
+                            />
+                            <h3 class="text-h5 font-weight-bold">
+                                Definición de Misión
+                            </h3>
                         </div>
                         <StCardGlass class="pa-0 overflow-hidden">
                             <v-textarea
@@ -316,8 +428,13 @@ const formatSuggestions = (suggestions: string) => {
 
                     <section>
                         <div class="d-flex align-center mb-4">
-                            <PhTarget :size="24" class="text-emerald-400 mr-2" />
-                            <h3 class="text-h5 font-weight-bold">Propósito Estratégico</h3>
+                            <PhTarget
+                                :size="24"
+                                class="mr-2 text-emerald-400"
+                            />
+                            <h3 class="text-h5 font-weight-bold">
+                                Propósito Estratégico
+                            </h3>
                         </div>
                         <StCardGlass class="pa-0 overflow-hidden">
                             <v-textarea
@@ -335,8 +452,13 @@ const formatSuggestions = (suggestions: string) => {
 
                     <section>
                         <div class="d-flex align-center mb-4">
-                            <PhListChecks :size="24" class="text-amber-400 mr-2" />
-                            <h3 class="text-h5 font-weight-bold">Resultados Esperados</h3>
+                            <PhListChecks
+                                :size="24"
+                                class="mr-2 text-amber-400"
+                            />
+                            <h3 class="text-h5 font-weight-bold">
+                                Resultados Esperados
+                            </h3>
                         </div>
                         <StCardGlass class="pa-0 overflow-hidden">
                             <v-textarea
@@ -356,34 +478,57 @@ const formatSuggestions = (suggestions: string) => {
                 <!-- Competencies Preview -->
                 <section>
                     <div class="d-flex align-center mb-4">
-                        <PhBriefcase :size="24" class="text-sky-400 mr-2" />
-                        <h3 class="text-h5 font-weight-bold">Competencias Propuestas</h3>
+                        <PhBriefcase :size="24" class="mr-2 text-sky-400" />
+                        <h3 class="text-h5 font-weight-bold">
+                            Competencias Propuestas
+                        </h3>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <StCardGlass 
-                            v-for="comp in getRoleCompetencies(role)" 
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <StCardGlass
+                            v-for="comp in getRoleCompetencies(role)"
                             :key="comp.id"
-                            class="pa-5 hover-glow-indigo transition-all duration-300 d-flex flex-column"
+                            class="pa-5 hover-glow-indigo d-flex flex-column transition-all duration-300"
                         >
-                            <div class="d-flex justify-space-between align-start mb-2">
-                                <div class="grow mr-2">
-                                    <h4 class="text-subtitle-1 font-weight-bold text-white leading-tight mb-1">{{ comp.name }}</h4>
-                                    <StBadgeGlass 
-                                        :variant="getStatusVariant(comp.status)" 
+                            <div
+                                class="d-flex justify-space-between align-start mb-2"
+                            >
+                                <div class="mr-2 grow">
+                                    <h4
+                                        class="text-subtitle-1 font-weight-bold mb-1 leading-tight text-white"
+                                    >
+                                        {{ comp.name }}
+                                    </h4>
+                                    <StBadgeGlass
+                                        :variant="getStatusVariant(comp.status)"
                                         size="sm"
                                     >
                                         {{ getStatusLabel(comp.status) }}
                                     </StBadgeGlass>
                                 </div>
-                                <StBadgeGlass variant="secondary" size="sm" class="shrink-0">Nivel {{ comp.pivot?.required_level || 3 }}</StBadgeGlass>
+                                <StBadgeGlass
+                                    variant="secondary"
+                                    size="sm"
+                                    class="shrink-0"
+                                    >Nivel
+                                    {{
+                                        comp.pivot?.required_level || 3
+                                    }}</StBadgeGlass
+                                >
                             </div>
-                            <p class="text-caption text-slate-400 mb-4">{{ comp.description }}</p>
-                            
-                            <div v-if="comp.pivot?.rationale" class="mb-4 pa-3 bg-white/5 rounded-lg border-l-2 border-indigo-500/40">
-                                <p class="text-xs text-slate-300 italic">"{{ comp.pivot.rationale }}"</p>
+                            <p class="text-caption mb-4 text-slate-400">
+                                {{ comp.description }}
+                            </p>
+
+                            <div
+                                v-if="comp.pivot?.rationale"
+                                class="pa-3 mb-4 rounded-lg border-l-2 border-indigo-500/40 bg-white/5"
+                            >
+                                <p class="text-xs text-slate-300 italic">
+                                    "{{ comp.pivot.rationale }}"
+                                </p>
                             </div>
 
-                            <div class="mt-auto d-flex justify-end">
+                            <div class="d-flex mt-auto justify-end">
                                 <StButtonGlass
                                     variant="ghost"
                                     size="sm"
@@ -400,41 +545,76 @@ const formatSuggestions = (suggestions: string) => {
                 <!-- AI Insights -->
                 <section v-if="role.ai_archetype_config">
                     <div class="d-flex align-center mb-4">
-                        <PhMagicWand :size="24" class="text-amber-400 mr-2" />
-                        <h3 class="text-h5 font-weight-bold">Insights de Diseño IA</h3>
+                        <PhMagicWand :size="24" class="mr-2 text-amber-400" />
+                        <h3 class="text-h5 font-weight-bold">
+                            Insights de Diseño IA
+                        </h3>
                     </div>
-                    <StCardGlass class="pa-8 border-amber-500/20 overflow-hidden relative">
+                    <StCardGlass
+                        class="pa-8 relative overflow-hidden border-amber-500/20"
+                    >
                         <div class="absolute top-0 right-0 p-4 opacity-5">
-                            <PhMagicWand :size="120" weight="duotone" class="text-amber-400" />
+                            <PhMagicWand
+                                :size="120"
+                                weight="duotone"
+                                class="text-amber-400"
+                            />
                         </div>
 
-                        <div v-if="role.ai_archetype_config.cube_coordinates?.justification" class="mb-8">
-                            <div class="text-overline text-amber-accent-1 mb-3 font-weight-black tracking-widest uppercase">
+                        <div
+                            v-if="
+                                role.ai_archetype_config.cube_coordinates
+                                    ?.justification
+                            "
+                            class="mb-8"
+                        >
+                            <div
+                                class="text-overline text-amber-accent-1 font-weight-black mb-3 tracking-widest uppercase"
+                            >
                                 Racional del Diseño (Cubo IA)
                             </div>
-                            <div class="text-body-1 text-slate-300 italic-quote leading-relaxed">
-                                "{{ role.ai_archetype_config.cube_coordinates.justification }}"
+                            <div
+                                class="text-body-1 italic-quote leading-relaxed text-slate-300"
+                            >
+                                "{{
+                                    role.ai_archetype_config.cube_coordinates
+                                        .justification
+                                }}"
                             </div>
                         </div>
 
-                        <div v-if="role.ai_archetype_config.organizational_suggestions">
+                        <div
+                            v-if="
+                                role.ai_archetype_config
+                                    .organizational_suggestions
+                            "
+                        >
                             <v-divider class="mb-8 opacity-10" />
-                            <div class="text-overline text-amber-accent-1 mb-4 font-weight-black tracking-widest uppercase">
+                            <div
+                                class="text-overline text-amber-accent-1 font-weight-black mb-4 tracking-widest uppercase"
+                            >
                                 Nitidez Organizacional & Recomendaciones
                             </div>
-                            <div class="text-body-1 text-slate-200 leading-relaxed pl-8 border-l-2 border-amber-500/30">
-                                <div 
-                                    v-for="(line, idx) in formatSuggestions(role.ai_archetype_config.organizational_suggestions)" 
-                                    :key="idx" 
-                                    class="mb-3 d-flex align-top"
+                            <div
+                                class="text-body-1 border-l-2 border-amber-500/30 pl-8 leading-relaxed text-slate-200"
+                            >
+                                <div
+                                    v-for="(line, idx) in formatSuggestions(
+                                        role.ai_archetype_config
+                                            .organizational_suggestions,
+                                    )"
+                                    :key="idx"
+                                    class="d-flex mb-3 align-top"
                                 >
-                                    <PhCheckCircle 
-                                        v-if="line.isItem" 
-                                        :size="18" 
-                                        weight="fill" 
-                                        class="mt-1 mr-3 shrink-0 text-amber-500/60" 
+                                    <PhCheckCircle
+                                        v-if="line.isItem"
+                                        :size="18"
+                                        weight="fill"
+                                        class="mt-1 mr-3 shrink-0 text-amber-500/60"
                                     />
-                                    <div :class="{'opacity-90': !line.isItem}">
+                                    <div
+                                        :class="{ 'opacity-90': !line.isItem }"
+                                    >
                                         {{ line.text }}
                                     </div>
                                 </div>
@@ -445,30 +625,40 @@ const formatSuggestions = (suggestions: string) => {
 
                 <!-- Final Action -->
                 <div class="pt-8 text-center">
-                    <div class="mb-6 d-flex justify-center">
-                        <div class="pa-4 bg-amber-500/10 border border-amber-500/20 rounded-xl d-flex align-center max-w-xl text-left">
-                            <div class="mr-4 rounded-lg bg-white/10 d-flex align-center justify-center shrink-0">
+                    <div class="d-flex mb-6 justify-center">
+                        <div
+                            class="pa-4 d-flex align-center max-w-xl rounded-xl border border-amber-500/20 bg-amber-500/10 text-left"
+                        >
+                            <div
+                                class="d-flex align-center mr-4 shrink-0 justify-center rounded-lg bg-white/10"
+                            >
                                 <PhInfo :size="32" class="text-amber-400" />
                             </div>
                             <p class="text-sm text-slate-300">
-                                Al presionar el botón de abajo, usted certifica la validez técnica de este diseño y autoriza su incorporación inmediata a los sistemas operativos de talento.
+                                Al presionar el botón de abajo, usted certifica
+                                la validez técnica de este diseño y autoriza su
+                                incorporación inmediata a los sistemas
+                                operativos de talento.
                             </p>
                         </div>
                     </div>
-                    
+
                     <StButtonGlass
                         variant="primary"
                         size="lg"
                         :icon="PhSignature"
                         :loading="submitting"
                         @click="handleApprove"
-                        class="px-12 py-6 text-h6 shadow-indigo-lg"
+                        class="text-h6 shadow-indigo-lg px-12 py-6"
                     >
                         APROBAR Y FIRMAR DIGITALMENTE
                     </StButtonGlass>
-                    
-                    <p class="mt-4 text-caption text-slate-500 text-uppercase tracking-tighter font-weight-bold">
-                        Powered by Stratos AI Governance & Digital Seal Technology
+
+                    <p
+                        class="text-caption text-uppercase font-weight-bold mt-4 tracking-tighter text-slate-500"
+                    >
+                        Powered by Stratos AI Governance & Digital Seal
+                        Technology
                     </p>
                 </div>
             </div>
@@ -480,34 +670,59 @@ const formatSuggestions = (suggestions: string) => {
         <StCardGlass v-if="selectedSkill" class="pa-6" variant="premium">
             <div class="d-flex align-center justify-space-between mb-6">
                 <div class="d-flex align-center">
-                    <v-avatar color="indigo/20" size="48" class="mr-4 shadow-indigo">
-                        <PhStar :size="28" class="text-indigo-accent-1" weight="fill" />
+                    <v-avatar
+                        color="indigo/20"
+                        size="48"
+                        class="shadow-indigo mr-4"
+                    >
+                        <PhStar
+                            :size="28"
+                            class="text-indigo-accent-1"
+                            weight="fill"
+                        />
                     </v-avatar>
                     <div>
                         <div class="text-h5 font-weight-bold text-white">
                             {{ selectedSkill.name }}
                         </div>
-                        <div class="text-caption text-indigo-accent-1 uppercase tracking-widest font-weight-black">
-                            {{ selectedSkill.category || 'Competencia Institucional' }}
+                        <div
+                            class="text-caption text-indigo-accent-1 font-weight-black tracking-widest uppercase"
+                        >
+                            {{
+                                selectedSkill.category ||
+                                'Competencia Institucional'
+                            }}
                         </div>
                     </div>
                 </div>
-                <v-btn icon="mdi-close" variant="text" color="white" @click="showSkillDetail = false" />
+                <v-btn
+                    icon="mdi-close"
+                    variant="text"
+                    color="white"
+                    @click="showSkillDetail = false"
+                />
             </div>
 
             <v-divider class="mb-6 opacity-10" />
 
             <div class="mb-6">
-                <div class="text-overline text-indigo-accent-1 mb-2 font-weight-black tracking-widest">
+                <div
+                    class="text-overline text-indigo-accent-1 font-weight-black mb-2 tracking-widest"
+                >
                     DESCRIPCIÓN
                 </div>
-                <div class="text-body-1 text-slate-200 leading-relaxed">
+                <div class="text-body-1 leading-relaxed text-slate-200">
                     {{ selectedSkill.description }}
                 </div>
             </div>
 
-            <div v-if="selectedSkill.pivot?.rationale" class="mb-6 pa-4 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
-                <div class="text-overline text-indigo-accent-1 mb-2 font-weight-black tracking-widest">
+            <div
+                v-if="selectedSkill.pivot?.rationale"
+                class="pa-4 mb-6 rounded-xl border border-indigo-500/20 bg-indigo-500/10"
+            >
+                <div
+                    class="text-overline text-indigo-accent-1 font-weight-black mb-2 tracking-widest"
+                >
                     RAZÓN DE DISEÑO (IA)
                 </div>
                 <div class="text-body-2 text-slate-300 italic">
@@ -515,19 +730,27 @@ const formatSuggestions = (suggestions: string) => {
                 </div>
             </div>
 
-            <div class="d-flex align-center gap-4 mb-6">
+            <div class="d-flex align-center mb-6 gap-4">
                 <div class="grow">
-                    <div class="text-overline text-emerald-accent-1 mb-2 font-weight-black tracking-widest">
+                    <div
+                        class="text-overline text-emerald-accent-1 font-weight-black mb-2 tracking-widest"
+                    >
                         NIVEL REQUERIDO
                     </div>
-                    <div class="d-flex align-center text-h6 font-weight-bold text-white">
+                    <div
+                        class="d-flex align-center text-h6 font-weight-bold text-white"
+                    >
                         Nivel {{ selectedSkill.pivot?.required_level || 3 }}
                     </div>
                 </div>
             </div>
 
-            <div class="mt-8 d-flex justify-end">
-                <StButtonGlass variant="primary" size="md" @click="showSkillDetail = false">
+            <div class="d-flex mt-8 justify-end">
+                <StButtonGlass
+                    variant="primary"
+                    size="md"
+                    @click="showSkillDetail = false"
+                >
                     Entendido
                 </StButtonGlass>
             </div>

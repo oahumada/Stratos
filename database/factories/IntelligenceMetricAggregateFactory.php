@@ -17,14 +17,17 @@ class IntelligenceMetricAggregateFactory extends Factory
     public function definition(): array
     {
         $metrics = ['rag', 'llm_call', 'agent'];
-        $sources = ['evaluations', 'guide_faq', 'roles', null];
+        // Use a wider variety of source_type values to avoid accidental unique constraint collisions in tests
+        $sources = ['evaluations', 'guide_faq', 'roles', 'scenarios', 'agent', 'webhook', null];
         $totalCount = rand(10, 500);
         $successCount = (int) ($totalCount * rand(85, 99) / 100);
 
         return [
             'organization_id' => null,
             'metric_type' => $metrics[array_rand($metrics)],
-            'source_type' => $sources[array_rand($sources)],
+            // Generate a mostly-unique source_type (UUID) to avoid unique index collisions
+            // Keep a small chance of null to allow tests that expect null source_type
+            'source_type' => $this->faker->boolean(10) ? null : \Illuminate\Support\Str::uuid()->toString(),
             'date_key' => now()->subDays(rand(0, 30))->toDateString(),
             'total_count' => $totalCount,
             'success_count' => $successCount,

@@ -775,13 +775,6 @@ $delta = $plannedCount - $currentCount
 
 ---
 
-## 📊 Trabajo de Mediano Plazo (Próximas 2-4 semanas)
-
-### ✅ **NEXT:** V2.0 Sprint 1 Kickoff (Apr 1, 2026)
-
-**Items Ready to Start (in order of priority):**
-
-1. **[NEXT - Week 1]** LMS Nativo Hardening - Fase 1
     - Course builder UI enhancement
     - Assessment engine + progress tracking
     - Multimedia support (video streaming)

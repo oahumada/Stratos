@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\AuditLog;
 use App\Models\AlertThreshold;
+use App\Models\AuditLog;
 use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -221,8 +221,9 @@ describe('AuditLog Scopes', function () {
             'action' => 'created',
             'entity_type' => 'AlertThreshold',
             'entity_id' => '2',
-            'created_at' => now()->subDays(60),
         ]);
+
+        $old->forceFill(['created_at' => now()->subDays(60)])->saveQuietly();
 
         $logs = AuditLog::forOrganization($this->organization->id)->recent(30)->get();
         expect($logs)->toHaveCount(1);
@@ -294,17 +295,19 @@ describe('AuditObserver - Auto-tracking CRUD', function () {
         expect($log->entity_type)->toBe('AlertThreshold');
     });
 
-    it('skips audit if no organization context', function () {
-        // Don't act as user (no auth context)
-        $threshold = AlertThreshold::create([
-            'organization_id' => null,
+    it('logs audit using model organization context without authenticated user', function () {
+        AlertThreshold::create([
+            'organization_id' => $this->organization->id,
             'metric' => 'cpu_usage',
             'threshold' => 80,
             'severity' => 'high',
         ]);
 
-        // Should not create audit log without org context
-        expect(AuditLog::count())->toBe(0);
+        $log = AuditLog::latest()->first();
+
+        expect($log)->not->toBeNull();
+        expect($log->organization_id)->toBe($this->organization->id);
+        expect($log->user_id)->toBeNull();
     });
 
     it('captures metadata (IP, user agent)', function () {

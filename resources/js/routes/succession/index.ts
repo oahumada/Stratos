@@ -1,80 +1,87 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import {
+    queryParams,
+    type RouteDefinition,
+    type RouteFormDefinition,
+    type RouteQueryOptions,
+} from './../../wayfinder';
 /**
-* @see routes/web.php:148
-* @route '/succession'
-*/
+ * @see routes/web.php:148
+ * @route '/succession'
+ */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: index.url(options),
     method: 'get',
-})
+});
 
 index.definition = {
-    methods: ["get","head"],
+    methods: ['get', 'head'],
     url: '/succession',
-} satisfies RouteDefinition<["get","head"]>
+} satisfies RouteDefinition<['get', 'head']>;
 
 /**
-* @see routes/web.php:148
-* @route '/succession'
-*/
+ * @see routes/web.php:148
+ * @route '/succession'
+ */
 index.url = (options?: RouteQueryOptions) => {
-    return index.definition.url + queryParams(options)
-}
+    return index.definition.url + queryParams(options);
+};
 
 /**
-* @see routes/web.php:148
-* @route '/succession'
-*/
+ * @see routes/web.php:148
+ * @route '/succession'
+ */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: index.url(options),
     method: 'get',
-})
+});
 
 /**
-* @see routes/web.php:148
-* @route '/succession'
-*/
+ * @see routes/web.php:148
+ * @route '/succession'
+ */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
-})
+});
 
 /**
-* @see routes/web.php:148
-* @route '/succession'
-*/
-const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+ * @see routes/web.php:148
+ * @route '/succession'
+ */
+const indexForm = (
+    options?: RouteQueryOptions,
+): RouteFormDefinition<'get'> => ({
     action: index.url(options),
     method: 'get',
-})
+});
 
 /**
-* @see routes/web.php:148
-* @route '/succession'
-*/
+ * @see routes/web.php:148
+ * @route '/succession'
+ */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: index.url(options),
     method: 'get',
-})
+});
 
 /**
-* @see routes/web.php:148
-* @route '/succession'
-*/
+ * @see routes/web.php:148
+ * @route '/succession'
+ */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: index.url({
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
+        },
     }),
     method: 'get',
-})
+});
 
-index.form = indexForm
+index.form = indexForm;
 
 const succession = {
     index: Object.assign(index, index),
-}
+};
 
-export default succession
+export default succession;

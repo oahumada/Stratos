@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import { PhCheckCircle, PhWarning } from '@phosphor-icons/vue';
+import { computed } from 'vue';
 
 interface Props {
     completeness: number;
@@ -39,9 +39,12 @@ const suggestions = computed(() => {
     const tips: string[] = [];
 
     if (completeness.value < 50) tips.push('Add your top 5 key skills');
-    if (completeness.value < 70) tips.push('Include at least 2 work experiences');
-    if (completeness.value < 85) tips.push('Add professional certifications or credentials');
-    if (completeness.value < 95) tips.push('Write a compelling professional summary');
+    if (completeness.value < 70)
+        tips.push('Include at least 2 work experiences');
+    if (completeness.value < 85)
+        tips.push('Add professional certifications or credentials');
+    if (completeness.value < 95)
+        tips.push('Write a compelling professional summary');
 
     return tips;
 });
@@ -51,11 +54,14 @@ const suggestions = computed(() => {
     <div>
         <!-- Compact Mode -->
         <div v-if="compact" class="space-y-2">
-            <div :class="completenessColor" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold">
+            <div
+                :class="completenessColor"
+                class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold"
+            >
                 <PhCheckCircle :size="14" />
                 {{ completeness }}% - {{ completenessLevel }}
             </div>
-            <div class="h-2 w-full rounded-full bg-white/5 overflow-hidden">
+            <div class="h-2 w-full overflow-hidden rounded-full bg-white/5">
                 <div
                     :class="`bg-gradient-to-r ${barColor}`"
                     class="h-full transition-all duration-500"
@@ -67,18 +73,23 @@ const suggestions = computed(() => {
         <!-- Full Mode -->
         <div v-else class="space-y-4">
             <div class="flex items-center justify-between">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <h3
+                    class="flex items-center gap-2 text-lg font-bold text-white"
+                >
                     <PhCheckCircle :size="20" class="text-indigo-400" />
                     Profile Completeness
                 </h3>
-                <div :class="completenessColor" class="px-3 py-1.5 rounded-full text-sm font-bold">
+                <div
+                    :class="completenessColor"
+                    class="rounded-full px-3 py-1.5 text-sm font-bold"
+                >
                     {{ completeness }}%
                 </div>
             </div>
 
             <!-- Progress Bar -->
             <div class="space-y-2">
-                <div class="h-4 rounded-full bg-white/5 overflow-hidden">
+                <div class="h-4 overflow-hidden rounded-full bg-white/5">
                     <div
                         :class="`bg-gradient-to-r ${barColor} shadow-lg`"
                         class="h-full transition-all duration-500"
@@ -91,14 +102,28 @@ const suggestions = computed(() => {
             </div>
 
             <!-- Suggestions -->
-            <div v-if="suggestions.length > 0" class="p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
+            <div
+                v-if="suggestions.length > 0"
+                class="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4"
+            >
                 <div class="flex items-start gap-3">
-                    <PhWarning :size="18} class="text-amber-400 flex-shrink-0 mt-0.5" />
+                    <PhWarning
+                        :size="18"
+                        class="mt-0.5 flex-shrink-0 text-amber-400"
+                    />
                     <div>
-                        <p class="text-xs font-semibold text-amber-300 mb-2">Next Steps:</p>
-                        <ul class="text-xs text-amber-300/80 space-y-1">
-                            <li v-for="(tip, idx) in suggestions" :key="idx" class="flex items-center gap-1">
-                                <span class="w-1 h-1 rounded-full bg-amber-400"></span>
+                        <p class="mb-2 text-xs font-semibold text-amber-300">
+                            Next Steps:
+                        </p>
+                        <ul class="space-y-1 text-xs text-amber-300/80">
+                            <li
+                                v-for="(tip, idx) in suggestions"
+                                :key="idx"
+                                class="flex items-center gap-1"
+                            >
+                                <span
+                                    class="h-1 w-1 rounded-full bg-amber-400"
+                                ></span>
                                 {{ tip }}
                             </li>
                         </ul>
@@ -107,13 +132,19 @@ const suggestions = computed(() => {
             </div>
 
             <!-- Completion Breakdown -->
-            <div v-if="completeness === 100" class="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+            <div
+                v-if="completeness === 100"
+                class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4"
+            >
                 <div class="flex items-center gap-3">
-                    <PhCheckCircle :size="20} class="text-emerald-400" />
+                    <PhCheckCircle :size="20" class="text-emerald-400" />
                     <div>
-                        <p class="text-sm font-bold text-emerald-300">Perfect! Your profile is complete.</p>
+                        <p class="text-sm font-bold text-emerald-300">
+                            Perfect! Your profile is complete.
+                        </p>
                         <p class="text-xs text-emerald-300/80">
-                            You're ready to share it with potential employers or collaborators.
+                            You're ready to share it with potential employers or
+                            collaborators.
                         </p>
                     </div>
                 </div>

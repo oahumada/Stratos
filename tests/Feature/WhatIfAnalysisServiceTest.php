@@ -205,7 +205,7 @@ class WhatIfAnalysisServiceTest extends TestCase
 
         $riskTypes = collect($analysis['individual_risks'])->pluck('type')->toArray();
         $expectedTypes = ['execution_risk', 'talent_risk', 'financial_risk', 'technology_risk'];
-        
+
         foreach ($expectedTypes as $type) {
             expect($riskTypes)->toContain($type);
         }
@@ -357,7 +357,7 @@ class WhatIfAnalysisServiceTest extends TestCase
         $optimistic = $prediction['roi_scenarios']['optimistic_roi'];
         $realistic = $prediction['roi_scenarios']['realistic_roi'];
         $pessimistic = $prediction['roi_scenarios']['pessimistic_roi'];
-        
+
         if ($optimistic > 0) {
             expect($optimistic)->toBeGreaterThanOrEqual($realistic);
             expect($realistic)->toBeGreaterThanOrEqual($pessimistic);
@@ -416,8 +416,8 @@ class WhatIfAnalysisServiceTest extends TestCase
      */
     public function test_headcount_impact_endpoint(): void
     {
-        $user = \App\Models\User::factory()->create();
         $scenario = Scenario::factory()->create();
+        $user = \App\Models\User::factory()->create(['organization_id' => $scenario->organization_id]);
 
         $response = $this->actingAs($user)->postJson('/api/strategic-planning/what-if/headcount-impact', [
             'scenario_id' => $scenario->id,
@@ -441,8 +441,8 @@ class WhatIfAnalysisServiceTest extends TestCase
 
     public function test_financial_impact_endpoint(): void
     {
-        $user = \App\Models\User::factory()->create();
         $scenario = Scenario::factory()->create();
+        $user = \App\Models\User::factory()->create(['organization_id' => $scenario->organization_id]);
 
         $response = $this->actingAs($user)->postJson('/api/strategic-planning/what-if/financial-impact', [
             'scenario_id' => $scenario->id,
@@ -465,8 +465,8 @@ class WhatIfAnalysisServiceTest extends TestCase
 
     public function test_risk_impact_endpoint(): void
     {
-        $user = \App\Models\User::factory()->create();
         $scenario = Scenario::factory()->create();
+        $user = \App\Models\User::factory()->create(['organization_id' => $scenario->organization_id]);
 
         $response = $this->actingAs($user)->postJson('/api/strategic-planning/what-if/risk-impact', [
             'scenario_id' => $scenario->id,
@@ -488,8 +488,8 @@ class WhatIfAnalysisServiceTest extends TestCase
 
     public function test_compare_baseline_endpoint(): void
     {
-        $user = \App\Models\User::factory()->create();
         $scenario = Scenario::factory()->create();
+        $user = \App\Models\User::factory()->create(['organization_id' => $scenario->organization_id]);
 
         $response = $this->actingAs($user)->getJson("/api/strategic-planning/what-if/compare?scenario_id={$scenario->id}");
 
@@ -507,8 +507,8 @@ class WhatIfAnalysisServiceTest extends TestCase
 
     public function test_predict_outcomes_endpoint(): void
     {
-        $user = \App\Models\User::factory()->create();
         $scenario = Scenario::factory()->create();
+        $user = \App\Models\User::factory()->create(['organization_id' => $scenario->organization_id]);
 
         $response = $this->actingAs($user)->postJson('/api/strategic-planning/what-if/predict-outcomes', [
             'scenario_id' => $scenario->id,
@@ -530,8 +530,8 @@ class WhatIfAnalysisServiceTest extends TestCase
 
     public function test_sensitivity_analysis_endpoint(): void
     {
-        $user = \App\Models\User::factory()->create();
         $scenario = Scenario::factory()->create();
+        $user = \App\Models\User::factory()->create(['organization_id' => $scenario->organization_id]);
 
         $response = $this->actingAs($user)->postJson('/api/strategic-planning/what-if/sensitivity-analysis', [
             'scenario_id' => $scenario->id,
@@ -550,8 +550,8 @@ class WhatIfAnalysisServiceTest extends TestCase
 
     public function test_comprehensive_analysis_endpoint(): void
     {
-        $user = \App\Models\User::factory()->create();
         $scenario = Scenario::factory()->create();
+        $user = \App\Models\User::factory()->create(['organization_id' => $scenario->organization_id]);
 
         $response = $this->actingAs($user)->postJson('/api/strategic-planning/what-if/comprehensive', [
             'scenario_id' => $scenario->id,
@@ -604,8 +604,8 @@ class WhatIfAnalysisServiceTest extends TestCase
 
     public function test_sensitivity_analysis_validation_default_adjustments(): void
     {
-        $user = \App\Models\User::factory()->create();
         $scenario = Scenario::factory()->create();
+        $user = \App\Models\User::factory()->create(['organization_id' => $scenario->organization_id]);
 
         $response = $this->actingAs($user)->postJson('/api/strategic-planning/what-if/sensitivity-analysis', [
             'scenario_id' => $scenario->id,

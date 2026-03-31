@@ -254,7 +254,7 @@ onMounted(loadDashboard);
         <div
             class="grid grid-cols-1 gap-x-10 gap-y-8 px-12 md:grid-cols-2 xl:grid-cols-4 xl:gap-x-12"
             data-testid="compliance-summary-grid"
-            style="padding-bottom: 12px; padding-top:12px"
+            style="padding-bottom: 12px; padding-top: 12px"
             v-if="summary"
         >
             <StCardGlass class="overflow-hidden p-0">
@@ -309,7 +309,10 @@ onMounted(loadDashboard);
         </div>
 
         <StCardGlass class="overflow-hidden p-0">
-            <div class="grid grid-cols-1 gap-4 p-6 md:grid-cols-3" style="padding:14px">
+            <div
+                class="grid grid-cols-1 gap-4 p-6 md:grid-cols-3"
+                style="padding: 14px"
+            >
                 <v-text-field
                     v-model="eventNameFilter"
                     label="Filtrar por event_name"

@@ -6,8 +6,8 @@ use App\Models\Competency;
 use App\Models\CompetencySkill;
 use App\Models\PeopleRoleSkills;
 use App\Models\Scenario;
-use App\Models\ScenarioRoleSkill;
 use App\Models\ScenarioRole;
+use App\Models\ScenarioRoleSkill;
 use Illuminate\Support\Facades\DB;
 
 class ScenarioAnalyticsService
@@ -17,9 +17,10 @@ class ScenarioAnalyticsService
      * Estructura: [scenarioId => ['competency_ids'=>..., 'competency_skills'=>..., 'scenario_role_skills_by_skill'=>..., 'scenario_roles_map'=>..., 'people_role_skills_avg'=>..., 'people_role_skills_hipo_avg'=>...]]
      */
     protected array $scenarioCache = [];
+
     protected ?float $confidenceCache = null;
 
-    protected function ensureScenarioCache(int $scenarioId): void
+    public function ensureScenarioCache(int $scenarioId): void
     {
         if (isset($this->scenarioCache[$scenarioId])) {
             return;
@@ -35,7 +36,7 @@ class ScenarioAnalyticsService
 
         // También precargar nombres de competencies para evitar una consulta independiente
         $competencyNames = [];
-        if (!empty($competencyIds)) {
+        if (! empty($competencyIds)) {
             $competencyNames = DB::table('competencies')
                 ->whereIn('id', $competencyIds)
                 ->pluck('name', 'id')
@@ -68,25 +69,26 @@ class ScenarioAnalyticsService
         $closureBySkill = $closureStrategies->groupBy('skill_id')->toArray();
         $strategyStats = $closureStrategies->groupBy('strategy')->map(function ($rows, $strategy) {
             $count = count($rows);
-            $totalCost = array_sum(array_map(fn($r) => $r->estimated_cost ?? 0, $rows));
-            return (object)['strategy' => $strategy, 'count' => $count, 'total_cost' => $totalCost];
+            $totalCost = array_sum(array_map(fn ($r) => $r->estimated_cost ?? 0, $rows));
+
+            return (object) ['strategy' => $strategy, 'count' => $count, 'total_cost' => $totalCost];
         })->toArray();
 
         // Aggregados: avg current_level por role_id,skill_id (todo)
         $peopleAgg = [];
-        if (!empty($baseRoleIds) && !empty($skillIds)) {
+        if (! empty($baseRoleIds) && ! empty($skillIds)) {
             $peopleAgg = PeopleRoleSkills::whereIn('role_id', $baseRoleIds)
                 ->whereIn('skill_id', $skillIds)
                 ->select('role_id', 'skill_id', DB::raw('AVG(current_level) as avg_level'))
                 ->groupBy('role_id', 'skill_id')
                 ->get()
-                ->mapWithKeys(fn($r) => ["{$r->role_id}:{$r->skill_id}" => (float) $r->avg_level])
+                ->mapWithKeys(fn ($r) => ["{$r->role_id}:{$r->skill_id}" => (float) $r->avg_level])
                 ->toArray();
         }
 
         // Aggregados solo para high potential
         $peopleHipoAgg = [];
-        if (!empty($baseRoleIds) && !empty($skillIds)) {
+        if (! empty($baseRoleIds) && ! empty($skillIds)) {
             $peopleHipoAgg = PeopleRoleSkills::join('people', 'people_role_skills.people_id', '=', 'people.id')
                 ->whereIn('people_role_skills.role_id', $baseRoleIds)
                 ->whereIn('people_role_skills.skill_id', $skillIds)
@@ -94,7 +96,7 @@ class ScenarioAnalyticsService
                 ->select('people_role_skills.role_id', 'people_role_skills.skill_id', DB::raw('AVG(people_role_skills.current_level) as avg_level'))
                 ->groupBy('people_role_skills.role_id', 'people_role_skills.skill_id')
                 ->get()
-                ->mapWithKeys(fn($r) => ["{$r->role_id}:{$r->skill_id}" => (float) $r->avg_level])
+                ->mapWithKeys(fn ($r) => ["{$r->role_id}:{$r->skill_id}" => (float) $r->avg_level])
                 ->toArray();
         }
 
@@ -114,8 +116,10 @@ class ScenarioAnalyticsService
     protected function getScenarioCache(int $scenarioId): array
     {
         $this->ensureScenarioCache($scenarioId);
+
         return $this->scenarioCache[$scenarioId] ?? [];
     }
+
     /**
      * Calcula el IQ del Escenario basado en Readiness ponderado por Capabilities.
      */
@@ -123,7 +127,7 @@ class ScenarioAnalyticsService
      * Calcula el IQ del Escenario basado en Readiness ponderado por Capabilities.
      * Acepta tanto un `Scenario` instanciado como el `id` del escenario para evitar recargas N+1.
      *
-     * @param int|Scenario $scenarioOrId
+     * @param  int|Scenario  $scenarioOrId
      */
     public function calculateScenarioIQ($scenarioOrId): array
     {
@@ -186,7 +190,7 @@ class ScenarioAnalyticsService
                 ->pluck('competency_id');
         } else {
             // Limitar los competencyIds al capability solicitado
-            $competencyIds = $competencyIds->filter(function ($cid) use ($capabilityId, $scenarioId) {
+            $competencyIds = $competencyIds->filter(function ($cid) {
                 // No tenemos mapping directo de capability->competency en cache (se puede ampliar),
                 // por seguridad, fallback al DB si el filtro es necesario. Aquí asumimos que cache contiene todas
                 return true;
@@ -279,7 +283,7 @@ class ScenarioAnalyticsService
 
         // Try to use scenario cache aggregated values if available
         $cache = $this->scenarioCache[$scenarioId] ?? null;
-        if ($cache && !empty($cache['people_role_skills_avg'])) {
+        if ($cache && ! empty($cache['people_role_skills_avg'])) {
             $key = "{$roleId}:{$skillId}";
             if (isset($cache['people_role_skills_avg'][$key])) {
                 return (float) $cache['people_role_skills_avg'][$key];
@@ -344,7 +348,7 @@ class ScenarioAnalyticsService
      * Calcula el impacto proyectado del escenario basado en las estrategias aplicadas.
      * Acepta `Scenario` o `id` para evitar recargas cuando ya disponemos del modelo.
      *
-     * @param int|Scenario $scenarioOrId
+     * @param  int|Scenario  $scenarioOrId
      */
     public function calculateImpact($scenarioOrId): array
     {
@@ -365,12 +369,12 @@ class ScenarioAnalyticsService
         $competencyIds = $cache['competency_ids'] ?? [];
         $competencyNames = $cache['competency_names'] ?? [];
 
-        if (!empty($competencyIds) && !empty($competencyNames)) {
+        if (! empty($competencyIds) && ! empty($competencyNames)) {
             // Construir una colección de objetos {id,name} desde el map cached
             $competencies = collect($competencyNames)->map(function ($name, $id) {
                 return (object) ['id' => (int) $id, 'name' => $name];
             })->values();
-        } elseif (!empty($competencyIds)) {
+        } elseif (! empty($competencyIds)) {
             // Si no tenemos nombres en cache, obtenerlos en lote desde DB
             $competencies = DB::table('competencies')
                 ->whereIn('id', $competencyIds)
@@ -393,9 +397,9 @@ class ScenarioAnalyticsService
             // usar cache de closure strategies si está disponible
             $closureBySkill = $cache['closure_strategies_by_skill'] ?? [];
 
-                // Use cached competency_skills only; if absent, assume no strategies for safety
-                $compSkillRows = $cache['competency_skills'][$comp->id] ?? [];
-                $competencySkillRows = collect($compSkillRows)->map(fn($r) => is_array($r) ? ($r['skill_id'] ?? null) : ($r->skill_id ?? null))->filter()->values()->all();
+            // Use cached competency_skills only; if absent, assume no strategies for safety
+            $compSkillRows = $cache['competency_skills'][$comp->id] ?? [];
+            $competencySkillRows = collect($compSkillRows)->map(fn ($r) => is_array($r) ? ($r['skill_id'] ?? null) : ($r->skill_id ?? null))->filter()->values()->all();
 
             $strategiesCount = 0;
             foreach ($competencySkillRows as $skId) {
@@ -419,8 +423,8 @@ class ScenarioAnalyticsService
             $strategyStats = collect([]);
         }
 
-        $totalStrategies = $strategyStats->sum(fn($s) => $s->count ?? ($s->count ?? 0));
-        $totalCost = $strategyStats->sum(fn($s) => $s->total_cost ?? ($s->total_cost ?? 0));
+        $totalStrategies = $strategyStats->sum(fn ($s) => $s->count ?? ($s->count ?? 0));
+        $totalCost = $strategyStats->sum(fn ($s) => $s->total_cost ?? ($s->total_cost ?? 0));
 
         // Desglose de Tiempo a Plena Capacidad (TFC)
         $tfcBreakdown = [

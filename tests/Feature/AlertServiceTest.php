@@ -1,11 +1,13 @@
 <?php
 
-use App\Models\{AlertHistory, AlertThreshold, Organization, User};
+use App\Models\AlertHistory;
+use App\Models\AlertThreshold;
+use App\Models\Organization;
+use App\Models\User;
 use App\Services\AlertService;
-use Tests\Fixtures\AlertFixture;
 
 beforeEach(function () {
-    $this->alertService = new AlertService();
+    $this->alertService = new AlertService;
     $this->organization = Organization::factory()->create();
     $this->user = User::factory()->create(['organization_id' => $this->organization->id]);
 });
@@ -184,6 +186,7 @@ describe('AlertService', function () {
             AlertHistory::factory(2)->create([
                 'organization_id' => $this->organization->id,
                 'status' => 'triggered',
+                'severity' => 'medium',
                 'acknowledged_at' => null,
                 'triggered_at' => now(),
             ]);
@@ -191,7 +194,8 @@ describe('AlertService', function () {
             AlertHistory::factory(1)->create([
                 'organization_id' => $this->organization->id,
                 'severity' => 'critical',
-                'status' => 'triggered',
+                'status' => 'acknowledged',
+                'acknowledged_at' => now(),
             ]);
 
             $stats = $this->alertService->getAlertStatistics($this->organization->id);
@@ -222,8 +226,13 @@ describe('AlertService', function () {
         });
 
         it('respects limit parameter', function () {
+            $threshold = AlertThreshold::factory()->create([
+                'organization_id' => $this->organization->id,
+            ]);
+
             AlertHistory::factory(20)->create([
                 'organization_id' => $this->organization->id,
+                'alert_threshold_id' => $threshold->id,
             ]);
 
             $result = $this->alertService->getAlertHistory($this->organization->id, 5);

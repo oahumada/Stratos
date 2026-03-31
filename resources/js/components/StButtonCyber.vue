@@ -21,40 +21,53 @@ const props = withDefaults(defineProps<Props>(), {
     tag: 'AUTH',
     cyberId: 'ST-26',
     glass: false,
-    type: 'submit'
+    type: 'submit',
 });
 
 const variantClasses = computed(() => {
     switch (props.variant) {
-        case 'danger': return 'cyber-danger';
-        case 'success': return 'cyber-success';
-        case 'warning': return 'cyber-warning';
-        case 'info': return 'cyber-info';
-        default: return 'cyber-primary';
+        case 'danger':
+            return 'cyber-danger';
+        case 'success':
+            return 'cyber-success';
+        case 'warning':
+            return 'cyber-warning';
+        case 'info':
+            return 'cyber-info';
+        default:
+            return 'cyber-primary';
     }
 });
 
 const sizeClasses = computed(() => {
     switch (props.size) {
-        case 'sm': return 'h-8 px-4 text-[10px]';
-        case 'lg': return 'h-14 px-8 text-sm';
-        case 'xl': return 'h-16 px-12 text-base';
-        default: return 'h-11 px-6 text-xs';
+        case 'sm':
+            return 'h-8 px-4 text-[10px]';
+        case 'lg':
+            return 'h-14 px-8 text-sm';
+        case 'xl':
+            return 'h-16 px-12 text-base';
+        default:
+            return 'h-11 px-6 text-xs';
     }
 });
 </script>
 
 <template>
-    <button 
+    <button
         :type="type"
         class="st-button-cyber"
-        :class="[variantClasses, sizeClasses, { 'is-loading': loading, 'is-glass': glass }]"
+        :class="[
+            variantClasses,
+            sizeClasses,
+            { 'is-loading': loading, 'is-glass': glass },
+        ]"
         :disabled="disabled || loading"
     >
         <!-- Glitch layers -->
         <span class="glitch-layer shadow"></span>
         <span class="glitch-layer main"></span>
-        
+
         <!-- Technical elements -->
         <span class="cyber-tag">{{ tag }}</span>
         <span class="cyber-id">[{{ cyberId }}]</span>
@@ -62,11 +75,21 @@ const sizeClasses = computed(() => {
 
         <div class="content">
             <template v-if="loading">
-                <v-progress-circular indeterminate size="16" width="2" class="mr-2" />
+                <v-progress-circular
+                    indeterminate
+                    size="16"
+                    width="2"
+                    class="mr-2"
+                />
                 Sincronizando Neural...
             </template>
             <template v-else>
-                <component :is="icon" v-if="icon" :size="size === 'xl' ? 24 : 18" class="mr-2 icon-glow" />
+                <component
+                    :is="icon"
+                    v-if="icon"
+                    :size="size === 'xl' ? 24 : 18"
+                    class="icon-glow mr-2"
+                />
                 <span class="label"><slot /></span>
             </template>
         </div>
@@ -103,7 +126,7 @@ const sizeClasses = computed(() => {
 }
 
 .st-button-cyber::after {
-    content: "";
+    content: '';
     position: absolute;
     top: 0;
     left: -150%;
@@ -160,8 +183,20 @@ const sizeClasses = computed(() => {
     pointer-events: none;
 }
 
-.corner-tl { top: 0; left: 0; width: 4px; height: 12px; clip-path: polygon(0 0, 100% 0, 0 100%); }
-.corner-br { bottom: 0; right: 0; width: 4px; height: 12px; clip-path: polygon(100% 100%, 0 100%, 100% 0); }
+.corner-tl {
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 12px;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+.corner-br {
+    bottom: 0;
+    right: 0;
+    width: 4px;
+    height: 12px;
+    clip-path: polygon(100% 100%, 0 100%, 100% 0);
+}
 
 /* --- Variants --- */
 .cyber-primary {
@@ -205,13 +240,26 @@ const sizeClasses = computed(() => {
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(12px);
     border-left-width: 1px;
-    clip-path: polygon(5% 0%, 100% 0%, 100% 80%, 95% 100%, 0% 100%, 0% 20%); /* Softer angles */
+    clip-path: polygon(
+        5% 0%,
+        100% 0%,
+        100% 80%,
+        95% 100%,
+        0% 100%,
+        0% 20%
+    ); /* Softer angles */
     box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.02);
 }
 
-.st-button-cyber.is-glass.cyber-primary { border-left-color: rgba(99, 102, 241, 0.5); }
-.st-button-cyber.is-glass.cyber-success { border-left-color: rgba(16, 185, 129, 0.5); }
-.st-button-cyber.is-glass.cyber-danger { border-left-color: rgba(244, 63, 94, 0.5); }
+.st-button-cyber.is-glass.cyber-primary {
+    border-left-color: rgba(99, 102, 241, 0.5);
+}
+.st-button-cyber.is-glass.cyber-success {
+    border-left-color: rgba(16, 185, 129, 0.5);
+}
+.st-button-cyber.is-glass.cyber-danger {
+    border-left-color: rgba(244, 63, 94, 0.5);
+}
 
 .st-button-cyber.is-glass:hover {
     background: rgba(255, 255, 255, 0.08);
@@ -225,15 +273,24 @@ const sizeClasses = computed(() => {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
     z-index: 4;
     animation: scan 2.5s infinite linear;
     pointer-events: none;
 }
 
 @keyframes scan {
-    0% { top: -100%; }
-    100% { top: 100%; }
+    0% {
+        top: -100%;
+    }
+    100% {
+        top: 100%;
+    }
 }
 
 .icon-glow {
@@ -249,10 +306,25 @@ const sizeClasses = computed(() => {
 }
 
 @keyframes glitch {
-    0% { transform: translate(0); opacity: 1; }
-    20% { transform: translate(-2px, 1px); opacity: 0.8; }
-    40% { transform: translate(2px, -1px); opacity: 0.8; }
-    60% { transform: translate(-1px, 0); opacity: 0.9; }
-    100% { transform: translate(0); opacity: 1; }
+    0% {
+        transform: translate(0);
+        opacity: 1;
+    }
+    20% {
+        transform: translate(-2px, 1px);
+        opacity: 0.8;
+    }
+    40% {
+        transform: translate(2px, -1px);
+        opacity: 0.8;
+    }
+    60% {
+        transform: translate(-1px, 0);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translate(0);
+        opacity: 1;
+    }
 }
 </style>

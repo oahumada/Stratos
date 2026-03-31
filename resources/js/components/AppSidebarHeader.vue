@@ -33,16 +33,58 @@ const currentModule = computed(() => {
 
 const moduleColor = computed(() => {
     const colors = {
-        scenario_planning: { text: 'text-fuchsia-500', bg: 'bg-fuchsia-500', shadow: 'rgba(217, 70, 239, 0.6)', shadowLight: 'rgba(217, 70, 239, 0.2)' },
-        gap_analysis: { text: 'text-fuchsia-500', bg: 'bg-fuchsia-500', shadow: 'rgba(217, 70, 239, 0.6)', shadowLight: 'rgba(217, 70, 239, 0.2)' },
-        talento_360: { text: 'text-emerald-500', bg: 'bg-emerald-500', shadow: 'rgba(16, 185, 129, 0.6)', shadowLight: 'rgba(16, 185, 129, 0.2)' },
-        learning_paths: { text: 'text-emerald-500', bg: 'bg-emerald-500', shadow: 'rgba(16, 185, 129, 0.6)', shadowLight: 'rgba(16, 185, 129, 0.2)' },
-        mi_stratos: { text: 'text-cyan-500', bg: 'bg-cyan-500', shadow: 'rgba(6, 182, 212, 0.6)', shadowLight: 'rgba(6, 182, 212, 0.2)' },
-        marketplace: { text: 'text-amber-500', bg: 'bg-amber-500', shadow: 'rgba(245, 158, 11, 0.6)', shadowLight: 'rgba(245, 158, 11, 0.2)' },
-        people: { text: 'text-indigo-500', bg: 'bg-indigo-500', shadow: 'rgba(99, 102, 241, 0.6)', shadowLight: 'rgba(99, 102, 241, 0.2)' },
-        dashboard: { text: 'text-indigo-500', bg: 'bg-indigo-500', shadow: 'rgba(99, 102, 241, 0.6)', shadowLight: 'rgba(99, 102, 241, 0.2)' },
+        scenario_planning: {
+            text: 'text-fuchsia-500',
+            bg: 'bg-fuchsia-500',
+            shadow: 'rgba(217, 70, 239, 0.6)',
+            shadowLight: 'rgba(217, 70, 239, 0.2)',
+        },
+        gap_analysis: {
+            text: 'text-fuchsia-500',
+            bg: 'bg-fuchsia-500',
+            shadow: 'rgba(217, 70, 239, 0.6)',
+            shadowLight: 'rgba(217, 70, 239, 0.2)',
+        },
+        talento_360: {
+            text: 'text-emerald-500',
+            bg: 'bg-emerald-500',
+            shadow: 'rgba(16, 185, 129, 0.6)',
+            shadowLight: 'rgba(16, 185, 129, 0.2)',
+        },
+        learning_paths: {
+            text: 'text-emerald-500',
+            bg: 'bg-emerald-500',
+            shadow: 'rgba(16, 185, 129, 0.6)',
+            shadowLight: 'rgba(16, 185, 129, 0.2)',
+        },
+        mi_stratos: {
+            text: 'text-cyan-500',
+            bg: 'bg-cyan-500',
+            shadow: 'rgba(6, 182, 212, 0.6)',
+            shadowLight: 'rgba(6, 182, 212, 0.2)',
+        },
+        marketplace: {
+            text: 'text-amber-500',
+            bg: 'bg-amber-500',
+            shadow: 'rgba(245, 158, 11, 0.6)',
+            shadowLight: 'rgba(245, 158, 11, 0.2)',
+        },
+        people: {
+            text: 'text-indigo-500',
+            bg: 'bg-indigo-500',
+            shadow: 'rgba(99, 102, 241, 0.6)',
+            shadowLight: 'rgba(99, 102, 241, 0.2)',
+        },
+        dashboard: {
+            text: 'text-indigo-500',
+            bg: 'bg-indigo-500',
+            shadow: 'rgba(99, 102, 241, 0.6)',
+            shadowLight: 'rgba(99, 102, 241, 0.2)',
+        },
     };
-    return colors[currentModule.value as keyof typeof colors] || colors.dashboard;
+    return (
+        colors[currentModule.value as keyof typeof colors] || colors.dashboard
+    );
 });
 </script>
 

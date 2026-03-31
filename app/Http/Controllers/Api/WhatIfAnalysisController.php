@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\AnalyzeHeadcountImpactRequest;
 use App\Http\Requests\AnalyzeFinancialImpactRequest;
+use App\Http\Requests\AnalyzeHeadcountImpactRequest;
 use App\Http\Requests\PerformSensitivityAnalysisRequest;
 use App\Models\Scenario;
 use App\Services\ScenarioPlanning\WhatIfAnalysisService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * WhatIfAnalysisController — What-if scenario analysis endpoints
@@ -23,9 +24,7 @@ use Illuminate\Http\Request;
  */
 class WhatIfAnalysisController
 {
-    public function __construct(private WhatIfAnalysisService $whatIfService)
-    {
-    }
+    public function __construct(private WhatIfAnalysisService $whatIfService) {}
 
     /**
      * Analyze headcount impact of scenario changes
@@ -34,15 +33,26 @@ class WhatIfAnalysisController
      */
     public function analyzeHeadcountImpact(AnalyzeHeadcountImpactRequest $request): JsonResponse
     {
-        $analysis = $this->whatIfService->analyzeHeadcountImpact(
-            $request->integer('scenario_id'),
-            $request->validated()
-        );
-
-        return response()->json([
-            'success' => true,
-            'data' => $analysis,
+        Log::info('WhatIfAnalysisController::analyzeHeadcountImpact called', [
+            'user_id' => $request->user()?->id,
+            'scenario_id' => $request->integer('scenario_id'),
+            'payload' => $request->all(),
         ]);
+
+        try {
+            $analysis = $this->whatIfService->analyzeHeadcountImpact(
+                $request->integer('scenario_id'),
+                $request->validated()
+            );
+
+            return response()->json([
+                'success' => true,
+                'data' => $analysis,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('WhatIfAnalysisService error', ['exception' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            throw $e;
+        }
     }
 
     /**
@@ -225,7 +235,7 @@ class WhatIfAnalysisController
         $risk = $analyses['risk'];
         $predictions = $analyses['predictions'];
 
-        $summary = "Scenario requires ";
+        $summary = 'Scenario requires ';
         if ($headcount['hiring_needs'] > 0) {
             $summary .= "hiring {$headcount['hiring_needs']} people. ";
         }

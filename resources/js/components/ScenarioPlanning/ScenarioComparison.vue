@@ -78,7 +78,9 @@
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                     />
                 </svg>
-                <span class="text-sm font-medium">Loading comparison data…</span>
+                <span class="text-sm font-medium"
+                    >Loading comparison data…</span
+                >
             </div>
 
             <!-- Error State -->
@@ -508,7 +510,9 @@ const exportComparison = () => {
             ...selectedScenarios.value.map(
                 (s) =>
                     '$' +
-                    ((s.financial_impact?.total_impact ?? 0) / 1000).toFixed(0) +
+                    ((s.financial_impact?.total_impact ?? 0) / 1000).toFixed(
+                        0,
+                    ) +
                     'K',
             ),
             calculateFinanceVariance() + '%',
@@ -520,7 +524,9 @@ const exportComparison = () => {
         ],
         [
             'Skill Gaps',
-            ...selectedScenarios.value.map((s) => (s.skill_gaps ?? 0) + ' gaps'),
+            ...selectedScenarios.value.map(
+                (s) => (s.skill_gaps ?? 0) + ' gaps',
+            ),
             calculateVariance('skill_gaps') + '%',
         ],
     ];

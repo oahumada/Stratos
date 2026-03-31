@@ -60,7 +60,10 @@ const classes = computed(() => {
         :role="props.role"
         :aria-label="props.ariaLabel"
     >
-        <span v-if="variant !== 'glass'" class="mr-1.5 h-1 w-1 rounded-full bg-current opacity-80 animate-pulse"></span>
+        <span
+            v-if="variant !== 'glass'"
+            class="mr-1.5 h-1 w-1 animate-pulse rounded-full bg-current opacity-80"
+        ></span>
         <slot />
     </component>
 </template>

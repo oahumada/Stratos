@@ -52,7 +52,9 @@ const modules = computed(() => [
     },
     {
         title: t('landings.core.modules.competency_dictionary.title'),
-        description: t('landings.core.modules.competency_dictionary.description'),
+        description: t(
+            'landings.core.modules.competency_dictionary.description',
+        ),
         icon: PhClipboardText,
         href: '/competencies',
         iconColor: 'text-pink-300',

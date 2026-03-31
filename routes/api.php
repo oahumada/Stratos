@@ -77,7 +77,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/talent-passes/{id}', [\App\Http\Controllers\Api\TalentPassController::class, 'show']);
     Route::put('/talent-passes/{id}', [\App\Http\Controllers\Api\TalentPassController::class, 'update']);
     Route::delete('/talent-passes/{id}', [\App\Http\Controllers\Api\TalentPassController::class, 'destroy']);
-    
+
     // Advanced Operations
     Route::post('/talent-passes/{id}/publish', [\App\Http\Controllers\Api\TalentPassController::class, 'publish']);
     Route::post('/talent-passes/{id}/archive', [\App\Http\Controllers\Api\TalentPassController::class, 'archive']);
@@ -92,7 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/search/experience', [\App\Http\Controllers\Api\TalentSearchController::class, 'findByExperience']);
     Route::get('/search/credential', [\App\Http\Controllers\Api\TalentSearchController::class, 'findByCredential']);
     Route::get('/search/similar', [\App\Http\Controllers\Api\TalentSearchController::class, 'similar']);
-    
+
     // Analytics & Trending
     Route::get('/analytics/trending', [\App\Http\Controllers\Api\TalentSearchController::class, 'getTrending']);
     Route::post('/analytics/gaps', [\App\Http\Controllers\Api\TalentSearchController::class, 'gaps']);
@@ -305,7 +305,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/bulk-acknowledge', [\App\Http\Controllers\Api\AlertController::class, 'bulkAcknowledge'])->name('alerts.bulkAcknowledge');
 
         // Export
-        Route::get('/export/history', [\App\Http\Controllers\Api\AlertController::class, 'exportHistory'])->name('alerts.export');
+        Route::get('/export/history', [\App\Http\Controllers\Api\AlertController::class, 'exportHistory'])
+            ->middleware('normalize.csv')
+            ->name('alerts.export');
     });
 
     // Gamification (Fase 6 / D4)
@@ -434,8 +436,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/strategic-planning/scenarios/generate/{id}/progress', [\App\Http\Controllers\Api\GenerationChunkController::class, 'progress']);
     Route::get('/strategic-planning/scenarios/{id}/versions', [\App\Http\Controllers\Api\ScenarioController::class, 'getVersions']);
 
-    
-
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/scenarios/compare', [\App\Http\Controllers\Api\ScenarioAnalyticsController::class, 'compareScenarios']);
         // Use ID-based endpoints to ensure authentication middleware executes before model resolution
@@ -452,7 +452,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/scenarios/{id}/approval-matrix', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'getApprovalMatrix']);
     Route::post('/scenarios/{id}/activate', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'activate']);
     Route::get('/scenarios/{id}/execution-plan', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'getExecutionPlan']);
-    
+
     // Phase 2.5 - Workflow Enhancements (Notifications & Dashboard)
     Route::post('/approval-requests/{id}/resend-notification', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'resendNotification']);
     Route::post('/approval-requests/{id}/email-preview', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'emailPreview']);
@@ -1344,6 +1344,8 @@ Route::middleware('auth:sanctum')->prefix('strategic-planning')->group(function 
     Route::post('what-if/predict-outcomes', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'predictOutcomes']);
     Route::post('what-if/sensitivity-analysis', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'performSensitivityAnalysis']);
     Route::post('what-if/comprehensive', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'comprehensiveAnalysis']);
+
+    // (Removed duplicated backwards-compatible aliases to avoid double-prefixing)
 
     // Executive Summary - Phase 3.3: Executive dashboards & decision support
     Route::get('scenarios/{scenarioId}/executive-summary', [\App\Http\Controllers\Api\ExecutiveSummaryController::class, '__invoke']);

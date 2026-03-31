@@ -312,7 +312,9 @@
 
         <!-- Audit Trail Grid -->
         <div class="mb-2">
-            <h2 class="text-xl font-bold text-slate-300 mb-4">Seguimiento y Auditoría</h2>
+            <h2 class="mb-4 text-xl font-bold text-slate-300">
+                Seguimiento y Auditoría
+            </h2>
         </div>
         <div class="mb-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
             <!-- Option 4: Audit Trail -->
@@ -340,8 +342,9 @@
                         Registro de Cambios
                     </h2>
                     <p class="mb-6 text-sm leading-relaxed text-slate-300">
-                        Visualiza el historial completo de cambios en configuración,
-                        umbrales y políticas. Auditoría con timestamps y usuarios.
+                        Visualiza el historial completo de cambios en
+                        configuración, umbrales y políticas. Auditoría con
+                        timestamps y usuarios.
                     </p>
 
                     <div class="mb-4 space-y-2">
@@ -407,8 +410,9 @@
                         Exportar Auditoría
                     </h2>
                     <p class="mb-6 text-sm leading-relaxed text-slate-300">
-                        Descarga reportes de cambios en formato CSV. Genera informes personalizados
-                        por período, tipo de acción y usuarios involucrados.
+                        Descarga reportes de cambios en formato CSV. Genera
+                        informes personalizados por período, tipo de acción y
+                        usuarios involucrados.
                     </p>
 
                     <div class="mb-4 space-y-2">
@@ -474,8 +478,9 @@
                         Análisis de Actividad
                     </h2>
                     <p class="mb-6 text-sm leading-relaxed text-slate-300">
-                        Visualiza patrones de actividad horaria y tendencias diarias.
-                        Identifica picos de cambios y períodos críticos de uso del sistema.
+                        Visualiza patrones de actividad horaria y tendencias
+                        diarias. Identifica picos de cambios y períodos críticos
+                        de uso del sistema.
                     </p>
 
                     <div class="mb-4 space-y-2">
@@ -567,19 +572,13 @@
                 />
 
                 <!-- Audit Trail Tab -->
-                <AuditTrail
-                    v-show="activeTab === 'auditTrail'"
-                />
+                <AuditTrail v-show="activeTab === 'auditTrail'" />
 
                 <!-- Audit Export Tab -->
-                <AuditExport
-                    v-show="activeTab === 'auditExport'"
-                />
+                <AuditExport v-show="activeTab === 'auditExport'" />
 
                 <!-- Audit Heatmap Tab -->
-                <AuditHeatmap
-                    v-show="activeTab === 'auditHeatmap'"
-                />
+                <AuditHeatmap v-show="activeTab === 'auditHeatmap'" />
             </div>
         </div>
 
@@ -589,8 +588,8 @@
                 <div>
                     <h4 class="mb-2 font-semibold text-white">Documentación</h4>
                     <p class="text-sm text-slate-400">
-                        Consulta la guía completa de alertas, auditoría y escalación en la
-                        documentación del proyecto.
+                        Consulta la guía completa de alertas, auditoría y
+                        escalación en la documentación del proyecto.
                     </p>
                 </div>
                 <div>
@@ -605,7 +604,8 @@
                         Últimas Actualizaciones
                     </h4>
                     <p class="text-sm text-slate-400">
-                        Centro de Control v1.3 - Audit Trail integrado (Mar 27, 2026)
+                        Centro de Control v1.3 - Audit Trail integrado (Mar 27,
+                        2026)
                     </p>
                 </div>
             </div>
@@ -629,15 +629,20 @@ import {
 } from '@phosphor-icons/vue';
 import { reactive, ref } from 'vue';
 
+import AlertHistoryTable from '@/components/Admin/AlertHistoryTable.vue';
+import AlertThresholdForm from '@/components/Admin/AlertThresholdForm.vue';
 import AuditExport from '@/components/Admin/AuditExport.vue';
 import AuditHeatmap from '@/components/Admin/AuditHeatmap.vue';
 import AuditTrail from '@/components/Admin/AuditTrail.vue';
-import AlertHistoryTable from '@/components/Admin/AlertHistoryTable.vue';
-import AlertThresholdForm from '@/components/Admin/AlertThresholdForm.vue';
 import EscalationPolicyMatrix from '@/components/Admin/EscalationPolicyMatrix.vue';
 
 const activeTab = ref<
-    'configuration' | 'history' | 'escalation' | 'auditTrail' | 'auditExport' | 'auditHeatmap'
+    | 'configuration'
+    | 'history'
+    | 'escalation'
+    | 'auditTrail'
+    | 'auditExport'
+    | 'auditHeatmap'
 >('configuration');
 
 const stats = reactive({

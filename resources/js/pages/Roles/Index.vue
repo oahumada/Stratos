@@ -1,19 +1,23 @@
 <script setup lang="ts">
-import { Config, FilterConfig, ItemForm, TableConfig } from '@/types/form-schema';
-import { onMounted, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
 import {
+    Config,
+    FilterConfig,
+    ItemForm,
+    TableConfig,
+} from '@/types/form-schema';
+import {
+    PhCopy,
+    PhCube,
+    PhEye,
     PhLightning,
+    PhLink,
     PhPaperPlaneTilt,
     PhPencil,
     PhSealCheck,
-    PhLink,
-    PhCopy,
     PhShare,
-    PhCube,
-    PhEye,
 } from '@phosphor-icons/vue';
-
+import { onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import RoleCubeWizard from '@/components/Roles/RoleCubeWizard.vue';
 import RolePerformanceSheet from '@/components/Roles/RolePerformanceSheet.vue';
@@ -59,7 +63,6 @@ onMounted(async () => {
 const selectedSkill = ref<any>(null);
 const showSkillDetail = ref(false);
 
-
 const openWizardForRole = (id: number, data?: any) => {
     selectedRoleId.value = id;
     selectedRoleData.value = data || null;
@@ -87,16 +90,16 @@ const openApprovalSelector = async (role: any) => {
     roleToApprove.value = role;
     magicLinkGenerated.value = null;
     showApprovalDialog.value = true;
-    
+
     if (approvers.value.length === 0) {
         try {
             const res = await axios.get('/api/catalogs', {
-                params: { catalogs: ['people'] }
+                params: { catalogs: ['people'] },
             });
             approvers.value = (res.data.people || []).map((p: any) => ({
                 id: p.id,
                 full_name: p.name,
-                job_title: p.job_title || 'Responsable'
+                job_title: p.job_title || 'Responsable',
             }));
         } catch (err) {
             console.error('Error loading approvers:', err);
@@ -106,13 +109,16 @@ const openApprovalSelector = async (role: any) => {
 
 const submitApprovalRequest = async () => {
     if (!selectedApproverId.value) return;
-    
+
     requestingApproval.value = true;
     try {
-        const response = await axios.post(`/api/roles/${roleToApprove.value.id}/request-approval`, {
-            approver_id: selectedApproverId.value
-        });
-        
+        const response = await axios.post(
+            `/api/roles/${roleToApprove.value.id}/request-approval`,
+            {
+                approver_id: selectedApproverId.value,
+            },
+        );
+
         magicLinkGenerated.value = response.data.magic_link;
     } catch (err) {
         console.error('Error requesting approval:', err);
@@ -197,11 +203,11 @@ const getRoleCompetencies = (item: any) => {
             is_core: comp.pivot?.is_core || false,
             rationale: comp.pivot?.rationale,
         }));
-    } 
+    }
     // 2. Fallback: Extract from skills.competencies
     else if (item?.skills && item.skills.length > 0) {
         const compMap = new Map();
-        
+
         item.skills.forEach((skill: any) => {
             if (skill.competencies && skill.competencies.length > 0) {
                 skill.competencies.forEach((comp: any) => {
@@ -213,7 +219,9 @@ const getRoleCompetencies = (item: any) => {
                             description: comp.description || skill.description,
                             status: comp.status || 'proposed',
                             required_level: skill.pivot?.required_level || 3,
-                            criticity: skill.pivot?.is_critical ? 'high' : 'medium',
+                            criticity: skill.pivot?.is_critical
+                                ? 'high'
+                                : 'medium',
                             is_core: skill.pivot?.is_critical || false,
                             rationale: skill.pivot?.rationale,
                         });
@@ -221,22 +229,28 @@ const getRoleCompetencies = (item: any) => {
                 });
             }
         });
-        
+
         result = Array.from(compMap.values());
     }
     // 3. Fallback: Check AI suggested competencies in config
-    else if (item?.ai_archetype_config?.core_competencies && item.ai_archetype_config.core_competencies.length > 0) {
-        result = item.ai_archetype_config.core_competencies.map((comp: any, index: number) => ({
-            id: `ai-${index}`,
-            name: comp.name,
-            category: 'IA Suggestion',
-            description: comp.rationale || 'Sugerencia generada por el Diseñador IA',
-            status: 'proposed',
-            required_level: comp.level || 3,
-            criticity: 'medium',
-            is_core: true,
-            rationale: comp.rationale,
-        }));
+    else if (
+        item?.ai_archetype_config?.core_competencies &&
+        item.ai_archetype_config.core_competencies.length > 0
+    ) {
+        result = item.ai_archetype_config.core_competencies.map(
+            (comp: any, index: number) => ({
+                id: `ai-${index}`,
+                name: comp.name,
+                category: 'IA Suggestion',
+                description:
+                    comp.rationale || 'Sugerencia generada por el Diseñador IA',
+                status: 'proposed',
+                required_level: comp.level || 3,
+                criticity: 'medium',
+                is_core: true,
+                rationale: comp.rationale,
+            }),
+        );
     }
 
     return result;
@@ -274,12 +288,16 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
             <div class="d-flex gap-2">
                 <!-- Case 1: Pending Design -> Open Wizard -->
                 <v-btn
-                    v-if="!item.ai_archetype_config || item.status === 'draft' || item.status === 'pending_design'"
+                    v-if="
+                        !item.ai_archetype_config ||
+                        item.status === 'draft' ||
+                        item.status === 'pending_design'
+                    "
                     icon
                     size="small"
                     color="indigo-accent-1"
                     variant="tonal"
-                    class="rounded-lg mr-1"
+                    class="mr-1 rounded-lg"
                     @click.stop="openWizardForRole(item.id, item)"
                     v-tooltip="'Completar Diseño'"
                 >
@@ -293,7 +311,7 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                     size="small"
                     color="emerald-accent-1"
                     variant="tonal"
-                    class="rounded-lg mr-1"
+                    class="mr-1 rounded-lg"
                     @click.stop="openConsultation(item)"
                     v-tooltip="'Consultar Perfil'"
                 >
@@ -301,12 +319,18 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                 </v-btn>
 
                 <v-btn
-                    v-if="['pending_review', 'pending_approval', 'review'].includes(item.status)"
+                    v-if="
+                        [
+                            'pending_review',
+                            'pending_approval',
+                            'review',
+                        ].includes(item.status)
+                    "
                     icon
                     size="small"
                     color="indigo-accent-2"
                     variant="tonal"
-                    class="rounded-lg mr-1"
+                    class="mr-1 rounded-lg"
                     @click.stop="openApprovalSelector(item)"
                     v-tooltip="t('role_wizard.send_for_approval')"
                 >
@@ -318,7 +342,7 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                     size="small"
                     color="secondary"
                     variant="tonal"
-                    class="rounded-lg mr-1"
+                    class="mr-1 rounded-lg"
                     @click.stop="openApprovalSelector(item)"
                     v-tooltip="t('role_wizard.resend_for_signature')"
                 >
@@ -326,7 +350,6 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                 </v-btn>
             </div>
         </template>
-
 
         <!-- Table Columns -->
         <template #[`item.status`]="{ item }">
@@ -337,7 +360,12 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
 
         <template #[`item.competencies_count`]="{ item }">
             <div class="d-flex align-center">
-                <v-chip size="small" variant="tonal" color="indigo-accent-1" class="rounded-lg">
+                <v-chip
+                    size="small"
+                    variant="tonal"
+                    color="indigo-accent-1"
+                    class="rounded-lg"
+                >
                     <component :is="PhLightning" :size="14" class="mr-1" />
                     {{ getRoleCompetencies(item).length }}
                 </v-chip>
@@ -365,35 +393,59 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
         <StCardGlass v-if="selectedSkill" class="pa-6" variant="premium">
             <div class="d-flex align-center justify-space-between mb-6">
                 <div class="d-flex align-center">
-                    <v-avatar color="indigo/20" size="48" class="mr-4 shadow-indigo">
-                        <PhStar :size="28" class="text-indigo-accent-1" weight="fill" />
+                    <v-avatar
+                        color="indigo/20"
+                        size="48"
+                        class="shadow-indigo mr-4"
+                    >
+                        <PhStar
+                            :size="28"
+                            class="text-indigo-accent-1"
+                            weight="fill"
+                        />
                     </v-avatar>
                     <div>
-                        <div class="text-h5 font-weight-bold text-white font-premium">
+                        <div
+                            class="text-h5 font-weight-bold font-premium text-white"
+                        >
                             {{ selectedSkill.name }}
                         </div>
-                        <div class="text-caption text-indigo-accent-1 uppercase tracking-widest font-weight-black">
-                            {{ selectedSkill.category || 'Competencia Institucional' }}
+                        <div
+                            class="text-caption text-indigo-accent-1 font-weight-black tracking-widest uppercase"
+                        >
+                            {{
+                                selectedSkill.category ||
+                                'Competencia Institucional'
+                            }}
                         </div>
                     </div>
                 </div>
-                <v-btn icon="mdi-close" variant="text" color="white" @click="showSkillDetail = false" />
+                <v-btn
+                    icon="mdi-close"
+                    variant="text"
+                    color="white"
+                    @click="showSkillDetail = false"
+                />
             </div>
 
             <v-divider class="mb-6 opacity-10" />
 
             <div class="mb-6">
-                <div class="text-overline text-indigo-accent-1 mb-2 font-weight-black tracking-widest">
+                <div
+                    class="text-overline text-indigo-accent-1 font-weight-black mb-2 tracking-widest"
+                >
                     DESCRIPCIÓN
                 </div>
-                <div class="text-body-1 text-slate-200 leading-relaxed">
+                <div class="text-body-1 leading-relaxed text-slate-200">
                     {{ selectedSkill.description }}
                 </div>
             </div>
 
-            <div class="d-flex align-center gap-4 mb-6">
+            <div class="d-flex align-center mb-6 gap-4">
                 <div class="grow">
-                    <div class="text-overline text-emerald-accent-1 mb-2 font-weight-black tracking-widest">
+                    <div
+                        class="text-overline text-emerald-accent-1 font-weight-black mb-2 tracking-widest"
+                    >
                         NIVEL REQUERIDO
                     </div>
                     <div class="d-flex align-center">
@@ -405,7 +457,9 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                     </div>
                 </div>
                 <div v-if="selectedSkill.is_critical">
-                    <div class="text-overline text-error mb-2 font-weight-black tracking-widest">
+                    <div
+                        class="text-overline text-error font-weight-black mb-2 tracking-widest"
+                    >
                         PRIORIDAD
                     </div>
                     <StBadgeGlass variant="error" size="md">
@@ -414,8 +468,12 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                 </div>
             </div>
 
-            <div class="mt-8 d-flex justify-end">
-                <StButtonGlass variant="primary" size="md" @click="showSkillDetail = false">
+            <div class="d-flex mt-8 justify-end">
+                <StButtonGlass
+                    variant="primary"
+                    size="md"
+                    @click="showSkillDetail = false"
+                >
                     Entendido
                 </StButtonGlass>
             </div>
@@ -427,18 +485,30 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
         <StCardGlass class="pa-6 border-indigo-500/30" :no-hover="true">
             <div v-if="!magicLinkGenerated">
                 <div class="d-flex align-center mb-6">
-                    <div class="pa-3 rounded-lg bg-indigo-500/10 mr-4">
-                        <component :is="PhShare" :size="24" class="text-indigo-400" />
+                    <div class="pa-3 mr-4 rounded-lg bg-indigo-500/10">
+                        <component
+                            :is="PhShare"
+                            :size="24"
+                            class="text-indigo-400"
+                        />
                     </div>
                     <div>
-                        <h3 class="text-h5 font-weight-bold text-white">Solicitar Aprobación</h3>
-                        <p class="text-caption text-slate-400">Seleccione al responsable de validar el rol</p>
+                        <h3 class="text-h5 font-weight-bold text-white">
+                            Solicitar Aprobación
+                        </h3>
+                        <p class="text-caption text-slate-400">
+                            Seleccione al responsable de validar el rol
+                        </p>
                     </div>
                 </div>
 
-                <p class="text-body-2 text-slate-300 mb-6">
-                    Se generará un <span class="text-indigo-accent-1 font-weight-bold italic">Link Mágico</span> para el responsable. 
-                    Podrá editar los datos estratégicos del rol y realizar la firma digital.
+                <p class="text-body-2 mb-6 text-slate-300">
+                    Se generará un
+                    <span class="text-indigo-accent-1 font-weight-bold italic"
+                        >Link Mágico</span
+                    >
+                    para el responsable. Podrá editar los datos estratégicos del
+                    rol y realizar la firma digital.
                 </p>
 
                 <v-select
@@ -450,15 +520,27 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                     variant="outlined"
                     color="indigo-accent-2"
                     density="comfortable"
-                    class="mb-6 glass-field"
+                    class="glass-field mb-6"
                     placeholder="Seleccione una persona..."
                 >
                     <template #item="{ props, item }">
-                        <v-list-item v-bind="props" :title="item.raw.full_name" :subtitle="item.raw.job_title">
+                        <v-list-item
+                            v-bind="props"
+                            :title="item.raw.full_name"
+                            :subtitle="item.raw.job_title"
+                        >
                             <template #prepend>
-                                <v-avatar size="32" class="mr-2 border border-white/10">
-                                    <v-img v-if="item.raw.avatar_url" :src="item.raw.avatar_url" />
-                                    <span v-else class="text-caption">{{ item.raw.full_name?.[0] }}</span>
+                                <v-avatar
+                                    size="32"
+                                    class="mr-2 border border-white/10"
+                                >
+                                    <v-img
+                                        v-if="item.raw.avatar_url"
+                                        :src="item.raw.avatar_url"
+                                    />
+                                    <span v-else class="text-caption">{{
+                                        item.raw.full_name?.[0]
+                                    }}</span>
                                 </v-avatar>
                             </template>
                         </v-list-item>
@@ -466,11 +548,14 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                 </v-select>
 
                 <div class="d-flex justify-end gap-3 pt-2">
-                    <StButtonGlass variant="ghost" @click="showApprovalDialog = false">
+                    <StButtonGlass
+                        variant="ghost"
+                        @click="showApprovalDialog = false"
+                    >
                         Cancelar
                     </StButtonGlass>
-                    <StButtonGlass 
-                        variant="primary" 
+                    <StButtonGlass
+                        variant="primary"
                         :loading="requestingApproval"
                         :disabled="!selectedApproverId"
                         @click="submitApprovalRequest"
@@ -480,36 +565,53 @@ const filters: FilterConfig[] = filtersJson as unknown as FilterConfig[];
                 </div>
             </div>
 
-            <div v-else class="text-center py-2">
+            <div v-else class="py-2 text-center">
                 <div class="icon-pulse mx-auto mb-6">
                     <div class="pa-5 rounded-circle bg-indigo-500/20">
-                        <component :is="PhLink" :size="48" class="text-indigo-accent-1" />
+                        <component
+                            :is="PhLink"
+                            :size="48"
+                            class="text-indigo-accent-1"
+                        />
                     </div>
                 </div>
-                
-                <h3 class="text-h5 font-weight-black text-white mb-2 font-premium">¡Solicitud Generada!</h3>
-                <p class="text-slate-400 mb-8 max-w-xs mx-auto">
-                    La solicitud de firma está lista. Copia el enlace y compártelo con el responsable.
+
+                <h3
+                    class="text-h5 font-weight-black font-premium mb-2 text-white"
+                >
+                    ¡Solicitud Generada!
+                </h3>
+                <p class="mx-auto mb-8 max-w-xs text-slate-400">
+                    La solicitud de firma está lista. Copia el enlace y
+                    compártelo con el responsable.
                 </p>
 
-                <div class="magic-link-box d-flex align-center gap-3 pa-3 bg-black/40 rounded-xl mb-8 border border-white/10 group">
-                    <div class="grow truncate text-caption text-indigo-300 font-mono text-left pl-2">
+                <div
+                    class="magic-link-box d-flex align-center pa-3 group mb-8 gap-3 rounded-xl border border-white/10 bg-black/40"
+                >
+                    <div
+                        class="text-caption grow truncate pl-2 text-left font-mono text-indigo-300"
+                    >
                         {{ magicLinkGenerated }}
                     </div>
-                    <v-btn 
+                    <v-btn
                         v-tooltip="'Copiar enlace'"
-                        icon 
-                        size="small" 
-                        variant="tonal" 
+                        icon
+                        size="small"
+                        variant="tonal"
                         color="indigo-accent-1"
-                        class="rounded-lg shadow-lg hover:scale-110 transition-transform"
+                        class="rounded-lg shadow-lg transition-transform hover:scale-110"
                         @click="copyMagicLink"
                     >
                         <component :is="PhCopy" :size="16" />
                     </v-btn>
                 </div>
 
-                <StButtonGlass variant="primary" class="w-full shadow-lg" @click="showApprovalDialog = false">
+                <StButtonGlass
+                    variant="primary"
+                    class="w-full shadow-lg"
+                    @click="showApprovalDialog = false"
+                >
                     Cerrar y Continuar
                 </StButtonGlass>
             </div>

@@ -115,23 +115,26 @@ class IntelligenceMetricsAggregator
      */
     public function storeAggregates(array $aggregates): void
     {
-        foreach ($aggregates as $aggregate) {
-            try {
-                IntelligenceMetricAggregate::updateOrCreate(
-                    [
-                        'organization_id' => $aggregate['organization_id'],
-                        'metric_type' => $aggregate['metric_type'],
-                        'source_type' => $aggregate['source_type'],
-                        'date_key' => $aggregate['date_key'],
-                    ],
-                    $aggregate
-                );
-            } catch (\Exception $e) {
-                Log::error('Failed to store metric aggregate', [
-                    'error' => $e->getMessage(),
-                    'aggregate' => $aggregate,
-                ]);
-            }
+        if (empty($aggregates)) {
+            return;
+        }
+
+        // Use bulk upsert to avoid unique constraint violations from concurrent inserts
+        try {
+            IntelligenceMetricAggregate::upsert(
+                $aggregates,
+                ['organization_id', 'metric_type', 'source_type', 'date_key'],
+                [
+                    'total_count', 'success_count', 'success_rate',
+                    'avg_duration_ms', 'p50_duration_ms', 'p95_duration_ms', 'p99_duration_ms',
+                    'avg_confidence', 'avg_context_count', 'metadata', 'updated_at', 'created_at',
+                ]
+            );
+        } catch (\Exception $e) {
+            Log::error('Failed to upsert metric aggregates', [
+                'error' => $e->getMessage(),
+                'aggregates_count' => count($aggregates),
+            ]);
         }
     }
 

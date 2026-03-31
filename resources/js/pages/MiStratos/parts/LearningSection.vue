@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { 
-    PhGraduationCap, 
-    PhRoadHorizon, 
-    PhCalendar, 
-    PhCheckCircle,
-    PhArrowRight,
-    PhBooks
-} from '@phosphor-icons/vue';
-import StCardGlass from '@/components/StCardGlass.vue';
 import StButtonGlass from '@/components/StButtonGlass.vue';
+import StCardGlass from '@/components/StCardGlass.vue';
+import {
+    PhArrowRight,
+    PhBooks,
+    PhCalendar,
+    PhCheckCircle,
+    PhGraduationCap,
+    PhRoadHorizon,
+} from '@phosphor-icons/vue';
 
 interface Props {
     learningPaths: Array<any>;
@@ -19,11 +19,14 @@ defineProps<Props>();
 
 const getStatusColor = (status: string) => {
     const statuses: Record<string, string> = {
-        'completada': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        completada: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
         'en progreso': 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
-        'pendiente': 'bg-white/5 text-white/40 border-white/10',
+        pendiente: 'bg-white/5 text-white/40 border-white/10',
     };
-    return statuses[status.toLowerCase()] || 'bg-white/5 text-white/40 border-white/10';
+    return (
+        statuses[status.toLowerCase()] ||
+        'bg-white/5 text-white/40 border-white/10'
+    );
 };
 
 const getProgressColor = (progress: number) => {
@@ -34,57 +37,88 @@ const getProgressColor = (progress: number) => {
 </script>
 
 <template>
-    <div class="animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <h2 class="text-2xl font-black text-white mb-6 flex items-center gap-3">
-            <PhGraduationCap :size="28" weight="duotone" class="text-indigo-400" />
+    <div class="animate-in duration-700 fade-in slide-in-from-bottom-4">
+        <h2 class="mb-6 flex items-center gap-3 text-2xl font-black text-white">
+            <PhGraduationCap
+                :size="28"
+                weight="duotone"
+                class="text-indigo-400"
+            />
             Mi Ruta de Aprendizaje
         </h2>
 
-        <div v-if="learningPaths.length === 0" class="py-20 flex flex-col items-center justify-center bg-white/5 rounded-3xl border border-white/5 border-dashed">
-            <PhBooks :size="64" weight="thin" class="text-white/20 mb-6" />
-            <h3 class="text-xl font-bold text-white/60 mb-2">No tienes rutas asignadas</h3>
-            <p class="text-sm text-white/40">Tus planes de desarrollo aparecerán aquí.</p>
+        <div
+            v-if="learningPaths.length === 0"
+            class="flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/5 bg-white/5 py-20"
+        >
+            <PhBooks :size="64" weight="thin" class="mb-6 text-white/20" />
+            <h3 class="mb-2 text-xl font-bold text-white/60">
+                No tienes rutas asignadas
+            </h3>
+            <p class="text-sm text-white/40">
+                Tus planes de desarrollo aparecerán aquí.
+            </p>
         </div>
 
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <StCardGlass 
-                v-for="path in learningPaths" 
+        <div v-else class="grid grid-cols-1 gap-8 md:grid-cols-2">
+            <StCardGlass
+                v-for="path in learningPaths"
                 :key="path.id"
                 indicator="indigo"
-                class="relative overflow-hidden group p-12!"
+                class="group relative overflow-hidden p-12!"
             >
                 <!-- Decorative background gradient -->
-                <div class="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-indigo-500/5 to-transparent pointer-events-none" />
-                
+                <div
+                    class="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-indigo-500/5 to-transparent"
+                />
+
                 <div class="relative">
-                    <div class="flex items-start justify-between mb-8">
+                    <div class="mb-8 flex items-start justify-between">
                         <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20">
+                            <div
+                                class="flex h-14 w-14 items-center justify-center rounded-2xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-400"
+                            >
                                 <PhRoadHorizon :size="28" weight="duotone" />
                             </div>
                             <div>
-                                <h4 class="text-xl font-black text-white leading-tight group-hover:text-indigo-300 transition-colors">
+                                <h4
+                                    class="text-xl leading-tight font-black text-white transition-colors group-hover:text-indigo-300"
+                                >
                                     {{ path.title }}
                                 </h4>
-                                <div class="flex items-center gap-2 mt-1 text-white/40 font-bold uppercase tracking-widest text-[10px]">
+                                <div
+                                    class="mt-1 flex items-center gap-2 text-[10px] font-bold tracking-widest text-white/40 uppercase"
+                                >
                                     <PhCalendar :size="12" />
                                     {{ formatDate(path.created_at) }}
                                 </div>
                             </div>
                         </div>
-                        <div :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border', getStatusColor(path.status)]">
+                        <div
+                            :class="[
+                                'rounded-full border px-3 py-1 text-[10px] font-black tracking-wider uppercase',
+                                getStatusColor(path.status),
+                            ]"
+                        >
                             {{ path.status }}
                         </div>
                     </div>
 
                     <div class="space-y-6">
                         <div>
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-xs font-bold text-white/60 uppercase tracking-widest">Progreso Global</span>
-                                <span class="text-lg font-black text-white">{{ path.progress }}%</span>
+                            <div class="mb-2 flex items-center justify-between">
+                                <span
+                                    class="text-xs font-bold tracking-widest text-white/60 uppercase"
+                                    >Progreso Global</span
+                                >
+                                <span class="text-lg font-black text-white"
+                                    >{{ path.progress }}%</span
+                                >
                             </div>
-                            <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                                <div 
+                            <div
+                                class="h-2 w-full overflow-hidden rounded-full bg-white/5"
+                            >
+                                <div
                                     class="h-full transition-all duration-1000 ease-out"
                                     :class="getProgressColor(path.progress)"
                                     :style="{ width: `${path.progress}%` }"
@@ -92,11 +126,19 @@ const getProgressColor = (progress: number) => {
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between pt-4 border-t border-white/5">
+                        <div
+                            class="flex items-center justify-between border-t border-white/5 pt-4"
+                        >
                             <div class="flex items-center gap-2 text-white/40">
-                                <PhCheckCircle :size="18" class="text-emerald-400" />
+                                <PhCheckCircle
+                                    :size="18"
+                                    class="text-emerald-400"
+                                />
                                 <span class="text-xs font-medium">
-                                    <strong class="text-white">{{ path.completed_actions }}</strong> / {{ path.total_actions }} hitos
+                                    <strong class="text-white">{{
+                                        path.completed_actions
+                                    }}</strong>
+                                    / {{ path.total_actions }} hitos
                                 </span>
                             </div>
                             <StButtonGlass variant="secondary" size="sm">

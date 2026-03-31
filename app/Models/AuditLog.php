@@ -104,16 +104,17 @@ class AuditLog extends Model
      */
     public function getChangeSummary(): string
     {
-        if (! $this->changes) {
+        $changes = $this->getAttribute('changes');
+
+        if (! $changes) {
             return 'No changes recorded';
         }
 
         $parts = [];
-        foreach ($this->changes as $field => $values) {
+        foreach ($changes as $field => $values) {
             $parts[] = "{$field}: {$values[0]} → {$values[1]}";
         }
 
         return implode(', ', $parts);
     }
 }
-

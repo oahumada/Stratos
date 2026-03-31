@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import GamificationDashboard from '@/components/Lms/GamificationDashboard.vue';
+import SuccessionNode from '@/components/Organization/OrgChart/SuccessionNode.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import axios from 'axios';
-import { onMounted, ref, watch, nextTick } from 'vue';
-import { VueFlow, useVueFlow } from '@vue-flow/core';
 import { Background } from '@vue-flow/background';
+import { VueFlow, useVueFlow } from '@vue-flow/core';
+import axios from 'axios';
 import dagre from 'dagre';
-import SuccessionNode from '@/components/Organization/OrgChart/SuccessionNode.vue';
+import { nextTick, onMounted, ref, watch } from 'vue';
 
 // Vue Flow Styles
 import '@vue-flow/core/dist/style.css';
@@ -109,7 +109,7 @@ interface DeptImpact {
 const loading = ref(false);
 const flowElements = ref<any[]>([]);
 const nodeTypes = {
-    succession: SuccessionNode
+    succession: SuccessionNode,
 };
 
 const { fitView } = useVueFlow();
@@ -205,21 +205,21 @@ const updateFlowDiagram = (chain: any) => {
         nodes.push({
             id: n.id,
             type: 'succession',
-            data: { 
-                label: n.label, 
-                type: n.type, 
-                fit: n.fit 
+            data: {
+                label: n.label,
+                type: n.type,
+                fit: n.fit,
             },
-            position: { x: 0, y: 0 }
+            position: { x: 0, y: 0 },
         });
 
         if (idx > 0) {
             edges.push({
-                id: `e-${chain.nodes[idx-1].id}-${n.id}`,
-                source: chain.nodes[idx-1].id,
+                id: `e-${chain.nodes[idx - 1].id}-${n.id}`,
+                source: chain.nodes[idx - 1].id,
                 target: n.id,
                 animated: true,
-                style: { stroke: '#6366f1', strokeWidth: 2 }
+                style: { stroke: '#6366f1', strokeWidth: 2 },
             });
         }
     });
@@ -229,18 +229,18 @@ const updateFlowDiagram = (chain: any) => {
     dagreGraph.setDefaultEdgeLabel(() => ({}));
     dagreGraph.setGraph({ rankdir: 'LR', nodesep: 50, ranksep: 100 });
 
-    nodes.forEach(n => dagreGraph.setNode(n.id, { width: 200, height: 80 }));
-    edges.forEach(e => dagreGraph.setEdge(e.source, e.target));
-    
+    nodes.forEach((n) => dagreGraph.setNode(n.id, { width: 200, height: 80 }));
+    edges.forEach((e) => dagreGraph.setEdge(e.source, e.target));
+
     dagre.layout(dagreGraph);
 
-    nodes.forEach(n => {
+    nodes.forEach((n) => {
         const dNode = dagreGraph.node(n.id);
         n.position = { x: dNode.x, y: dNode.y };
     });
 
     flowElements.value = [...nodes, ...edges];
-    
+
     nextTick(() => {
         setTimeout(() => fitView(), 100);
     });
@@ -261,7 +261,9 @@ const loadExecutionDetail = async (id: number) => {
     loadingDetail.value = true;
     showTrackingDialog.value = true;
     try {
-        const res = await axios.get(`/api/strategic-planning/mobility/execution/${id}`);
+        const res = await axios.get(
+            `/api/strategic-planning/mobility/execution/${id}`,
+        );
         trackingDetail.value = res.data;
     } catch (e) {
         console.error('Error loading tracking detail', e);
@@ -272,7 +274,9 @@ const loadExecutionDetail = async (id: number) => {
 
 const launchLms = async (actionId: number) => {
     try {
-        const res = await axios.post(`/api/strategic-planning/mobility/execution/launch/${actionId}`);
+        const res = await axios.post(
+            `/api/strategic-planning/mobility/execution/launch/${actionId}`,
+        );
         if (res.data.success && res.data.launch_url) {
             window.open(res.data.launch_url, '_blank');
             // Refresh detail to see status change
@@ -285,7 +289,9 @@ const launchLms = async (actionId: number) => {
 
 const syncLmsProgress = async (actionId: number) => {
     try {
-        const res = await axios.post(`/api/strategic-planning/mobility/execution/sync/${actionId}`);
+        const res = await axios.post(
+            `/api/strategic-planning/mobility/execution/sync/${actionId}`,
+        );
         if (res.data.success) {
             loadExecutionDetail(selectedTrackingId.value!);
         }
@@ -1079,10 +1085,10 @@ onMounted(() => {
                                                     md="4"
                                                 >
                                                     <div
-                                                        class="pa-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover-scale"
+                                                        class="pa-4 hover-scale rounded-xl border border-emerald-500/20 bg-emerald-500/5"
                                                     >
                                                         <div
-                                                            class="text-subtitle-2 font-weight-black text-white truncate-2-lines mb-2"
+                                                            class="text-subtitle-2 font-weight-black truncate-2-lines mb-2 text-white"
                                                             style="height: 48px"
                                                         >
                                                             {{ course.title }}
@@ -1092,7 +1098,7 @@ onMounted(() => {
                                                         >
                                                             <div>
                                                                 <div
-                                                                    class="text-tiny text-emerald-300 uppercase font-weight-bold"
+                                                                    class="text-tiny font-weight-bold text-emerald-300 uppercase"
                                                                 >
                                                                     {{
                                                                         course.provider
@@ -1139,21 +1145,38 @@ onMounted(() => {
                                     <v-col cols="12">
                                         <v-card
                                             class="glass-card pa-0 border-blue-glow overflow-hidden"
-                                            style="height: 400px;"
+                                            style="height: 400px"
                                         >
-                                            <div class="pa-4 border-b border-white/5 d-flex align-center">
-                                                <v-icon color="blue-lighten-2" class="mr-3">mdi-graph-outline</v-icon>
-                                                <h3 class="text-h6 font-weight-bold">Mapa de Sucesión en Cascada</h3>
+                                            <div
+                                                class="pa-4 d-flex align-center border-b border-white/5"
+                                            >
+                                                <v-icon
+                                                    color="blue-lighten-2"
+                                                    class="mr-3"
+                                                    >mdi-graph-outline</v-icon
+                                                >
+                                                <h3
+                                                    class="text-h6 font-weight-bold"
+                                                >
+                                                    Mapa de Sucesión en Cascada
+                                                </h3>
                                             </div>
-                                            
-                                            <div class="relative h-[330px] w-full bg-slate-950/30">
+
+                                            <div
+                                                class="relative h-[330px] w-full bg-slate-950/30"
+                                            >
                                                 <VueFlow
                                                     v-model="flowElements"
                                                     :node-types="nodeTypes"
                                                     fit-view-on-init
-                                                    :default-viewport="{ zoom: 0.8 }"
+                                                    :default-viewport="{
+                                                        zoom: 0.8,
+                                                    }"
                                                 >
-                                                    <Background pattern-color="rgba(255,255,255,0.05)" :gap="20" />
+                                                    <Background
+                                                        pattern-color="rgba(255,255,255,0.05)"
+                                                        :gap="20"
+                                                    />
                                                 </VueFlow>
                                             </div>
                                         </v-card>
@@ -1604,7 +1627,9 @@ onMounted(() => {
                                             color="primary"
                                             prepend-icon="mdi-eye-outline"
                                             class="font-weight-bold rounded-lg"
-                                            @click="loadExecutionDetail(track.id)"
+                                            @click="
+                                                loadExecutionDetail(track.id)
+                                            "
                                         >
                                             Ver Detalles
                                         </v-btn>
@@ -1752,79 +1777,171 @@ onMounted(() => {
         <v-dialog v-model="showTrackingDialog" max-width="900px">
             <v-card class="glass-card pa-6 overflow-hidden">
                 <div v-if="loadingDetail" class="pa-12 text-center">
-                    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+                    <v-progress-circular
+                        indeterminate
+                        color="primary"
+                        size="64"
+                    ></v-progress-circular>
                 </div>
                 <div v-else-if="trackingDetail" class="animate-fade-in">
                     <div class="d-flex justify-space-between align-center mb-6">
                         <div>
-                            <h2 class="text-h5 font-weight-black text-white">Detalle de Ejecución</h2>
-                            <p class="text-caption text-slate-400">{{ trackingDetail.changeset.title }}</p>
+                            <h2 class="text-h5 font-weight-black text-white">
+                                Detalle de Ejecución
+                            </h2>
+                            <p class="text-caption text-slate-400">
+                                {{ trackingDetail.changeset.title }}
+                            </p>
                         </div>
-                        <v-btn icon="mdi-close" variant="text" @click="showTrackingDialog = false"></v-btn>
+                        <v-btn
+                            icon="mdi-close"
+                            variant="text"
+                            @click="showTrackingDialog = false"
+                        ></v-btn>
                     </div>
 
                     <v-row class="mb-6">
-                        <v-col cols="12" md="4" v-for="path in trackingDetail.development_paths" :key="path.id">
-                            <v-card class="bg-slate-900 border border-slate-700 pa-4 rounded-xl">
+                        <v-col
+                            cols="12"
+                            md="4"
+                            v-for="path in trackingDetail.development_paths"
+                            :key="path.id"
+                        >
+                            <v-card
+                                class="pa-4 rounded-xl border border-slate-700 bg-slate-900"
+                            >
                                 <div class="d-flex align-center mb-4">
-                                    <v-avatar color="primary" size="40" class="mr-3">
-                                        <span class="text-subtitle-2 font-weight-black">{{ path.people?.first_name?.[0] }}{{ path.people?.last_name?.[0] }}</span>
+                                    <v-avatar
+                                        color="primary"
+                                        size="40"
+                                        class="mr-3"
+                                    >
+                                        <span
+                                            class="text-subtitle-2 font-weight-black"
+                                            >{{ path.people?.first_name?.[0]
+                                            }}{{
+                                                path.people?.last_name?.[0]
+                                            }}</span
+                                        >
                                     </v-avatar>
                                     <div>
-                                        <div class="text-body-1 font-weight-bold text-white">{{ path.people?.full_name }}</div>
-                                        <div class="text-caption text-slate-500">{{ path.action_title }}</div>
+                                        <div
+                                            class="text-body-1 font-weight-bold text-white"
+                                        >
+                                            {{ path.people?.full_name }}
+                                        </div>
+                                        <div
+                                            class="text-caption text-slate-500"
+                                        >
+                                            {{ path.action_title }}
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="mb-4">
-                                    <div class="d-flex justify-space-between text-caption mb-1">
+                                    <div
+                                        class="d-flex justify-space-between text-caption mb-1"
+                                    >
                                         <span>Progreso Plan</span>
-                                        <span class="font-weight-bold">{{ 
-                                            path.actions.length > 0 
-                                            ? Math.round((path.actions.filter(a => a.status === 'completed').length / path.actions.length) * 100) 
-                                            : 0 
-                                        }}%</span>
+                                        <span class="font-weight-bold"
+                                            >{{
+                                                path.actions.length > 0
+                                                    ? Math.round(
+                                                          (path.actions.filter(
+                                                              (a) =>
+                                                                  a.status ===
+                                                                  'completed',
+                                                          ).length /
+                                                              path.actions
+                                                                  .length) *
+                                                              100,
+                                                      )
+                                                    : 0
+                                            }}%</span
+                                        >
                                     </div>
-                                    <v-progress-linear 
-                                        :model-value="(path.actions.filter(a => a.status === 'completed').length / path.actions.length) * 100" 
-                                        color="primary" 
-                                        height="8" 
+                                    <v-progress-linear
+                                        :model-value="
+                                            (path.actions.filter(
+                                                (a) => a.status === 'completed',
+                                            ).length /
+                                                path.actions.length) *
+                                            100
+                                        "
+                                        color="primary"
+                                        height="8"
                                         rounded
                                     ></v-progress-linear>
                                 </div>
 
-                                <div class="text-overline mb-2 text-slate-500">Acciones / Cursos LMS</div>
-                                <div class="actions-list" style="max-height: 250px; overflow-y: auto;">
-                                    <div v-for="action in path.actions" :key="action.id" class="mb-2 pa-2 rounded-lg bg-slate-800 border border-slate-700">
-                                        <div class="d-flex justify-space-between align-center">
-                                            <div class="text-caption font-weight-bold text-white text-truncate mr-2" style="max-width: 150px;">
+                                <div class="text-overline mb-2 text-slate-500">
+                                    Acciones / Cursos LMS
+                                </div>
+                                <div
+                                    class="actions-list"
+                                    style="max-height: 250px; overflow-y: auto"
+                                >
+                                    <div
+                                        v-for="action in path.actions"
+                                        :key="action.id"
+                                        class="pa-2 mb-2 rounded-lg border border-slate-700 bg-slate-800"
+                                    >
+                                        <div
+                                            class="d-flex justify-space-between align-center"
+                                        >
+                                            <div
+                                                class="text-caption font-weight-bold text-truncate mr-2 text-white"
+                                                style="max-width: 150px"
+                                            >
                                                 {{ action.title }}
                                             </div>
-                                            <v-chip size="x-small" :color="action.status === 'completed' ? 'success' : (action.status === 'in_progress' ? 'amber' : 'slate-400')">
+                                            <v-chip
+                                                size="x-small"
+                                                :color="
+                                                    action.status ===
+                                                    'completed'
+                                                        ? 'success'
+                                                        : action.status ===
+                                                            'in_progress'
+                                                          ? 'amber'
+                                                          : 'slate-400'
+                                                "
+                                            >
                                                 {{ action.status }}
                                             </v-chip>
                                         </div>
-                                        <div class="d-flex mt-2" v-if="action.type === 'lms_course'">
-                                            <v-btn 
-                                                v-if="action.status !== 'completed'"
-                                                size="x-small" 
-                                                color="primary" 
-                                                variant="flat" 
-                                                block 
+                                        <div
+                                            class="d-flex mt-2"
+                                            v-if="action.type === 'lms_course'"
+                                        >
+                                            <v-btn
+                                                v-if="
+                                                    action.status !==
+                                                    'completed'
+                                                "
+                                                size="x-small"
+                                                color="primary"
+                                                variant="flat"
+                                                block
                                                 prepend-icon="mdi-play"
                                                 @click="launchLms(action.id)"
                                             >
                                                 Lanzar Curso
                                             </v-btn>
-                                            <v-btn 
-                                                v-if="action.status === 'in_progress'"
-                                                size="x-small" 
-                                                color="success" 
-                                                variant="tonal" 
-                                                block 
+                                            <v-btn
+                                                v-if="
+                                                    action.status ===
+                                                    'in_progress'
+                                                "
+                                                size="x-small"
+                                                color="success"
+                                                variant="tonal"
+                                                block
                                                 class="mt-1"
                                                 prepend-icon="mdi-refresh"
-                                                @click="syncLmsProgress(action.id)"
+                                                @click="
+                                                    syncLmsProgress(action.id)
+                                                "
                                             >
                                                 Sincronizar
                                             </v-btn>

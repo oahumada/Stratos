@@ -12,8 +12,15 @@ abstract class TestCase extends BaseTestCase
      */
     public function createApplication(): \Illuminate\Foundation\Application
     {
-        $app = require __DIR__ . '/../bootstrap/app.php';
+        $app = require __DIR__.'/../bootstrap/app.php';
         $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
+        // For tests, avoid Symfony appending a charset to Content-Type for CSV responses
+        try {
+            \Symfony\Component\HttpFoundation\Response::setDefaultCharset('');
+        } catch (\Throwable $e) {
+            // ignore if not available
+        }
 
         return $app;
     }
@@ -69,7 +76,9 @@ abstract class TestCase extends BaseTestCase
             }
 
             try {
-                app('auth')->userResolver(function () { return null; });
+                app('auth')->userResolver(function () {
+                    return null;
+                });
                 if (method_exists(app('auth'), 'setUser')) {
                     app('auth')->setUser(null);
                 }

@@ -11,6 +11,43 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
     - **Reason:** Many failing tests caused NULL `organization_id` on created users and missing `assignRole()` method in tests that expect role assignment. This is a minimal, test-friendly fix to unblock triage.
     - **Next:** Re-run failing scenario/authorization tests; if further RBAC complexity needed, consider richer stubs or integrating permission package.
 
+    ### Release Sync (2026-03-30)
+    - **Change:** Resolved merge conflicts produced when generating a local release with `standard-version` and the remote `main` branch had advanced.
+        - Files involved: `CHANGELOG.md`, `package.json`, `package-lock.json`.
+        - Action taken: merged changelog entries, kept remote `version` (0.5.0) in `package.json` and `package-lock.json`, and removed stray tag `v0.4.1` from remote.
+        - Git actions performed: aborted interrupted rebase, committed conflict-resolution (no content changes beyond conflict markers resolution), deleted remote tag `v0.4.1`, pushed `main` (no-op when already up-to-date).
+        - Reason: local `standard-version` run produced a `v0.4.1` tag and changelog updates while remote already bumped to `0.5.0`; reconciling to `0.5.0` preserves remote continuity and avoids confusing duplicate/tag regressions.
+        - Outcome: `package.json` shows `version: 0.5.0`; `CHANGELOG.md` merged both 0.5.0 and 0.4.1 entries coherently; remote no longer contains `v0.4.1` tag.
+        - Next: create GitHub Release for `v0.5.0` when ready; optionally keep an archival tag for `v0.4.1-alpha.0` (already present remotely). - Follow-up: update `openmemory.md` with this note (done) and store a memory entry in the memory system (manual entry added here as part of Phase 3 since automated memory service is not available in this environment).
+
+### Memory (2026-03-31) - Release v0.5.0
+
+- **Title:** [Release] - v0.5.0
+- **Type:** project_info
+- **What:** Created GitHub Release `v0.5.0` for repository `oahumada/Stratos` and published changelog notes for this version.
+- **Why:** Reconcile local and remote versioning, publish formal release notes, and mark the stabilized Scenario + CI fixes as released.
+- **Actions performed:**
+    - Verified repository and tag state locally (tag `v0.5.0` present remotely).
+    - Extracted `CHANGELOG.md` section for `0.5.0` and created the GitHub Release using the GitHub CLI (`gh release create v0.5.0`), attaching the version section as release notes.
+    - Committed and pushed two related changes prior to release:
+        - `ci(release): fallback detection for conventional commits in auto-release workflow` (improves auto-release script reliability).
+        - `fix(scenario-generation): auto-accept import when generation completes (support headless flows/tests)` (stabilizes headless/E2E flow).
+    - Confirmed the release URL: https://github.com/oahumada/Stratos/releases/tag/v0.5.0
+
+- **Git metadata:**
+    - **repo:** oahumada/Stratos
+    - **branch:** main
+    - **commit (HEAD):** 74e7cb4560943dcf19264fb300a5083b8ca2b8c3
+    - **recent commits (most recent first):**
+        - 74e7cb45 ci(release): fallback detection for conventional commits in auto-release workflow
+        - c3e0cfcf fix(scenario-generation): auto-accept import when generation completes (support headless flows/tests)
+        - 3750b3a2 chore(release): 📦 v0.4.1
+        - ac58f9ba chore(release): 📦 v0.5.0
+
+- **Notes / Next:**
+    - This entry is stored as a project fact (project_id: oahumada/Stratos) in the open memory index. If an external memory service is available later, export this block to that service with the same metadata. Do not store secrets or tokens.
+    - Recommended follow-up: run `vendor/bin/pint --dirty` and `npm run format` on the changed files if not already formatted; optionally run full CI pipeline to verify release artifacts.
+
 ### Quick Note (2026-04-01)
 
 - **Change:** Relax `decision_status` and `execution_status` DB enums to plain strings to avoid check-constraint failures in tests and align defaults with service logic.

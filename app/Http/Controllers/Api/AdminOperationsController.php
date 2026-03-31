@@ -31,7 +31,8 @@ class AdminOperationsController extends Controller
         $organization = $request->user()->people?->organization;
 
         if (! $organization) {
-            return response()->json(['message' => 'Organization not found'], 422);
+            // Non-admin / missing organization should not surface as validation error
+            return response()->json(['message' => 'Organization not found'], 403);
         }
 
         $this->authorize('viewAny', [AdminOperationAudit::class, $organization]);

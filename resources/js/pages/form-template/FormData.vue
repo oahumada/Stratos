@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import moment from 'moment';
 import {
     PhCalendar,
+    PhCheckSquareOffset,
     PhClock,
     PhEnvelope,
     PhListBullets,
     PhLock,
     PhNumberNine,
-    PhTextColumns,
     PhTextAlignLeft,
+    PhTextColumns,
     PhToggleLeft,
-    PhCheckSquareOffset
 } from '@phosphor-icons/vue';
+import moment from 'moment';
 import { computed, reactive, ref, watch } from 'vue';
 
 interface FormField {
@@ -156,17 +156,28 @@ const reset = (): void => {
 // Icon Mapping for premium UX
 const getFieldIcon = (type: string) => {
     switch (type) {
-        case 'text': return PhTextColumns;
-        case 'textarea': return PhTextAlignLeft;
-        case 'email': return PhEnvelope;
-        case 'password': return PhLock;
-        case 'number': return PhNumberNine;
-        case 'select': return PhListBullets;
-        case 'date': return PhCalendar;
-        case 'time': return PhClock;
-        case 'switch': return PhToggleLeft;
-        case 'checkbox': return PhCheckSquareOffset;
-        default: return PhTextColumns;
+        case 'text':
+            return PhTextColumns;
+        case 'textarea':
+            return PhTextAlignLeft;
+        case 'email':
+            return PhEnvelope;
+        case 'password':
+            return PhLock;
+        case 'number':
+            return PhNumberNine;
+        case 'select':
+            return PhListBullets;
+        case 'date':
+            return PhCalendar;
+        case 'time':
+            return PhClock;
+        case 'switch':
+            return PhToggleLeft;
+        case 'checkbox':
+            return PhCheckSquareOffset;
+        default:
+            return PhTextColumns;
     }
 };
 
@@ -238,7 +249,10 @@ defineExpose({
                     class="form-col"
                 >
                     <!-- Field Label (Persistent & Exterior) -->
-                    <div v-if="!['checkbox', 'switch'].includes(field.type)" class="st-field-label">
+                    <div
+                        v-if="!['checkbox', 'switch'].includes(field.type)"
+                        class="st-field-label"
+                    >
                         {{ field.label }}
                     </div>
 
@@ -255,7 +269,12 @@ defineExpose({
                         class="form-field"
                     >
                         <template #prepend-inner>
-                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                            <component
+                                :is="getFieldIcon(field.type)"
+                                :size="20"
+                                weight="duotone"
+                                class="text-indigo-accent-1 opacity-70"
+                            />
                         </template>
                     </v-text-field>
 
@@ -272,8 +291,13 @@ defineExpose({
                         validate-on="blur"
                         class="form-field"
                     >
-                         <template #prepend-inner>
-                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                        <template #prepend-inner>
+                            <component
+                                :is="getFieldIcon(field.type)"
+                                :size="20"
+                                weight="duotone"
+                                class="text-indigo-accent-1 opacity-70"
+                            />
                         </template>
                     </v-text-field>
 
@@ -290,7 +314,12 @@ defineExpose({
                         class="form-field"
                     >
                         <template #prepend-inner>
-                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                            <component
+                                :is="getFieldIcon(field.type)"
+                                :size="20"
+                                weight="duotone"
+                                class="text-indigo-accent-1 opacity-70"
+                            />
                         </template>
                     </v-text-field>
 
@@ -307,7 +336,12 @@ defineExpose({
                         class="form-field"
                     >
                         <template #prepend-inner>
-                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                            <component
+                                :is="getFieldIcon(field.type)"
+                                :size="20"
+                                weight="duotone"
+                                class="text-indigo-accent-1 opacity-70"
+                            />
                         </template>
                     </v-text-field>
 
@@ -325,7 +359,12 @@ defineExpose({
                         class="form-field"
                     >
                         <template #prepend-inner>
-                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                            <component
+                                :is="getFieldIcon(field.type)"
+                                :size="20"
+                                weight="duotone"
+                                class="text-indigo-accent-1 opacity-70"
+                            />
                         </template>
                     </v-textarea>
 
@@ -346,7 +385,12 @@ defineExpose({
                         class="form-field"
                     >
                         <template #prepend-inner>
-                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                            <component
+                                :is="getFieldIcon(field.type)"
+                                :size="20"
+                                weight="duotone"
+                                class="text-indigo-accent-1 opacity-70"
+                            />
                         </template>
                     </v-select>
 
@@ -363,7 +407,12 @@ defineExpose({
                         class="form-field"
                     >
                         <template #prepend-inner>
-                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                            <component
+                                :is="getFieldIcon(field.type)"
+                                :size="20"
+                                weight="duotone"
+                                class="text-indigo-accent-1 opacity-70"
+                            />
                         </template>
                     </v-text-field>
 
@@ -380,7 +429,12 @@ defineExpose({
                         class="form-field"
                     >
                         <template #prepend-inner>
-                            <component :is="getFieldIcon(field.type)" :size="20" weight="duotone" class="text-indigo-accent-1 opacity-70" />
+                            <component
+                                :is="getFieldIcon(field.type)"
+                                :size="20"
+                                weight="duotone"
+                                class="text-indigo-accent-1 opacity-70"
+                            />
                         </template>
                     </v-text-field>
 
@@ -460,7 +514,7 @@ defineExpose({
     margin-left: 0.25rem;
 }
 
-:deep(.form-field:focus-within) + .st-field-label, 
+:deep(.form-field:focus-within) + .st-field-label,
 :deep(.form-field:focus-within) .st-field-label {
     color: #818cf8 !important; /* indigo-400 */
 }

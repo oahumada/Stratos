@@ -32,8 +32,13 @@ class CrisisSimulatorService
         $attritionRate = $params['attrition_rate'] ?? 15; // % de la fuerza laboral
         $targetDepartments = $params['departments'] ?? [];
 
+        // Scopear por organización del escenario para evitar cross-org contamination
+        $scenario = \App\Models\Scenario::findOrFail($scenarioId);
+        $organizationId = $scenario->organization_id;
+
         // Obtener personas en riesgo
-        $query = People::with(['role', 'skills']);
+        $query = People::with(['role', 'skills'])
+            ->where('organization_id', $organizationId);
         if (! empty($targetDepartments)) {
             $query->whereIn('department_id', $targetDepartments);
         }

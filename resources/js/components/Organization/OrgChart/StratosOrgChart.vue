@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { VueFlow, useVueFlow, type NodeTypesObject } from '@vue-flow/core';
-import { Background } from '@vue-flow/background';
-import { Controls } from '@vue-flow/controls';
-import * as dagre from 'dagre';
 import * as apiHelper from '@/apiHelper';
 import DepartmentNodeComponent from '@/components/Organization/OrgChart/DepartmentNode.vue';
+import { Background } from '@vue-flow/background';
+import { Controls } from '@vue-flow/controls';
+import { VueFlow, useVueFlow, type NodeTypesObject } from '@vue-flow/core';
+import * as dagre from 'dagre';
+import { onMounted, ref } from 'vue';
 
 // Vue Flow Styles
 import '@vue-flow/core/dist/style.css';
@@ -46,8 +46,10 @@ const transformData = (data: any[]) => {
             data: {
                 label: item.name,
                 description: item.description,
-                managerName: item.manager ? `${item.manager.first_name} ${item.manager.last_name}` : null,
-                headcount: item.headcount || 0
+                managerName: item.manager
+                    ? `${item.manager.first_name} ${item.manager.last_name}`
+                    : null,
+                headcount: item.headcount || 0,
             },
             position: { x: 0, y: 0 },
         });
@@ -111,12 +113,22 @@ defineExpose({ refresh: fetchTree });
 </script>
 
 <template>
-    <div class="relative w-full h-[600px] rounded-2xl overflow-hidden border border-white/5 bg-slate-950/20">
-        <div v-if="loading" class="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/50 backdrop-blur-sm">
-            <div class="h-10 w-10 animate-spin rounded-full border-4 border-indigo-500/30 border-t-indigo-500"></div>
+    <div
+        class="relative h-[600px] w-full overflow-hidden rounded-2xl border border-white/5 bg-slate-950/20"
+    >
+        <div
+            v-if="loading"
+            class="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/50 backdrop-blur-sm"
+        >
+            <div
+                class="h-10 w-10 animate-spin rounded-full border-4 border-indigo-500/30 border-t-indigo-500"
+            ></div>
         </div>
 
-        <div v-if="error" class="flex h-full items-center justify-center text-red-400 p-4 text-center">
+        <div
+            v-if="error"
+            class="flex h-full items-center justify-center p-4 text-center text-red-400"
+        >
             {{ error }}
         </div>
 
@@ -134,7 +146,10 @@ defineExpose({ refresh: fetchTree });
             <Controls />
         </VueFlow>
 
-        <div v-else-if="!loading && elements.length === 0" class="flex h-full items-center justify-center text-gray-500">
+        <div
+            v-else-if="!loading && elements.length === 0"
+            class="flex h-full items-center justify-center text-gray-500"
+        >
             No se encontraron unidades en la jerarquía.
         </div>
     </div>
@@ -147,8 +162,12 @@ defineExpose({ refresh: fetchTree });
 }
 
 @keyframes dash {
-    from { stroke-dashoffset: 10; }
-    to { stroke-dashoffset: 0; }
+    from {
+        stroke-dashoffset: 10;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
 }
 
 :deep(.vue-flow__controls) {

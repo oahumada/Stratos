@@ -1,20 +1,18 @@
 <script setup lang="ts">
+import AlertPanel from '@/components/Admin/AlertPanel.vue';
+import GaugeChart from '@/components/Admin/GaugeChart.vue';
+import OperationsTimeline from '@/components/Admin/OperationsTimeline.vue';
+import SparklineChart from '@/components/Admin/SparklineChart.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import {
-    PhActivity,
     PhArrowClockwise,
     PhCheckCircle,
     PhClock,
     PhDatabase,
-    PhDownload,
     PhWarning,
 } from '@phosphor-icons/vue';
 import { computed, onMounted, ref } from 'vue';
-import GaugeChart from '@/components/Admin/GaugeChart.vue';
-import SparklineChart from '@/components/Admin/SparklineChart.vue';
-import OperationsTimeline from '@/components/Admin/OperationsTimeline.vue';
-import AlertPanel from '@/components/Admin/AlertPanel.vue';
 
 defineOptions({
     layout: AppLayout,
@@ -89,7 +87,9 @@ const metrics = ref<SystemMetrics>({
 const historicalMetrics = ref({
     cpuUsage: [15, 18, 22, 25, 28, 32, 31, 34, 35, 34],
     memoryUsage: [45, 48, 50, 52, 55, 58, 60, 61, 62, 62],
-    uptime: [99.99, 99.98, 99.98, 99.97, 99.99, 99.98, 99.98, 99.98, 99.98, 99.98],
+    uptime: [
+        99.99, 99.98, 99.98, 99.97, 99.99, 99.98, 99.98, 99.98, 99.98, 99.98,
+    ],
 });
 
 // Sample alerts
@@ -104,7 +104,8 @@ const alerts = ref([
     {
         id: '2',
         title: 'Database Optimization Completed',
-        message: 'The database optimization operation has completed successfully.',
+        message:
+            'The database optimization operation has completed successfully.',
         severity: 'info' as const,
         timestamp: new Date(Date.now() - 600000).toISOString(),
     },
@@ -205,106 +206,120 @@ onMounted(() => {
                 </button>
             </div>
 
-        <!-- Alert Panel -->
-        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
-            <h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-white">
-                <PhWarning :size="24" class="text-amber-400" />
-                System Alerts
-            </h2>
-            <AlertPanel :alerts="alerts" />
-        </div>
-
-        <!-- System Metrics Grid with Gauges -->
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <!-- Uptime -->
-            <div
-                class="rounded-lg border border-white/10 bg-white/5 p-6 transition-all hover:border-emerald-500/50 flex flex-col items-center"
-            >
-                <GaugeChart
-                    label="System Uptime"
-                    :value="metrics.uptime"
-                    :max="100"
-                    color="green"
-                    unit="%"
-                    size="medium"
-                />
+            <!-- Alert Panel -->
+            <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                <h2
+                    class="mb-4 flex items-center gap-2 text-lg font-bold text-white"
+                >
+                    <PhWarning :size="24" class="text-amber-400" />
+                    System Alerts
+                </h2>
+                <AlertPanel :alerts="alerts" />
             </div>
 
-            <!-- Memory Usage -->
-            <div
-                class="rounded-lg border border-white/10 bg-white/5 p-6 transition-all hover:border-blue-500/50 flex flex-col items-center"
-            >
-                <GaugeChart
-                    label="Memory Usage"
-                    :value="metrics.memoryUsage"
-                    :max="100"
-                    :color="metrics.memoryUsage > 80 ? 'red' : metrics.memoryUsage > 60 ? 'amber' : 'blue'"
-                    unit="%"
-                    size="medium"
-                />
-            </div>
-
-            <!-- CPU Usage -->
-            <div
-                class="rounded-lg border border-white/10 bg-white/5 p-6 transition-all hover:border-indigo-500/50 flex flex-col items-center"
-            >
-                <GaugeChart
-                    label="CPU Usage"
-                    :value="metrics.cpuUsage"
-                    :max="100"
-                    :color="metrics.cpuUsage > 80 ? 'red' : metrics.cpuUsage > 60 ? 'amber' : 'blue'"
-                    unit="%"
-                    size="medium"
-                />
-            </div>
-
-            <!-- Queue Status -->
-            <div
-                class="rounded-lg border border-white/10 bg-white/5 p-4 transition-all hover:border-amber-500/50"
-            >
-                <div class="mb-2 flex items-center justify-between">
-                    <p class="text-sm text-slate-400">Queue Status</p>
-                    <PhClock :size="20" class="text-amber-400" />
+            <!-- System Metrics Grid with Gauges -->
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <!-- Uptime -->
+                <div
+                    class="flex flex-col items-center rounded-lg border border-white/10 bg-white/5 p-6 transition-all hover:border-emerald-500/50"
+                >
+                    <GaugeChart
+                        label="System Uptime"
+                        :value="metrics.uptime"
+                        :max="100"
+                        color="green"
+                        unit="%"
+                        size="medium"
+                    />
                 </div>
-                <p class="text-3xl font-bold text-white">
-                    {{ metrics.queuedJobs }}
-                </p>
-                <p class="mt-3 text-xs text-slate-400">
-                    <span v-if="metrics.failedJobs > 0" class="text-red-400"
-                        >{{ metrics.failedJobs }} failed</span
-                    >
-                    <span v-else class="text-emerald-400">No failures</span>
-                </p>
-            </div>
-        </div>
 
-        <!-- Metrics Trends (Sparklines) -->
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div class="rounded-lg border border-white/10 bg-white/5 p-4">
-                <SparklineChart
-                    label="CPU Usage Trend"
-                    :data="historicalMetrics.cpuUsage"
-                    color="blue"
-                    :height="60"
-                />
+                <!-- Memory Usage -->
+                <div
+                    class="flex flex-col items-center rounded-lg border border-white/10 bg-white/5 p-6 transition-all hover:border-blue-500/50"
+                >
+                    <GaugeChart
+                        label="Memory Usage"
+                        :value="metrics.memoryUsage"
+                        :max="100"
+                        :color="
+                            metrics.memoryUsage > 80
+                                ? 'red'
+                                : metrics.memoryUsage > 60
+                                  ? 'amber'
+                                  : 'blue'
+                        "
+                        unit="%"
+                        size="medium"
+                    />
+                </div>
+
+                <!-- CPU Usage -->
+                <div
+                    class="flex flex-col items-center rounded-lg border border-white/10 bg-white/5 p-6 transition-all hover:border-indigo-500/50"
+                >
+                    <GaugeChart
+                        label="CPU Usage"
+                        :value="metrics.cpuUsage"
+                        :max="100"
+                        :color="
+                            metrics.cpuUsage > 80
+                                ? 'red'
+                                : metrics.cpuUsage > 60
+                                  ? 'amber'
+                                  : 'blue'
+                        "
+                        unit="%"
+                        size="medium"
+                    />
+                </div>
+
+                <!-- Queue Status -->
+                <div
+                    class="rounded-lg border border-white/10 bg-white/5 p-4 transition-all hover:border-amber-500/50"
+                >
+                    <div class="mb-2 flex items-center justify-between">
+                        <p class="text-sm text-slate-400">Queue Status</p>
+                        <PhClock :size="20" class="text-amber-400" />
+                    </div>
+                    <p class="text-3xl font-bold text-white">
+                        {{ metrics.queuedJobs }}
+                    </p>
+                    <p class="mt-3 text-xs text-slate-400">
+                        <span v-if="metrics.failedJobs > 0" class="text-red-400"
+                            >{{ metrics.failedJobs }} failed</span
+                        >
+                        <span v-else class="text-emerald-400">No failures</span>
+                    </p>
+                </div>
             </div>
-            <div class="rounded-lg border border-white/10 bg-white/5 p-4">
-                <SparklineChart
-                    label="Memory Usage Trend"
-                    :data="historicalMetrics.memoryUsage"
-                    color="amber"
-                    :height="60"
-                />
+
+            <!-- Metrics Trends (Sparklines) -->
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                    <SparklineChart
+                        label="CPU Usage Trend"
+                        :data="historicalMetrics.cpuUsage"
+                        color="blue"
+                        :height="60"
+                    />
+                </div>
+                <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                    <SparklineChart
+                        label="Memory Usage Trend"
+                        :data="historicalMetrics.memoryUsage"
+                        color="amber"
+                        :height="60"
+                    />
+                </div>
+                <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                    <SparklineChart
+                        label="System Uptime Trend"
+                        :data="historicalMetrics.uptime"
+                        color="green"
+                        :height="60"
+                    />
+                </div>
             </div>
-            <div class="rounded-lg border border-white/10 bg-white/5 p-4">
-                <SparklineChart
-                    label="System Uptime Trend"
-                    :data="historicalMetrics.uptime"
-                    color="green"
-                    :height="60"
-                />
-            </div>
-        </div>
 
             <!-- Operations Stats -->
             <div class="grid grid-cols-2 gap-4 md:grid-cols-4">

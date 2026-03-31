@@ -21,7 +21,13 @@ defineProps<Props>();
     >
         <g transform="rotate(180 32 32)">
             <g transform="translate(0,64) scale(1,-1)">
-                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" opacity="0.86">
+                <g
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    opacity="0.86"
+                >
                     <path d="M32 52L32 40" stroke-width="2.8" />
                     <path d="M32 40L25 31" stroke-width="2.2" />
                     <path d="M32 40L39 31" stroke-width="2.2" />

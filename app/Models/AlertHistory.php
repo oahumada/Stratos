@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AlertHistory extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'organization_id',
         'alert_threshold_id',
@@ -16,13 +19,17 @@ class AlertHistory extends Model
         'severity',
         'status',
         'metric_value',
+        'resolved_at',
+        'muted_at',
         'notes',
     ];
 
     protected $casts = [
         'triggered_at' => 'datetime',
         'acknowledged_at' => 'datetime',
-        'metric_value' => 'decimal:2',
+        'metric_value' => 'float',
+        'resolved_at' => 'datetime',
+        'muted_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

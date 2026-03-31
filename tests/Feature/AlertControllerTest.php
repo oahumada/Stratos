@@ -1,6 +1,9 @@
 <?php
 
-use App\Models\{AlertHistory, AlertThreshold, Organization, User};
+use App\Models\AlertHistory;
+use App\Models\AlertThreshold;
+use App\Models\Organization;
+use App\Models\User;
 
 describe('AlertController', function () {
     beforeEach(function () {
@@ -306,8 +309,10 @@ describe('AlertController', function () {
 
             $response = $this->getJson('/api/alerts/export/history');
 
-            $response->assertSuccessful()
-                ->assertHeader('Content-Type', 'text/csv');
+            $response->assertSuccessful();
+
+            $ct = $response->headers->get('content-type');
+            $this->assertStringStartsWith('text/csv', $ct);
 
             expect($response->getContent())->toContain('Alert ID');
         });
