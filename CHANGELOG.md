@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.7.0](https://github.com/oahumada/Stratos/compare/v0.6.0...v0.7.0) (2026-03-31)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **sprint1:** cerrar iteración 1-4 con LMS hardening y estabilización scenario planning ([10f8582](https://github.com/oahumada/Stratos/commit/10f85828546f918a1220d5398e83ee15f37af674))
+
 ## [0.6.0](https://github.com/oahumada/Stratos/compare/v0.5.2...v0.6.0) (2026-03-31)
 
 
