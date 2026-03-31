@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.2](https://github.com/oahumada/Stratos/compare/v0.5.1...v0.5.2) (2026-03-31)
+
+
+### 🐛 Correcciones de Bugs
+
+* **tests:** corregir suite completa de tests PHP - 927 passing, 0 failed ([71c3e66](https://github.com/oahumada/Stratos/commit/71c3e66182a0481bb670b1c95308b8b436a7c4fa))
+
 ### [0.5.1](https://github.com/oahumada/Stratos/compare/v0.5.0...v0.5.1) (2026-03-31)
 
 
