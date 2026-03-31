@@ -55,4 +55,12 @@ test('can get risk heatmap', function () {
     $user->update(['current_organization_id' => $user->organization_id]);
     $scenario = Scenario::factory()->create(['organization_id' => $user->organization_id]);
     TalentRiskIndicator::factory(5)->create(['scenario_id' => $scenario->id, 'organization_id' => $scenario->organization_id]);
+
+    $response = $this
+        ->actingAs($user)
+        ->getJson("/api/scenarios/{$scenario->id}/risks/heatmap");
+
+    $response->assertSuccessful();
+    expect($response->json('data'))->toBeArray();
+    expect($response->json('data'))->toHaveKeys(['volatility', 'retention', 'skill_gap', 'engagement']);
 })->group('risks');

@@ -7,30 +7,37 @@ use App\Models\User;
 
 class TalentRiskIndicatorPolicy
 {
+    protected function sharesOrganization(User $user, TalentRiskIndicator $indicator): bool
+    {
+        $userOrg = $user->current_organization_id ?? $user->organization_id ?? null;
+
+        return $userOrg === $indicator->organization_id;
+    }
+
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->isAdmin() || $user->hasPermission('scenarios.view');
     }
 
     public function view(User $user, TalentRiskIndicator $indicator): bool
     {
-        return $user->organization_id === $indicator->organization_id || $user->is_admin;
+        return $this->sharesOrganization($user, $indicator) || $user->isAdmin();
     }
 
     public function create(User $user): bool
     {
-        return $user->can('manage_scenarios');
+        return $user->isAdmin() || $user->hasPermission('scenarios.create');
     }
 
     public function update(User $user, TalentRiskIndicator $indicator): bool
     {
-        return ($user->organization_id === $indicator->organization_id || $user->is_admin)
-            && $user->can('manage_scenarios');
+        return ($this->sharesOrganization($user, $indicator) || $user->isAdmin())
+            && ($user->isAdmin() || $user->hasPermission('scenarios.edit'));
     }
 
     public function delete(User $user, TalentRiskIndicator $indicator): bool
     {
-        return ($user->organization_id === $indicator->organization_id || $user->is_admin)
-            && $user->can('manage_scenarios');
+        return ($this->sharesOrganization($user, $indicator) || $user->isAdmin())
+            && ($user->isAdmin() || $user->hasPermission('scenarios.delete'));
     }
 }

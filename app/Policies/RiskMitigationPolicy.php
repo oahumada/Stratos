@@ -7,36 +7,38 @@ use App\Models\User;
 
 class RiskMitigationPolicy
 {
+    protected function sharesOrganization(User $user, RiskMitigation $mitigation): bool
+    {
+        $indicator = $mitigation->riskIndicator;
+        $userOrg = $user->current_organization_id ?? $user->organization_id ?? null;
+
+        return $indicator !== null && $userOrg === $indicator->organization_id;
+    }
+
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->isAdmin() || $user->hasPermission('scenarios.view');
     }
 
     public function view(User $user, RiskMitigation $mitigation): bool
     {
-        $indicator = $mitigation->riskIndicator;
-
-        return $user->organization_id === $indicator->organization_id || $user->is_admin;
+        return $this->sharesOrganization($user, $mitigation) || $user->isAdmin();
     }
 
     public function create(User $user): bool
     {
-        return $user->can('manage_scenarios');
+        return $user->isAdmin() || $user->hasPermission('scenarios.create');
     }
 
     public function update(User $user, RiskMitigation $mitigation): bool
     {
-        $indicator = $mitigation->riskIndicator;
-
-        return ($user->organization_id === $indicator->organization_id || $user->is_admin)
-            && ($user->id === $mitigation->assigned_to || $user->can('manage_scenarios'));
+        return ($this->sharesOrganization($user, $mitigation) || $user->isAdmin())
+            && ($user->id === $mitigation->assigned_to || $user->isAdmin() || $user->hasPermission('scenarios.edit'));
     }
 
     public function delete(User $user, RiskMitigation $mitigation): bool
     {
-        $indicator = $mitigation->riskIndicator;
-
-        return ($user->organization_id === $indicator->organization_id || $user->is_admin)
-            && $user->can('manage_scenarios');
+        return ($this->sharesOrganization($user, $mitigation) || $user->isAdmin())
+            && ($user->isAdmin() || $user->hasPermission('scenarios.delete'));
     }
 }

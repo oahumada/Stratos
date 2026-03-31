@@ -137,7 +137,10 @@ class TalentRiskController extends Controller
     ): JsonResponse {
         $this->authorize('create', RiskMitigation::class);
 
-        $mitigation = $indicator->mitigations()->create($request->validated());
+        $mitigation = $indicator->mitigations()->create([
+            ...$request->validated(),
+            'organization_id' => $indicator->organization_id,
+        ]);
 
         return response()->json(['data' => $mitigation], 201);
     }

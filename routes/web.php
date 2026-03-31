@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\Api\ScenarioController;
 use App\Http\Controllers\Api\ScenarioSimulationController;
+use App\Models\LmsCertificate;
+use App\Models\LmsCourse;
+use App\Models\LmsEnrollment;
 use Illuminate\Support\Facades\App as AppFacade;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -148,6 +151,68 @@ Route::get('/gap-analysis', function () {
 Route::get('/succession', function () {
     return Inertia::render('Succession/Index');
 })->middleware(['auth', 'verified'])->name('succession.index');
+
+Route::get('/lms', function () {
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
+    $user->loadMissing('people');
+
+    $organizationId = $user->current_organization_id ?? $user->organization_id;
+    $personId = $user->people?->id;
+
+    $coursesQuery = LmsCourse::query()
+        ->where('organization_id', $organizationId)
+        ->where('is_active', true);
+
+    $enrollmentsQuery = LmsEnrollment::query()
+        ->where('user_id', $user->id)
+        ->with('course:id,title,category,level,estimated_duration_minutes,xp_points');
+
+    $certificatesQuery = LmsCertificate::query()
+        ->where('organization_id', $organizationId);
+
+    if ($personId !== null) {
+        $certificatesQuery->where('person_id', $personId);
+    } else {
+        $certificatesQuery->whereRaw('1 = 0');
+    }
+
+    return Inertia::render('Lms/Landing', [
+        'summary' => [
+            'active_courses' => (clone $coursesQuery)->count(),
+            'my_enrollments' => (clone $enrollmentsQuery)->count(),
+            'in_progress_enrollments' => (clone $enrollmentsQuery)->where('status', 'in_progress')->count(),
+            'completed_enrollments' => (clone $enrollmentsQuery)->where('status', 'completed')->count(),
+            'my_certificates' => (clone $certificatesQuery)->count(),
+        ],
+        'recentCourses' => (clone $coursesQuery)
+            ->latest()
+            ->limit(6)
+            ->get(['id', 'title', 'category', 'level', 'estimated_duration_minutes', 'xp_points'])
+            ->map(fn (LmsCourse $course) => [
+                'id' => $course->id,
+                'title' => $course->title,
+                'category' => $course->category,
+                'level' => $course->level,
+                'estimated_duration_minutes' => $course->estimated_duration_minutes,
+                'xp_points' => $course->xp_points,
+            ]),
+        'myEnrollments' => (clone $enrollmentsQuery)
+            ->latest()
+            ->limit(5)
+            ->get()
+            ->map(fn (LmsEnrollment $enrollment) => [
+                'id' => $enrollment->id,
+                'course_title' => $enrollment->course?->title,
+                'category' => $enrollment->course?->category,
+                'level' => $enrollment->course?->level,
+                'progress_percentage' => (float) $enrollment->progress_percentage,
+                'status' => $enrollment->status,
+                'started_at' => $enrollment->started_at?->toDateString(),
+                'completed_at' => $enrollment->completed_at?->toDateString(),
+            ]),
+    ]);
+})->middleware(['auth', 'verified', 'module:st-grow'])->name('lms.landing');
 
 Route::get('/learning-paths', function () {
     return Inertia::render('LearningPaths/StratosNavigator');

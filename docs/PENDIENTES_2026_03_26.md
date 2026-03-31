@@ -1,5 +1,25 @@
 # 📋 PENDIENTES - Stratos (Mar 27, 2026)
 
+**📌 ACTUALIZACIÓN IMPORTANTE (Mar 31, 2026):**
+
+### ✅ Sprint 1 - Ejecución en orden 1→4 (estado actual)
+
+- [x] ✅ **1. LMS Nativo Hardening - Fase 1 (inicio):**
+    - Ruta web `/lms` habilitada con datos reales (resumen, cursos, inscripciones)
+    - Landing LMS deja de ser placeholder y muestra métricas por organización
+    - Tarjeta de acceso LMS añadida en `Growth/Landing`
+- [x] ✅ **2. Scenario Planning Phase 2 - estabilización de backend:**
+    - Corregido route-model binding en rutas API (`{scenario}`, `{candidate}`, `{indicator}`, `{phase}`, `{task}`, `{mitigation}`)
+    - Alineadas policies con permisos RBAC reales (`scenarios.view/create/edit/delete`)
+    - Corregido create de tareas/mitigaciones para poblar `organization_id`
+- [x] ✅ **3. Validación de pruebas objetivo:**
+    - `tests/Feature/Controllers/SuccessionPlanningControllerTest.php` → PASS
+    - `tests/Feature/Controllers/TalentRiskControllerTest.php` → PASS
+    - `tests/Feature/Controllers/TransformationRoadmapControllerTest.php` → PASS
+    - Resultado consolidado: **14 passed, 0 failed**
+- [x] ✅ **4. Documentación actualizada:**
+    - Este bloque resume el estado real post-estabilización (Mar 31)
+
 **📌 ACTUALIZACIÓN IMPORTANTE (Mar 27 - Late evening):**
 
 ### ✅ PASO 1: E2E Browser Tests Integration (ALTA - 2 horas)

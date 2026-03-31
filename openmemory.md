@@ -1,5 +1,29 @@
 # OpenMemory - Resumen del proyecto Stratos
 
+### Quick Note (2026-03-31 - Sprint 1 Order 1→4)
+
+- **Change:** Sprint 1 execution advanced in strict order (1 to 4): LMS hardening kickoff, Scenario Planning Phase 2 authorization stabilization, test validation, and documentation update.
+    - `routes/web.php`: enabled `/lms` web route with real aggregated data (`LmsCourse`, `LmsEnrollment`, `LmsCertificate`) scoped by organization.
+    - `resources/js/pages/Lms/Landing.vue` + `resources/js/components/Lms/LmsLandingContent.vue`: replaced placeholder content with real summary/progress lists and quick actions.
+    - `resources/js/pages/Growth/Landing.vue`: added direct LMS module card (`/lms`).
+    - `routes/api.php`: fixed implicit route model binding params in Scenario Planning Phase 2 endpoints (`{scenario}`, `{candidate}`, `{indicator}`, `{phase}`, `{task}`, `{mitigation}`) to match controller type-hints.
+    - Policies aligned to project RBAC permissions (`scenarios.view/create/edit/delete`) instead of alias `manage_scenarios` across:
+        - `app/Policies/ScenarioPolicy.php`
+        - `app/Policies/SuccessionCandidatePolicy.php`
+        - `app/Policies/TalentRiskIndicatorPolicy.php`
+        - `app/Policies/RiskMitigationPolicy.php`
+        - `app/Policies/TransformationPhasePolicy.php`
+        - `app/Policies/TransformationTaskPolicy.php`
+    - Controllers hardened for tenant-safe writes:
+        - `app/Http/Controllers/Api/TransformationRoadmapController.php` (`organization_id` on task creation + phase validation by scenario/org)
+        - `app/Http/Controllers/Api/TalentRiskController.php` (`organization_id` on mitigation creation)
+    - Tests finalized as green (no risky warnings in the target set):
+        - `tests/Feature/Controllers/SuccessionPlanningControllerTest.php`
+        - `tests/Feature/Controllers/TalentRiskControllerTest.php`
+        - `tests/Feature/Controllers/TransformationRoadmapControllerTest.php`
+- **Reason:** Remove false 403/500 failures caused by parameter-binding mismatch and permission alias mismatch, while kicking off LMS hardening with minimal, production-safe UI/data improvements.
+- **Result:** Target Scenario Planning controller suite now passes (`14 passed, 0 failed`), and LMS landing is operational with real data.
+
 Este documento actúa como índice vivo (openmemory) del repositorio `oahumada/Stratos`.
 Se creó/actualizó automáticamente para registrar decisiones, implementaciones y referencias útiles.
 
@@ -2655,6 +2679,28 @@ Registro creado automáticamente para dejar el estado listo para continuar maña
 
 Este documento actúa como índice vivo (openmemory) del repositorio `oahumada/Stratos`.
 Se creó/actualizó automáticamente para registrar decisiones, implementaciones y referencias útiles.
+
+### Quick Note (2026-03-31) - Iteración 1→4 completada
+
+- **LMS Hardening (Fase 1, inicio):**
+    - Se habilitó la ruta web `GET /lms` en `routes/web.php` con `Inertia::render('Lms/Landing')` y datos reales por organización.
+    - Se reemplazó el contenido placeholder en `resources/js/pages/Lms/Landing.vue` y `resources/js/components/Lms/LmsLandingContent.vue` para mostrar resumen, cursos recientes e inscripciones del usuario.
+    - Se agregó acceso directo al LMS en `resources/js/pages/Growth/Landing.vue`.
+- **Scenario Planning Phase 2 (estabilización backend):**
+    - Se corrigió route-model binding en `routes/api.php` usando parámetros tipados (`{scenario}`, `{candidate}`, `{indicator}`, `{phase}`, `{task}`, `{mitigation}`) para alinear con firmas de controladores.
+    - Se alinearon políticas nuevas con RBAC real (`scenarios.view/create/edit/delete`) en:
+        - `app/Policies/ScenarioPolicy.php`
+        - `app/Policies/SuccessionCandidatePolicy.php`
+        - `app/Policies/TalentRiskIndicatorPolicy.php`
+        - `app/Policies/RiskMitigationPolicy.php`
+        - `app/Policies/TransformationPhasePolicy.php`
+        - `app/Policies/TransformationTaskPolicy.php`
+    - Se corrigieron inserts con `organization_id` faltante en:
+        - `app/Http/Controllers/Api/TransformationRoadmapController.php` (`createTask`)
+        - `app/Http/Controllers/Api/TalentRiskController.php` (`recordMitigation`)
+- **Verificación:**
+    - `vendor/bin/pint --dirty` → PASS (12 files)
+    - Feature tests objetivo Scenario Planning controllers → **14 passed, 0 failed**
 
 ## Estado actual (inicio)
 

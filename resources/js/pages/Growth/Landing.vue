@@ -26,6 +26,7 @@ import {
     PhChartLineUp,
     PhClipboardText,
     PhCompass,
+    PhGraduationCap,
     PhShieldCheck,
     PhTrendUp,
     PhUserFocus,
@@ -57,6 +58,14 @@ const modules = computed(() => [
         icon: PhShieldCheck,
         href: '/talento360/comando',
         iconColor: 'text-cyan-300',
+    },
+    {
+        title: 'LMS Nativo',
+        description:
+            'Acceso rápido a cursos, progreso, certificados y acciones del aprendizaje corporativo.',
+        icon: PhGraduationCap,
+        href: '/lms',
+        iconColor: 'text-violet-300',
     },
     {
         title: t('landings.growth.modules.social_learning_hub.title'),

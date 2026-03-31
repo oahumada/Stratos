@@ -7,30 +7,37 @@ use App\Models\User;
 
 class SuccessionCandidatePolicy
 {
+    protected function sharesOrganization(User $user, SuccessionCandidate $candidate): bool
+    {
+        $userOrg = $user->current_organization_id ?? $user->organization_id ?? null;
+
+        return $userOrg === $candidate->organization_id;
+    }
+
     public function viewAny(User $user): bool
     {
-        return true; // All authenticated users can view
+        return $user->isAdmin() || $user->hasPermission('scenarios.view');
     }
 
     public function view(User $user, SuccessionCandidate $candidate): bool
     {
-        return $user->organization_id === $candidate->organization_id || $user->is_admin;
+        return $this->sharesOrganization($user, $candidate) || $user->isAdmin();
     }
 
     public function create(User $user): bool
     {
-        return $user->can('manage_scenarios');
+        return $user->isAdmin() || $user->hasPermission('scenarios.create');
     }
 
     public function update(User $user, SuccessionCandidate $candidate): bool
     {
-        return ($user->organization_id === $candidate->organization_id || $user->is_admin)
-            && $user->can('manage_scenarios');
+        return ($this->sharesOrganization($user, $candidate) || $user->isAdmin())
+            && ($user->isAdmin() || $user->hasPermission('scenarios.edit'));
     }
 
     public function delete(User $user, SuccessionCandidate $candidate): bool
     {
-        return ($user->organization_id === $candidate->organization_id || $user->is_admin)
-            && $user->can('manage_scenarios');
+        return ($this->sharesOrganization($user, $candidate) || $user->isAdmin())
+            && ($user->isAdmin() || $user->hasPermission('scenarios.delete'));
     }
 }

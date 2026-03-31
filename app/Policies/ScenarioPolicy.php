@@ -7,10 +7,48 @@ use App\Models\User;
 
 class ScenarioPolicy
 {
+    public function viewAny(User $user): bool
+    {
+        return $user->isAdmin() || $user->hasPermission('scenarios.view');
+    }
+
     public function view(User $user, Scenario $scenario): bool
     {
         $userOrg = $user->current_organization_id ?? $user->organization_id ?? null;
-        return $userOrg === ($scenario->organization_id ?? null);
+
+        return $userOrg === ($scenario->organization_id ?? null)
+            && ($user->isAdmin() || $user->hasPermission('scenarios.view'));
+    }
+
+    public function create(User $user): bool
+    {
+        return $user->isAdmin() || $user->hasPermission('scenarios.create');
+    }
+
+    public function update(User $user, Scenario $scenario): bool
+    {
+        $userOrg = $user->current_organization_id ?? $user->organization_id ?? null;
+
+        if ($userOrg !== ($scenario->organization_id ?? null)) {
+            return false;
+        }
+
+        if (($scenario->created_by ?? null) === ($user->id ?? null)) {
+            return true;
+        }
+
+        return $user->isAdmin() || $user->hasPermission('scenarios.edit');
+    }
+
+    public function delete(User $user, Scenario $scenario): bool
+    {
+        $userOrg = $user->current_organization_id ?? $user->organization_id ?? null;
+
+        if ($userOrg !== ($scenario->organization_id ?? null)) {
+            return false;
+        }
+
+        return $user->isAdmin() || $user->hasPermission('scenarios.delete');
     }
 
     public function viewAcceptedPrompt(User $user, Scenario $scenario): bool
@@ -25,7 +63,7 @@ class ScenarioPolicy
             return true;
         }
 
-        if (property_exists($user, 'is_admin') && (bool) $user->is_admin) {
+        if ($user->isAdmin()) {
             return true;
         }
 
@@ -54,7 +92,7 @@ class ScenarioPolicy
             return true;
         }
 
-        if (property_exists($user, 'is_admin') && (bool) $user->is_admin) {
+        if ($user->isAdmin()) {
             return true;
         }
 

@@ -110,10 +110,14 @@ class TransformationRoadmapController extends Controller
     ): JsonResponse {
         $this->authorize('create', TransformationTask::class);
 
-        // Get the phase
-        $phase = TransformationPhase::findOrFail($request->phase_id);
+        $phase = TransformationPhase::where('scenario_id', $scenario->id)
+            ->where('organization_id', $scenario->organization_id)
+            ->findOrFail($request->phase_id);
 
-        $task = $phase->tasks()->create($request->validated());
+        $task = $phase->tasks()->create([
+            ...$request->validated(),
+            'organization_id' => $scenario->organization_id,
+        ]);
 
         return response()->json(['data' => $task], 201);
     }

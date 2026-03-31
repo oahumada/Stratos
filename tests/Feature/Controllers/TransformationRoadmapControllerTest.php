@@ -87,4 +87,12 @@ test('can update task status', function () {
 test('can get blockers', function () {
     $user = User::factory()->create(['role' => 'admin']);
     $user->update(['current_organization_id' => $user->organization_id]);
+    $scenario = Scenario::factory()->create(['organization_id' => $user->organization_id]);
+
+    $response = $this
+        ->actingAs($user)
+        ->getJson("/api/scenarios/{$scenario->id}/transformation/blockers");
+
+    $response->assertSuccessful();
+    expect($response->json('data'))->toBeArray();
 })->group('roadmap');

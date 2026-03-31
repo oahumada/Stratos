@@ -1,100 +1,87 @@
-import {
-    queryParams,
-    type RouteDefinition,
-    type RouteFormDefinition,
-    type RouteQueryOptions,
-} from './../../wayfinder';
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
- * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
- * @see app/Http/Controllers/Api/ComplianceAuditController.php:447
- * @route '/.well-known/did.json'
- */
-export const didDocument = (
-    options?: RouteQueryOptions,
-): RouteDefinition<'get'> => ({
+* @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
+* @route '/.well-known/did.json'
+*/
+export const didDocument = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: didDocument.url(options),
     method: 'get',
-});
+})
 
 didDocument.definition = {
-    methods: ['get', 'head'],
+    methods: ["get","head"],
     url: '/.well-known/did.json',
-} satisfies RouteDefinition<['get', 'head']>;
+} satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
- * @see app/Http/Controllers/Api/ComplianceAuditController.php:447
- * @route '/.well-known/did.json'
- */
+* @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
+* @route '/.well-known/did.json'
+*/
 didDocument.url = (options?: RouteQueryOptions) => {
-    return didDocument.definition.url + queryParams(options);
-};
+    return didDocument.definition.url + queryParams(options)
+}
 
 /**
- * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
- * @see app/Http/Controllers/Api/ComplianceAuditController.php:447
- * @route '/.well-known/did.json'
- */
+* @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
+* @route '/.well-known/did.json'
+*/
 didDocument.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: didDocument.url(options),
     method: 'get',
-});
+})
 
 /**
- * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
- * @see app/Http/Controllers/Api/ComplianceAuditController.php:447
- * @route '/.well-known/did.json'
- */
+* @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
+* @route '/.well-known/did.json'
+*/
 didDocument.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: didDocument.url(options),
     method: 'head',
-});
+})
 
 /**
- * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
- * @see app/Http/Controllers/Api/ComplianceAuditController.php:447
- * @route '/.well-known/did.json'
- */
-const didDocumentForm = (
-    options?: RouteQueryOptions,
-): RouteFormDefinition<'get'> => ({
+* @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
+* @route '/.well-known/did.json'
+*/
+const didDocumentForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: didDocument.url(options),
     method: 'get',
-});
+})
 
 /**
- * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
- * @see app/Http/Controllers/Api/ComplianceAuditController.php:447
- * @route '/.well-known/did.json'
- */
-didDocumentForm.get = (
-    options?: RouteQueryOptions,
-): RouteFormDefinition<'get'> => ({
+* @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
+* @route '/.well-known/did.json'
+*/
+didDocumentForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: didDocument.url(options),
     method: 'get',
-});
+})
 
 /**
- * @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
- * @see app/Http/Controllers/Api/ComplianceAuditController.php:447
- * @route '/.well-known/did.json'
- */
-didDocumentForm.head = (
-    options?: RouteQueryOptions,
-): RouteFormDefinition<'get'> => ({
+* @see \App\Http\Controllers\Api\ComplianceAuditController::didDocument
+* @see app/Http/Controllers/Api/ComplianceAuditController.php:447
+* @route '/.well-known/did.json'
+*/
+didDocumentForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: didDocument.url({
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
-        },
+        }
     }),
     method: 'get',
-});
+})
 
-didDocument.form = didDocumentForm;
+didDocument.form = didDocumentForm
 
 const compliance = {
     didDocument: Object.assign(didDocument, didDocument),
-};
+}
 
-export default compliance;
+export default compliance
