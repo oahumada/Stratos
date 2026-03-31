@@ -152,7 +152,9 @@ class ScenarioTemplateService
      */
     public function saveScenarioAsTemplate(int $scenarioId, array $templateData): ScenarioTemplate
     {
-        $scenario = Scenario::findOrFail($scenarioId);
+        // Use withoutGlobalScopes to avoid tenant/global-scope hiding the scenario
+        // during tests or administrative operations where we resolve by ID.
+        $scenario = Scenario::withoutGlobalScopes()->findOrFail($scenarioId);
 
         // Extract scenario configuration for template
         $config = [

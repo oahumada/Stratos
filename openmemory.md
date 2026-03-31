@@ -17,6 +17,7 @@ Se creó/actualizó automáticamente para registrar decisiones, implementaciones
     - `database/migrations/2026_04_01_000000_relax_scenario_status_enums.php`: new migration that drops Postgres check constraints (if present) and converts `decision_status` and `execution_status` to `string` columns with defaults `draft` and `planned` respectively. The down() restores a safe superset enum as a best-effort rollback.
     - **Reason:** Application code and tests use values like `pending_approval` and `active` (for `decision_status`) and `planned` for `execution_status` but older enum definitions in migrations omitted some of these values, causing SQLSTATE[23514] during test runs.
     - **Next:** Run the scenario workflow tests and approval tests; if desired later, migrate to a canonical enum set or keep string columns for flexibility.
+
 ### [Task 2 Phase 2.5] Workflow Enhancements - Notifications System (2026-03-27)
 
 - **Files created**:
