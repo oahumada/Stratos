@@ -363,6 +363,28 @@ export const useScenarioGenerationStore = defineStore('scenarioGeneration', {
                 );
             }
 
+            // If generation completed and user requested import-after-accept,
+            // trigger an automatic accept from the store so headless flows/tests
+            // that call `fetchStatus()` directly get the same behaviour as the
+            // UI polling logic in GenerateWizard.vue.
+            if (
+                this.generationStatus === 'complete' &&
+                this.importAfterAccept &&
+                !this.importAutoAccepted
+            ) {
+                this.importAutoAccepted = true; // guard against double triggers
+                (async () => {
+                    try {
+                        await this.accept(this.generationId as number, {
+                            autoAccept: true,
+                        });
+                    } catch (err) {
+                        // don't bubble errors from auto-accept during polling
+                        console.debug('[scenarioGenerationStore] auto-accept failed', err);
+                    }
+                })();
+            }
+
             return res.data;
         },
         async accept(
