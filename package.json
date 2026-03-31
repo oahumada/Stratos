@@ -1,5 +1,16 @@
 {
-    "$schema": "https://www.schemastore.org/package.json",
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "/package.json"
+            ],
+            "url": "vscode://schemas/package"
+        }
+    ],
+    "json.schemaDownload.trustedDomains": [
+        "json.schemastore.org",
+        "www.schemastore.org"
+    ],
     "private": true,
     "type": "module",
     "scripts": {

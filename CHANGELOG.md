@@ -4,7 +4,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [0.5.0](https://github.com/oahumada/Stratos/compare/v0.4.1-alpha.0...v0.5.0) (2026-03-31)
 
-
 ### ✨ Nuevas Funcionalidades
 
 * Implement LmsOperatorAgent for LMS operations including participant account creation, course invitations, enrollments, and certificate issuance ([eb61c63](https://github.com/oahumada/Stratos/commit/eb61c630dbb768a44dec2b176e56766d6cd340ad))
@@ -14,6 +13,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 * **scenarios:** stabilize Scenario test suite ([9a8bfee](https://github.com/oahumada/Stratos/commit/9a8bfeeaf304ae4aca6df5343fa2ef5d9bc722a8))
 * **versioning:** block empty releases by default ([07cf097](https://github.com/oahumada/Stratos/commit/07cf0979a62ebe4908b7824bddd83a60ba63a00a))
+
+### [0.4.1](https://github.com/oahumada/Stratos/compare/v0.4.1-alpha.0...v0.4.1) (2026-03-31)
 
 ### [0.4.1-alpha.0](https://github.com/oahumada/Stratos/compare/v0.4.0...v0.4.1-alpha.0) (2026-03-30)
 
