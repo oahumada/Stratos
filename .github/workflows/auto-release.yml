@@ -28,6 +28,11 @@ jobs:
           chmod +x ./scripts/suggest-release-type.sh || true
           chmod +x ./scripts/release.sh || true
 
+      - name: Configure git user for commits
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Determine suggested release type
         id: suggest
         run: |
