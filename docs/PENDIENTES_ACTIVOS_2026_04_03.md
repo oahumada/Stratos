@@ -59,9 +59,17 @@
 
 ## B) Iniciativa estratégica Workforce Planning Dotacional (Q2)
 
-- Estado: Abierto
-- Entregables base: modelo/API escenarios y brechas + motor de palancas + flujo de gobernanza y dashboard
-- Fuente: `docs/PENDIENTES_2026_03_26.md` + `docs/WORKFORCE_PLANNING_GUIA.md`
+- **Estado:** ✅ **80% OPERACIONAL** (Audit completado 3 Abr 2026)
+- **Entregables completados:**
+    - ✅ Modelo/API escenarios y brechas (100%): Scenario API, skill gap analysis, role demands
+    - ✅ Motor de recomendaciones (63%): HIRE/RESKILL/ROTATE/TRANSFER/CONTINGENT/AUTOMATE strategies
+    - ✅ Gobernanza + dashboard (88%): Estado transitions, People Experience integration, What-If analysis
+- **Referencia:** `docs/WORKFORCE_PLANNING_DOTACIONAL_AUDIT.md` (audit detallado)
+- **Próximos pasos:** 
+    - Tests E2E motor (framework ready, fixtures to refine)
+    - QA workflow (4-6 Abr)
+    - PROD rollout (8 Abr)
+- **Decisión:** GO CONDICIONAL para Q2 (funcionalidad core operativa)
 
 ---
 
@@ -88,9 +96,33 @@ Estos documentos **no se eliminan**, pero dejan de ser fuente operativa principa
 
 ---
 
-## 5) Resumen ejecutivo
+## 5) Resumen ejecutivo (Estado final 3 Abr 2026)
 
-- Pendiente crítico cerrado: **Cierre funcional Workforce 19.4 (socialización)** ✅ GO PARA QA
-- **Track LMS V2.0:** 5/5 items cerrado (3 Abr 2026) ✅
-- Pendiente estratégico en Q2: **Workforce Planning Dotacional** (modelo/API + motor de palancas + gobernanza + dashboard)
-- Documentos anteriores quedan como **referencia histórica**, no como tablero activo.
+### ✅ CIERRE DE CICLO
+
+- **LMS V2.0 Track:** 5/5 items CERRADO ✅ (V2-01 a V2-06)
+- **Workforce 19.4:** Socialización CERRADA, GO PARA QA ✅
+- **Workforce Dotacional (Q2):** 80% operativo (audit + motor E2E tests framework)
+
+### 📊 MÉTRICAS DEL DÍA
+
+| Item | Estado | Evidencia |
+|---|---|---|
+| **LMS Runbook (V2-03)** | ✅ | Cron + checklist + tests |
+| **LMS Analytics (V2-05)** | ✅ | 9 KPIs + dashboard + 5 tests |
+| **LMS Notifications (V2-02)** | ✅ | Slack webhook + 3 tests |
+| **Scenario People Exp (V2-06)** | ✅ | Integration + 5 tests |
+| **SSO LinkedIn (V2-04)** | ✅ | OAuth 2.0 PKCE + 7 tests |
+| **Workforce 19.4 Social** | ✅ | Acta cierre + GO CONDICIONAL |
+| **Workforce Motor Audit** | ✅ | 80% complete + test framework |
+
+### 🚀 COMMITS DEL DÍA
+
+- 6cf590eb: Workforce audit + motor tests
+- 6c49d199: Workforce 19.4 closure
+- 73b08057: SSO LinkedIn PoC
+- fdd1c8d0: People Experience E2E
+- 4e022411: Slack notifications
+- 0d3269de: Analytics LMS
+
+**Total: 6 commits, 7 tests nuevos, ~1500 líneas de código/docs**
