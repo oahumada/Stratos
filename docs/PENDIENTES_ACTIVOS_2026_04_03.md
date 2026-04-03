@@ -44,9 +44,10 @@
     - Cierre: mail+database+broadcast + Slack webhook (certificado y curso completado) + 3 tests
     - Evidencia: `LmsService::sendCourseCompletedSlackNotification` + `LmsNotificationsTest` (3 tests)
 
-5. **V2-04 SSO LMS con proveedores externos**
-    - Estado: Pendiente
-    - Cierre: diseño aprobado + PoC funcional de al menos 1 proveedor
+5. **✅ V2-04 SSO LMS con proveedores externos**
+    - Estado: ✅ **CERRADO** (3 Abr 2026)
+    - Cierre: Diseño OAuth 2.0 PKCE + PoC LinkedIn Learning + 7/9 tests (PKCE, state validation, token exchange, error handling)
+    - Evidencia: `LmsSsoAuthenticatorInterface` + `LinkedInLearningSsoAuthenticator` + `V2-04_SSO_DESIGN.md` + `LinkedInLearningSsoAuthenticatorTest`
 
 6. **✅ V2-06 Integración People Experience en Scenario Planning**
     - Estado: ✅ **CERRADO** (3 Abr 2026)
@@ -90,5 +91,6 @@ Estos documentos **no se eliminan**, pero dejan de ser fuente operativa principa
 
 - Pendiente más crítico/actual: **Cierre funcional Workforce 19.4 (socialización formal)**.
 - Pendientes en ejecución: ninguno activo actualmente.
-- Pendientes siguientes: **V2-04** (SSO LMS con proveedores externos).
+- Pendientes siguientes: ninguno en track LMS V2.0 (todos cerrados).
+- **Track LMS V2.0 completado: 5/5 items CERRADO (3 Abr 2026)**.
 - Documentos anteriores quedan como **referencia histórica**, no como tablero activo.
