@@ -82,6 +82,15 @@
 - **[GUIA_VERSIONADO_CHANGELOG.md](GUIA_VERSIONADO_CHANGELOG.md)** - Guía completa de versionado
 - **[NORMA_VERSIONADO_RELEASES_STRATOS.md](NORMA_VERSIONADO_RELEASES_STRATOS.md)** - 📐 Norma interna oficial de versionado, changelog y releases
 
+#### TL;DR operativo (seguro)
+
+- **Validar monotonicidad local:** `bash scripts/check-version-monotonicity.sh`
+- **Ver sugerencia de tipo:** `bash scripts/suggest-release-type.sh`
+- **Simular release sin tag/commit:** `npx standard-version --dry-run`
+- **Crear release real (auto):** `npm run release:auto`
+- **Crear release real (no interactivo):** `npm run release:auto:yes`
+- **Si no quieres auto-sync previo:** agrega `-- --no-sync` al comando npm
+
 ---
 
 ## 📖 Documentación Técnica
