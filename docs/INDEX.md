@@ -182,6 +182,7 @@
 - **[estado_actual_mvp.md](estado_actual_mvp.md)** - Estado actual del MVP
 - **[CHECKLIST_MVP_COMPLETION.md](CHECKLIST_MVP_COMPLETION.md)** - Checklist de completitud
 - **[PENDIENTES_2026_03_26.md](PENDIENTES_2026_03_26.md)** - Snapshot histórico (corte 1 Abr 2026)
+- **[ROADMAP_PENDIENTES.md](ROADMAP_PENDIENTES.md)** - Referencia histórica de pendientes legacy
 
 ---
 
