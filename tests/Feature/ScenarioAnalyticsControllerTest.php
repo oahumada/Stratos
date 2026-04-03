@@ -1,14 +1,18 @@
 <?php
 
+use App\Models\EmployeePulse;
 use App\Models\Organization;
+use App\Models\People;
+use App\Models\Roles;
 use App\Models\Scenario;
+use App\Models\ScenarioRole;
 use App\Models\User;
 use Laravel\Sanctum\Sanctum;
 
 describe('ScenarioAnalyticsController', function () {
     beforeEach(function () {
         $this->organization = Organization::factory()->create();
-        $this->user = User::factory()->create(['current_organization_id' => $this->organization->id]);
+        $this->user = User::factory()->admin()->create(['current_organization_id' => $this->organization->id]);
         Sanctum::actingAs($this->user, ['*']);
     });
 
@@ -118,6 +122,8 @@ describe('ScenarioAnalyticsController', function () {
                     'financial_impact',
                     'risk_metrics',
                     'skill_gaps',
+                    'people_experience',
+                    'headcount',
                 ]);
         });
 
@@ -133,7 +139,7 @@ describe('ScenarioAnalyticsController', function () {
 
             $response = $this->getJson("/api/scenarios/{$scenario->id}/analytics");
 
-            $response->assertForbidden();
+            $response->assertNotFound();
         });
     });
 
@@ -273,7 +279,7 @@ describe('ScenarioAnalyticsController', function () {
             $org1 = Organization::factory()->create();
             $org2 = Organization::factory()->create();
 
-            $user1 = User::factory()->create(['current_organization_id' => $org1->id]);
+            $user1 = User::factory()->admin()->create(['current_organization_id' => $org1->id]);
             $user2 = User::factory()->create(['current_organization_id' => $org2->id]);
 
             $scenario1 = Scenario::factory()->for($org1)->create();
@@ -287,7 +293,7 @@ describe('ScenarioAnalyticsController', function () {
 
             // User1 cannot access other org's scenario
             $this->getJson("/api/scenarios/{$scenario2->id}/analytics")
-                ->assertForbidden();
+                ->assertNotFound();
         });
     });
 
@@ -316,6 +322,75 @@ describe('ScenarioAnalyticsController', function () {
             $this->postJson('/api/scenarios/compare', [
                 'scenario_ids' => [$scenario1a->id, $scenario2a->id],
             ])->assertForbidden();
+        });
+    });
+
+    describe('peopleExperience', function () {
+        it('returns people experience and headcount contract for a scenario', function () {
+            $scenario = Scenario::factory()
+                ->for($this->organization)
+                ->create();
+
+            $role = Roles::factory()->create(['organization_id' => $this->organization->id]);
+            ScenarioRole::create([
+                'scenario_id' => $scenario->id,
+                'role_id' => $role->id,
+                'fte' => 12,
+                'role_change' => 'evolve',
+            ]);
+
+            $person = People::factory()->create([
+                'organization_id' => $this->organization->id,
+            ]);
+
+            EmployeePulse::create([
+                'people_id' => $person->id,
+                'e_nps' => 8,
+                'stress_level' => 3,
+                'engagement_level' => 4,
+                'ai_turnover_risk' => 76,
+                'comments' => 'Pulse test',
+            ]);
+
+            $response = $this->getJson("/api/scenarios/{$scenario->id}/people-experience");
+
+            $response->assertSuccessful()
+                ->assertJsonStructure([
+                    'scenario_id',
+                    'people_experience' => [
+                        'active_people',
+                        'pulses_last_30d',
+                        'avg_enps',
+                        'avg_engagement_level',
+                        'avg_stress_level',
+                        'high_turnover_risk_people',
+                    ],
+                    'headcount' => [
+                        'current',
+                        'projected',
+                        'change',
+                    ],
+                ]);
+
+            expect($response->json('headcount.projected'))->toBe(12);
+            expect($response->json('people_experience.high_turnover_risk_people'))->toBe(1);
+        });
+
+        it('enforces auth and organization boundaries for people experience endpoint', function () {
+            $org1 = Organization::factory()->create();
+            $org2 = Organization::factory()->create();
+
+            $scenarioOrg1 = Scenario::factory()->for($org1)->create();
+            $scenarioOrg2 = Scenario::factory()->for($org2)->create();
+
+            $userOrg1 = User::factory()->admin()->create(['current_organization_id' => $org1->id]);
+
+            Sanctum::actingAs($userOrg1, ['*']);
+            $this->getJson("/api/scenarios/{$scenarioOrg1->id}/people-experience")->assertSuccessful();
+            $this->getJson("/api/scenarios/{$scenarioOrg2->id}/people-experience")->assertNotFound();
+
+            test()->sanctumActingAs(null);
+            $this->getJson("/api/scenarios/{$scenarioOrg1->id}/people-experience")->assertUnauthorized();
         });
     });
 });

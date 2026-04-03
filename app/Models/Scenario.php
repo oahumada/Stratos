@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasScenarioBusinessRules;
+use App\Models\Concerns\HasWorkforceWorkflow;
 use App\Traits\BelongsToOrganization;
 use App\Traits\HasDigitalSeal;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +13,7 @@ use Illuminate\Support\Facades\Schema;
 
 class Scenario extends Model
 {
-    use BelongsToOrganization, HasDigitalSeal, HasFactory;
+    use BelongsToOrganization, HasDigitalSeal, HasFactory, HasScenarioBusinessRules, HasWorkforceWorkflow;
 
     // Canonical table: `scenarios`. Legacy compatibility view `workforce_planning_scenarios` is deprecated.
     protected $table = 'scenarios';
@@ -79,6 +81,16 @@ class Scenario extends Model
     public function skillDemands()
     {
         return $this->hasMany(\App\Models\ScenarioSkillDemand::class, 'scenario_id');
+    }
+
+    public function workforceDemandLines(): HasMany
+    {
+        return $this->hasMany(\App\Models\WorkforceDemandLine::class, 'scenario_id');
+    }
+
+    public function workforceActionPlans(): HasMany
+    {
+        return $this->hasMany(\App\Models\WorkforceActionPlan::class, 'scenario_id');
     }
 
     public function roles()
@@ -161,38 +173,5 @@ class Scenario extends Model
     public function talentBlueprints()
     {
         return $this->hasMany(TalentBlueprint::class);
-    }
-
-    public function getSynthetizationIndexAttribute()
-    {
-        if ($this->talentBlueprints->isEmpty()) {
-            return 0;
-        }
-
-        return round(
-            $this->talentBlueprints->avg('synthetic_percentage')
-        );
-    }
-
-    /**
-     * Whether this scenario can be edited by an optional user.
-     *
-     * - Draft and rejected scenarios are editable.
-     * - Pending approval and approved scenarios are not editable by default.
-     * - If a User is provided, admins or the creator may be allowed.
-     */
-    public function canBeEdited(?\App\Models\User $user = null): bool
-    {
-        // Disallow edits when scenario is pending approval or already approved
-        if (in_array($this->decision_status, ['pending_approval', 'approved'], true)) {
-            // allow creator or admin to edit in tests if explicitly required
-            if ($user) {
-                return ($this->created_by === $user->id) || $user->hasRole('admin');
-            }
-
-            return false;
-        }
-
-        return true;
     }
 }

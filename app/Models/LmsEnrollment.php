@@ -10,12 +10,17 @@ class LmsEnrollment extends Model
         'lms_course_id',
         'user_id',
         'progress_percentage',
+        'resources_completed',
+        'resources_total',
+        'assessment_score',
         'status',
         'started_at',
         'completed_at',
     ];
 
     protected $casts = [
+        'progress_percentage' => 'float',
+        'assessment_score' => 'float',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
     ];

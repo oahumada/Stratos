@@ -6,8 +6,13 @@ use Database\Seeders\Phase3TestDataSeeder;
 
 beforeEach(function () {
     $this->seed(Phase3TestDataSeeder::class);
-    $this->user = User::first();
-    $this->scenario = Scenario::first();
+    $this->scenario = Scenario::query()
+        ->where('name', 'Phase 3: Testing Scenario')
+        ->firstOrFail();
+    $this->user = User::query()
+        ->where('organization_id', $this->scenario->organization_id)
+        ->orderBy('id')
+        ->firstOrFail();
 });
 
 test('it returns real headcount in role forecasts', function () {

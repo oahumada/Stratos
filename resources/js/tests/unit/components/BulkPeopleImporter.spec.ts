@@ -96,9 +96,27 @@ describe('BulkPeopleImporter.vue', () => {
             props: { isOpen: true },
         });
 
-        // Manually set rawData and step to bypass file upload for this test
-        (wrapper.vm as any).rawData = [{ email: 'john@test.com' }];
-        (wrapper.vm as any).step = 2;
+        const file = new File(
+            [
+                'name,last_name,email,department,role\nJohn,Doe,john@test.com,Sales,Manager',
+            ],
+            'test.csv',
+            { type: 'text/csv' },
+        );
+        file.text = vi
+            .fn()
+            .mockResolvedValue(
+                'name,last_name,email,department,role\nJohn,Doe,john@test.com,Sales,Manager',
+            );
+
+        const input = wrapper.find('input[type="file"]');
+        Object.defineProperty(input.element, 'files', {
+            value: [file],
+        });
+
+        await input.trigger('change');
+        await nextTick();
+        await new Promise((resolve) => setTimeout(resolve, 0));
         await nextTick();
 
         // En el paso 2, el botón de analizar contiene este texto

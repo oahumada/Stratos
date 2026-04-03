@@ -43,7 +43,7 @@ const loadMetrics = async () => {
         const response = await axios.get(
             '/api/strategic-planning/assessments/metrics',
         );
-        metrics.value = response.data;
+        metrics.value = response.data?.data ?? response.data;
     } catch (e) {
         console.error('Error loading Talento 360 metrics', e);
     } finally {
@@ -137,6 +137,18 @@ const extractDNA = async (personId: number, personName: string) => {
         dnaLoading.value = false;
     }
 };
+
+defineExpose({
+    metrics,
+    loading,
+    dnaDialog,
+    dnaLoading,
+    dnaResult,
+    selectedPerson,
+    openDnaExtractor,
+    extractDNA,
+    loadMetrics,
+});
 </script>
 
 <template>

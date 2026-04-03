@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LmsAnalyticsDashboard from '@/components/Lms/LmsAnalyticsDashboard.vue';
 import LmsLandingContent from '@/components/Lms/LmsLandingContent.vue';
 
 interface Summary {
@@ -116,6 +117,18 @@ defineProps<{
                             Volver a Stratos Growth
                         </v-btn>
                     </div>
+                </v-card>
+            </v-col>
+        </v-row>
+
+        <!-- Analytics KPIs -->
+        <v-row class="mt-6">
+            <v-col cols="12">
+                <v-card class="pa-6 rounded-xl" elevation="1">
+                    <h3 class="text-h6 font-weight-bold mb-4">
+                        Analytics LMS — KPIs de la organización
+                    </h3>
+                    <LmsAnalyticsDashboard />
                 </v-card>
             </v-col>
         </v-row>

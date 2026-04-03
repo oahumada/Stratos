@@ -28,6 +28,15 @@ const activeSessions = ref([]);
 const searchQuery = ref('');
 const sessionDialog = ref(null);
 const selectedActionId = ref(null);
+const lmsInterventionContext = ref<{
+    peopleId: number;
+    courseId: number | null;
+    enrollmentId: number | null;
+    developmentActionId: number | null;
+    progress: number | null;
+    assessment: number | null;
+    resourceCompletion: number | null;
+} | null>(null);
 
 const stats = ref([
     {
@@ -135,11 +144,61 @@ const openSessionDialog = (mentorId: number) => {
     sessionDialog.value?.open();
 };
 
-onMounted(fetchMentoringData);
+const parseLmsRiskContext = () => {
+    const params = new URLSearchParams(globalThis.location.search);
+
+    if (params.get('source') !== 'lms_risk') {
+        return;
+    }
+
+    const peopleId = Number(params.get('people_id') || 0);
+    if (!peopleId) {
+        return;
+    }
+
+    const parseOptionalNumber = (value: string | null): number | null => {
+        if (!value) {
+            return null;
+        }
+
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    lmsInterventionContext.value = {
+        peopleId,
+        courseId: parseOptionalNumber(params.get('course_id')),
+        enrollmentId: parseOptionalNumber(params.get('enrollment_id')),
+        developmentActionId: parseOptionalNumber(
+            params.get('development_action_id'),
+        ),
+        progress: parseOptionalNumber(params.get('progress')),
+        assessment: parseOptionalNumber(params.get('assessment')),
+        resourceCompletion: parseOptionalNumber(
+            params.get('resource_completion'),
+        ),
+    };
+};
+
+const startInterventionFromContext = () => {
+    if (!lmsInterventionContext.value) {
+        return;
+    }
+
+    selectedActionId.value = lmsInterventionContext.value.developmentActionId;
+    sessionDialog.value?.open();
+};
+
+onMounted(() => {
+    parseLmsRiskContext();
+    fetchMentoringData();
+});
 </script>
 
 <template>
-    <Head title="Mentoring Hub | Stratos Grow" />
+    <Head>
+        <title>Mentoring Hub | Stratos Grow</title>
+    </Head>
 
     <div class="mx-auto min-h-screen max-w-7xl space-y-8 p-8">
         <!-- Header Section -->
@@ -215,6 +274,68 @@ onMounted(fetchMentoringData);
                 </div>
             </StCardGlass>
         </div>
+
+        <StCardGlass
+            v-if="lmsInterventionContext"
+            class="border border-amber-400/20 !p-6"
+        >
+            <div
+                class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+            >
+                <div>
+                    <h3
+                        class="text-sm font-black tracking-widest text-amber-300 uppercase"
+                    >
+                        Contexto LMS detectado
+                    </h3>
+                    <p class="mt-1 text-sm text-slate-300">
+                        Llegaste desde un learner en riesgo. Puedes registrar la
+                        intervención de mentoring con este contexto.
+                    </p>
+                    <div class="mt-3 flex flex-wrap gap-2 text-xs">
+                        <StBadgeGlass variant="glass">
+                            People ID: {{ lmsInterventionContext.peopleId }}
+                        </StBadgeGlass>
+                        <StBadgeGlass
+                            v-if="lmsInterventionContext.progress !== null"
+                            variant="glass"
+                        >
+                            Progreso:
+                            {{ lmsInterventionContext.progress.toFixed(1) }}%
+                        </StBadgeGlass>
+                        <StBadgeGlass
+                            v-if="lmsInterventionContext.assessment !== null"
+                            variant="glass"
+                        >
+                            Assessment:
+                            {{ lmsInterventionContext.assessment.toFixed(1) }}%
+                        </StBadgeGlass>
+                        <StBadgeGlass
+                            v-if="
+                                lmsInterventionContext.resourceCompletion !==
+                                null
+                            "
+                            variant="glass"
+                        >
+                            Recursos:
+                            {{
+                                lmsInterventionContext.resourceCompletion.toFixed(
+                                    1,
+                                )
+                            }}%
+                        </StBadgeGlass>
+                    </div>
+                </div>
+
+                <StButtonGlass
+                    variant="primary"
+                    :icon="PhSparkle"
+                    @click="startInterventionFromContext"
+                >
+                    Registrar intervención
+                </StButtonGlass>
+            </div>
+        </StCardGlass>
 
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
             <!-- Left Column: Mentors -->
@@ -350,6 +471,7 @@ onMounted(fetchMentoringData);
     <MentorshipSessionDialog
         ref="sessionDialog"
         :action-id="selectedActionId"
+        :lms-enrollment-id="lmsInterventionContext?.enrollmentId ?? null"
     />
 </template>
 

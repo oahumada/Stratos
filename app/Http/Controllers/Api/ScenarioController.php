@@ -70,7 +70,10 @@ class ScenarioController extends Controller
         if (! $user) {
             return $this->unauthorizedResponse();
         }
-        $organizationId = $user->organization_id;
+        $organizationId = (int) (($user->current_organization_id ?? $user->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return $this->errorResponse('No se pudo resolver organization_id para Talent Planning', 422);
+        }
 
         $filters = [
             'status' => $request->input('status'),
@@ -110,9 +113,13 @@ class ScenarioController extends Controller
         if (! $user) {
             return $this->unauthorizedResponse();
         }
+        $organizationId = (int) (($user->current_organization_id ?? $user->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return $this->errorResponse('No se pudo resolver organization_id para Talent Planning', 422);
+        }
 
         $scenario = Scenario::withoutGlobalScopes()->findOrFail($id);
-        if ($scenario->organization_id !== $user->organization_id) {
+        if ($scenario->organization_id !== $organizationId) {
             return $this->forbiddenResponse();
         }
 
@@ -136,9 +143,13 @@ class ScenarioController extends Controller
         if (! $user) {
             return $this->unauthorizedResponse();
         }
+        $organizationId = (int) (($user->current_organization_id ?? $user->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return $this->errorResponse('No se pudo resolver organization_id para Talent Planning', 422);
+        }
 
         $scenario = Scenario::withoutGlobalScopes()->findOrFail($id);
-        if ($scenario->organization_id !== $user->organization_id) {
+        if ($scenario->organization_id !== $organizationId) {
             return $this->forbiddenResponse();
         }
 
@@ -229,6 +240,15 @@ class ScenarioController extends Controller
      */
     public function showScenario($id): JsonResponse
     {
+        $user = auth()->user();
+        if (! $user) {
+            return $this->unauthorizedResponse();
+        }
+        $organizationId = (int) (($user->current_organization_id ?? $user->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return $this->errorResponse('No se pudo resolver organization_id para Talent Planning', 422);
+        }
+
         $scenario = $this->scenarioRepo->getScenarioById((int) $id);
 
         if (! $scenario) {
@@ -236,12 +256,7 @@ class ScenarioController extends Controller
         }
 
         // Tenant isolation: only allow access to scenarios within the user's organization
-        $user = auth()->user();
-        if (! $user) {
-            return $this->unauthorizedResponse();
-        }
-        $userOrg = $user->organization_id;
-        if ($scenario->organization_id !== $userOrg) {
+        if ($scenario->organization_id !== $organizationId) {
             return $this->forbiddenResponse();
         }
 

@@ -9,11 +9,20 @@ use Illuminate\Http\JsonResponse;
 
 class CmsArticleController extends Controller
 {
+    private const ORG_RESOLUTION_ERROR = 'No se pudo resolver organization_id para CMS LMS.';
+
     public function store(StoreCmsArticleRequest $request): JsonResponse
     {
         $data = $request->validated();
 
-        $organizationId = (int) $data['organization_id'];
+        $organizationId = (int) (($request->user()?->current_organization_id ?? $request->user()?->organization_id) ?? 0);
+
+        if ($organizationId <= 0) {
+            return response()->json([
+                'message' => self::ORG_RESOLUTION_ERROR,
+            ], 422);
+        }
+
         $topic = (string) $data['topic'];
         $options = $data['options'] ?? [];
         $options['auto_publish'] = $data['auto_publish'] ?? false;

@@ -184,6 +184,7 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="space-y-1.5">
                                     <label
+                                        for="mentorship-session-date"
                                         class="px-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
                                     >
                                         {{
@@ -193,6 +194,7 @@
                                         }}
                                     </label>
                                     <input
+                                        id="mentorship-session-date"
                                         v-model="newSession.session_date"
                                         type="date"
                                         required
@@ -201,6 +203,7 @@
                                 </div>
                                 <div class="space-y-1.5">
                                     <label
+                                        for="mentorship-session-duration"
                                         class="px-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
                                     >
                                         {{
@@ -210,6 +213,7 @@
                                         }}
                                     </label>
                                     <input
+                                        id="mentorship-session-duration"
                                         v-model="newSession.duration_minutes"
                                         type="number"
                                         class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white transition-all focus:border-indigo-500/50 focus:outline-none"
@@ -219,6 +223,7 @@
 
                             <div class="space-y-1.5">
                                 <label
+                                    for="mentorship-session-summary"
                                     class="px-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
                                 >
                                     {{
@@ -228,6 +233,7 @@
                                     }}
                                 </label>
                                 <textarea
+                                    id="mentorship-session-summary"
                                     v-model="newSession.summary"
                                     required
                                     rows="4"
@@ -242,6 +248,7 @@
 
                             <div class="space-y-1.5">
                                 <label
+                                    for="mentorship-session-next-steps"
                                     class="px-1 text-[10px] font-black tracking-widest text-white/30 uppercase"
                                 >
                                     {{
@@ -251,6 +258,7 @@
                                     }}
                                 </label>
                                 <textarea
+                                    id="mentorship-session-next-steps"
                                     v-model="newSession.next_steps"
                                     rows="2"
                                     class="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition-all focus:border-indigo-500/50 focus:outline-none"
@@ -303,11 +311,17 @@ const { t } = useI18n();
 const props = defineProps({
     actionId: {
         type: Number,
-        required: true,
+        required: false,
+        default: null,
     },
     actionTitle: {
         type: String,
         default: 'Sesion de Mentoría',
+    },
+    lmsEnrollmentId: {
+        type: Number,
+        required: false,
+        default: null,
     },
 });
 
@@ -355,12 +369,25 @@ const fetchSessions = async () => {
 };
 
 const saveSession = async () => {
+    if (!props.actionId) {
+        console.error(
+            'No development_action_id provided for mentorship session',
+        );
+        return;
+    }
+
     saving.value = true;
     try {
         await axios.post('/api/mentorship-sessions', {
             ...newSession.value,
             development_action_id: props.actionId,
         });
+
+        if (props.lmsEnrollmentId) {
+            await axios.post(
+                `/api/lms/interventions/${props.lmsEnrollmentId}/complete`,
+            );
+        }
 
         // Reset form and go to list
         newSession.value = {

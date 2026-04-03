@@ -30,6 +30,13 @@ class Kernel extends ConsoleKernel
 
         // Aggregate intelligence metrics daily at 01:00 UTC
         $schedule->job(new \App\Jobs\AggregateIntelligenceMetricsDaily)->dailyAt('01:00');
+
+        // Sincronizar progreso LMS regularmente (emisión automática de certificados)
+        // Ejecuta cada hora, evita solapamientos y corre en background.
+        $schedule->command('lms:sync-progress')
+            ->hourly()
+            ->withoutOverlapping()
+            ->runInBackground();
     }
 
     /**

@@ -41,8 +41,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
-    @if (app()->environment('testing'))
-        <!-- In testing environment skip Vite manifest lookups and include minimal stubs -->
+    @if (app()->environment('testing') && ! file_exists(public_path('build/manifest.json')))
         <script src="/build/app.js"></script>
     @else
         @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])

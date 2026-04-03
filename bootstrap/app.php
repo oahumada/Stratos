@@ -5,7 +5,6 @@ use App\Http\Middleware\HandleInertiaRequests;
 use App\Jobs\ProcessVerificationPhaseTransition;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
@@ -71,7 +70,19 @@ return Application::configure(basePath: dirname(__DIR__))
             ->name('metrics:warm-cache-scheduled')
             ->withoutOverlapping()
             ->onOneServer();
+
+        $schedule->command('lms:sync-progress')
+            ->hourly()
+            ->name('lms:sync-progress-hourly')
+            ->withoutOverlapping()
+            ->runInBackground();
+
+        $schedule->command('lms:monitor-sync --max-lag-minutes=90')
+            ->everyFifteenMinutes()
+            ->name('lms:monitor-sync-health')
+            ->withoutOverlapping()
+            ->runInBackground();
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
+    ->withExceptions(function (): void {
         //
     })->create();

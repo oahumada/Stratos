@@ -53,6 +53,10 @@ return [
         ],
     ],
 
+    'lms' => [
+        'slack_webhook_url' => env('LMS_SLACK_WEBHOOK_URL'),
+    ],
+
     'abacus' => [
         'base_url' => env('ABACUS_BASE_URL', 'https://api.abacus.ai'),
         'stream_url' => env('ABACUS_STREAM_URL', null),

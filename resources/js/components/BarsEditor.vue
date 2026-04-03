@@ -174,7 +174,7 @@ const props = defineProps<{
     initialMode?: 'structured' | 'json';
     readOnly?: boolean;
 }>();
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'update:model-value']);
 
 const mode = ref<'structured' | 'json'>(props.initialMode ?? 'structured');
 
@@ -272,7 +272,7 @@ function onInput() {
     try {
         const parsed = JSON.parse(text.value);
         parseError.value = null;
-        emit('update:modelValue', parsed);
+        emitModelValue(parsed);
     } catch (e: any) {
         // don't emit invalid JSON as the modelValue; set parse error for UI
         parseError.value = e && e.message ? String(e.message) : 'Invalid JSON';
@@ -290,22 +290,27 @@ function titleFor(k: string) {
 
 function addItem(key: string) {
     bars[key].push('');
-    emit('update:modelValue', structuredValue());
+    emitModelValue(structuredValue());
 }
 
 function addBlankSkill() {
     bars.skills.push({ name: '' });
     // allow next tick for DOM update, but emit now so parent sees change
-    emit('update:modelValue', structuredValue());
+    emitModelValue(structuredValue());
 }
 
 function removeItem(key: string, idx: number) {
     bars[key].splice(idx, 1);
-    emit('update:modelValue', structuredValue());
+    emitModelValue(structuredValue());
 }
 
 function onStructuredChange() {
-    emit('update:modelValue', structuredValue());
+    emitModelValue(structuredValue());
+}
+
+function emitModelValue(value: any) {
+    emit('update:modelValue', value);
+    emit('update:model-value', value);
 }
 
 function structuredValue() {
@@ -349,7 +354,7 @@ function selectSuggestion(sug: any) {
     bars.skills.push({ id: sug.id, name: sug.name });
     skillQuery.value = '';
     skillSuggestions.value = [];
-    emit('update:modelValue', structuredValue());
+    emitModelValue(structuredValue());
 }
 
 function commitSkillFromQuery() {
@@ -358,12 +363,12 @@ function commitSkillFromQuery() {
     bars.skills.push({ name: q });
     skillQuery.value = '';
     skillSuggestions.value = [];
-    emit('update:modelValue', structuredValue());
+    emitModelValue(structuredValue());
 }
 
 function removeSkill(idx: number) {
     bars.skills.splice(idx, 1);
-    emit('update:modelValue', structuredValue());
+    emitModelValue(structuredValue());
 }
 
 function displaySkillName(s: any) {

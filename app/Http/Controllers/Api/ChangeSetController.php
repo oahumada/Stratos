@@ -22,9 +22,13 @@ class ChangeSetController extends Controller
     public function store(Request $request, $scenarioId)
     {
         $user = $request->user();
+        $organizationId = (int) (($user?->current_organization_id ?? $user?->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return response()->json(['success' => false, 'message' => 'No se pudo resolver organization_id para ChangeSet'], 422);
+        }
         $payload = $request->only(['title', 'description', 'diff', 'metadata']);
         $payload['scenario_id'] = $scenarioId;
-        $payload['organization_id'] = $user->organization_id ?? null;
+        $payload['organization_id'] = $organizationId;
         $payload['created_by'] = $user->id ?? null;
         // Provide sensible defaults when client invokes store with empty payload
         $payload['title'] = $payload['title'] ?? 'ChangeSet';
@@ -48,9 +52,13 @@ class ChangeSetController extends Controller
 
     public function preview($id)
     {
-        $cs = ChangeSet::findOrFail($id);
         $user = auth()->user();
-        if ($cs->organization_id !== ($user->organization_id ?? null)) {
+        $organizationId = (int) (($user?->current_organization_id ?? $user?->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return response()->json(['success' => false, 'message' => 'No se pudo resolver organization_id para ChangeSet'], 422);
+        }
+        $cs = ChangeSet::findOrFail($id);
+        if ($cs->organization_id !== $organizationId) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
 
@@ -59,9 +67,13 @@ class ChangeSetController extends Controller
 
     public function apply(Request $request, $id)
     {
-        $cs = ChangeSet::findOrFail($id);
         $user = $request->user();
-        if ($cs->organization_id !== ($user->organization_id ?? null)) {
+        $organizationId = (int) (($user?->current_organization_id ?? $user?->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return response()->json(['success' => false, 'message' => 'No se pudo resolver organization_id para ChangeSet'], 422);
+        }
+        $cs = ChangeSet::findOrFail($id);
+        if ($cs->organization_id !== $organizationId) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
         $this->authorize('apply', $cs);
@@ -73,9 +85,13 @@ class ChangeSetController extends Controller
 
     public function addOp(Request $request, $id)
     {
-        $cs = ChangeSet::findOrFail($id);
         $user = $request->user();
-        if ($cs->organization_id !== ($user->organization_id ?? null)) {
+        $organizationId = (int) (($user?->current_organization_id ?? $user?->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return response()->json(['success' => false, 'message' => 'No se pudo resolver organization_id para ChangeSet'], 422);
+        }
+        $cs = ChangeSet::findOrFail($id);
+        if ($cs->organization_id !== $organizationId) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
 
@@ -94,9 +110,13 @@ class ChangeSetController extends Controller
 
     public function canApply($id)
     {
-        $cs = ChangeSet::findOrFail($id);
         $user = auth()->user();
-        if ($cs->organization_id !== ($user->organization_id ?? null)) {
+        $organizationId = (int) (($user?->current_organization_id ?? $user?->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return response()->json(['success' => false, 'message' => 'No se pudo resolver organization_id para ChangeSet', 'can_apply' => false], 422);
+        }
+        $cs = ChangeSet::findOrFail($id);
+        if ($cs->organization_id !== $organizationId) {
             return response()->json(['success' => false, 'can_apply' => false], 403);
         }
         $can = auth()->user() ? auth()->user()->can('apply', $cs) : false;
@@ -106,9 +126,13 @@ class ChangeSetController extends Controller
 
     public function approve(Request $request, $id)
     {
-        $cs = ChangeSet::findOrFail($id);
         $user = $request->user();
-        if ($cs->organization_id !== ($user->organization_id ?? null)) {
+        $organizationId = (int) (($user?->current_organization_id ?? $user?->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return response()->json(['success' => false, 'message' => 'No se pudo resolver organization_id para ChangeSet'], 422);
+        }
+        $cs = ChangeSet::findOrFail($id);
+        if ($cs->organization_id !== $organizationId) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
         $this->authorize('apply', $cs);
@@ -158,9 +182,13 @@ class ChangeSetController extends Controller
 
     public function reject(Request $request, $id)
     {
-        $cs = ChangeSet::findOrFail($id);
         $user = $request->user();
-        if ($cs->organization_id !== ($user->organization_id ?? null)) {
+        $organizationId = (int) (($user?->current_organization_id ?? $user?->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return response()->json(['success' => false, 'message' => 'No se pudo resolver organization_id para ChangeSet'], 422);
+        }
+        $cs = ChangeSet::findOrFail($id);
+        if ($cs->organization_id !== $organizationId) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
         }
         $this->authorize('apply', $cs);

@@ -44,6 +44,18 @@ describe('ClosingStrategies.vue', () => {
             status: 'approved',
             blueprint: null,
         },
+        {
+            id: 3,
+            strategy: 'buy',
+            strategy_name: 'Acquisition',
+            skill_name: 'Specialist',
+            description: 'Hire from market',
+            estimated_cost: 3000,
+            estimated_time_weeks: 3,
+            risk_level: 'medium',
+            status: 'proposed',
+            blueprint: null,
+        },
     ];
 
     beforeEach(() => {
@@ -121,17 +133,25 @@ describe('ClosingStrategies.vue', () => {
         expect(mockedAxios.get).toHaveBeenCalledTimes(4);
     });
 
-    it('shows different colors for different strategy types', () => {
+    it('shows strategy color palette in rendered cards', async () => {
+        mockedAxios.get.mockImplementation((url) => {
+            if (url.includes('strategies')) {
+                return Promise.resolve({ data: { data: mockStrategies } });
+            }
+            return Promise.resolve({ data: { data: [] } });
+        });
+
         const wrapper = mount(ClosingStrategies, {
             props: {
                 scenarioId: 1,
             },
         });
 
-        // Accessing the methods via vm
-        const vm = wrapper.vm as any;
-        expect(vm.getStrategyColorHex('build')).toBe('#818cf8');
-        expect(vm.getStrategyColorHex('bot')).toBe('#a78bfa');
-        expect(vm.getStrategyColorHex('buy')).toBe('#34d399');
+        await flushPromises();
+
+        const html = wrapper.html();
+        expect(html).toContain('#818cf8');
+        expect(html).toContain('#a78bfa');
+        expect(html).toContain('#34d399');
     });
 });

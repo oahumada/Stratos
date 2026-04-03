@@ -16,9 +16,23 @@ class LmsCourse extends Model
         'cost_per_seat',
         'currency',
         'xp_points',
+        'cert_min_resource_completion_ratio',
+        'cert_require_assessment_score',
+        'cert_min_assessment_score',
         'is_active',
         'organization_id',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'cost_per_seat' => 'float',
+            'cert_min_resource_completion_ratio' => 'float',
+            'cert_require_assessment_score' => 'boolean',
+            'cert_min_assessment_score' => 'float',
+            'is_active' => 'boolean',
+        ];
+    }
 
     public function modules()
     {

@@ -11,11 +11,12 @@ class Organizations extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'subdomain', 'industry', 'size', 'active_modules'];
+    protected $fillable = ['name', 'subdomain', 'industry', 'size', 'active_modules', 'workforce_thresholds'];
 
     protected $casts = [
         'size' => 'string',
         'active_modules' => 'array',
+        'workforce_thresholds' => 'array',
     ];
 
     public function users(): HasMany

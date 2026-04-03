@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
+import { defineComponent, h } from 'vue';
 
 vi.mock('@/composables/usePermissions', () => ({
     usePermissions: () => ({
@@ -17,31 +18,74 @@ vi.mock('@/stores/tenantStore', () => ({
     }),
 }));
 
+vi.mock('@/components/ui/sidebar', () => {
+    const passthrough = defineComponent({
+        setup(_, { slots }) {
+            return () => h('div', {}, slots.default ? slots.default() : []);
+        },
+    });
+
+    return {
+        Sidebar: passthrough,
+        SidebarContent: passthrough,
+        SidebarFooter: passthrough,
+        SidebarHeader: passthrough,
+        SidebarMenu: passthrough,
+        SidebarMenuButton: passthrough,
+        SidebarMenuItem: passthrough,
+    };
+});
+
+vi.mock('@/components/NavMain.vue', () => ({
+    default: defineComponent({
+        props: ['items'],
+        setup(props: any) {
+            return () =>
+                h(
+                    'div',
+                    { class: 'nav-main-stub' },
+                    (props.items || []).map((item: any) =>
+                        h(
+                            'div',
+                            {
+                                class: 'nav-item',
+                                'data-title': item.title,
+                                'data-href': item.href,
+                                key: item.title,
+                            },
+                            item.title,
+                        ),
+                    ),
+                );
+        },
+    }),
+}));
+
+vi.mock('@/components/NavFooter.vue', () => ({
+    default: defineComponent({
+        setup() {
+            return () => h('div', { class: 'nav-footer-stub' });
+        },
+    }),
+}));
+
+vi.mock('@/components/NavUser.vue', () => ({
+    default: defineComponent({
+        setup() {
+            return () => h('div', { class: 'nav-user-stub' });
+        },
+    }),
+}));
+
 import AppSidebar from '@/components/AppSidebar.vue';
 
 describe('AppSidebar', () => {
     it('includes Stratos Compliance in main navigation for governance roles', () => {
-        const wrapper = shallowMount(AppSidebar, {
+        const wrapper = mount(AppSidebar, {
             global: {
                 stubs: {
                     AppLogo: true,
-                    Sidebar: { template: '<div><slot /></div>' },
-                    SidebarContent: { template: '<div><slot /></div>' },
-                    SidebarFooter: { template: '<div><slot /></div>' },
-                    SidebarHeader: { template: '<div><slot /></div>' },
-                    SidebarMenu: { template: '<div><slot /></div>' },
-                    SidebarMenuButton: {
-                        template: '<button><slot /></button>',
-                    },
-                    SidebarMenuItem: { template: '<div><slot /></div>' },
-                    NavUser: true,
-                    NavFooter: true,
                     Link: true,
-                    NavMain: {
-                        props: ['items'],
-                        template:
-                            '<div class="nav-main-stub"><div v-for="item in items" :key="item.title" class="nav-item" :data-title="item.title" :data-href="item.href">{{ item.title }}</div></div>',
-                    },
                 },
             },
         });

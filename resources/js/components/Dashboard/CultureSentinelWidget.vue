@@ -275,6 +275,18 @@ const runScan = async () => {
         scanning.value = false;
     }
 };
+
+defineExpose({
+    scanning,
+    healthScore,
+    signals,
+    anomalies,
+    aiAnalysis,
+    hasAnomalies,
+    healthColor,
+    trendIcon,
+    runScan,
+});
 </script>
 
 <style scoped>

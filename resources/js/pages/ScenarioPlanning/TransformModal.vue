@@ -204,9 +204,14 @@ async function submit() {
             props.competencyId,
             payload,
         );
-        const v = await store.getVersions(props.competencyId);
-        versions.value = v || [];
         emit('transformed', data);
+
+        try {
+            const v = await store.getVersions(props.competencyId);
+            versions.value = v || [];
+        } catch (refreshError) {
+            console.error('versions refresh error', refreshError);
+        }
     } catch (err) {
         // Show more detailed server error when available
 

@@ -57,7 +57,7 @@ describe('RoleForecastsTable.vue', () => {
         expect(mockGet).toHaveBeenCalledWith(
             '/api/scenarios/1/step2/role-forecasts',
         );
-        expect(wrapper.vm.forecasts).toHaveLength(1);
+        expect(wrapper.text()).toContain('Product Manager');
     });
 
     it('displays forecast data in table', async () => {
@@ -119,7 +119,7 @@ describe('RoleForecastsTable.vue', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.error).toBeTruthy();
+        expect(wrapper.text()).toContain('Error fetching');
     });
 
     it('handles empty forecast list', async () => {
@@ -133,7 +133,6 @@ describe('RoleForecastsTable.vue', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.forecasts).toHaveLength(0);
         // Checking for text instead of class since class name might vary
         expect(wrapper.text()).toContain('No spectral projections defined');
     });
@@ -175,14 +174,12 @@ describe('RoleForecastsTable.vue', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.forecasts).toHaveLength(1);
-        expect(wrapper.vm.forecasts[0].role_id).toBe(1);
-        expect(wrapper.vm.forecasts[0].role_name).toBe('PM');
+        expect(wrapper.text()).toContain('PM');
 
         await wrapper.setProps({ scenarioId: 2 });
         await flushPromises();
 
-        expect(wrapper.vm.forecasts).toHaveLength(1);
-        expect(wrapper.vm.forecasts[0].role_id).toBe(2);
+        expect(wrapper.text()).toContain('Engineer');
+        expect(wrapper.text()).not.toContain('PM');
     });
 });

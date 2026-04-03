@@ -41,4 +41,14 @@ class LmsCertificate extends Model
     {
         return $this->belongsTo(Organization::class, 'organization_id');
     }
+
+    public function enrollment()
+    {
+        return $this->belongsTo(LmsEnrollment::class, 'lms_enrollment_id');
+    }
+
+    public function template()
+    {
+        return $this->belongsTo(LmsCertificateTemplate::class, 'certificate_template_id');
+    }
 }

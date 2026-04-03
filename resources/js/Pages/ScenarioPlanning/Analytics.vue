@@ -52,8 +52,10 @@
                 <ScenarioMetrics
                     :scenario-id="selectedScenarioId"
                     :financial-impact="sampleFinancialData"
-                    :risk-metrics="sampleRiskData"
-                    :headcount-data="sampleHeadcountData"
+                    :risk-metrics="metricsRiskData ?? sampleRiskData"
+                    :headcount-data="
+                        metricsHeadcountData ?? sampleHeadcountData
+                    "
                 />
             </div>
 
@@ -124,7 +126,8 @@ import WorkflowTimeline from '@/components/ScenarioPlanning/WorkflowTimeline.vue
 import ExecutiveSummary from '@/components/ScenarioPlanning/ExecutiveSummary.vue';
 import OrgChartOverlay from '@/components/ScenarioPlanning/OrgChartOverlay.vue';
 import WhatIfAnalyzer from '@/components/ScenarioPlanning/WhatIfAnalyzer.vue';
-import { ref } from 'vue';
+import { useApi } from '@/composables/useApi';
+import { onMounted, ref, watch } from 'vue';
 
 // State
 const activeTab = ref('comparison');
@@ -134,6 +137,52 @@ const selectedScenarioSubmittedAt = ref(null);
 const selectedScenarioApprovedAt = ref(null);
 const selectedScenarioExecutionPlan = ref(null);
 const showNewScenarioModal = ref(false);
+const metricsRiskData = ref<any | null>(null);
+const metricsHeadcountData = ref<any | null>(null);
+const { get } = useApi();
+
+const fetchPeopleExperience = async (): Promise<void> => {
+    try {
+        const response = await get(
+            `/api/scenarios/${selectedScenarioId.value}/people-experience`,
+        );
+
+        if (response?.headcount) {
+            metricsHeadcountData.value = {
+                current: Number(response.headcount.current ?? 0),
+                projected: Number(response.headcount.projected ?? 0),
+                change: Number(response.headcount.change ?? 0),
+            };
+        }
+
+        if (
+            response?.people_experience?.avg_stress_level !== undefined &&
+            response?.people_experience?.avg_stress_level !== null
+        ) {
+            const stress = Number(response.people_experience.avg_stress_level);
+            const overallRisk = Math.min(
+                100,
+                Math.max(0, Math.round((stress / 5) * 100)),
+            );
+            metricsRiskData.value = {
+                overall_risk: overallRisk,
+                probability: Number((overallRisk / 100).toFixed(2)),
+                impact: Number((overallRisk / 100).toFixed(2)),
+            };
+        }
+    } catch {
+        metricsRiskData.value = null;
+        metricsHeadcountData.value = null;
+    }
+};
+
+onMounted(() => {
+    fetchPeopleExperience();
+});
+
+watch(selectedScenarioId, () => {
+    fetchPeopleExperience();
+});
 
 // Tab Configuration
 const tabs = [
@@ -200,14 +249,8 @@ const sampleRiskData = {
 
 const sampleHeadcountData = {
     current: 150,
-    target: 175,
-    change_percent: 16.7,
-    by_role: {
-        'Data Analyst': 10,
-        'ML Engineer': 8,
-        DevOps: 5,
-        'Business Analyst': 2,
-    },
+    projected: 175,
+    change: 25,
 };
 </script>
 

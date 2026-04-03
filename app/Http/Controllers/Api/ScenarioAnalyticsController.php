@@ -5,18 +5,22 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Scenario;
 use App\Services\ScenarioAnalyticsService;
+use App\Services\ScenarioPlanning\PeopleExperienceIntegrationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ScenarioAnalyticsController extends Controller
 {
-    public function __construct(protected ScenarioAnalyticsService $analyticsService) {}
+    public function __construct(
+        protected ScenarioAnalyticsService $analyticsService,
+        protected PeopleExperienceIntegrationService $peopleExperienceService,
+    ) {}
 
     /**
      * Compare multiple scenarios side-by-side
      * POST /api/scenarios/compare
      *
-     * @param Request $request expecting: { scenario_ids: [...] }
+     * @param  Request  $request  expecting: { scenario_ids: [...] }
      */
     public function compareScenarios(Request $request): JsonResponse
     {
@@ -25,7 +29,11 @@ class ScenarioAnalyticsController extends Controller
             'scenario_ids.*' => 'integer|exists:scenarios,id',
         ]);
 
-        $organizationId = auth()->user()->current_organization_id;
+        $user = auth()->user();
+        $organizationId = (int) (($user?->current_organization_id ?? $user?->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return response()->json(['message' => 'No se pudo resolver organization_id para Talent Planning Analytics'], 422);
+        }
         $scenarioIds = $validated['scenario_ids'];
 
         // Verify all scenarios belong to the same organization
@@ -40,7 +48,9 @@ class ScenarioAnalyticsController extends Controller
             \Log::debug('Scenario compare authorization failure', [
                 'requested_ids' => $scenarioIds,
                 'found_ids' => $scenarios->pluck('id')->toArray(),
-                'all_found' => $allScenarios->map(function($s){ return ['id'=>$s->id,'org'=>$s->organization_id]; })->toArray(),
+                'all_found' => $allScenarios->map(function ($s) {
+                    return ['id' => $s->id, 'org' => $s->organization_id];
+                })->toArray(),
                 'organization_id' => $organizationId,
                 'user_id' => auth()->id(),
             ]);
@@ -83,6 +93,7 @@ class ScenarioAnalyticsController extends Controller
         $financialImpact = $this->getFinancialImpact($scenario->id);
         $riskMetrics = $this->getRiskMetrics($scenario->id);
         $skillGaps = $this->getSkillGaps($scenario->id);
+        $peopleExperience = $this->peopleExperienceService->summarizeForScenario($scenario);
 
         return response()->json([
             'scenario_id' => $scenario->id,
@@ -96,6 +107,8 @@ class ScenarioAnalyticsController extends Controller
             'financial_impact' => $financialImpact,
             'risk_metrics' => $riskMetrics,
             'skill_gaps' => $skillGaps,
+            'people_experience' => $peopleExperience['people_experience'],
+            'headcount' => $peopleExperience['headcount'],
         ]);
     }
 
@@ -108,7 +121,13 @@ class ScenarioAnalyticsController extends Controller
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        $scenario = Scenario::withoutGlobalScope('organization')->findOrFail($id);
+        $user = auth()->user();
+        $organizationId = (int) (($user?->current_organization_id ?? $user?->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return response()->json(['message' => 'No se pudo resolver organization_id para Talent Planning Analytics'], 422);
+        }
+
+        $scenario = Scenario::withoutGlobalScope('organization')->where('organization_id', $organizationId)->findOrFail($id);
 
         return $this->analytics($scenario);
     }
@@ -135,7 +154,13 @@ class ScenarioAnalyticsController extends Controller
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        $scenario = Scenario::withoutGlobalScope('organization')->findOrFail($id);
+        $user = auth()->user();
+        $organizationId = (int) (($user?->current_organization_id ?? $user?->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return response()->json(['message' => 'No se pudo resolver organization_id para Talent Planning Analytics'], 422);
+        }
+
+        $scenario = Scenario::withoutGlobalScope('organization')->where('organization_id', $organizationId)->findOrFail($id);
 
         return $this->financialImpact($scenario);
     }
@@ -162,7 +187,13 @@ class ScenarioAnalyticsController extends Controller
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        $scenario = Scenario::withoutGlobalScope('organization')->findOrFail($id);
+        $user = auth()->user();
+        $organizationId = (int) (($user?->current_organization_id ?? $user?->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return response()->json(['message' => 'No se pudo resolver organization_id para Talent Planning Analytics'], 422);
+        }
+
+        $scenario = Scenario::withoutGlobalScope('organization')->where('organization_id', $organizationId)->findOrFail($id);
 
         return $this->riskAssessment($scenario);
     }
@@ -189,9 +220,49 @@ class ScenarioAnalyticsController extends Controller
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        $scenario = Scenario::withoutGlobalScope('organization')->findOrFail($id);
+        $user = auth()->user();
+        $organizationId = (int) (($user?->current_organization_id ?? $user?->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return response()->json(['message' => 'No se pudo resolver organization_id para Talent Planning Analytics'], 422);
+        }
+
+        $scenario = Scenario::withoutGlobalScope('organization')->where('organization_id', $organizationId)->findOrFail($id);
 
         return $this->skillGaps($scenario);
+    }
+
+    /**
+     * Get people experience integration metrics for a scenario
+     * GET /api/scenarios/{scenario}/people-experience
+     */
+    public function peopleExperience(Scenario $scenario): JsonResponse
+    {
+        $this->authorize('view', $scenario);
+
+        $data = $this->peopleExperienceService->summarizeForScenario($scenario);
+
+        return response()->json([
+            'scenario_id' => $scenario->id,
+            'people_experience' => $data['people_experience'],
+            'headcount' => $data['headcount'],
+        ]);
+    }
+
+    public function peopleExperienceById(int $id): JsonResponse
+    {
+        if (! auth()->check()) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $user = auth()->user();
+        $organizationId = (int) (($user?->current_organization_id ?? $user?->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return response()->json(['message' => 'No se pudo resolver organization_id para Talent Planning Analytics'], 422);
+        }
+
+        $scenario = Scenario::withoutGlobalScope('organization')->where('organization_id', $organizationId)->findOrFail($id);
+
+        return $this->peopleExperience($scenario);
     }
 
     /**

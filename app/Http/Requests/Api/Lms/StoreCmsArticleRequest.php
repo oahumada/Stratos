@@ -14,8 +14,7 @@ class StoreCmsArticleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'organization_id' => ['required', 'integer'],
-            'topic' => ['required', 'string'],
+            'topic' => ['required', 'string', 'max:255'],
             'auto_publish' => ['sometimes', 'boolean'],
             'author_id' => ['sometimes', 'nullable', 'integer'],
             'options' => ['sometimes', 'array'],

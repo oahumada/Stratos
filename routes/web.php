@@ -214,6 +214,11 @@ Route::get('/lms', function () {
     ]);
 })->middleware(['auth', 'verified', 'module:st-grow'])->name('lms.landing');
 
+// LMS Course policy editor (UI)
+Route::inertia('/lms/courses/{id}/policy', 'Lms/CoursePolicy/Edit')
+    ->middleware(['auth', 'verified', 'permission:lms.courses.manage'])
+    ->name('lms.courses.policy.edit');
+
 Route::get('/learning-paths', function () {
     return Inertia::render('LearningPaths/StratosNavigator');
 })->middleware(['auth', 'verified', 'module:st-grow'])->name('learning-paths.index');

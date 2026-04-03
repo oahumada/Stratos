@@ -21,13 +21,18 @@ describe('TransformModal integration', () => {
     });
 
     it('loads versions, allows editing BARS and submits transform', async () => {
+        const onTransformed = vi.fn();
+
         // initial GET for versions on mount
         (axios.get as any).mockResolvedValueOnce({ data: { data: [] } });
 
-        const { getByLabelText, getByRole, getByTestId, emitted } = render(
+        const { getByLabelText, getByRole, getByTestId } = render(
             TransformModal as any,
             {
-                props: { competencyId: 123 },
+                props: {
+                    competencyId: 123,
+                    onTransformed,
+                },
             },
         );
 
@@ -65,9 +70,13 @@ describe('TransformModal integration', () => {
                     create_skills_incubated: true,
                 }),
             );
-            const ev = emitted()['transformed'];
-            expect(ev).toBeTruthy();
-            expect((ev as any)[0][0]).toEqual({ id: 999, name: 'v1' });
+            expect(onTransformed).toHaveBeenCalledWith({
+                id: 999,
+                name: 'v1',
+            });
+            expect(axios.get as any).toHaveBeenCalledWith(
+                '/api/competencies/123/versions',
+            );
         });
     });
 });

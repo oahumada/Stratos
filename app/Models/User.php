@@ -23,10 +23,12 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'organization_id',
+        'current_organization_id',
         'name',
         'email',
         'password',
         'role',
+        'ui_preferences',
     ];
 
     /**
@@ -52,6 +54,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'ui_preferences' => 'array',
         ];
     }
 

@@ -9,9 +9,18 @@
 
 ### **⭐⭐ REFERENCIAS CANÓNICAS:**
 
+#### Para DEFINIR el modelo operativo actual:
+
+0. [WORKFORCE_PLANNING_GUIA.md](/docs/WORKFORCE_PLANNING_GUIA.md)
+   - **Documento canónico vigente (2026-04-01)**
+   - Fundamento conceptual y técnico del módulo
+   - Modelo escogido (8 etapas SWP) y su aporte a Stratos
+   - Para qué sirve, cómo se usa y roadmap de bajada
+   - **LEER PRIMERO para diseño/implementación actual**
+
 #### Para ENTENDER el modelo:
 
-0. [MODELO_PLANIFICACION_INTEGRADO.md](/docs/WorkforcePlanning/MODELO_PLANIFICACION_INTEGRADO.md) (827 líneas)
+1. [MODELO_PLANIFICACION_INTEGRADO.md](/docs/WorkforcePlanning/MODELO_PLANIFICACION_INTEGRADO.md) (827 líneas)
    - **Conceptual + Operacional** - Los 7 bloques + 6 módulos + gobernanza
    - Casos de uso reales (Tech + Manufactura)
    - Integración con Strato
@@ -19,7 +28,7 @@
 
 #### Para IMPLEMENTAR el modelo:
 
-1. [MetodologiaPasoaPaso.md](/docs/WorkforcePlanning/MetodologiaPasoaPaso.md) (945 líneas)
+2. [MetodologiaPasoaPaso.md](/docs/WorkforcePlanning/MetodologiaPasoaPaso.md) (945 líneas)
    - **Guía de implementación operacional**
    - 7 fases ejecutables (Fase 1: Contexto → Fase 7: Monitoreo)
    - 8 pasos de decisión lógica del flujo
@@ -28,7 +37,7 @@
 
 #### Para CONECTAR ambos documentos:
 
-2. [GUIA_INTEGRACION_MODELO_METODOLOGIA.md](/docs/GUIA_INTEGRACION_MODELO_METODOLOGIA.md) (320 líneas)
+3. [GUIA_INTEGRACION_MODELO_METODOLOGIA.md](/docs/GUIA_INTEGRACION_MODELO_METODOLOGIA.md) (320 líneas)
    - **Mapeo Bloque → Fase**
    - Cómo cada bloque se implementa mediante fases
    - Flujo integrado de decisiones
@@ -38,7 +47,7 @@
 
 #### Modelos conceptuales originales (referencia):
 
-3. [Modelo de Planificación moderno](/docs/WorkforcePlanning/Modelo%20de%20Planificaci%C3%B3n%20moderno%202d76208b6bd18056b988ce9085c286d2.md) (214 líneas)
+4. [Modelo de Planificación moderno](/docs/WorkforcePlanning/Modelo%20de%20Planificaci%C3%B3n%20moderno%202d76208b6bd18056b988ce9085c286d2.md) (214 líneas)
    - Los 7 macrobloques del sistema
    - Flujos end-to-end
    - **NOTA:** Integrado en MODELO_PLANIFICACION_INTEGRADO.md
@@ -47,14 +56,14 @@
 
 ### **⭐ Para ver estado de implementación:**
 
-4. [WORKFORCE_PLANNING_PROGRESS.md](/docs/WORKFORCE_PLANNING_PROGRESS.md) (266 líneas)
+5. [WORKFORCE_PLANNING_PROGRESS.md](/docs/WORKFORCE_PLANNING_PROGRESS.md) (266 líneas)
    - Story points: 28/84 completados (33%)
    - Plan de acción técnico
    - Tareas pendientes por prioridad
 
 ### **⭐ Para auditar documentación:**
 
-5. [REVISION_COMPLETA_DOCUMENTACION_WFP.md](/docs/REVISION_COMPLETA_DOCUMENTACION_WFP.md) (230 líneas)
+6. [REVISION_COMPLETA_DOCUMENTACION_WFP.md](/docs/REVISION_COMPLETA_DOCUMENTACION_WFP.md) (230 líneas)
    - Status de cada bloque (conceptual vs implementado)
    - Gaps identificados
    - Fortalezas y prioridades

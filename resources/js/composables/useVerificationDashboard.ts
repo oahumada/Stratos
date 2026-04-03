@@ -59,9 +59,9 @@ export function useVerificationDashboard() {
         type: 'polling',
         connected: false,
     });
-    let wsConnection: any = null;
-    let pollingInterval: ReturnType<typeof setInterval> | null = null;
-    let eventSource: EventSource | null = null;
+    const wsConnection: any = null;
+    const pollingInterval: ReturnType<typeof setInterval> | null = null;
+    const eventSource: EventSource | null = null;
 
     // Computed
     const systemStatus = computed(() => {

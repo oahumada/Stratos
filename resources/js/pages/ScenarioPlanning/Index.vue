@@ -6134,6 +6134,53 @@ watch(
 
 // ensure edges exist even if no capabilities loaded yet (avoids template warnings)
 if (!edges.value) edges.value = [];
+
+defineExpose({
+    nodes,
+    focusedNode,
+    selectedChild,
+    childEdges,
+    grandChildNodes,
+    selectedSkillDetail,
+    skillDetailDialogVisible,
+    addExistingSelection,
+    newCapName,
+    newCapDescription,
+    newCapImportance,
+    newCapType,
+    newCapCategory,
+    pivotStrategicRole,
+    pivotStrategicWeight,
+    pivotPriority,
+    pivotRationale,
+    pivotRequiredLevel,
+    pivotIsCritical,
+    editPivotStrategicWeight,
+    editPivotPriority,
+    editPivotRationale,
+    editPivotRequiredLevel,
+    editPivotIsCritical,
+    skillEditName,
+    skillEditCategory,
+    skillPivotWeight,
+    editChildName,
+    editChildDescription,
+    editChildSkills,
+    editChildPivotStrategicWeight,
+    editChildPivotPriority,
+    editChildPivotRequiredLevel,
+    editChildPivotIsCritical,
+    editChildPivotRationale,
+    saveNewCapability,
+    attachExistingComp,
+    saveFocusedNode,
+    saveSelectedChild,
+    deleteFocusedNode,
+    handleNodeClick,
+    expandCompetencies,
+    saveSkillDetail,
+    removeSkillFromCompetency,
+});
 </script>
 
 <template>

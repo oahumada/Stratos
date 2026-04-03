@@ -61,7 +61,7 @@ export const useTalentPassStore = defineStore('talents-pass', () => {
      */
     const calculateCompleteness = (tp: TalentPass): number => {
         let score = 0;
-        let total = 5;
+        const total = 5;
 
         if (tp.title) score++;
         if (tp.summary) score++;

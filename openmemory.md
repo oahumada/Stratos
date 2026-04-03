@@ -1,5 +1,469 @@
 # OpenMemory - Resumen del proyecto Stratos
 
+### Quick Note (2026-04-03 - Higiene adicional de tests: menos acoplamiento a vm + anti-flakiness email)
+
+- **Desacople adicional de tests unitarios:** se refactorizaron pruebas de `ClosingStrategies`, `RoleForecastsTable` y `BulkPeopleImporter` para validar comportamiento visible/interacciones API en lugar de estado interno por `wrapper.vm`.
+- **Limpieza de componentes:** se removieron `defineExpose(...)` en esos tres componentes al dejar de ser necesarios para sus tests actuales.
+- **Estabilidad de AppSidebar:** su spec quedó montada con mocks explícitos de navegación/sidebar para evitar asserts frágiles por stubs implícitos.
+- **Fix antiflakiness backend global en tests:** `createUserForOrganizationWithRole()` en `tests/Pest.php` ahora fuerza email único basado en UUID, eliminando colisiones intermitentes de `users_email_unique` durante full run.
+- **Validación final:** regresión completa nuevamente en verde con `1336 passed, 0 failed`.
+
+### Quick Note (2026-04-03 - Regresión global estabilizada: 1336 tests en verde)
+
+- **Regresión completa estabilizada:** la suite global quedó en verde con `1336 passed, 0 failed` tras cerrar el remanente frontend y un caso flaky backend en Step 2.
+- **Patrón frontend corregido:** varios componentes Vue con `script setup` requerían `defineExpose(...)` para mantener compatibilidad con tests que inspeccionan `wrapper.vm` (`ClosingStrategies`, `RoleForecastsTable`, `BulkPeopleImporter`, además de ajustes previos en componentes de Scenario Planning/Talento360).
+- **Tests endurecidos:**
+    - `TransformModal.integration.spec.ts` ahora valida el flujo con listener explícito `onTransformed` en lugar de depender de captura indirecta de `emitted()`.
+    - `AppSidebar.spec.ts` aísla correctamente `sidebar`, `NavMain`, `NavFooter` y `NavUser` mediante mocks de módulo, evitando dependencias del contexto real de Reka UI.
+    - `BarsEditor.spec.ts` valida sincronización real de `v-model` usando un host de prueba, evitando aserciones frágiles sobre eventos o inputs ocultos legacy.
+- **Flakiness backend eliminado:** `tests/Feature/Api/Step2RoleCompetencyTest.php` dejó de depender de `User::first()`/`Scenario::first()` y ahora selecciona el escenario semilla por nombre y un usuario de la misma organización, evitando fallos intermitentes por orden de registros durante el full run.
+- **Resultado práctico:** el proyecto quedó no solo en verde, sino con tests más deterministas y menos sensibles a orden de ejecución o detalles internos de implementación.
+
+### Quick Note (2026-04-03 - Workforce Planning P3 completo: sensibilidad, impacto parametrizable y tablero enterprise)
+
+- **P3 completado end-to-end** en Workforce Planning con tres slices consecutivos y regresión en verde.
+- **Slice 1 - sensibilidad operativa:**
+    - Nuevo endpoint `POST /api/strategic-planning/workforce-planning/scenarios/{id}/operational-sensitivity`.
+    - Ajusta `productivity_factor`, `coverage_target_pct`, `ramp_factor` y `cost_per_gap_hh`.
+    - Devuelve `baseline`, `simulated` y `delta` con impacto en `gap_hh`, `gap_fte`, `coverage_pct`, `gap_cost_estimate`.
+- **Slice 2 - impacto parametrizable:**
+    - `compare-baseline-impact` ahora acepta `impact_parameters` opcionales para modelar costo/riesgo con `cost_per_gap_hh`, `cost_risk_multiplier`, `risk_base_offset`, `risk_weight_gap_pct`, `risk_weight_attrition_pct`, `risk_weight_ramp_gap`.
+    - Compatibilidad preservada: sin parámetros, mantiene comportamiento previo.
+- **Slice 3 - tablero enterprise transversal:**
+    - Nuevo endpoint `GET /api/strategic-planning/workforce-planning/enterprise/summary`.
+    - Consolida `portfolio`, `workforce_execution`, `governance` y `operational_health` por tenant.
+- **Pruebas y calidad:**
+    - Suites focales Workforce + `CertificateServiceTest` en verde (`55 passed`).
+    - `tests/Feature/CertificateServiceTest.php` fue revisado explícitamente y no requirió cambios.
+    - Formato final aplicado con `vendor/bin/pint --dirty`.
+
+### Quick Note (2026-04-02 - Cierre regresión global: LMS + Scenario Analytics)
+
+- **LMS estabilizado:** en `app/Services/Talent/Lms/CertificateService.php` el constructor ahora admite inyección opcional de `LmsAnalyticsService` con fallback vía contenedor, evitando `ArgumentCountError` en tests que instancian el servicio directamente.
+- **Root cause corregida en sync LMS:** en `app/Services/Talent/Lms/LmsService.php` la asignación de XP usa `people.user_id` (no `people_id`) para `user_gamification`, evitando excepción silenciosa por FK y permitiendo que `syncProgress()` retorne `true` al completar.
+- **Tests de listeners alineados:** `tests/Feature/CertificateIssuedListenersTest.php` se ajustó para no disparar doble `CertificateIssued` en la misma prueba.
+- **Tenant boundary consistente en analytics:** `tests/Feature/ScenarioAnalyticsControllerTest.php` actualiza expectativas cross-org a `404 Not Found` para accesos a escenarios fuera de organización.
+- **Validación final:** suite completa en verde `1070 passed, 6 skipped` y verificación focal posterior `54 passed`.
+- **Higiene de tests:** se eliminó warning de constantes duplicadas en pruebas LMS renombrando constantes en `tests/Feature/LmsInterventionAuthValidationTest.php`; corrida final limpia en consola.
+
+### Quick Note (2026-04-02 - Workforce UI: persistencia local de filtros/orden/paginación)
+
+- **Persistencia añadida:** la vista de `líneas persistidas` en `resources/js/pages/WorkforcePlanning/Index.vue` ahora guarda en `localStorage` el estado de tabla (`unidad`, `período`, `campo/dirección de orden`, `página` y `tamaño de página`).
+- **Restauración al cargar:** al montar el componente se hidrata el estado guardado con validación de valores permitidos (sort fields válidos, dirección `asc|desc`, page size `5/10/20`, página mínima `1`).
+- **Compatibilidad con UX actual:** se mantiene la lógica existente de reset de página al cambiar filtros/orden/tamaño y el clamp automático cuando cambia el dataset.
+- **Hardening técnico:** se agregó guardia de hidratación para evitar loops entre restauración inicial y watchers reactivos.
+- **Validación:** `get_errors` del archivo en verde tras ajuste.
+
+### Quick Note (2026-04-02 - Workforce UI: ordenamiento en líneas persistidas)
+
+- **Mejora añadida:** sección de líneas persistidas ahora soporta ordenamiento client-side por `período`, `unidad`, `volumen`, `HH req.` y `HH efect.`.
+- **Control de dirección:** selector `Ascendente/Descendente` integrado al bloque de filtros y paginación.
+- **Pipeline de datos en UI:** `demandLines -> filteredDemandLines -> sortedDemandLines -> paginatedDemandLines`.
+- **Comportamiento de navegación:** al cambiar filtros, page size o criterio/dirección de orden, la página vuelve a `1` para evitar vistas inconsistentes.
+- **Validación:** lint en verde y suites Workforce sin regresiones (`29 passed, 94 assertions`).
+
+### Quick Note (2026-04-02 - Workforce UI: filtros y paginación en líneas persistidas)
+
+- **Escalabilidad UI:** en `resources/js/pages/WorkforcePlanning/Index.vue` la sección de líneas persistidas ahora incluye filtros client-side por `unidad` y `período`.
+- **Paginación incorporada:** selector de `filas por página` (5/10/20), navegación `Anterior/Siguiente` y contador `Página X de Y`.
+- **Fuente de render:** la tabla usa `paginatedDemandLines` derivado de `filteredDemandLines` en lugar del arreglo completo.
+- **Comportamiento:** al cambiar filtros o page size, la página se reinicia; si cambia el dataset y la página queda fuera de rango, se corrige automáticamente.
+- **Validación:** lint del componente en verde y suites Workforce sin regresiones (`29 passed, 94 assertions`).
+
+### Quick Note (2026-04-02 - Workforce Planning: CRUD completo para demand lines)
+
+- **Backend ampliado:** `WorkforceDemandLineController` ahora soporta `PATCH` y `DELETE` por línea (`scenario + lineId`) con validación tenant-safe por `organization_id` y `scenario_id`.
+- **Nuevo request:** `UpdateWorkforceDemandLineRequest` con validación de formato de período y rangos numéricos para actualización parcial.
+- **Rutas nuevas:**
+    - `PATCH /api/strategic-planning/workforce-planning/scenarios/{id}/demand-lines/{lineId}`
+    - `DELETE /api/strategic-planning/workforce-planning/scenarios/{id}/demand-lines/{lineId}`
+- **Frontend:** `resources/js/pages/WorkforcePlanning/Index.vue` agrega acciones inline de `Editar/Eliminar` por línea persistida, editor rápido en fila, y recálculo automático tras actualizar/eliminar.
+- **Cobertura:** tests de auth/tenant/validación/happy path para update/delete añadidos en `WorkforceDemandLineApiTest`.
+- **Validación final:** suites de Workforce en verde (`29 passed, 94 assertions`) + lint sin errores.
+
+### Quick Note (2026-04-02 - Workforce UI: indicador "Recalculando…" tras guardar umbrales)
+
+- **Mejora de feedback:** al guardar umbrales y disparar el refresh automático del escenario activo, el panel muestra badge `Recalculando…` mientras corre `fetchRecommendations`.
+- **Implementación:** nuevo estado reactivo `recalculatingAfterThresholdSave` en `resources/js/pages/WorkforcePlanning/Index.vue`.
+- **Comportamiento:** el indicador inicia antes del refresh y se limpia en `finally`, cubriendo tanto éxito como error de recálculo.
+- **Validación:** lint del componente sin errores.
+
+### Quick Note (2026-04-02 - Workforce UI: recálculo automático tras guardar umbrales)
+
+- **Comportamiento añadido:** al guardar umbrales con éxito en `resources/js/pages/WorkforcePlanning/Index.vue`, si existe `currentScenarioId` se ejecuta `fetchRecommendations(currentScenarioId)` automáticamente.
+- **Resultado UX:** cobertura/deltas y recomendación ejecutiva se refrescan en la misma interacción, sin exigir recarga manual del escenario.
+- **Compatibilidad:** mantiene feedback de éxito/error con auto-hide y no altera el control de acceso por rol.
+- **Validación:** lint del componente en verde.
+
+### Quick Note (2026-04-02 - Workforce UI: feedback inline al guardar umbrales)
+
+- **Mejora UX aplicada:** el panel de umbrales en `resources/js/pages/WorkforcePlanning/Index.vue` ahora muestra feedback inline tras `PATCH /workforce-planning/thresholds`.
+- **Estados soportados:** mensaje `success` cuando guarda correctamente y mensaje `error` cuando falla la actualización.
+- **Comportamiento:** el feedback se limpia al iniciar un nuevo intento de guardado para evitar mensajes obsoletos.
+- **Validación técnica:** lint del componente sin errores.
+
+### Quick Note (2026-04-02 - Workforce UI: umbrales en solo lectura por rol)
+
+- **Endurecimiento UX:** en `resources/js/pages/WorkforcePlanning/Index.vue` el panel de umbrales ahora evalúa rol desde `Inertia auth props`.
+- **Regla aplicada:** solo `admin` y `hr_leader` ven botón **Guardar umbrales** y pueden editar inputs; otros roles quedan en modo `Solo lectura`.
+- **Defensa adicional en cliente:** `saveWorkforceThresholds()` retorna temprano si el rol no está autorizado.
+- **Consistencia con backend:** este gating visual acompaña la protección ya aplicada en ruta `PATCH /workforce-planning/thresholds`.
+- **Validación:** lint del componente sin errores.
+
+### Quick Note (2026-04-02 - Workforce thresholds: PATCH restringido por rol)
+
+- **Seguridad aplicada:** el endpoint `PATCH /api/strategic-planning/workforce-planning/thresholds` ahora exige middleware `role:admin,hr_leader`.
+- **Lectura mantiene alcance operativo:** `GET /workforce-planning/thresholds` sigue disponible para usuarios autenticados del módulo.
+- **Pruebas ajustadas:** caso feliz de actualización ahora usa `hr_leader`; se agregó caso explícito `403 Forbidden` para `talent_planner`.
+- **Resultado de validación:** suites de Workforce en verde (`22 passed, 79 assertions`).
+
+### Quick Note (2026-04-02 - Workforce Planning: editor admin de umbrales persistidos)
+
+- **Persistencia añadida:** nueva columna `organizations.workforce_thresholds` (JSON) para guardar overrides por tenant sobre umbrales de semaforización.
+- **API ampliada:** `PATCH /api/strategic-planning/workforce-planning/thresholds` para actualizar `coverage.success_min`, `coverage.warning_min` y `gap.warning_max_pct` con validación (`UpdateWorkforceThresholdsRequest`).
+- **Resolución final de umbrales:** `WorkforcePlanningService::getThresholds($organizationId)` ahora hace merge `config defaults + overrides de organización`.
+- **UI admin mínima:** `resources/js/pages/WorkforcePlanning/Index.vue` incorpora panel de edición de umbrales con botón guardar, consumiendo `GET/PATCH workforce-planning/thresholds`.
+- **Validación:** suites de Workforce en verde (`21 passed, 78 assertions`) + lint del componente Vue sin errores.
+
+### Quick Note (2026-04-02 - Workforce Planning: umbrales centralizados en config + API)
+
+- **Refactor de umbrales:** se movieron los límites de semaforización de Workforce Planning desde frontend hardcodeado a configuración backend (`config/workforce_planning.php`).
+- **Nuevo endpoint:** `GET /api/strategic-planning/workforce-planning/thresholds` en `WorkforcePlanningController`, alimentado por `WorkforcePlanningService::getThresholds()`.
+- **Frontend actualizado:** `resources/js/pages/WorkforcePlanning/Index.vue` consume el endpoint para calcular variantes `success/warning/error` de cobertura y gap del lote en borrador sin valores fijos embebidos.
+- **Fallback visual:** si no hay umbrales cargados, UI muestra estado neutral (`glass`/`N/A`).
+- **Validación:** tests de Workforce Planning en verde (`20 passed, 69 assertions`) + lint del archivo Vue sin errores.
+
+### Quick Note (2026-04-02 - Workforce Planning: análisis prioriza demand lines)
+
+- **Evolución del motor:** `WorkforcePlanningService::buildMetricsSnapshot` ahora prioriza métricas agregadas desde `workforce_demand_lines` cuando existen para el escenario.
+- **Regla aplicada:** si hay líneas de demanda, `required_hh` y `effective_hh` se calculan por suma de `required_hh/effective_hh` de cada línea; si no hay líneas, se mantiene fallback a `kpis/assumptions`.
+- **Impacto funcional:** `baseline/summary`, `compare-baseline` y `analyze` reflejan demanda operativa persistida, no solo valores estáticos cargados en `kpis`.
+- **Cobertura de pruebas:** se añadieron casos que validan que el motor usa `demand lines` por sobre `kpis` cuando ambas fuentes existen.
+- **Validación:** suites `WorkforcePlanningBaselineApiTest` + `WorkforceDemandLineApiTest` en verde (`18 passed, 63 assertions`).
+
+### Quick Note (2026-04-02 - Workforce Planning: demand lines backend + UI inicial)
+
+- **Extensión funcional implementada:** captura de `demand lines` por escenario dentro del módulo Workforce Planning.
+- **Backend nuevo:** tabla `workforce_demand_lines`, modelo `WorkforceDemandLine`, `StoreWorkforceDemandLineRequest`, `WorkforceDemandLineController` y rutas:
+    - `GET /api/strategic-planning/workforce-planning/scenarios/{id}/demand-lines`
+    - `POST /api/strategic-planning/workforce-planning/scenarios/{id}/demand-lines`
+- **Contrato aplicado:** tenant scoping por `organization_id`, `401` sin auth, `404` cross-tenant, `422` por validación inválida.
+- **Frontend:** `resources/js/pages/WorkforcePlanning/Index.vue` ahora permite armar un lote de líneas de demanda, guardarlo contra el escenario activo y visualizar HH requeridas/efectivas persistidas.
+- **Validación:** `WorkforceDemandLineApiTest` + `WorkforcePlanningBaselineApiTest` en verde (`16 passed, 48 assertions`) y lint del componente sin errores.
+
+### Quick Note (2026-04-02 - Workforce UI: migración de title a v-tooltip)
+
+- **Ajuste UX aplicado en** `resources/js/pages/WorkforcePlanning/Index.vue`.
+- **Cambio:** etiquetas de métricas de delta ejecutivo (`Gap HH`, `Cobertura`, `Costo`, `Riesgo`) migradas de atributo `title` a `v-tooltip` (Vuetify, `location=top`).
+- **Resultado:** experiencia de ayuda contextual más consistente con patrones existentes del proyecto.
+- **Validación:** lint puntual del archivo sin errores.
+
+### Quick Note (2026-04-02 - Workforce UI: semaforización de deltas ejecutivos)
+
+- **Refuerzo visual implementado en** `resources/js/pages/WorkforcePlanning/Index.vue`.
+- **Mejora:** tarjeta de delta ejecutivo ahora usa `StBadgeGlass` con semaforización por regla:
+    - `Gap HH` y `Costo`: positivo = peor (error), negativo = mejor (success).
+    - `Cobertura`: positivo = mejor (success), negativo = peor (error).
+    - `Riesgo`: `higher` (error), `lower` (success), `stable` (glass).
+- **Utilidades añadidas:** `formatSigned`, `deltaBadgeVariant`, `riskLevelVariant`.
+- **Validación:** lint puntual del archivo sin errores (`npx eslint resources/js/pages/WorkforcePlanning/Index.vue`).
+
+### Quick Note (2026-04-02 - Workforce UI: tarjeta ejecutiva unificada + recálculo por contexto)
+
+- **Frontend refinado en** `resources/js/pages/WorkforcePlanning/Index.vue`.
+- **Mejora aplicada:** la tarjeta de delta ahora muestra en un solo bloque:
+    1. `delta_gap_hh` + `delta_coverage_pct` (compare-baseline)
+    2. `delta_cost_estimate` + `delta_risk_level` (compare-baseline-impact)
+- **Comportamiento nuevo:** se conserva `currentScenarioId` y se recalcula automáticamente al cambiar `planning_context` (`watch`).
+- **Validación local:** `npx eslint resources/js/pages/WorkforcePlanning/Index.vue` sin errores.
+
+### Quick Note (2026-04-01 - Workforce Planning frontend conectado a analyze/context + impact delta)
+
+- **Cambio UI:** `resources/js/pages/WorkforcePlanning/Index.vue` ahora consume los endpoints backend nuevos del módulo.
+- **Integraciones añadidas:**
+    1. `POST /api/strategic-planning/workforce-planning/scenarios/{id}/analyze` con selector `planning_context` (`baseline|scenario`).
+    2. `POST /api/strategic-planning/workforce-planning/scenarios/{id}/compare-baseline-impact` para delta costo/riesgo.
+- **UX mínima implementada:** selector de contexto + KPI de cobertura + tarjeta de delta costo/riesgo en la misma vista de recomendaciones.
+- **Seguridad de alcance:** no se modificaron rutas ni lógica de `scenarios/{id}/step1` (diagrama de nodos estabilizado).
+
+### Quick Note (2026-04-01 - Workforce Planning: analyze con planning_context + delta costo/riesgo)
+
+- **Extensión implementada:** se completó el siguiente slice backend de Workforce Planning sin tocar rutas/lógica de `scenarios/{id}/step1`.
+- **Nuevos endpoints:**
+    1. `POST /api/strategic-planning/workforce-planning/scenarios/{id}/analyze` con `planning_context` (`baseline|scenario`)
+    2. `POST /api/strategic-planning/workforce-planning/scenarios/{id}/compare-baseline-impact`
+- **Comportamiento clave:**
+    - `planning_context=baseline` analiza baseline de la organización (si existe), no solo el escenario solicitado.
+    - endpoint de impacto devuelve `delta_cost_estimate`, `delta_risk_score`, `delta_risk_level`.
+- **Archivos:** `routes/api.php`, `app/Http/Controllers/Api/WorkforcePlanningController.php`, `app/Services/WorkforcePlanningService.php`, `tests/Feature/WorkforcePlanningBaselineApiTest.php`.
+- **Validación:** suite `WorkforcePlanningBaselineApiTest` en verde (`8 passed, 31 assertions`).
+
+### Quick Note (2026-04-01 - Workforce Planning API: baseline summary + compare-baseline implementado)
+
+- **Scope implementado (backend):** se agregaron endpoints bajo prefijo canónico `api/strategic-planning` para el aspecto de exposición dual documentado.
+    1. `GET /workforce-planning/baseline/summary`
+    2. `POST /workforce-planning/scenarios/{id}/compare-baseline`
+- **Archivos principales:**
+    - `routes/api.php` (rutas nuevas, sin cambios en bloque `scenarios/{id}/step1`)
+    - `app/Http/Controllers/Api/WorkforcePlanningController.php`
+    - `app/Services/WorkforcePlanningService.php` (snapshot baseline y cálculo de deltas)
+    - `tests/Feature/WorkforcePlanningBaselineApiTest.php`
+- **Contratos validados:** `401` no autenticado, `422` organización no resoluble, `404` aislamiento cross-tenant, `200` éxito con métricas y deltas.
+- **Resultado de pruebas:** `6 passed (18 assertions)` para `WorkforcePlanningBaselineApiTest`.
+
+### Quick Note (2026-04-01 - Workforce Planning: exposición dual Baseline + Scenario con motor único)
+
+- **Contexto:** Se completó la documentación del aspecto de exposición del módulo en `docs/WORKFORCE_PLANNING_GUIA.md` (sección 16).
+- **Decisión de arquitectura:** usar **un solo motor** de cálculo/recomendación y exponerlo en dos contextos funcionales:
+    1. `baseline` en `/workforce-planning` para estado actual operativo,
+    2. `scenario` en `/scenario-planning/{id}` para impacto futuro.
+- **Definiciones clave añadidas:** contrato `planning_context`, reglas de comparador baseline vs escenario (`delta_gap_hh`, `delta_gap_fte`, `delta_coverage_pct`), ajustes API recomendados y criterio de aceptación de producto.
+- **Racional:** evita duplicación lógica, mantiene consistencia de KPIs, y habilita lectura ejecutiva presente vs futuro con seguridad multi-tenant homogénea.
+
+### Quick Note (2026-04-01 - Workforce Planning: modelo dotacional + API v1 + matriz Laravel)
+
+- **Contexto:** Se consolidó `docs/WORKFORCE_PLANNING_GUIA.md` como referencia canónica para nueva funcionalidad de planificación dotacional.
+- **Decisiones clave documentadas:**
+    1. **Modelo dotacional por HH/cobertura/productividad** para calcular déficit/exceso (no solo headcount).
+    2. **Palanca `HYBRID_TALENT`** incorporada como criterio auditable de apalancamiento de capacidad (humano + IA + automatización con supervisión).
+    3. **Reglas del motor v1 (R1-R10)** con condiciones, señales, salida, palanca y prioridad.
+    4. **Spec API v1** bajo prefijo propuesto `/api/strategic-planning/workforce-planning` con semántica 401/403/404/422/200.
+    5. **Matriz Laravel endpoint->FormRequest->Controller->Service->Test** para implementación directa en 2 sprints.
+- **Aporte sistémico:** Conecta diseño conceptual (CIPD/AIHR/OCDE) con ejecución técnica concreta y hardening multi-tenant desde el diseño.
+
+### Quick Note (2026-04-01 - COMPLETADO: Hardening Talent Planning con patrón tenant uniforme + 24 tests)
+
+- **Iteración:** Talent Planning Phase 1 (Scenario Planning)
+- **Changes Completadas:**
+    1. **Uniform tenant resolution pattern (3 controllers):**
+        - [app/Http/Controllers/Api/ScenarioController.php](app/Http/Controllers/Api/ScenarioController.php): 4 métodos reforzados (`listScenarios`, `getIncubatedTree`, `promoteAll`, `showScenario`) con org resolution + 422 en fallo
+        - [app/Http/Controllers/Api/ChangeSetController.php](app/Http/Controllers/Api/ChangeSetController.php): 7 métodos reforzados (`store`, `preview`, `apply`, `addOp`, `canApply`, `approve`, `reject`) con org validation uniforme
+        - [app/Http/Controllers/Api/ScenarioAnalyticsController.php](app/Http/Controllers/Api/ScenarioAnalyticsController.php): 6 métodos reforzados (`compareScenarios`, `analyticsById`, `financialImpactById`, `riskAssessmentById`, `skillGapsById`, `peopleExperienceById`)
+    2. **Patrón aplicado:** `$organizationId = (int) (($user?->current_organization_id ?? $user?->organization_id) ?? 0)` + respuesta `422` si $organizationId <= 0
+    3. **Test suites (3 suites = 24 tests):**
+        - [tests/Feature/TalentPlanningScenarioAuthValidationTest.php](tests/Feature/TalentPlanningScenarioAuthValidationTest.php): 7 tests (401/403/422/200 + cross-tenant)
+        - [tests/Feature/TalentPlanningChangeSetAuthValidationTest.php](tests/Feature/TalentPlanningChangeSetAuthValidationTest.php): 7 tests (auth/422/201/403-isolation)
+        - [tests/Feature/TalentPlanningAnalyticsAuthValidationTest.php](tests/Feature/TalentPlanningAnalyticsAuthValidationTest.php): 10 tests (401/403/422 × 4 endpoints + success + cross-tenant)
+    4. **Factories creadas:**
+        - [database/factories/ScenarioFactory.php](database/factories/ScenarioFactory.php): Define Scenario con org, name, code, status, dates, horizon
+        - [database/factories/ChangeSetFactory.php](database/factories/ChangeSetFactory.php): Define ChangeSet con scenario, org, title, status, diff
+
+- **Test Validation:** ✅ **24/24 tests passed**
+    - 7/7 Scenario tests passing
+    - 7/7 ChangeSet tests passing
+    - 10/10 Analytics tests passing
+
+- **Combined Validation:** ✅ **67/67 hardened tests passed** (43 LMS + 24 Talent Planning)
+    - LMS hardening: Certificados (14), CMS (5), Analytics (5), Intervenciones (4), Preferencias (6), Course Policy (9)
+    - Talent Planning hardening: Scenarios (7), ChangeSet (7), Analytics (10)
+
+- **Code Quality:** ✅ Pint formatter passed on 57 files (0 issues). All files compliant with Laravel style standards.
+
+- **Key Decisions:**
+    1. **Org resolution placement:** Al inicio de cada método para validation temprana
+    2. **Error responses:** 422 (client sent bad data / server can't resolve org) uniforme
+    3. **Cross-tenant boundary:** 404 cuando `findOrFail` en otra org (correcto: não expõe existencia)
+    4. **Authorization flow:** Policy checks ocurren DESPUÉS de org resolution, test granta `scenarios.view` explícitamente
+    5. **Response structures:** Talent Planning analytics retorna datos directamente (no envueltos en 'data'), ChangeSet retorna en 'data'
+
+- **Result:**
+    - ✅ Patrón tenant-resolution uniforme validado en 3 Talent Planning controllers
+    - ✅ 16 métodos reforzados con org scoping + 422 fallback
+    - ✅ Cross-tenant isolation enforcement: 404 para acceso desde otra org
+    - ✅ Test matrices completas: 401 (no auth) → 403 (sin permiso) → 422 (org no resolvible) → 200 (success)
+    - ✅ Ready para aplicar a otros módulos (Workforce Planning, Marketplace, Succession Planning)
+    - ✅ Establece patrón reusable para hardening futuro
+
+### Quick Note (2026-04-01 - Cierre iteración: validación completa de hardening LMS con patrón tenant uniforme)
+
+- **Changes Completadas:**
+    1. **Uniform tenant resolution pattern:** Aplicado a todos los LMS controllers (`CertificateController`, `CmsArticleController`, `InterventionController`, `CourseController`). Patrón: `$organizationId = (int) (($request->user()?->current_organization_id ?? $request->user()?->organization_id) ?? 0)` + respuesta `422` si no se puede resolver.
+    2. **Model User enhancement:** Agregado `'current_organization_id'` a `$fillable` en [app/Models/User.php](app/Models/User.php) para permitir que tests anule el campo durante setup org-missing.
+    3. **Test suite hardening:** Corregidos 3 test files (`LmsCertificatesAuthValidationTest`, `LmsCmsArticleAuthValidationTest`, `LmsAnalyticsServiceTest`) para anular AMBOS campos (`organization_id` + `current_organization_id`) en casos org-missing (anteriormente solo anulaba `organization_id`).
+    4. **Intervention status filtering:** Actualizado método `complete()` en [app/Http/Controllers/Api/Lms/InterventionController.php](app/Http/Controllers/Api/Lms/InterventionController.php) para filtrar por `whereIn(['started', 'completed'])` y no permitir completar intervenciones con status='cleared'.
+
+- **Test Validation:** ✅ **43 tests passed** en suite de hardening LMS (`LmsCertificatesAuthValidationTest`, `LmsCmsArticleAuthValidationTest`, `LmsAnalyticsServiceTest`, `LmsInterventionAuthValidationTest`, `LmsPreferencesAuthValidationTest`, `LmsCoursePolicyTest`).
+    - 14 tests: Certificados (401/403/422/200 + cross-tenant isolation)
+    - 5 tests: CMS articles (401/403/422/201 + org binding)
+    - 5 tests: Analytics (401/403/422/200)
+    - 4 tests: Intervenciones (401/403/422/200)
+    - 6 tests: Preferencias (401/403/422/200)
+    - 9 tests: Course policy (401/403/422/200 + cross-tenant)
+
+- **Code Quality:** ✅ Pint formatter passed on 51 files (0 issues).
+
+- **Result:**
+    - Patrón tenant-resolution uniforme validado en todos los LMS controllers.
+    - Tenant scoping implementado y testeado en endpoints protegidos (401/403/422/200).
+    - Cross-tenant isolation enforcement con respuestas 404 cuando se accede recursos de otra organización.
+    - Test fixture correcciones (org-missing scenarios ahora válidos).
+    - Listo para próxima iteración de hardening en otros módulos (Workforce Planning, etc).
+
+### Quick Note (2026-04-01 - Cierre riesgo cross-tenant en policy de cursos LMS)
+
+- **Change:** `CourseController` ahora resuelve tenant activo con `current_organization_id ?? organization_id` y filtra el curso por organización antes de mostrar/actualizar policy.
+    - [app/Http/Controllers/Api/Lms/CourseController.php](app/Http/Controllers/Api/Lms/CourseController.php): scoping tenant-aware y `422` si no hay organización resoluble.
+    - [tests/Feature/LmsCoursePolicyTest.php](tests/Feature/LmsCoursePolicyTest.php): nuevo caso `404` para `GET/PATCH` cuando el curso pertenece a otra organización.
+- **Result:** Se elimina acceso cross-tenant por route model binding en overrides de certificado por curso.
+
+### Quick Note (2026-04-01 - Hardening tenant-aware en LMS CMS articles)
+
+- **Change:** Se endureció `POST /api/lms/cms/articles` para ignorar `organization_id` del cliente y usar exclusivamente la organización del usuario autenticado.
+    - [app/Http/Controllers/Api/Lms/CmsArticleController.php](app/Http/Controllers/Api/Lms/CmsArticleController.php): respuesta `422` si no se puede resolver `organization_id` en contexto autenticado.
+    - [app/Http/Requests/Api/Lms/StoreCmsArticleRequest.php](app/Http/Requests/Api/Lms/StoreCmsArticleRequest.php): se elimina `organization_id` del payload validable y se endurece `topic`.
+- **Tests:** Nueva cobertura en [tests/Feature/LmsCmsArticleAuthValidationTest.php](tests/Feature/LmsCmsArticleAuthValidationTest.php):
+    - `401` sin autenticación.
+    - `403` sin permiso `lms.cms.manage`.
+    - `422` por payload inválido y por organización no resoluble.
+    - `202` con permiso explícito y aserción de que `GenerateLmsArticle` se encola con la organización del usuario, no con una organización arbitraria enviada por cliente.
+- **Result:** Se elimina riesgo de escalación cross-tenant en la cola de generación de artículos LMS.
+
+### Quick Note (2026-04-01 - Hardening tenant-aware en certificados LMS)
+
+- **Change:** Se reforzó `CertificateController` para aplicar scoping por `organization_id` en endpoints protegidos de certificados.
+    - [app/Http/Controllers/Api/Lms/CertificateController.php](app/Http/Controllers/Api/Lms/CertificateController.php):
+        - `index/show/download/revoke` ahora filtran por organización del usuario autenticado.
+        - Respuesta `422` cuando no se puede resolver organización en contexto autenticado.
+- **Tests:** Nueva matriz de seguridad en [tests/Feature/LmsCertificatesAuthValidationTest.php](tests/Feature/LmsCertificatesAuthValidationTest.php):
+    - `401` sin autenticación.
+    - `403` sin permiso `lms.certify`.
+    - `422` con organización no resoluble.
+    - `200` con permiso explícito + validación de aislamiento cross-tenant (`404` al acceder certificados de otra organización).
+    - Contrato de `verify/verification`: accesible para autenticados sin requerir `lms.certify`.
+- **Result:** Se elimina riesgo de fuga cross-tenant en certificados protegidos y se alinea el módulo con el estándar de hardening LMS.
+
+### Quick Note (2026-04-01 - Seguridad endpoint LMS analytics overview)
+
+- **Change:** Se agregó matriz de seguridad para `GET /api/lms/analytics/overview` dentro de [tests/Feature/LmsAnalyticsServiceTest.php](tests/Feature/LmsAnalyticsServiceTest.php).
+- **Coverage:**
+    - `401` sin autenticación.
+    - `403` para rol sin permiso `lms.courses.view`.
+    - `422` cuando no se puede resolver `organization_id` (bypass selectivo de `CheckPermission` para validar contrato del controlador).
+    - `200` con permiso explícito otorgado por helper RBAC.
+- **Result:** Endpoint de analytics queda alineado con el patrón de hardening de seguridad ya aplicado en course policy, preferencias e intervenciones.
+
+### Quick Note (2026-04-01 - Matriz 401/403/422 para intervenciones LMS)
+
+- **Change:** Se creó cobertura dedicada de seguridad y validación para endpoints de intervenciones LMS en [tests/Feature/LmsInterventionAuthValidationTest.php](tests/Feature/LmsInterventionAuthValidationTest.php).
+- **Scope:**
+    - `401` sin autenticación para `GET/POST` de intervenciones, `POST reset` y `POST complete`.
+    - `403` cuando el rol no tiene `lms.courses.view` en los mismos endpoints.
+    - `422` de validación al intentar almacenar intervención sin `lms_enrollment_id`.
+    - Caso positivo con permiso explícito usando helpers RBAC compartidos.
+- **Result:** Se separa la seguridad/validación del test funcional principal (que usa `withoutMiddleware`) y se evita regresión de middleware en intervenciones.
+
+### Quick Note (2026-04-01 - Datasets Pest en matrices de seguridad LMS)
+
+- **Change:** Se redujo duplicación en pruebas de seguridad LMS aplicando datasets Pest en casos `401/403` repetidos.
+    - [tests/Feature/LmsPreferencesAuthValidationTest.php](tests/Feature/LmsPreferencesAuthValidationTest.php): dataset para auth requerida y para forbidden por falta de permiso.
+    - [tests/Feature/LmsCoursePolicyTest.php](tests/Feature/LmsCoursePolicyTest.php): dataset para auth requerida en `GET/PATCH` de policy.
+- **Result:** Misma cobertura funcional con menor repetición y patrón homogéneo para nuevas matrices de seguridad.
+
+### Quick Note (2026-04-01 - Matriz de seguridad en policy de cursos LMS)
+
+- **Change:** Se completó la cobertura de seguridad en endpoints de policy de cursos LMS.
+    - [tests/Feature/LmsCoursePolicyTest.php](tests/Feature/LmsCoursePolicyTest.php):
+        - `401` para `GET/PATCH` sin autenticación.
+        - `403` para `PATCH` sin permiso `lms.courses.manage`.
+        - `422` para payload inválido.
+        - `200` para admin y para rol no-admin con permisos explícitos (`lms.courses.view` + `lms.courses.manage`).
+- **Result:** `LmsCoursePolicy` queda alineado con el mismo estándar de matriz auth/authorization/validation aplicado en preferencias LMS.
+
+### Quick Note (2026-04-01 - Helpers RBAC reutilizables para pruebas)
+
+- **Change:** Se extrajo setup RBAC repetido a helpers globales de Pest para reducir duplicación en pruebas de autorización.
+    - [tests/Pest.php](tests/Pest.php): nuevos helpers `createUserForOrganizationWithRole()` y `grantPermissionToRole()`.
+    - [tests/Feature/LmsPreferencesAuthValidationTest.php](tests/Feature/LmsPreferencesAuthValidationTest.php): refactor para usar helpers compartidos sin cambiar cobertura.
+- **Result:** Menor duplicación en tests de permisos y patrón reusable para próximas suites de autorización.
+
+### Quick Note (2026-04-01 - Autorización estricta en preferencias LMS)
+
+- **Change:** Se reforzó la cobertura de seguridad para `GET/PATCH /api/lms/preferences` sin desactivar middleware de permisos.
+    - [tests/Feature/LmsPreferencesAuthValidationTest.php](tests/Feature/LmsPreferencesAuthValidationTest.php):
+        - `403` cuando el usuario autenticado no tiene `lms.courses.view`.
+        - `200` en lectura/actualización cuando el rol sí tiene `lms.courses.view` vía `role_permissions`.
+    - `401` también cubierto para `PATCH` sin autenticación.
+    - `403` también cubierto para `PATCH` con usuario autenticado sin permiso.
+- **Result:** Queda validado el comportamiento real de autorización RBAC para preferencias LMS además de auth y validación de payload.
+
+### Quick Note (2026-04-01 - Cobertura auth/validación para preferencias LMS)
+
+- **Change:** Se añadió una suite de pruebas dedicada a seguridad y validación del endpoint de preferencias LMS.
+    - [tests/Feature/LmsPreferencesAuthValidationTest.php](tests/Feature/LmsPreferencesAuthValidationTest.php):
+        - `GET /api/lms/preferences` requiere autenticación (`401`).
+        - `PATCH /api/lms/preferences` valida tipo booleano para `show_completed_interventions` (`422` en payload inválido).
+- **Result:** El contrato de preferencias LMS ahora tiene cobertura explícita de auth + validación, complementando la suite funcional de intervenciones.
+
+### Quick Note (2026-04-01 - Browser test LMS→Mentoring estable)
+
+- **Change:** Se añadió cobertura de browser test para el flujo LMS/Mentoring con cierre de intervención y se estabilizó la carga de assets en entorno de testing.
+    - [tests/Browser/LmsMentoringInterventionFlowTest.php](tests/Browser/LmsMentoringInterventionFlowTest.php): nuevo caso browser que entra al flujo con contexto LMS y valida estado `completed` en intervención.
+    - [resources/views/app.blade.php](resources/views/app.blade.php): ajuste de carga en testing para usar `@vite` cuando existe `public/build/manifest.json` y fallback a `/build/app.js` solo si no existe.
+- **Result:** La validación browser del flujo LMS→Mentoring quedó ejecutable de forma estable en el entorno actual.
+
+### Quick Note (2026-04-01 - Preferencias LMS en backend)
+
+- **Change:** La preferencia de visualización del dashboard LMS (`show_completed_interventions`) se movió de `localStorage` a persistencia por usuario en backend.
+    - [database/migrations/2026_04_01_123000_add_ui_preferences_to_users_table.php](database/migrations/2026_04_01_123000_add_ui_preferences_to_users_table.php): nueva columna `users.ui_preferences` (json).
+    - [app/Http/Controllers/Api/Lms/InterventionController.php](app/Http/Controllers/Api/Lms/InterventionController.php): nuevos endpoints `preferences` y `updatePreferences`.
+    - [routes/api.php](routes/api.php): rutas `GET/PATCH /api/lms/preferences` bajo permisos LMS.
+    - [resources/js/components/Lms/LmsAnalyticsDashboard.vue](resources/js/components/Lms/LmsAnalyticsDashboard.vue): carga inicial y actualización del toggle mediante API.
+    - [tests/Feature/LmsInterventionApiTest.php](tests/Feature/LmsInterventionApiTest.php): pruebas de default y actualización aislada por usuario.
+- **Result:** El toggle “Mostrar completadas” ahora persiste entre sesiones/dispositivos para cada usuario y deja de depender del navegador local.
+
+### Quick Note (2026-03-31 - Cierre técnico pre-Phase 3 en Certificados LMS)
+
+- **Change:** Se cerraron los pendientes técnicos que seguían abiertos en el checklist de verificación pre-Phase 3 para certificados LMS.
+    - [app/Models/LmsCertificateTemplate.php](app/Models/LmsCertificateTemplate.php): nuevo modelo Eloquent para plantillas.
+    - [database/migrations/2026_03_31_185635_create_lms_certificate_templates_table.php](database/migrations/2026_03_31_185635_create_lms_certificate_templates_table.php): nueva tabla `lms_certificate_templates`.
+    - [app/Services/Talent/Lms/CertificateService.php](app/Services/Talent/Lms/CertificateService.php):
+        - Soporte de `certificate_template_id` en emisión.
+        - Render de HTML por plantilla con placeholders básicos.
+        - `syncToTalentPass()` automático al emitir para crear/actualizar `TalentPassCredential`.
+    - [app/Models/LmsCertificate.php](app/Models/LmsCertificate.php): nuevas relaciones `enrollment()` y `template()`.
+    - [tests/Feature/CertificateServiceTest.php](tests/Feature/CertificateServiceTest.php): prueba de sincronización automática a Talent Pass.
+    - [docs/PENDIENTES_2026_03_26.md](docs/PENDIENTES_2026_03_26.md): checkboxes de pre-Phase 3 actualizados a completados.
+- **Result:** Quedan pendientes macro de producto (UX/SSO/analytics/multimedia), pero no pendientes técnicos críticos de verificación pre-Phase 3 en certificados LMS.
+
+### Quick Note (2026-03-31 - LMS Policy Overrides por Curso/Tenant)
+
+- **Change:** Se añadió override de política de emisión por curso (`lms_courses`), efectivo por tenant vía `organization_id` del curso.
+    - [database/migrations/2026_03_31_184814_add_certificate_policy_overrides_to_lms_courses_table.php](database/migrations/2026_03_31_184814_add_certificate_policy_overrides_to_lms_courses_table.php):
+        - `cert_min_resource_completion_ratio` (nullable)
+        - `cert_require_assessment_score` (nullable)
+        - `cert_min_assessment_score` (nullable)
+    - [app/Models/LmsCourse.php](app/Models/LmsCourse.php): fillable + casts para nuevos overrides.
+    - [app/Services/Talent/Lms/LmsService.php](app/Services/Talent/Lms/LmsService.php):
+        - `resolveCoursePolicyOverrides()` aplica prioridad `curso > config global`.
+        - `canIssueCompletionCredentials()` consume política resuelta antes de emitir.
+    - [tests/Feature/LmsServiceSyncProgressTest.php](tests/Feature/LmsServiceSyncProgressTest.php): nuevo test que confirma que el override del curso prevalece sobre umbrales globales.
+- **Result:** Ya es posible definir umbrales distintos entre tenants/cursos sin afectar la configuración global.
+
+### Quick Note (2026-03-31 - LMS Emisión Condicionada)
+
+- **Change:** Se introdujo política configurable para emisión automática de credenciales LMS (certificado/diploma) con condiciones de participación y evaluación.
+    - [config/stratos.php](config/stratos.php): nueva sección `stratos.lms.certificate_issuance` con:
+        - `min_resource_completion_ratio` (default `0.70`)
+        - `require_assessment_score` (default `true`)
+        - `min_assessment_score` (default `80`)
+    - [database/migrations/2026_03_31_183810_add_certificate_criteria_to_lms_enrollments_table.php](database/migrations/2026_03_31_183810_add_certificate_criteria_to_lms_enrollments_table.php): nuevos campos `resources_completed`, `resources_total`, `assessment_score`.
+    - [app/Models/LmsEnrollment.php](app/Models/LmsEnrollment.php): fillable/casts para los nuevos campos.
+    - [app/Services/Talent/Lms/LmsService.php](app/Services/Talent/Lms/LmsService.php): `issueCertificateOnCompletion()` ahora valida elegibilidad con `canIssueCompletionCredentials()` antes de emitir; guarda métricas en `meta.completion_metrics` y loguea cuando no cumple.
+    - [tests/Feature/LmsServiceSyncProgressTest.php](tests/Feature/LmsServiceSyncProgressTest.php): se ajustan pruebas y se agrega caso negativo de no emisión por score insuficiente.
+- **Result:** La emisión ya no depende solo de “completado”, ahora aplica reglas configurables como “7/10 recursos + >= X% en evaluación”.
+
+### Quick Note (2026-03-31 - Inicio Phase 3 LMS Automation)
+
+- **Change:** Arranque técnico de Phase 3 sobre LMS con automatización de progreso y emisión de certificados.
+    - [app/Services/Talent/Lms/LmsService.php](app/Services/Talent/Lms/LmsService.php):
+        - `syncProgress()` ahora emite certificado automáticamente al completar una acción.
+        - `syncPendingActions()` agrega procesamiento batch por organización/acción.
+        - Corrección de gamification para usar `DevelopmentPath.people_id` (no `DevelopmentAction.person_id`).
+    - [app/Console/Commands/SyncLmsProgressCommand.php](app/Console/Commands/SyncLmsProgressCommand.php): nuevo comando `lms:sync-progress` para sincronización por lote.
+    - [tests/Feature/LmsServiceSyncProgressTest.php](tests/Feature/LmsServiceSyncProgressTest.php): pruebas de emisión automática + comando batch.
+    - [docs/PENDIENTES_2026_03_26.md](docs/PENDIENTES_2026_03_26.md): actualizado el inicio de Phase 3 y el estado del checklist.
+- **Result:** Base de automatización de certificados lista para continuar con scheduler, notificaciones avanzadas y optimización.
+
 ### Quick Note (2026-03-31 - Cierre pendientes reales Fase 1/2)
 
 - **Change:** Se cerraron los pendientes técnicos concretos detectados en la verificación pre-Phase 3 para LMS certificados.

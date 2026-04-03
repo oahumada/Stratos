@@ -44,3 +44,43 @@ function actingAs($user, $driver = null)
 {
     return test()->actingAs($user, $driver);
 }
+
+function createUserForOrganizationWithRole(
+    \App\Models\Organization $organization,
+    string $role,
+): \App\Models\User {
+    return \App\Models\User::factory()->create([
+        'organization_id' => $organization->id,
+        'current_organization_id' => $organization->id,
+        'role' => $role,
+        'email' => sprintf('test+%s@example.test', \Illuminate\Support\Str::uuid()),
+    ]);
+}
+
+function grantPermissionToRole(
+    string $role,
+    string $permissionName,
+    string $module = 'system',
+    string $action = 'view',
+    ?string $description = null,
+): void {
+    $permission = \App\Models\Permission::query()->firstOrCreate(
+        ['name' => $permissionName],
+        [
+            'module' => $module,
+            'action' => $action,
+            'description' => $description,
+        ],
+    );
+
+    \Illuminate\Support\Facades\DB::table('role_permissions')->updateOrInsert(
+        [
+            'role' => $role,
+            'permission_id' => $permission->id,
+        ],
+        [
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+    );
+}

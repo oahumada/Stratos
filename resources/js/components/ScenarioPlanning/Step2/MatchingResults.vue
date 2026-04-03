@@ -696,6 +696,19 @@ watch(
         loadResults();
     },
 );
+
+defineExpose({
+    loading,
+    error,
+    results,
+    showDetailsDialog,
+    selectedResult,
+    showLegendDialog,
+    loadResults,
+    getMatchColor,
+    viewDetails,
+    acceptMatch,
+});
 </script>
 
 <style scoped>

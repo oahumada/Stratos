@@ -8,7 +8,13 @@
         <div
             class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:gap-7 xl:grid-cols-3"
         >
-            <div v-for="mod in modules" :key="mod.title">
+            <div
+                v-for="mod in modules"
+                :key="mod.title"
+                class="module-card"
+                :data-title="mod.title"
+                :data-href="mod.href"
+            >
                 <ModuleCard
                     :title="mod.title"
                     :description="mod.description"

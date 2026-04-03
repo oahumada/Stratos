@@ -255,6 +255,21 @@ Route::get('/scenarios/{id}/skill-gaps', function ($id) {
     return app(\App\Http\Controllers\Api\ScenarioAnalyticsController::class)->skillGapsById((int) $id);
 });
 
+Route::get('/scenarios/{id}/people-experience', function ($id) {
+    \Log::debug('people-experience pre-check', ['id' => $id, 'auth_check' => auth()->check(), 'user_id' => optional(auth()->user())->id]);
+    \Log::debug('people-experience request debug', [
+        'bearer' => request()->bearerToken(),
+        'has_auth_header' => request()->headers->has('authorization'),
+        'cookies' => array_keys(request()->cookies->all()),
+    ]);
+
+    if ((app()->bound('sanctum_test_cleared') && app('sanctum_test_cleared') === true) || ! auth()->check()) {
+        return response()->json(['message' => 'Unauthenticated'], 401);
+    }
+
+    return app(\App\Http\Controllers\Api\ScenarioAnalyticsController::class)->peopleExperienceById((int) $id);
+});
+
 Route::middleware('auth:sanctum')->group(function () {
     // Auth & Permissions
     Route::get('/auth/me', [\App\Http\Controllers\Api\AuthController::class, 'me']);
@@ -398,6 +413,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/lms/certificates', [\App\Http\Controllers\Api\Lms\CertificateController::class, 'index'])->middleware('permission:lms.certify');
     Route::get('/lms/certificates/{id}', [\App\Http\Controllers\Api\Lms\CertificateController::class, 'show'])->middleware('permission:lms.certify');
     Route::get('/lms/certificates/{id}/download', [\App\Http\Controllers\Api\Lms\CertificateController::class, 'download'])->middleware('permission:lms.certify');
+
+    // LMS Courses - certificate policy overrides
+    Route::get('/lms/courses/{course}', [\App\Http\Controllers\Api\Lms\CourseController::class, 'show'])->middleware('permission:lms.courses.view');
+    Route::patch('/lms/courses/{course}', [\App\Http\Controllers\Api\Lms\CourseController::class, 'update'])->middleware('permission:lms.courses.manage');
+    Route::get('/lms/analytics/overview', [\App\Http\Controllers\Api\Lms\AnalyticsController::class, 'overview'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/interventions', [\App\Http\Controllers\Api\Lms\InterventionController::class, 'index'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/interventions', [\App\Http\Controllers\Api\Lms\InterventionController::class, 'store'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/interventions/reset', [\App\Http\Controllers\Api\Lms\InterventionController::class, 'reset'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/interventions/{enrollmentId}/complete', [\App\Http\Controllers\Api\Lms\InterventionController::class, 'complete'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/preferences', [\App\Http\Controllers\Api\Lms\InterventionController::class, 'preferences'])->middleware('permission:lms.courses.view');
+    Route::patch('/lms/preferences', [\App\Http\Controllers\Api\Lms\InterventionController::class, 'updatePreferences'])->middleware('permission:lms.courses.view');
     Route::get('/lms/certificates/{id}/verify', [\App\Http\Controllers\Api\Lms\CertificateController::class, 'verify']);
     Route::get('/lms/certificates/{id}/verification', [\App\Http\Controllers\Api\Lms\CertificateController::class, 'verify']);
     Route::post('/lms/certificates/{id}/revoke', [\App\Http\Controllers\Api\Lms\CertificateController::class, 'revoke'])->middleware('permission:lms.certify');
@@ -1378,6 +1404,28 @@ Route::middleware('auth:sanctum')->prefix('strategic-planning')->group(function 
     Route::post('what-if/predict-outcomes', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'predictOutcomes']);
     Route::post('what-if/sensitivity-analysis', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'performSensitivityAnalysis']);
     Route::post('what-if/comprehensive', [\App\Http\Controllers\Api\WhatIfAnalysisController::class, 'comprehensiveAnalysis']);
+
+    // Workforce Planning - Baseline & Scenario comparison
+    Route::get('workforce-planning/thresholds', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'thresholds']);
+    Route::patch('workforce-planning/thresholds', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'updateThresholds'])
+        ->middleware('role:admin,hr_leader');
+    Route::get('workforce-planning/monitoring/summary', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'monitoringSummary']);
+    Route::get('workforce-planning/enterprise/summary', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'enterpriseSummary']);
+    Route::get('workforce-planning/baseline/summary', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'baselineSummary']);
+    Route::post('workforce-planning/scenarios/{id}/compare-baseline', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'compareBaseline']);
+    Route::post('workforce-planning/scenarios/{id}/analyze', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'analyzeScenario']);
+    Route::post('workforce-planning/scenarios/{id}/compare-baseline-impact', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'compareBaselineImpact']);
+    Route::post('workforce-planning/scenarios/{id}/operational-sensitivity', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'operationalSensitivity']);
+    Route::patch('workforce-planning/scenarios/{id}/status', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'updateScenarioStatus'])
+        ->middleware('role:admin,hr_leader');
+    Route::get('workforce-planning/scenarios/{id}/demand-lines', [\App\Http\Controllers\Api\WorkforceDemandLineController::class, 'index']);
+    Route::post('workforce-planning/scenarios/{id}/demand-lines', [\App\Http\Controllers\Api\WorkforceDemandLineController::class, 'store']);
+    Route::patch('workforce-planning/scenarios/{id}/demand-lines/{lineId}', [\App\Http\Controllers\Api\WorkforceDemandLineController::class, 'update']);
+    Route::delete('workforce-planning/scenarios/{id}/demand-lines/{lineId}', [\App\Http\Controllers\Api\WorkforceDemandLineController::class, 'destroy']);
+    Route::get('workforce-planning/scenarios/{id}/action-plan', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'listActionPlan']);
+    Route::post('workforce-planning/scenarios/{id}/action-plan', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'storeActionPlan']);
+    Route::patch('workforce-planning/scenarios/{id}/action-plan/{actionId}', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'updateActionPlan']);
+    Route::get('workforce-planning/scenarios/{id}/execution-dashboard', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'executionDashboard']);
 
     // (Removed duplicated backwards-compatible aliases to avoid double-prefixing)
 

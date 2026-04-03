@@ -225,6 +225,7 @@
 
 - **[MODULE_TASKFORCE.md](MODULE_TASKFORCE.md)** - Análisis completo del módulo (referencia)
 - **[WORKFORCE_PLANNING_GUIA.md](WORKFORCE_PLANNING_GUIA.md)** - Guía rápida de implementación ⭐ COMIENZA AQUÍ
+- **[templates/WORKFORCE_GO_LIVE_CHECKLIST.md](templates/WORKFORCE_GO_LIVE_CHECKLIST.md)** - Template reusable de Go Live (GitHub Issue + Jira)
 - **[memories_workforce_planning.md](memories_workforce_planning.md)** - Resumen operativo y pasos Postman (últimas modificaciones)
 
 ### 📈 Inteligencia de Talento & Movilidad (Fase 6)

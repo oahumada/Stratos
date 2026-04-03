@@ -671,6 +671,21 @@ watch(
         loadPlans();
     },
 );
+
+defineExpose({
+    loading,
+    saving,
+    error,
+    success,
+    plans,
+    showEditDialog,
+    editingPlan,
+    loadPlans,
+    getReadinessColor,
+    editPlan,
+    savePlan,
+    deletePlan,
+});
 </script>
 
 <style scoped>

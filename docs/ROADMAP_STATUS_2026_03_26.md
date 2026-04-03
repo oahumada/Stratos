@@ -10,23 +10,23 @@
 
 ### 🟢 Operational Guides Sprint ✅ COMPLETE (Today)
 
-| Guide | Size | Lines | Status | Purpose |
-| ----- | ---- | ----- | ------ | ------- |
-| **DEPLOYMENT_CHECKLIST.md** | 18 KB | 450+ | ✅ Complete | 8-phase deployment procedures |
-| **TROUBLESHOOTING_GUIDE.md** | 18 KB | 420+ | ✅ Complete | 10 common issues + solutions |
-| **MONITORING_GUIDE.md** | 17 KB | 380+ | ✅ Complete | Metrics, alerts, escalation |
-| **OPERATIONS_SUMMARY.md** | 19 KB | 440+ | ✅ Complete | Executive summary for Messaging MVP |
-| **ROLLBACK_GUIDE.md** | 9.1 KB | 250+ | ✅ Complete | 4-level recovery procedures |
+| Guide                        | Size   | Lines | Status      | Purpose                             |
+| ---------------------------- | ------ | ----- | ----------- | ----------------------------------- |
+| **DEPLOYMENT_CHECKLIST.md**  | 18 KB  | 450+  | ✅ Complete | 8-phase deployment procedures       |
+| **TROUBLESHOOTING_GUIDE.md** | 18 KB  | 420+  | ✅ Complete | 10 common issues + solutions        |
+| **MONITORING_GUIDE.md**      | 17 KB  | 380+  | ✅ Complete | Metrics, alerts, escalation         |
+| **OPERATIONS_SUMMARY.md**    | 19 KB  | 440+  | ✅ Complete | Executive summary for Messaging MVP |
+| **ROLLBACK_GUIDE.md**        | 9.1 KB | 250+  | ✅ Complete | 4-level recovery procedures         |
 
 **Resultado:** **81 KB Operational Documentation** | **All guides committed** | **Messaging MVP ready for Mar 27 deployment** ✅
 
 ### 🟢 Talent Pass CV 2.0 Planning ✅ COMPLETE (Today)
 
-| Component | Size | Status | Details |
-| --------- | ---- | ------ | ------- |
-| **TALENT_PASS_CV2_DEPLOYMENT.md** | 14 KB | ✅ Complete | 3-week implementation plan (Mar 31 - Apr 18) |
-| **TALENT_PASS_QUICK_REFERENCE.md** | 11 KB | ✅ Complete | Week-by-week breakdown, 150+ tests |
-| **Updated PENDIENTES** | — | ✅ Complete | Full section on Talent Pass deployment |
+| Component                          | Size  | Status      | Details                                      |
+| ---------------------------------- | ----- | ----------- | -------------------------------------------- |
+| **TALENT_PASS_CV2_DEPLOYMENT.md**  | 14 KB | ✅ Complete | 3-week implementation plan (Mar 31 - Apr 18) |
+| **TALENT_PASS_QUICK_REFERENCE.md** | 11 KB | ✅ Complete | Week-by-week breakdown, 150+ tests           |
+| **Updated PENDIENTES**             | —     | ✅ Complete | Full section on Talent Pass deployment       |
 
 **Resultado:** **25 KB Talent Pass Planning** | **Ready for Mar 31 start** | **Dependencies clear** ✅
 
@@ -61,17 +61,17 @@
 
 ### 🟠 Bloque D: Movilidad y Ecosistema de Talento ✅
 
-| #   | Feature               |     Estado     | Detalle                                                     |
-| :-- | :-------------------- | :------------: | :---------------------------------------------------------- | -------------------------- |
-| D1  | Gateway Híbrido       | ✅ Completado  | SSO (Google/MS) + Magic Links implementados.                |
-| D2  | LMS & Mentor Hub      | ✅ Completado  | `LmsService.php`, `MentorMatchingService.php` operativos.   |
-| D3  | Marketplace Activo    | ✅ Completado  | `AiInternalMatchmakerService.php` operativo.                |
-| D4  | Gamificación Creativa | ✅ Completado  | `GamificationService.php`, Quests y Badges implementados.   |
-| D5  | Misiones de Gremio    | ✅ Completado  | Sistema de Quests soporta misiones colectivas/individuales. |
-| D6  | Timeline Evolutivo    | ✅ Completado  | `DnaTimelineService.php` y endpoint API implementados.      |
-| D7  | Nudging Proactivo     | ✅ Completado  | Orquestador de intervenciones basado en data insights.      |
-| D8  | Talent Pass (CV 2.0)  | 📋 Planejado  | 3-week impl plan ✅ (Mar 31-Apr 18) | Staging Apr 19 → Prod Apr 21 |
-| D9  | Sovereign Identity    | ✅ Completado  | Infraestructura lista (VerifiableCredentials) con emulador. |
+| #   | Feature               |    Estado     | Detalle                                                     |
+| :-- | :-------------------- | :-----------: | :---------------------------------------------------------- | ---------------------------- |
+| D1  | Gateway Híbrido       | ✅ Completado | SSO (Google/MS) + Magic Links implementados.                |
+| D2  | LMS & Mentor Hub      | ✅ Completado | `LmsService.php`, `MentorMatchingService.php` operativos.   |
+| D3  | Marketplace Activo    | ✅ Completado | `AiInternalMatchmakerService.php` operativo.                |
+| D4  | Gamificación Creativa | ✅ Completado | `GamificationService.php`, Quests y Badges implementados.   |
+| D5  | Misiones de Gremio    | ✅ Completado | Sistema de Quests soporta misiones colectivas/individuales. |
+| D6  | Timeline Evolutivo    | ✅ Completado | `DnaTimelineService.php` y endpoint API implementados.      |
+| D7  | Nudging Proactivo     | ✅ Completado | Orquestador de intervenciones basado en data insights.      |
+| D8  | Talent Pass (CV 2.0)  | 📋 Planejado  | 3-week impl plan ✅ (Mar 31-Apr 18)                         | Staging Apr 19 → Prod Apr 21 |
+| D9  | Sovereign Identity    | ✅ Completado | Infraestructura lista (VerifiableCredentials) con emulador. |
 
 ### 🔵 Bloque E: Performance & Observability ✅ NEW
 
@@ -87,13 +87,14 @@
 
 ## 🔴 Próximos Pasos - Prioridad
 
-| Priority | Feature                                    | Block | Est. Time   | Status   | COST |
-| -------- | ------------------------------------------ | ----- | ----------- | -------- | ---- |
-| 1        | **Execute Messaging Deploy to Staging**    | MVP   | Mar 27-28   | 📋 Ready | $0   |
-| 2        | **Messaging Go/No-Go Decision**            | MVP   | Mar 28      | ⏳ Await | $0   |
-| 3        | **Talent Pass Implementation (3 weeks)**   | D8    | Mar 31-Apr 18 | 📋 Ready | $0   |
-| 4        | **Talent Pass Staging Deploy**             | D8    | Apr 19      | 📋 Ready | $0   |
-| 5        | **Admin Panel Polish**                     | B     | 2-3 días    | ⏳ Next  | $0   |
+| Priority | Feature                                       | Block   | Est. Time     | Status     | COST |
+| -------- | --------------------------------------------- | ------- | ------------- | ---------- | ---- |
+| 1        | **Execute Messaging Deploy to Staging**       | MVP     | Mar 27-28     | 📋 Ready   | $0   |
+| 2        | **Messaging Go/No-Go Decision**               | MVP     | Mar 28        | ⏳ Await   | $0   |
+| 3        | **Workforce Planning Dotacional (Phase 1-2)** | NEW-WFP | Apr 1-Apr 30  | 🆕 Planned | $0   |
+| 4        | **Talent Pass Implementation (3 weeks)**      | D8      | Mar 31-Apr 18 | 📋 Ready   | $0   |
+| 5        | **Talent Pass Staging Deploy**                | D8      | Apr 19        | 📋 Ready   | $0   |
+| 6        | **Admin Panel Polish**                        | B       | 2-3 días      | ⏳ Next    | $0   |
 
 ---
 
@@ -200,11 +201,19 @@ metrics:cache-stats command
 
 ### A. Feature Development (HIGH PRIORITY)
 
+- [ ] Workforce Planning Dotacional v1 (Foundation + Intelligence)
 - [ ] Talent Pass UI (CV 2.0 visualization) - **NEXT SPRINT**
 - [ ] Messaging MVP Deploy to Production
 - [ ] Admin Panel Polish & Advanced Analytics
 - [ ] LMS Hardening & SSO Integrations
 - [ ] Scenario Planning Phase 2 (Advanced)
+
+### A.1 Workforce Planning Dotacional (NEW)
+
+- [ ] Fase 1: modelo de dominio + endpoints base + seguridad tenant
+- [ ] Fase 2: motor de recomendaciones con racional explicable
+- [ ] Fase 3: gobernanza de ejecución + dashboard de seguimiento
+- [ ] Fase 4: comparador de escenarios + simulaciones de sensibilidad
 
 ### B. Scale Messaging
 

@@ -25,4 +25,12 @@ return [
         'verifier_version' => env('COMPLIANCE_VERIFIER_VERSION', '2026.03'),
         'policy_version' => env('COMPLIANCE_POLICY_VERSION', 'v1'),
     ],
+
+    'lms' => [
+        'certificate_issuance' => [
+            'min_resource_completion_ratio' => (float) env('LMS_CERT_MIN_RESOURCE_RATIO', 0.70),
+            'require_assessment_score' => (bool) env('LMS_CERT_REQUIRE_ASSESSMENT_SCORE', true),
+            'min_assessment_score' => (float) env('LMS_CERT_MIN_ASSESSMENT_SCORE', 80),
+        ],
+    ],
 ];
