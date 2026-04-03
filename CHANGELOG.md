@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.7](https://github.com/oahumada/Stratos/compare/v0.10.6...v0.10.7) (2026-04-03)
+
+
+### ✨ Nuevas Funcionalidades
+
+* notification system extensions & Workforce motor framework ([98f9fdd](https://github.com/oahumada/Stratos/commit/98f9fddc34405d5f8e535e1c4c7d9f6dcf0bfac8))
+
 ### [0.10.6](https://github.com/oahumada/Stratos/compare/v0.10.5...v0.10.6) (2026-04-03)
 
 
