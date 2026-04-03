@@ -1707,6 +1707,11 @@ Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     Route::get('audit-logs/export', [\App\Http\Controllers\Api\AuditController::class, 'export'])->name('admin.audit-logs.export');
     Route::get('audit-logs/{entityType}/{entityId}/timeline', [\App\Http\Controllers\Api\AuditController::class, 'entityTimeline'])->name('admin.audit-logs.timeline');
     Route::get('audit-logs/users/{userId}/activity', [\App\Http\Controllers\Api\AuditController::class, 'userActivity'])->name('admin.audit-logs.user-activity');
+
+    // Notification Channels Settings (Org-level)
+    Route::get('notification-channel-settings', [\App\Http\Controllers\Api\NotificationChannelSettingsController::class, 'index'])->name('admin.notification-channels.index');
+    Route::put('notification-channel-settings/{channelType}', [\App\Http\Controllers\Api\NotificationChannelSettingsController::class, 'update'])->name('admin.notification-channels.update');
+    Route::delete('notification-channel-settings/{channelType}', [\App\Http\Controllers\Api\NotificationChannelSettingsController::class, 'destroy'])->name('admin.notification-channels.destroy');
 });
 
 // ── Inbound n8n Webhooks (Unauthenticated, secured via X-N8n-Secret header) ──
