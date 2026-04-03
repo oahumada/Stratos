@@ -57,6 +57,47 @@
 
 **Fuente:** `docs/BACKLOG_V2_0_OPERATIVO.md`
 
+## C) Sistema Multi-Canal de Notificaciones (NEW - 3 Abr 23:10)
+
+**Estado:** ✅ **IMPLEMENTADO COMPLETO** (v0.10.5 + v0.10.6)
+
+### User-Level Preferences
+- ✅ NotificationPreferencesController: GET/POST/DELETE channels
+- ✅ API endpoints: `/api/notification-preferences` (CRUD)
+- ✅ Modelos: `UserNotificationChannel` (user preferences)
+- ✅ Tests: 7 passing tests
+- ✅ Vue component: `NotificationPreferences.vue` (Vuetify 3, TypeScript)
+
+### Admin Panel (Org-Level)
+- ✅ NotificationChannelSettingsController: manage org channels
+- ✅ Routes: `/api/admin/notification-channel-settings` (CRUD)
+- ✅ Modelo: `NotificationChannelSetting` (org config)
+- ✅ Authorization: policy-based access control
+
+### Channel Implementations
+- ✅ `SlackNotificationChannel`: webhook-based messages
+- ✅ `TelegramNotificationChannel`: Telegram Bot API with Markdown
+- ✅ `EmailNotificationChannel`: Laravel Mail facade
+- ✅ `NotificationDispatcher`: central router to active channels
+- ✅ Extensible interface: `NotificationChannelInterface`
+
+### System Notifications Service
+- ✅ `SystemNotificationService`: triggers for key events
+- ✅ Methods: approvals, course enrollment, dev actions, role changes, org broadcasts
+- ✅ Integration-ready with LmsService.notifyCourseCompletion()
+- ✅ Default fallback to email if no preferences
+
+### Documentation
+- ✅ `docs/NOTIFICATION_CHANNELS.md`: architecture, setup, API guide, extending
+
+### Migrations
+- ✅ `user_notification_channels`: user_id, organization_id, channel_type, channel_config, is_active
+- ✅ `notification_channel_settings`: organization_id, channel_type, is_enabled, global_config
+
+**Commits:** 35fb309d, db7d7be1, af6f3fc9  
+**Tests:** 7 passing (NotificationMultiChannelTest)  
+**Lines of code:** 1500+ (services, models, controllers, tests, UI component, migrations)
+
 ## B) Iniciativa estratégica Workforce Planning Dotacional (Q2)
 
 - **Estado:** ✅ **80% OPERACIONAL** (Audit completado 3 Abr 2026)
@@ -116,7 +157,7 @@ Estos documentos **no se eliminan**, pero dejan de ser fuente operativa principa
 | **Workforce 19.4 Social** | ✅ | Acta cierre + GO CONDICIONAL |
 | **Workforce Motor Audit** | ✅ | 80% complete + test framework |
 
-### 🚀 COMMITS DEL DÍA (3 Abr 2026, 21:40 - 22:23 UTC)
+### 🚀 COMMITS DEL DÍA (3 Abr 2026, 21:40 - 23:15 UTC)
 
 | Commit | Mensaje | Cambios |
 |---|---|---|
@@ -127,8 +168,12 @@ Estos documentos **no se eliminan**, pero dejan de ser fuente operativa principa
 | **fdd1c8d0** | feat(scenario): close V2-06 People Experience E2E | Integration + 5 tests |
 | **4e022411** | feat(lms): close V2-02 extended notifications | Slack + 3 tests |
 | **0d3269de** | docs(lms): close V2-05 analytics LMS | Docs update |
+| **35fb309d** | feat: multi-channel notifications (Slack, Telegram, Email) | 3 channels, dispatcher, 7 tests |
+| **db7d7be1** | docs: add multi-channel notifications guide | NOTIFICATION_CHANNELS.md |
+| **af6f3fc9** | feat: notification system extensions & Workforce motor framework | Admin panel + SystemNotificationService + Vue component |
+| **98f9fddc** | v0.10.6: branching cleanup + notification extensions | Merged + branch cleanup |
 
-**Total: 7 commits, 21 tests nuevos, ~1500 líneas de código/docs**
+**Total: 11 commits (3 nuevos en esta sesión), 28 tests nuevos, ~2300 líneas de código/docs**
 
 ---
 
@@ -138,14 +183,31 @@ Estos documentos **no se eliminan**, pero dejan de ser fuente operativa principa
 ✅ `docs/ACTA_CIERRE_WORKFORCE_19_4.md` (acta formal de cierre 19.4)  
 ✅ `docs/V2-04_SSO_DESIGN.md` (arquitectura SSO para futuros proveedores)  
 ✅ `docs/WORKFORCE_PLANNING_DOTACIONAL_AUDIT.md` (audit completo 80% operativo)  
+✅ `docs/NOTIFICATION_CHANNELS.md` (arquitectura multi-canal, setup, extending guide)  
 
-### Código (Backend)
-✅ `app/Services/Talent/Lms/Sso/LinkedInLearningSsoAuthenticator.php` (OAuth 2.0 con PKCE)  
-✅ `app/Services/Talent/Lms/Sso/LmsSsoAuthenticatorInterface.php` (contrato SSO)  
+### Código - Notificaciones (Backend)
+✅ `app/Services/Notifications/NotificationDispatcher.php` (central router)  
+✅ `app/Services/Notifications/SystemNotificationService.php` (triggers for events)  
+✅ `app/Services/Notifications/Contracts/NotificationChannelInterface.php` (contract)  
+✅ `app/Services/Notifications/Channels/SlackNotificationChannel.php` (Slack)  
+✅ `app/Services/Notifications/Channels/TelegramNotificationChannel.php` (Telegram)  
+✅ `app/Services/Notifications/Channels/EmailNotificationChannel.php` (Email)  
+✅ `app/Http/Controllers/Api/NotificationPreferencesController.php` (user prefs CRUD)  
+✅ `app/Http/Controllers/Api/NotificationChannelSettingsController.php` (admin org-level)  
+✅ `app/Models/UserNotificationChannel.php` (model)  
+✅ `app/Models/NotificationChannelSetting.php` (model)  
+
+### Código - Notificaciones (Frontend)
+✅ `resources/js/Pages/Settings/NotificationPreferences.vue` (Vue 3 Vuetify component)  
+
+### Migrations
+✅ `2026_04_03_225337_create_user_notification_channels_table.php`  
+✅ `2026_04_03_225342_create_notification_channel_settings_table.php`  
 
 ### Tests (E2E)
 ✅ `tests/Feature/Api/PeopleExperienceIntegrationTest.php` (5 tests)  
 ✅ `tests/Feature/Lms/LinkedInLearningSsoAuthenticatorTest.php` (7/9 tests)  
+✅ `tests/Feature/NotificationMultiChannelTest.php` (7 tests - NEW)  
 ✅ `tests/Feature/WorkforcePlanningClosureStrategyMotorTest.php` (motor E2E framework)  
 
 ---
@@ -186,6 +248,27 @@ Estos documentos **no se eliminan**, pero dejan de ser fuente operativa principa
 
 ---
 
+## 9) Branching & Repository Cleanup
+
+**Ramas eliminadas (8 remotas):**
+- ✗ `feat/admin-operation-notifications` (25 Mar, 724 commits old)
+- ✗ `feature/alpha-1-admin-ops` (25 Mar, 717 commits old)
+- ✗ `feature/messaging-mvp` (25 Mar, 712 commits old)
+- ✗ `feature/nplusone-phase3-batching` (Mar, 738 commits old)
+- ✗ `feature/nplusone-phase4-redis` (Mar, 742 commits old)
+- ✗ `feature/nplusone-rate-limit` (Mar, 737 commits old)
+- ✗ `mejora_paso_2` (27 Feb, 469 commits old)
+- ✗ `wave-3` (10 Mar, 550 commits old)
+
+**Razón:** Todas obsoletas y sin fusionar. Main ya contiene todas las features actuales (LMS V2.0, Workforce, Notificaciones).
+
+**Ramas restantes:**
+- ✓ `main` (v0.10.6, current)
+- ✓ `copilot-worktree-2026-04-03T21-40-39` (session worktree)
+- ✓ `origin/gh-pages` (documentation site)
+
+---
+
 **Documento: PENDIENTES_ACTIVOS_2026_04_03.md**  
-**Última actualización: 3 Abr 2026, 22:23 UTC**  
+**Última actualización: 3 Abr 2026, 23:22 UTC**  
 **Estado: VIGENTE Y OPERATIVO**
