@@ -48,9 +48,10 @@
     - Estado: Pendiente
     - Cierre: diseño aprobado + PoC funcional de al menos 1 proveedor
 
-6. **V2-06 Integración People Experience en Scenario Planning**
-    - Estado: Pendiente
-    - Cierre: contrato de datos + endpoint integrado + validación E2E
+6. **✅ V2-06 Integración People Experience en Scenario Planning**
+    - Estado: ✅ **CERRADO** (3 Abr 2026)
+    - Cierre: contrato de datos definido + endpoint `/api/scenarios/{id}/people-experience` + 5 tests E2E
+    - Evidencia: `PeopleExperienceIntegrationService` + `ScenarioAnalyticsController` + `PeopleExperienceIntegrationTest` (5 tests)
 
 **Fuente:** `docs/BACKLOG_V2_0_OPERATIVO.md`
 
@@ -89,5 +90,5 @@ Estos documentos **no se eliminan**, pero dejan de ser fuente operativa principa
 
 - Pendiente más crítico/actual: **Cierre funcional Workforce 19.4 (socialización formal)**.
 - Pendientes en ejecución: ninguno activo actualmente.
-- Pendientes siguientes: **V2-04, V2-06**.
+- Pendientes siguientes: **V2-04** (SSO LMS con proveedores externos).
 - Documentos anteriores quedan como **referencia histórica**, no como tablero activo.
