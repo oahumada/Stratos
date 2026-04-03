@@ -1,5 +1,8 @@
 # 📋 PENDIENTES - Stratos (vista operativa)
 
+> ⚠️ **Actualización de gobernanza (3 Abr, 2026):** este archivo queda como **snapshot histórico** del corte del 1 Abr.  
+> La fuente operativa vigente es `docs/PENDIENTES_ACTIVOS_2026_04_03.md` y el backlog ejecutable en `docs/BACKLOG_V2_0_OPERATIVO.md`.
+
 **Última actualización:** 1 Abr, 2026
 
 > Este archivo queda como tablero operativo de cierre.  

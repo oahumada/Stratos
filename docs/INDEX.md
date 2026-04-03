@@ -177,10 +177,11 @@
 
 ### MVP
 
+- **[PENDIENTES_ACTIVOS_2026_04_03.md](PENDIENTES_ACTIVOS_2026_04_03.md)** - ⭐ **TABLERO VIGENTE** de pendientes activos (corte 3 Abr 2026)
 - **[memories.md](memories.md)** - Memoria de contexto (actualizada)
 - **[estado_actual_mvp.md](estado_actual_mvp.md)** - Estado actual del MVP
 - **[CHECKLIST_MVP_COMPLETION.md](CHECKLIST_MVP_COMPLETION.md)** - Checklist de completitud
-- **[PENDIENTES_2026_03_26.md](PENDIENTES_2026_03_26.md)** - ✅ **Roadmap de Pendientes** - Próximos pasos tras Messaging MVP Phase 4 completo
+- **[PENDIENTES_2026_03_26.md](PENDIENTES_2026_03_26.md)** - Snapshot histórico (corte 1 Abr 2026)
 
 ---
 
