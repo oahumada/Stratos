@@ -141,6 +141,16 @@ o modo automático:
 ./scripts/release.sh auto
 ```
 
+Preflight automático (vigente):
+
+- `scripts/release.sh` ejecuta `git pull --rebase origin <rama>` automáticamente antes del bump/tag (salvo `--no-sync`).
+- El release falla si hay árbol sucio (`working tree` con cambios sin commit).
+- El release falla si `package.json.version` local queda por detrás de:
+    - la versión remota de la rama (`origin/<rama>`), o
+    - el último tag semver estable (`vX.Y.Z`).
+
+Esto automatiza la regla práctica operativa: **sincronizar -> validar estado limpio -> versionar**.
+
 o pre-release por fase:
 
 ```bash
@@ -148,6 +158,18 @@ o pre-release por fase:
 ./scripts/release.sh beta
 ./scripts/release.sh rc
 ```
+
+Modo no interactivo seguro:
+
+```bash
+./scripts/release.sh auto --yes
+```
+
+Opciones de operación:
+
+- `--yes`: modo no interactivo con confirmación automática de push.
+- `--no-sync`: desactiva sincronización automática (solo para casos controlados).
+- `--allow-empty`: permite release vacío (excepción explícita).
 
 4. Validar que se actualizó `CHANGELOG.md` y se creó tag `vX.Y.Z`.
 5. Publicar tag y release notes.
@@ -217,6 +239,9 @@ Esta política entra en vigor inmediatamente con las siguientes reglas de ejecuc
 Comandos oficiales desde hoy:
 
 ```bash
+npm run release
+npm run release:auto
+npm run release:auto:yes
 npm run release:alpha
 npm run release:beta
 npm run release:rc
@@ -253,6 +278,12 @@ Comportamiento:
 Regla dura:
 
 - **Auto-release y generación automática de changelog están permitidos únicamente en `main`.**
+
+Guardas anti-recursión (CI):
+
+- El workflow `auto-release` ignora commits `chore(release): ...` para evitar bump en cascada.
+- Se removió el fallback por “últimos N commits” y se usa evaluación estricta por rango desde último tag.
+- Se aplica `concurrency` en `auto-release-main` para evitar ejecuciones superpuestas.
 
 ---
 
