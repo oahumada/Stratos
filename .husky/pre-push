@@ -28,6 +28,16 @@ if [ "${CURRENT_BRANCH}" != "${RELEASE_BRANCH}" ]; then
   exit 0
 fi
 
+if [ -x ./scripts/check-version-monotonicity.sh ]; then
+  echo "[husky] validating package version monotonicity against origin/${RELEASE_BRANCH}"
+  ./scripts/check-version-monotonicity.sh "${RELEASE_BRANCH}" "origin" || {
+    echo "[husky] version monotonicity check failed - aborting push"
+    exit 1
+  }
+else
+  echo "[husky] version monotonicity script not found/executable; skipping"
+fi
+
 if [ "${AUTO_RELEASE_ON_PUSH}" = "true" ] && [ "${SUGGESTED_BUMP}" != "none" ]; then
   echo "[husky] auto-release enabled: generating changelog + version bump (${SUGGESTED_BUMP})"
 
