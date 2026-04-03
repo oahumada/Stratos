@@ -10,6 +10,7 @@ use App\Models\LmsEnrollment;
 use App\Notifications\LmsCourseCompletedNotification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
@@ -103,6 +104,9 @@ class LmsService
                 $recipientUser = $action->path?->people?->user;
                 if ($recipientUser && ! app()->runningUnitTests()) {
                     Notification::send($recipientUser, new LmsCourseCompletedNotification($action->fresh(), $course));
+                }
+                if ($course) {
+                    $this->sendCourseCompletedSlackNotification($action->fresh(), $course);
                 }
 
                 return true;
@@ -302,5 +306,29 @@ class LmsService
             'min_assessment_score' => $course->cert_min_assessment_score
                 ?? ($defaultPolicy['min_assessment_score'] ?? 80),
         ];
+    }
+
+    public function sendCourseCompletedSlackNotification(DevelopmentAction $action, LmsCourse $course): void
+    {
+        $webhookUrl = config('services.lms.slack_webhook_url');
+
+        if (empty($webhookUrl)) {
+            return;
+        }
+
+        $personName = $action->path?->people?->full_name ?? 'Participante';
+        $courseTitle = $course->title;
+        $xp = $course->xp_points > 0 ? $course->xp_points : 50;
+
+        try {
+            Http::timeout(5)->post($webhookUrl, [
+                'text' => ":tada: *Curso completado* — {$personName} finalizó *{$courseTitle}* (+{$xp} XP)",
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('LMS course completed Slack webhook failed', [
+                'error' => $e->getMessage(),
+                'action_id' => $action->id,
+            ]);
+        }
     }
 }

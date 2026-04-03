@@ -39,9 +39,10 @@
     - Cierre: validaciones cliente + feedback visual + accesibilidad básica aplicada
     - Evidencia: endpoint `/api/lms/certificate-templates` + selector de plantillas + tests `LmsCoursePolicyTest`
 
-4. **V2-02 Notificaciones LMS extendidas**
-    - Estado: Pendiente
-    - Cierre: plantillas revisadas + canal adicional (Slack/In-app) + prueba funcional
+4. **✅ V2-02 Notificaciones LMS extendidas**
+    - Estado: ✅ **CERRADO** (3 Abr 2026)
+    - Cierre: mail+database+broadcast + Slack webhook (certificado y curso completado) + 3 tests
+    - Evidencia: `LmsService::sendCourseCompletedSlackNotification` + `LmsNotificationsTest` (3 tests)
 
 5. **V2-04 SSO LMS con proveedores externos**
     - Estado: Pendiente
@@ -88,5 +89,5 @@ Estos documentos **no se eliminan**, pero dejan de ser fuente operativa principa
 
 - Pendiente más crítico/actual: **Cierre funcional Workforce 19.4 (socialización formal)**.
 - Pendientes en ejecución: ninguno activo actualmente.
-- Pendientes siguientes: **V2-02, V2-04, V2-06**.
+- Pendientes siguientes: **V2-04, V2-06**.
 - Documentos anteriores quedan como **referencia histórica**, no como tablero activo.
