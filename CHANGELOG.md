@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.1](https://github.com/oahumada/Stratos/compare/v0.10.0...v0.10.1) (2026-04-03)
+
+
+### 🐛 Correcciones de Bugs
+
+* **release:** prevent recursive bumps and version drift ([262d5fb](https://github.com/oahumada/Stratos/commit/262d5fb6a7732e5068d56951c4394a1836e4d917))
+
 ## [0.10.0](https://github.com/oahumada/Stratos/compare/v0.9.0...v0.10.0) (2026-04-03)
 
 ## [0.9.0](https://github.com/oahumada/Stratos/compare/v0.8.0...v0.9.0) (2026-04-03)
