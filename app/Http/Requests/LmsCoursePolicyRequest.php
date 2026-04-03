@@ -18,6 +18,7 @@ class LmsCoursePolicyRequest extends FormRequest
             'cert_min_resource_completion_ratio' => ['nullable', 'numeric', 'between:0,1'],
             'cert_require_assessment_score' => ['nullable', 'boolean'],
             'cert_min_assessment_score' => ['nullable', 'numeric', 'between:0,100'],
+            'cert_template_id' => ['nullable', 'integer', 'exists:lms_certificate_templates,id'],
         ];
     }
 
@@ -30,6 +31,7 @@ class LmsCoursePolicyRequest extends FormRequest
             'cert_min_resource_completion_ratio' => array_key_exists('cert_min_resource_completion_ratio', $data) ? $data['cert_min_resource_completion_ratio'] : null,
             'cert_require_assessment_score' => array_key_exists('cert_require_assessment_score', $data) ? $data['cert_require_assessment_score'] : null,
             'cert_min_assessment_score' => array_key_exists('cert_min_assessment_score', $data) ? $data['cert_min_assessment_score'] : null,
+            'cert_template_id' => array_key_exists('cert_template_id', $data) ? $data['cert_template_id'] : null,
         ];
     }
 }

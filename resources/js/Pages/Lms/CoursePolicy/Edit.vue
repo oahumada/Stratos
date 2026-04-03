@@ -29,6 +29,29 @@
         />
 
         <v-form ref="formRef" @submit.prevent="save">
+            <v-progress-linear
+                v-if="loadingCourse"
+                indeterminate
+                color="primary"
+                class="mb-4"
+                aria-label="Cargando política del curso"
+            />
+
+            <v-select
+                v-model="form.cert_template_id"
+                :items="certificateTemplates"
+                item-title="name"
+                item-value="id"
+                clearable
+                label="Plantilla de certificado"
+                hint="Selecciona la plantilla que se usará para certificados emitidos por este curso"
+                persistent-hint
+                :disabled="loadingCourse || savingPolicy || loadingTemplates"
+                :loading="loadingTemplates"
+                class="mb-2"
+                aria-label="Selector de plantilla de certificado"
+            />
+
             <v-text-field
                 v-model.number="form.cert_min_resource_completion_ratio"
                 label="Ratio mínimo recursos (0-1)"
@@ -37,8 +60,10 @@
                 min="0"
                 max="1"
                 :rules="resourceCompletionRules"
+                validate-on="input"
                 :disabled="loadingCourse || savingPolicy"
                 class="mb-2"
+                aria-label="Ratio mínimo de recursos completados"
             />
 
             <v-switch
@@ -55,12 +80,14 @@
                 min="0"
                 max="100"
                 :rules="assessmentScoreRules"
+                validate-on="input"
                 :disabled="
                     loadingCourse ||
                     savingPolicy ||
                     !form.cert_require_assessment_score
                 "
                 class="mb-4"
+                aria-label="Puntuación mínima requerida en evaluación"
             />
 
             <div class="d-flex ga-3">
@@ -96,12 +123,20 @@ interface CoursePolicyProps {
         cert_min_resource_completion_ratio: number | null;
         cert_require_assessment_score: boolean;
         cert_min_assessment_score: number | null;
+        cert_template_id: number | null;
     };
     route: {
         params?: {
             id?: string | number;
         };
     };
+}
+
+interface CertificateTemplateOption {
+    id: number;
+    name: string;
+    description: string | null;
+    is_default: boolean;
 }
 
 const pageProps = usePage().props.value as CoursePolicyProps;
@@ -111,11 +146,14 @@ const course = ref<any>(pageProps.course ?? { title: 'Curso' });
 const formRef = ref();
 const loadingCourse = ref(false);
 const savingPolicy = ref(false);
+const loadingTemplates = ref(false);
 const fetchError = ref('');
 const saveError = ref('');
 const saveSuccess = ref(false);
+const certificateTemplates = ref<CertificateTemplateOption[]>([]);
 
 const form = ref({
+    cert_template_id: course.value.cert_template_id ?? null,
     cert_min_resource_completion_ratio:
         course.value.cert_min_resource_completion_ratio ?? null,
     cert_require_assessment_score:
@@ -149,6 +187,7 @@ const assessmentScoreRules = computed(() => {
 
 function resetForm() {
     form.value = {
+        cert_template_id: course.value.cert_template_id ?? null,
         cert_min_resource_completion_ratio:
             course.value.cert_min_resource_completion_ratio ?? null,
         cert_require_assessment_score:
@@ -160,7 +199,35 @@ function resetForm() {
     saveSuccess.value = false;
 }
 
+async function loadTemplates() {
+    loadingTemplates.value = true;
+
+    try {
+        const response = await fetch('/api/lms/certificate-templates');
+
+        if (!response.ok) {
+            throw new Error(
+                'No se pudieron cargar las plantillas de certificado',
+            );
+        }
+
+        const json = await response.json();
+        certificateTemplates.value = Array.isArray(json?.templates)
+            ? json.templates
+            : [];
+    } catch (error) {
+        saveError.value =
+            error instanceof Error
+                ? error.message
+                : 'Error inesperado al cargar plantillas';
+    } finally {
+        loadingTemplates.value = false;
+    }
+}
+
 onMounted(async () => {
+    await loadTemplates();
+
     if (!pageProps.course) {
         loadingCourse.value = true;
         fetchError.value = '';
@@ -180,6 +247,7 @@ onMounted(async () => {
                 cert_require_assessment_score:
                     json.cert_require_assessment_score,
                 cert_min_assessment_score: json.cert_min_assessment_score,
+                cert_template_id: json.cert_template_id,
             };
         } catch (error) {
             fetchError.value =
@@ -205,6 +273,7 @@ async function save() {
     savingPolicy.value = true;
 
     const payload = {
+        cert_template_id: form.value.cert_template_id,
         cert_min_resource_completion_ratio:
             form.value.cert_min_resource_completion_ratio,
         cert_require_assessment_score: form.value.cert_require_assessment_score,

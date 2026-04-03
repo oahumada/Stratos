@@ -33,9 +33,10 @@
     - Estado: En progreso
     - Cierre: taxonomía de eventos definida + tablero con KPIs mínimos visibles
 
-3. **V2-01 Pulido frontend LMS**
-    - Estado: En progreso
+3. **✅ V2-01 Pulido frontend LMS**
+    - Estado: ✅ **CERRADO** (3 Abr 2026)
     - Cierre: validaciones cliente + feedback visual + accesibilidad básica aplicada
+    - Evidencia: endpoint `/api/lms/certificate-templates` + selector de plantillas + tests `LmsCoursePolicyTest`
 
 4. **V2-02 Notificaciones LMS extendidas**
     - Estado: Pendiente
@@ -85,6 +86,6 @@ Estos documentos **no se eliminan**, pero dejan de ser fuente operativa principa
 ## 5) Resumen ejecutivo
 
 - Pendiente más crítico/actual: **Cierre funcional Workforce 19.4 (socialización formal)**.
-- Pendientes en ejecución: **V2-03, V2-05, V2-01**.
+- Pendientes en ejecución: **V2-05**.
 - Pendientes siguientes: **V2-02, V2-04, V2-06**.
 - Documentos anteriores quedan como **referencia histórica**, no como tablero activo.
