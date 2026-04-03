@@ -37,13 +37,15 @@
         "a11y:audit": "npm run a11y:pa11y && npm run a11y:axe",
         "lighthouse:ci": "lhci autorun",
         "lighthouse:local": "lhci collect --config=lighthouserc.json",
-        "release": "cd .. && ./scripts/release.sh",
-        "release:patch": "cd .. && ./scripts/release.sh patch",
-        "release:minor": "cd .. && ./scripts/release.sh minor",
-        "release:major": "cd .. && ./scripts/release.sh major",
-        "release:alpha": "cd .. && ./scripts/release.sh alpha",
-        "release:beta": "cd .. && ./scripts/release.sh beta",
-        "release:rc": "cd .. && ./scripts/release.sh rc"
+        "release": "./scripts/release.sh",
+        "release:auto": "./scripts/release.sh auto",
+        "release:auto:yes": "./scripts/release.sh auto --yes",
+        "release:patch": "./scripts/release.sh patch",
+        "release:minor": "./scripts/release.sh minor",
+        "release:major": "./scripts/release.sh major",
+        "release:alpha": "./scripts/release.sh alpha",
+        "release:beta": "./scripts/release.sh beta",
+        "release:rc": "./scripts/release.sh rc"
     },
     "devDependencies": {
         "@axe-core/playwright": "^4.8.0",

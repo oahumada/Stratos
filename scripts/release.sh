@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script para crear releases con versionado semántico y changelog automático
-# Uso: ./scripts/release.sh [major|minor|patch|alpha|beta|rc|auto] [--allow-empty]
+# Uso: ./scripts/release.sh [major|minor|patch|alpha|beta|rc|auto] [--allow-empty] [--no-sync] [--yes]
 
 set -e
 
@@ -19,10 +19,22 @@ echo -e "${BLUE}  🚀 Asistente de Releases - Stratos${NC}"
 echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}\n"
 
 ALLOW_EMPTY_RELEASE="false"
+AUTO_SYNC="true"
+NON_INTERACTIVE="false"
+AUTO_PUSH="false"
 
 for arg in "$@"; do
     if [ "$arg" = "--allow-empty" ]; then
         ALLOW_EMPTY_RELEASE="true"
+    fi
+
+    if [ "$arg" = "--no-sync" ]; then
+        AUTO_SYNC="false"
+    fi
+
+    if [ "$arg" = "--yes" ]; then
+        NON_INTERACTIVE="true"
+        AUTO_PUSH="true"
     fi
 done
 
@@ -40,10 +52,25 @@ fi
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ "$CURRENT_BRANCH" != "MVP" ] && [ "$CURRENT_BRANCH" != "main" ]; then
     echo -e "${YELLOW}⚠️  Estás en rama: ${CURRENT_BRANCH}${NC}"
-    read -p "¿Continuar? (y/n): " confirm
-    if [ "$confirm" != "y" ]; then
-        exit 0
+    if [ "$NON_INTERACTIVE" = "true" ]; then
+        echo -e "${RED}❌ Modo no interactivo bloqueado fuera de main/MVP${NC}\n"
+        exit 1
+    else
+        read -p "¿Continuar? (y/n): " confirm
+        if [ "$confirm" != "y" ]; then
+            exit 0
+        fi
     fi
+fi
+
+if [ "$AUTO_SYNC" = "true" ]; then
+    echo -e "${CYAN}🔄 Sincronizando con remoto (git pull --rebase origin ${CURRENT_BRANCH})...${NC}"
+    if ! git pull --rebase origin "$CURRENT_BRANCH"; then
+        echo -e "${RED}❌ Error: no se pudo sincronizar con origin/${CURRENT_BRANCH}${NC}"
+        echo -e "${YELLOW}Resuelve conflictos y vuelve a ejecutar release.${NC}\n"
+        exit 1
+    fi
+    echo -e "${GREEN}✓ Rama sincronizada${NC}\n"
 fi
 
 REMOTE_REF="origin/${CURRENT_BRANCH}"
@@ -119,7 +146,10 @@ console.log("equal");
 fi
 
 # Determinar nuevo tipo de versión
-if [ -z "$1" ]; then
+if [ -z "$1" ] || [[ "$1" == --* ]]; then
+    if [ "$NON_INTERACTIVE" = "true" ]; then
+        RELEASE_TYPE="auto"
+    else
     echo -e "${YELLOW}1. ¿Qué tipo de release?${NC}"
     echo "   1) patch  - Fixes (1.0.0 → 1.0.1)"
     echo "   2) minor  - Nuevas features (1.0.0 → 1.1.0)"
@@ -130,16 +160,17 @@ if [ -z "$1" ]; then
     echo "   7) auto   - Detectar automáticamente"
     read -p "Elige (1-7): " type_choice
     
-    case $type_choice in
-        1) RELEASE_TYPE="patch" ;;
-        2) RELEASE_TYPE="minor" ;;
-        3) RELEASE_TYPE="major" ;;
-        4) RELEASE_TYPE="alpha" ;;
-        5) RELEASE_TYPE="beta" ;;
-        6) RELEASE_TYPE="rc" ;;
-        7) RELEASE_TYPE="auto" ;;
-        *) echo -e "${RED}Opción inválida${NC}"; exit 1 ;;
-    esac
+        case $type_choice in
+            1) RELEASE_TYPE="patch" ;;
+            2) RELEASE_TYPE="minor" ;;
+            3) RELEASE_TYPE="major" ;;
+            4) RELEASE_TYPE="alpha" ;;
+            5) RELEASE_TYPE="beta" ;;
+            6) RELEASE_TYPE="rc" ;;
+            7) RELEASE_TYPE="auto" ;;
+            *) echo -e "${RED}Opción inválida${NC}"; exit 1 ;;
+        esac
+    fi
 else
     RELEASE_TYPE=$1
 fi
@@ -193,7 +224,12 @@ fi
 echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}\n"
 
 # Confirmar push
-read -p "¿Hacer push de los cambios y tags? (y/n): " push_confirm
+push_confirm="n"
+if [ "$AUTO_PUSH" = "true" ]; then
+    push_confirm="y"
+else
+    read -p "¿Hacer push de los cambios y tags? (y/n): " push_confirm
+fi
 
 if [ "$push_confirm" = "y" ] || [ "$push_confirm" = "Y" ]; then
     echo -e "${CYAN}📤 Haciendo push...${NC}\n"
