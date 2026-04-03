@@ -278,20 +278,20 @@ Define cómo se genera el changelog:
 
 ```json
 {
-  "types": [
-    {
-      "type": "feat",
-      "section": "✨ Nuevas Funcionalidades",
-      "hidden": false
-    },
-    {
-      "type": "fix",
-      "section": "🐛 Correcciones de Bugs",
-      "hidden": false
-    }
-    // ... más tipos
-  ],
-  "tagPrefix": "v"
+    "types": [
+        {
+            "type": "feat",
+            "section": "✨ Nuevas Funcionalidades",
+            "hidden": false
+        },
+        {
+            "type": "fix",
+            "section": "🐛 Correcciones de Bugs",
+            "hidden": false
+        }
+        // ... más tipos
+    ],
+    "tagPrefix": "v"
 }
 ```
 
