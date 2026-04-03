@@ -5,6 +5,10 @@ on:
   push:
     branches: [ 'main' ]
 
+concurrency:
+  group: auto-release-main
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -41,45 +45,26 @@ jobs:
           echo "suggested=${TYPE}"
           echo "suggested=${TYPE}" >> $GITHUB_OUTPUT
 
-      - name: Fallback determine recent conventional commits
-        if: steps.suggest.outputs.suggested == 'none'
-        id: fallback
-        run: |
-          # Inspect recent commits as a safety-net when suggest-release-type.sh
-          # returns 'none' due to conservative heuristics. Look at last 20 commit
-          # messages for conventional keywords and suggest a bump accordingly.
-          RECENT="$(git log -n 20 --pretty=%B)"
-          if echo "$RECENT" | grep -q 'BREAKING CHANGE'; then
-            echo "suggested=major" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          if echo "$RECENT" | grep -Eq '^feat|\nfeat\(|\nfeat:'; then
-            echo "suggested=minor" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          if echo "$RECENT" | grep -Eq '^fix|^perf|\nfix\(|\nfix:'; then
-            echo "suggested=patch" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          echo "suggested=none" >> $GITHUB_OUTPUT
-
       - name: Final suggested release type
         id: final
         run: |
-          # Prefer explicit suggestion from primary script, fallback otherwise
+          # Use strict suggestion from primary script only to avoid recursive bumps
           SUGG="${{ steps.suggest.outputs.suggested }}"
-          if [ "$SUGG" = "none" ]; then
-            SUGG="${{ steps.fallback.outputs.suggested }}"
-          fi
           echo "suggested=$SUGG" >> $GITHUB_OUTPUT
 
+      - name: Skip if release commit
+        if: startsWith(github.event.head_commit.message, 'chore(release):')
+        run: |
+          echo "Release commit detected; skipping auto-release to avoid recursion."
+          exit 0
+
       - name: Exit if no release needed
-        if: steps.final.outputs.suggested == 'none'
+        if: steps.final.outputs.suggested == 'none' || startsWith(github.event.head_commit.message, 'chore(release):')
         run: |
           echo "No release necessary (no versionable commits). Exiting."
 
       - name: Run standard-version
-        if: steps.final.outputs.suggested != 'none'
+        if: steps.final.outputs.suggested != 'none' && !startsWith(github.event.head_commit.message, 'chore(release):')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -92,7 +77,7 @@ jobs:
           fi
 
       - name: Push tags and changelog
-        if: steps.final.outputs.suggested != 'none'
+        if: steps.final.outputs.suggested != 'none' && !startsWith(github.event.head_commit.message, 'chore(release):')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -101,7 +86,7 @@ jobs:
           git push --follow-tags origin HEAD:main
 
       - name: Create GitHub Release
-        if: steps.final.outputs.suggested != 'none'
+        if: steps.final.outputs.suggested != 'none' && !startsWith(github.event.head_commit.message, 'chore(release):')
         uses: softprops/action-gh-release@v1
         with:
           files: CHANGELOG.md

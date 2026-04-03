@@ -26,6 +26,9 @@ for arg in "$@"; do
     fi
 done
 
+# Sincronizar referencias remotas/tags para evitar releases sobre estado desactualizado
+git fetch origin --tags --quiet
+
 # Verificar que no hay cambios sin commitear
 if ! git diff-index --quiet HEAD --; then
     echo -e "${RED}❌ Error: Hay cambios sin commitear${NC}"
@@ -43,9 +46,77 @@ if [ "$CURRENT_BRANCH" != "MVP" ] && [ "$CURRENT_BRANCH" != "main" ]; then
     fi
 fi
 
+REMOTE_REF="origin/${CURRENT_BRANCH}"
+if git show-ref --verify --quiet "refs/remotes/${REMOTE_REF}"; then
+    LOCAL_HEAD=$(git rev-parse HEAD)
+    REMOTE_HEAD=$(git rev-parse "${REMOTE_REF}")
+    BASE_HEAD=$(git merge-base HEAD "${REMOTE_REF}")
+
+    if [ "$BASE_HEAD" != "$REMOTE_HEAD" ]; then
+        echo -e "${RED}❌ Error: Tu rama local no está alineada con ${REMOTE_REF}${NC}"
+        echo -e "${YELLOW}Haz primero: git pull --rebase origin ${CURRENT_BRANCH}${NC}\n"
+        exit 1
+    fi
+fi
+
 # Obtener versión actual
-CURRENT_VERSION=$(cat package.json | grep '"version"' | head -1 | sed 's/.*"version": "\(.*\)".*/\1/')
+CURRENT_VERSION=$(node -p "require('./package.json').version")
 echo -e "${CYAN}📌 Versión actual: ${GREEN}${CURRENT_VERSION}${NC}\n"
+
+# Evitar downgrades de versión respecto de remoto
+REMOTE_VERSION=""
+if git show "${REMOTE_REF}:package.json" >/dev/null 2>&1; then
+    REMOTE_VERSION=$(git show "${REMOTE_REF}:package.json" | node -e 'let data=""; process.stdin.on("data", d => data += d); process.stdin.on("end", () => console.log(JSON.parse(data).version));')
+fi
+
+if [ -n "$REMOTE_VERSION" ]; then
+    VERSION_CHECK=$(node -e '
+const localV = process.argv[1];
+const remoteV = process.argv[2];
+const parse = (v) => v.split("-")[0].split(".").map((n) => Number(n));
+const [lMaj,lMin,lPatch] = parse(localV);
+const [rMaj,rMin,rPatch] = parse(remoteV);
+const localTuple = [lMaj || 0, lMin || 0, lPatch || 0];
+const remoteTuple = [rMaj || 0, rMin || 0, rPatch || 0];
+for (let i = 0; i < 3; i++) {
+  if (localTuple[i] < remoteTuple[i]) { console.log("behind"); process.exit(0); }
+  if (localTuple[i] > remoteTuple[i]) { console.log("ahead"); process.exit(0); }
+}
+console.log("equal");
+' "$CURRENT_VERSION" "$REMOTE_VERSION")
+
+    if [ "$VERSION_CHECK" = "behind" ]; then
+        echo -e "${RED}❌ Error: package.json local (${CURRENT_VERSION}) es menor que remoto (${REMOTE_VERSION})${NC}"
+        echo -e "${YELLOW}Sincroniza rama/versiones antes de crear release para evitar bucles.${NC}\n"
+        exit 1
+    fi
+fi
+
+# Evitar releases con package.json por detrás del último tag semver estable
+LAST_STABLE_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || true)
+if [ -n "$LAST_STABLE_TAG" ]; then
+    LAST_STABLE_VERSION=${LAST_STABLE_TAG#v}
+    TAG_VERSION_CHECK=$(node -e '
+const localV = process.argv[1];
+const tagV = process.argv[2];
+const parse = (v) => v.split("-")[0].split(".").map((n) => Number(n));
+const [lMaj,lMin,lPatch] = parse(localV);
+const [tMaj,tMin,tPatch] = parse(tagV);
+const localTuple = [lMaj || 0, lMin || 0, lPatch || 0];
+const tagTuple = [tMaj || 0, tMin || 0, tPatch || 0];
+for (let i = 0; i < 3; i++) {
+  if (localTuple[i] < tagTuple[i]) { console.log("behind"); process.exit(0); }
+  if (localTuple[i] > tagTuple[i]) { console.log("ahead"); process.exit(0); }
+}
+console.log("equal");
+' "$CURRENT_VERSION" "$LAST_STABLE_VERSION")
+
+    if [ "$TAG_VERSION_CHECK" = "behind" ]; then
+        echo -e "${RED}❌ Error: package.json (${CURRENT_VERSION}) está por detrás del último tag (${LAST_STABLE_TAG})${NC}"
+        echo -e "${YELLOW}Corrige versión/base antes de ejecutar release.${NC}\n"
+        exit 1
+    fi
+fi
 
 # Determinar nuevo tipo de versión
 if [ -z "$1" ]; then
@@ -100,7 +171,7 @@ else
 fi
 
 # Obtener nueva versión
-NEW_VERSION=$(cat package.json | grep '"version"' | head -1 | sed 's/.*"version": "\(.*\)".*/\1/')
+NEW_VERSION=$(node -p "require('./package.json').version")
 TAG="v${NEW_VERSION}"
 
 echo -e "\n${BLUE}═══════════════════════════════════════════════════════════════${NC}"
