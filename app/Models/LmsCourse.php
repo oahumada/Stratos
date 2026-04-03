@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LmsCourse extends Model
 {
@@ -19,6 +20,7 @@ class LmsCourse extends Model
         'cert_min_resource_completion_ratio',
         'cert_require_assessment_score',
         'cert_min_assessment_score',
+        'cert_template_id',
         'is_active',
         'organization_id',
     ];
@@ -30,6 +32,7 @@ class LmsCourse extends Model
             'cert_min_resource_completion_ratio' => 'float',
             'cert_require_assessment_score' => 'boolean',
             'cert_min_assessment_score' => 'float',
+            'cert_template_id' => 'integer',
             'is_active' => 'boolean',
         ];
     }
@@ -52,5 +55,10 @@ class LmsCourse extends Model
     public function organization()
     {
         return $this->belongsTo(Organization::class);
+    }
+
+    public function certificateTemplate(): BelongsTo
+    {
+        return $this->belongsTo(LmsCertificateTemplate::class, 'cert_template_id');
     }
 }

@@ -197,10 +197,16 @@ class LmsService
             return $existingCertificate;
         }
 
+        $courseTemplateId = LmsCourse::query()
+            ->whereKey($action->lms_course_id)
+            ->where('organization_id', $path->organization_id)
+            ->value('cert_template_id');
+
         $certificate = $this->certificateService->issue([
             'organization_id' => $path->organization_id,
             'person_id' => $path->people_id,
             'lms_enrollment_id' => $action->lms_enrollment_id,
+            'certificate_template_id' => $courseTemplateId,
             'meta' => [
                 'development_action_id' => $action->id,
                 'lms_course_id' => $action->lms_course_id,

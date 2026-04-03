@@ -417,6 +417,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // LMS Courses - certificate policy overrides
     Route::get('/lms/courses/{course}', [\App\Http\Controllers\Api\Lms\CourseController::class, 'show'])->middleware('permission:lms.courses.view');
     Route::patch('/lms/courses/{course}', [\App\Http\Controllers\Api\Lms\CourseController::class, 'update'])->middleware('permission:lms.courses.manage');
+    Route::get('/lms/certificate-templates', [\App\Http\Controllers\Api\Lms\CourseController::class, 'templates'])->middleware('permission:lms.courses.view');
     Route::get('/lms/analytics/overview', [\App\Http\Controllers\Api\Lms\AnalyticsController::class, 'overview'])->middleware('permission:lms.courses.view');
     Route::get('/lms/interventions', [\App\Http\Controllers\Api\Lms\InterventionController::class, 'index'])->middleware('permission:lms.courses.view');
     Route::post('/lms/interventions', [\App\Http\Controllers\Api\Lms\InterventionController::class, 'store'])->middleware('permission:lms.courses.view');

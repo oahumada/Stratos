@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\LmsCertificateTemplate;
 use App\Models\LmsCourse;
 use App\Models\Organization;
 use App\Models\User;
@@ -40,7 +41,7 @@ it('allows admin to view course policy', function () {
     $response = $this->getJson("/api/lms/courses/{$course->id}");
 
     $response->assertSuccessful();
-    $response->assertJsonStructure(['id', 'title', 'cert_min_resource_completion_ratio', 'cert_require_assessment_score', 'cert_min_assessment_score']);
+    $response->assertJsonStructure(['id', 'title', 'cert_min_resource_completion_ratio', 'cert_require_assessment_score', 'cert_min_assessment_score', 'cert_template_id']);
 });
 
 it('forbids non-admin from viewing course policy', function () {
@@ -64,6 +65,13 @@ it('allows admin to update course policy with valid data', function () {
     $user = User::factory()->admin()->create(['current_organization_id' => $org->id]);
     Sanctum::actingAs($user, ['*']);
 
+    $template = LmsCertificateTemplate::create([
+        'organization_id' => $org->id,
+        'name' => 'Plantilla principal',
+        'description' => 'Template de prueba',
+        'is_active' => true,
+    ]);
+
     $course = LmsCourse::create([
         'title' => LMS_COURSE_POLICY_TEST_TITLE,
         'organization_id' => $org->id,
@@ -74,6 +82,7 @@ it('allows admin to update course policy with valid data', function () {
         'cert_min_resource_completion_ratio' => 0.8,
         'cert_require_assessment_score' => true,
         'cert_min_assessment_score' => 70,
+        'cert_template_id' => $template->id,
     ];
 
     $response = $this->patchJson("/api/lms/courses/{$course->id}", $payload);
@@ -83,6 +92,7 @@ it('allows admin to update course policy with valid data', function () {
     expect($data['cert_min_resource_completion_ratio'])->toBe(0.8);
     expect($data['cert_require_assessment_score'])->toBeTrue();
     expect($data['cert_min_assessment_score'])->toBe(70);
+    expect($data['cert_template_id'])->toBe($template->id);
 });
 
 it('validates update payload and returns 422 for invalid values', function () {
@@ -175,4 +185,61 @@ it('returns 404 for course policy endpoints when the course belongs to another o
         'cert_require_assessment_score' => true,
         'cert_min_assessment_score' => 75,
     ])->assertNotFound();
+});
+
+it('returns certificate templates scoped to current organization', function () {
+    $org = Organization::factory()->create();
+    $otherOrg = Organization::factory()->create();
+    $user = User::factory()->admin()->create(['current_organization_id' => $org->id]);
+    Sanctum::actingAs($user, ['*']);
+
+    $ownTemplate = LmsCertificateTemplate::create([
+        'organization_id' => $org->id,
+        'name' => 'Plantilla Org',
+        'is_active' => true,
+    ]);
+
+    LmsCertificateTemplate::create([
+        'organization_id' => $otherOrg->id,
+        'name' => 'Plantilla Otra Org',
+        'is_active' => true,
+    ]);
+
+    $globalTemplate = LmsCertificateTemplate::create([
+        'organization_id' => null,
+        'name' => 'Plantilla Global',
+        'is_active' => true,
+    ]);
+
+    $response = $this->getJson('/api/lms/certificate-templates');
+
+    $response->assertOk();
+    $templateIds = collect($response->json('templates'))->pluck('id')->all();
+
+    expect($templateIds)->toContain($ownTemplate->id);
+    expect($templateIds)->toContain($globalTemplate->id);
+});
+
+it('rejects template assignment from another organization', function () {
+    $org = Organization::factory()->create();
+    $otherOrg = Organization::factory()->create();
+    $user = User::factory()->admin()->create(['current_organization_id' => $org->id]);
+    Sanctum::actingAs($user, ['*']);
+
+    $foreignTemplate = LmsCertificateTemplate::create([
+        'organization_id' => $otherOrg->id,
+        'name' => 'Plantilla Externa',
+        'is_active' => true,
+    ]);
+
+    $course = LmsCourse::create([
+        'title' => 'Template Scope Course',
+        'organization_id' => $org->id,
+        'is_active' => true,
+    ]);
+
+    $this->patchJson(sprintf(LMS_COURSE_POLICY_SHOW_PATTERN, $course->id), [
+        'cert_template_id' => $foreignTemplate->id,
+    ])->assertStatus(422)
+        ->assertJsonPath('message', 'La plantilla de certificado no pertenece a la organización actual.');
 });
