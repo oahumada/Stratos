@@ -1682,6 +1682,14 @@ Route::middleware(['auth:sanctum'])->prefix('messaging')->group(function () {
     Route::get('metrics', [\App\Http\Controllers\Api\Messaging\MessagingSettingsController::class, 'getMetrics'])->name('messaging.metrics.summary');
 });
 
+// ── Notification Preferences: User-level multi-channel configuration ──
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('notification-preferences', [\App\Http\Controllers\Api\NotificationPreferencesController::class, 'index'])->name('notification-preferences.index');
+    Route::post('notification-preferences', [\App\Http\Controllers\Api\NotificationPreferencesController::class, 'store'])->name('notification-preferences.store');
+    Route::post('notification-preferences/{channelType}/toggle', [\App\Http\Controllers\Api\NotificationPreferencesController::class, 'toggle'])->name('notification-preferences.toggle');
+    Route::delete('notification-preferences/{channelType}', [\App\Http\Controllers\Api\NotificationPreferencesController::class, 'destroy'])->name('notification-preferences.destroy');
+});
+
 // ── Admin Operations: Critical Operational Tasks (Alpha-1) ──
 Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     // Operations audit trail & management

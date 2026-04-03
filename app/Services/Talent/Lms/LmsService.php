@@ -8,6 +8,7 @@ use App\Models\LmsCertificate;
 use App\Models\LmsCourse;
 use App\Models\LmsEnrollment;
 use App\Notifications\LmsCourseCompletedNotification;
+use App\Services\Notifications\NotificationDispatcher;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
@@ -19,6 +20,7 @@ class LmsService
 
     public function __construct(
         protected CertificateService $certificateService,
+        protected NotificationDispatcher $notificationDispatcher,
         MockLmsProvider $mockProvider,
         StratosInternalProvider $internalProvider,
         MoodleProvider $moodleProvider,
@@ -276,6 +278,26 @@ class LmsService
             $meetsResourceRequirement && $meetsAssessmentRequirement,
             $metrics,
         ];
+    }
+
+    /**
+     * Notify user of course completion via configured channels
+     */
+    public function notifyCourseCompletion(LmsEnrollment $enrollment): void
+    {
+        $user = $enrollment->user;
+        $course = $enrollment->course;
+
+        if (! $user) {
+            return;
+        }
+
+        $this->notificationDispatcher->dispatchToUser(
+            $user,
+            "Course Completed: {$course->name}",
+            "You have successfully completed the course **{$course->name}** and earned {$enrollment->xp_earned ?? 0} XP.",
+            ['course_id' => $course->id, 'enrollment_id' => $enrollment->id]
+        );
     }
 
     /**
