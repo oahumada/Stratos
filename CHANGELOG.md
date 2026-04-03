@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.2](https://github.com/oahumada/Stratos/compare/v0.10.1...v0.10.2) (2026-04-03)
+
+
+### 🐛 Correcciones de Bugs
+
+* **release:** automate preflight sync and safe npm release commands ([cc5996a](https://github.com/oahumada/Stratos/commit/cc5996af6b3b63b79f497a602ed4731aada58c35))
+
 ### [0.10.1](https://github.com/oahumada/Stratos/compare/v0.10.0...v0.10.1) (2026-04-03)
 
 
