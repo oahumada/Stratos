@@ -102,20 +102,42 @@ https://github.com/oahumada/Strato/releases/tag/v1.1.0
 # Detectar automáticamente
 ./scripts/release.sh auto
 
+# Detectar automáticamente y confirmar push (no interactivo)
+./scripts/release.sh auto --yes
+
 # O especificar explícitamente
 ./scripts/release.sh patch    # Fix
 ./scripts/release.sh minor    # Feature
 ./scripts/release.sh major    # Breaking change
 ```
 
+### Preflight automático (recomendado)
+
+El script de release aplica validaciones automáticas antes de versionar:
+
+1. ejecuta `git pull --rebase origin <rama>` (salvo `--no-sync`),
+2. valida que el árbol de trabajo esté limpio,
+3. bloquea release si `package.json.version` local está por detrás de remoto o del último tag semver.
+
+Esto evita bucles de versionado y releases sobre ramas desactualizadas.
+
 ### Opción 3: Con npm scripts (agregar a package.json)
 
 ```bash
 npm run release
+npm run release:auto
+npm run release:auto:yes
 npm run release:patch
 npm run release:minor
 npm run release:major
+npm run release:alpha
+npm run release:beta
+npm run release:rc
 ```
+
+### Nota CI anti-recursión
+
+El workflow de `auto-release` ignora commits `chore(release): ...` y no usa fallback por “últimos N commits”, para evitar bumps en cascada.
 
 ## 📝 Archivo CHANGELOG
 
