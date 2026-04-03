@@ -5,6 +5,7 @@ namespace App\Services\Notifications;
 use App\Models\NotificationChannelSetting;
 use App\Models\User;
 use App\Models\UserNotificationChannel;
+use App\Services\Caching\NotificationCacheService;
 use App\Services\Notifications\Channels\EmailNotificationChannel;
 use App\Services\Notifications\Channels\SlackNotificationChannel;
 use App\Services\Notifications\Channels\TelegramNotificationChannel;
@@ -14,10 +15,12 @@ use Illuminate\Support\Facades\Log;
 class NotificationDispatcher
 {
     protected array $channels = [];
+    protected NotificationCacheService $cache;
 
     public function __construct()
     {
         $this->registerDefaultChannels();
+        $this->cache = app(NotificationCacheService::class);
     }
 
     protected function registerDefaultChannels(): void
@@ -28,7 +31,7 @@ class NotificationDispatcher
     }
 
     /**
-     * Dispatch notification to user's enabled channels
+     * Dispatch notification to user's enabled channels (with caching)
      */
     public function dispatchToUser(
         User $user,
@@ -44,14 +47,11 @@ class NotificationDispatcher
             return $results;
         }
 
-        // Get user's active notification channels
-        $userChannels = UserNotificationChannel::where('user_id', $user->id)
-            ->where('organization_id', $orgId)
-            ->where('is_active', true)
-            ->get();
+        // Get cached user preferences
+        $userChannels = $this->cache->getUserPreferences($user);
 
         // If user has no preferences, default to email
-        if ($userChannels->isEmpty()) {
+        if (empty($userChannels)) {
             $results['email'] = $this->sendViaChannel(
                 'email',
                 $title,
@@ -62,9 +62,9 @@ class NotificationDispatcher
         }
 
         foreach ($userChannels as $userChannel) {
-            $channelConfig = $userChannel->channel_config ?? [];
-            $results[$userChannel->channel_type] = $this->sendViaChannel(
-                $userChannel->channel_type,
+            $channelConfig = $userChannel['channel_config'] ?? [];
+            $results[$userChannel['channel_type']] = $this->sendViaChannel(
+                $userChannel['channel_type'],
                 $title,
                 $message,
                 array_merge($context, $channelConfig, ['email' => $user->email, 'org_name' => $user->organization?->name])
