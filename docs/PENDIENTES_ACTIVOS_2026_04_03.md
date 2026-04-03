@@ -24,9 +24,10 @@
 
 ## A) Track LMS V2.0 (operativo)
 
-1. **V2-03 Runbook `lms:sync-progress`**
-    - Estado: En progreso
+1. **✅ V2-03 Runbook `lms:sync-progress`**
+    - Estado: ✅ **CERRADO** (3 Abr 2026)
     - Cierre: cron validado en entorno objetivo + alerta activa + checklist firmado
+    - Evidencia: [V2-03_CHECKLIST_OPERATIVO.md](V2-03_CHECKLIST_OPERATIVO.md)
 
 2. **V2-05 Analytics LMS**
     - Estado: En progreso
