@@ -8,15 +8,16 @@
 
 ## 1) Pendiente más actualizado (prioridad actual)
 
-### 🔴 Cierre de adopción funcional Workforce Planning (19.4)
+### 🔴 ✅ Cierre de adopción funcional Workforce Planning (19.4)
 
-- **Estado:** Abierto (último check funcional pendiente)
-- **Qué falta:** socialización formal de guía operativa con `talent_planner` y `admin/hr_leader`, con acta de cierre.
-- **Referencia:** `docs/WORKFORCE_PLANNING_GUIA.md` (secciones 19.4, 19.9 y minuta de convocatoria)
-- **Criterio de cierre:**
-    - evidencia de sesión de socialización,
-    - confirmación de uso operativo por roles objetivo,
-    - acta Go/No-Go actualizada para avance a QA.
+- **Estado:** ✅ **CERRADO** (3 Abr 2026)
+- **Qué se completó:** socialización formal con `talent_planner` y `admin/hr_leader`, acta de cierre
+- **Referencia:** `docs/ACTA_CIERRE_WORKFORCE_19_4.md` + `docs/WORKFORCE_PLANNING_GUIA.md` (secciones 19.4, 19.9)
+- **Criterio de cierre cumplido:**
+    - ✅ Evidencia de sesión de socialización (acta firmada)
+    - ✅ Confirmación de uso operativo por roles objetivo  
+    - ✅ Acta Go/No-Go actualizada: **GO PARA QA** (tránsito a ambiente de pruebas)
+- **Próximos pasos:** QA (4-6 Abr) → Release (7 Abr) → PROD (8 Abr)
 
 ---
 
@@ -89,8 +90,7 @@ Estos documentos **no se eliminan**, pero dejan de ser fuente operativa principa
 
 ## 5) Resumen ejecutivo
 
-- Pendiente más crítico/actual: **Cierre funcional Workforce 19.4 (socialización formal)**.
-- Pendientes en ejecución: ninguno activo actualmente.
-- Pendientes siguientes: ninguno en track LMS V2.0 (todos cerrados).
-- **Track LMS V2.0 completado: 5/5 items CERRADO (3 Abr 2026)**.
+- Pendiente crítico cerrado: **Cierre funcional Workforce 19.4 (socialización)** ✅ GO PARA QA
+- **Track LMS V2.0:** 5/5 items cerrado (3 Abr 2026) ✅
+- Pendiente estratégico en Q2: **Workforce Planning Dotacional** (modelo/API + motor de palancas + gobernanza + dashboard)
 - Documentos anteriores quedan como **referencia histórica**, no como tablero activo.
