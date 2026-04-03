@@ -29,9 +29,10 @@
     - Cierre: cron validado en entorno objetivo + alerta activa + checklist firmado
     - Evidencia: [V2-03_CHECKLIST_OPERATIVO.md](V2-03_CHECKLIST_OPERATIVO.md)
 
-2. **V2-05 Analytics LMS**
-    - Estado: En progreso
-    - Cierre: taxonomía de eventos definida + tablero con KPIs mínimos visibles
+2. **✅ V2-05 Analytics LMS**
+    - Estado: ✅ **CERRADO** (3 Abr 2026)
+    - Cierre: 9 KPIs calculados + tablero por curso + learners en riesgo con intervención
+    - Evidencia: `LmsAnalyticsService` + `LmsAnalyticsDashboard.vue` + `LmsAnalyticsServiceTest` (5 tests)
 
 3. **✅ V2-01 Pulido frontend LMS**
     - Estado: ✅ **CERRADO** (3 Abr 2026)
@@ -86,6 +87,6 @@ Estos documentos **no se eliminan**, pero dejan de ser fuente operativa principa
 ## 5) Resumen ejecutivo
 
 - Pendiente más crítico/actual: **Cierre funcional Workforce 19.4 (socialización formal)**.
-- Pendientes en ejecución: **V2-05**.
+- Pendientes en ejecución: ninguno activo actualmente.
 - Pendientes siguientes: **V2-02, V2-04, V2-06**.
 - Documentos anteriores quedan como **referencia histórica**, no como tablero activo.
