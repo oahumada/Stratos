@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.10](https://github.com/oahumada/Stratos/compare/v0.10.9...v0.10.10) (2026-04-03)
+
+
+### ✨ Nuevas Funcionalidades
+
+* Phase 1 Technical Debt - Security & Performance ([544f528](https://github.com/oahumada/Stratos/commit/544f5286d1b0da0f3cffd28583f9a28d08a356da))
+
 ### [0.10.9](https://github.com/oahumada/Stratos/compare/v0.10.8...v0.10.9) (2026-04-03)
 
 ### [0.10.8](https://github.com/oahumada/Stratos/compare/v0.10.7...v0.10.8) (2026-04-03)
