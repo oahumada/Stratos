@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.5](https://github.com/oahumada/Stratos/compare/v0.10.4...v0.10.5) (2026-04-03)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **lms:** close V2-01 policy UX and certificate template selector ([a7a1129](https://github.com/oahumada/Stratos/commit/a7a112982ace0753afbb2162f7bb60d08fcca5f9))
+* **lms:** close V2-03 runbook lms:sync-progress operativo ([3314d09](https://github.com/oahumada/Stratos/commit/3314d0903f75c55a6f1f5dbb3250d03dc7f6641e))
+
 ### [0.10.4](https://github.com/oahumada/Stratos/compare/v0.10.3...v0.10.4) (2026-04-03)
 
 ### [0.10.3](https://github.com/oahumada/Stratos/compare/v0.10.2...v0.10.3) (2026-04-03)
