@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.6](https://github.com/oahumada/Stratos/compare/v0.10.5...v0.10.6) (2026-04-03)
+
+
+### ✨ Nuevas Funcionalidades
+
+* multi-channel notifications (Slack, Telegram, Email) ([deff536](https://github.com/oahumada/Stratos/commit/deff536f975b0f5b5097b1e7bcb3e877d40ede5e))
+
 ### [0.10.5](https://github.com/oahumada/Stratos/compare/v0.10.4...v0.10.5) (2026-04-03)
 
 
