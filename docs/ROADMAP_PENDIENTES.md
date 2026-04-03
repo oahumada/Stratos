@@ -1,5 +1,8 @@
 # 📝 Lista de Tareas Pendientes (TODO) - Stratos
 
+> ⚠️ **Estado documental (3 Abr, 2026):** este archivo queda como **referencia histórica**.  
+> Para operación vigente usar `docs/PENDIENTES_ACTIVOS_2026_04_03.md` y `docs/BACKLOG_V2_0_OPERATIVO.md`.
+
 Esta lista consolida todos los elementos que **no están al 100%** extraídos de los distintos Roadmaps del proyecto.
 
 ## 🌊 Wave 2: Bloque B & D (Expansión y Ecosistema)
