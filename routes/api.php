@@ -1697,6 +1697,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('notification-preferences/{channelType}', [\App\Http\Controllers\Api\NotificationPreferencesController::class, 'destroy'])->name('notification-preferences.destroy');
 });
 
+// ── Org Chart (People Tree) — C3 ──
+Route::middleware(['auth:sanctum'])->prefix('org-chart/people')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\OrgPeopleChartController::class, 'tree'])->name('org-chart.tree');
+    Route::get('/stats', [\App\Http\Controllers\Api\OrgPeopleChartController::class, 'stats'])->name('org-chart.stats');
+    Route::get('/{id}/subtree', [\App\Http\Controllers\Api\OrgPeopleChartController::class, 'subtree'])->name('org-chart.subtree');
+});
+
 // ── Skill Intelligence v2 ──
 Route::middleware(['auth:sanctum'])->prefix('skill-intelligence')->group(function () {
     Route::get('heatmap', [\App\Http\Controllers\Api\SkillIntelligenceController::class, 'heatmap'])->name('skill-intelligence.heatmap');

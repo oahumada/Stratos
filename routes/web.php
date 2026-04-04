@@ -342,6 +342,10 @@ Route::get('/performance', function () {
     return Inertia::render('Performance/Index');
 })->middleware(['auth', 'verified'])->name('performance.index');
 
+Route::get('/org-chart', function () {
+    return Inertia::render('OrgChart/Index');
+})->middleware(['auth', 'verified'])->name('org-chart.index');
+
 Route::get('/quality-hub', function () {
     return Inertia::render('Quality/QualityHub');
 })->middleware(['auth', 'verified'])->name('quality.hub');
