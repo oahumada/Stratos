@@ -662,6 +662,7 @@ class Step2RoleCompetencyController extends Controller
         $plans = $criticalRoles->map(function ($sRole) use ($scenarioId, $people) {
             $requiredSkills = ScenarioRoleSkill::where('scenario_id', $scenarioId)
                 ->where('role_id', $sRole->id) // Corregido: usar ID de scenario_roles
+                ->with('skill')
                 ->get();
 
             if ($requiredSkills->isEmpty()) {
