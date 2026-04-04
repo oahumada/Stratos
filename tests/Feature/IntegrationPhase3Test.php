@@ -88,6 +88,7 @@ test('notification channel creation and retrieval', function () {
         '/api/notification-preferences',
         [
             'channel_type' => 'email',
+            'channel_config' => ['address' => $this->user->email],
             'is_active' => true,
         ]
     );
@@ -103,7 +104,7 @@ test('rate limit and cache integration works', function () {
     // Create channel
     $this->actingAs($this->user)->postJson(
         '/api/notification-preferences',
-        ['channel_type' => 'email', 'is_active' => true]
+        ['channel_type' => 'email', 'channel_config' => ['address' => $this->user->email], 'is_active' => true]
     );
 
     // First request
@@ -121,11 +122,12 @@ test('rate limit and cache integration works', function () {
 });
 
 test('dispatcher accessible and functional', function () {
-    $result = $this->dispatcher->dispatchToUser($this->user, [
-        'title' => 'Test',
-        'message' => 'Integration test',
-        'type' => 'info',
-    ]);
+    $result = $this->dispatcher->dispatchToUser(
+        $this->user,
+        'Test',
+        'Integration test',
+        ['type' => 'info']
+    );
 
     expect($result)->toBeArray();
 });
