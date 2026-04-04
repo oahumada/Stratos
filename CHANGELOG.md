@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.20](https://github.com/oahumada/Stratos/compare/v0.10.18...v0.10.20) (2026-04-04)
+
+
+### 🐛 Correcciones de Bugs
+
+* **tests:** repair IntegrationPhase3Test + update sprint debt doc with real status ([09f8dd2](https://github.com/oahumada/Stratos/commit/09f8dd24bb538dc5e779c468a38477f143ae58f7))
+
+
+### ✨ Nuevas Funcionalidades
+
+* **tech-debt:** complete T3/T4/T6/T8 - indexes, k6 execution, docs ([4aedf8a](https://github.com/oahumada/Stratos/commit/4aedf8a3dbda3ba7c9830de6b5ae95ced7d68e7d))
+
 ### [0.10.18](https://github.com/oahumada/Stratos/compare/v0.10.17...v0.10.18) (2026-04-04)
 
 ### [0.10.17](https://github.com/oahumada/Stratos/compare/v0.10.16...v0.10.17) (2026-04-04)
