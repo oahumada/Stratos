@@ -77,7 +77,7 @@ it('rejects invalid state during callback', function () {
 
     $authenticator = new LinkedInLearningSsoAuthenticator();
 
-    expect(function () {
+    expect(function () use ($authenticator) {
         $authenticator->handleCallback('auth-code-123', 'invalid_state', 'code-verifier');
     })->toThrow(\RuntimeException::class, 'Invalid or expired state parameter');
 });
@@ -115,7 +115,7 @@ it('handles token exchange failure gracefully', function () {
     $state = $authResult['state'];
     $codeVerifier = Cache::get('lms_sso_linkedin_state_'.$state)['code_verifier'];
 
-    expect(function () {
+    expect(function () use ($authenticator, $state, $codeVerifier) {
         $authenticator->handleCallback('invalid-code', $state, $codeVerifier);
     })->toThrow(\RuntimeException::class, 'Failed to exchange authorization code');
 });

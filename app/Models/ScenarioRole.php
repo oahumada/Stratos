@@ -41,4 +41,9 @@ class ScenarioRole extends Model
     {
         return $this->belongsTo(Roles::class, 'role_id');
     }
+
+    public function competencies()
+    {
+        return $this->hasMany(ScenarioRoleCompetency::class, 'role_id');
+    }
 }

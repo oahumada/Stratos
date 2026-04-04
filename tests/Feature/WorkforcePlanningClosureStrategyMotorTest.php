@@ -1,11 +1,11 @@
 <?php
 
+use App\Models\Competency;
 use App\Models\Organization;
 use App\Models\Roles;
 use App\Models\Scenario;
 use App\Models\ScenarioRole;
 use App\Models\ScenarioRoleCompetency;
-use App\Models\Skill;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -34,7 +34,7 @@ it('creates scenario role successfully', function () {
         'fte' => 3,
     ]);
 
-    expect($scenarioRole)->toExist()
+    expect($scenarioRole)->not->toBeNull()
         ->and($scenarioRole->fte)->toBe(3);
 });
 
@@ -44,7 +44,7 @@ it('creates scenario role competency', function () {
         'role_id' => $this->role->id,
     ]);
 
-    $competency = Skill::factory()->create(['organization_id' => $this->org->id]);
+    $competency = Competency::factory()->create(['organization_id' => $this->org->id]);
 
     $roleCompetency = ScenarioRoleCompetency::factory()->create([
         'scenario_id' => $this->scenario->id,
@@ -54,7 +54,7 @@ it('creates scenario role competency', function () {
         'is_core' => true,
     ]);
 
-    expect($roleCompetency)->toExist()
+    expect($roleCompetency)->not->toBeNull()
         ->and($roleCompetency->required_level)->toBe(4)
         ->and($roleCompetency->is_core)->toBeTrue();
 });
@@ -65,7 +65,7 @@ it('retrieves scenario with roles and competencies', function () {
         'role_id' => $this->role->id,
     ]);
 
-    $competency = Skill::factory()->create(['organization_id' => $this->org->id]);
+    $competency = Competency::factory()->create(['organization_id' => $this->org->id]);
     ScenarioRoleCompetency::factory()->create([
         'scenario_id' => $this->scenario->id,
         'role_id' => $role1->id,
@@ -114,5 +114,5 @@ it('supports multi-role scenarios', function () {
     $roles = ScenarioRole::where('scenario_id', $this->scenario->id)->get();
 
     expect($roles)->toHaveCount(2)
-        ->and($roles->sum('fte'))->toBe(5);
+        ->and((int) $roles->sum('fte'))->toBe(5);
 });
