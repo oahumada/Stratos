@@ -54,6 +54,10 @@ Route::get('/admin/alert-configuration', function () {
     return Inertia::render('Admin/AlertConfiguration');
 })->middleware(['auth', 'verified', 'role:admin'])->name('admin.alert-configuration');
 
+Route::get('/admin/audit-logs', function () {
+    return Inertia::render('Admin/AuditLogs');
+})->middleware(['auth', 'verified', 'role:admin'])->name('admin.audit-logs');
+
 // Dev-only endpoint for E2E: logs in as admin (id from env or 2)
 Route::get('/__e2e_login', function () {
     if (! (AppFacade::environment('local') || config('stratos.qa.e2e_bypass', false))) {

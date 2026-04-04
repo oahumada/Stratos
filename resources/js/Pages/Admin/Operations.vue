@@ -1,4 +1,5 @@
 <template>
+    <AppLayout title="Admin Operations">
     <div class="space-y-8">
         <!-- Header -->
         <div class="flex items-center justify-between">
@@ -266,9 +267,11 @@
             @create="createOperation"
         />
     </div>
+    </AppLayout>
 </template>
 
 <script setup lang="ts">
+import AppLayout from '@/layouts/AppLayout.vue';
 import NewOperationModal from '@/components/Admin/NewOperationModal.vue';
 import OperationDetailModal from '@/components/Admin/OperationDetailModal.vue';
 import StatsCard from '@/components/Admin/StatsCard.vue';

@@ -42,6 +42,8 @@ import {
     PhUsers,
     PhUsersFour,
     PhChatCircle,
+    PhGear,
+    PhClipboardText,
 } from '@phosphor-icons/vue';
 import { computed, defineComponent, h } from 'vue';
 
@@ -295,6 +297,18 @@ const allNavItems: NavItem[] = [
         title: 'Centro de Control',
         href: '/admin/alert-configuration',
         icon: defineComponent(() => () => h(PhBell, { size: 20 })),
+        requiredRole: ['admin'],
+    },
+    {
+        title: 'Admin Operations',
+        href: '/admin/operations',
+        icon: defineComponent(() => () => h(PhGear, { size: 20 })),
+        requiredRole: ['admin'],
+    },
+    {
+        title: 'Audit Logs',
+        href: '/admin/audit-logs',
+        icon: defineComponent(() => () => h(PhClipboardText, { size: 20 })),
         requiredRole: ['admin'],
     },
 ];
