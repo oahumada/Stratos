@@ -20,13 +20,21 @@ class WorkforceActionPlan extends Model
         'priority',
         'due_date',
         'progress_pct',
+        'budget',
+        'actual_cost',
+        'unit_name',
+        'lever',
+        'hybrid_coverage_pct',
     ];
 
     protected function casts(): array
     {
         return [
-            'due_date' => 'date',
-            'progress_pct' => 'integer',
+            'due_date'            => 'date',
+            'progress_pct'        => 'integer',
+            'hybrid_coverage_pct' => 'integer',
+            'budget'              => 'decimal:2',
+            'actual_cost'         => 'decimal:2',
         ];
     }
 

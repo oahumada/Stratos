@@ -452,7 +452,12 @@ class WorkforcePlanningController extends Controller
             'status' => $payload['status'] ?? 'planned',
             'priority' => $payload['priority'] ?? 'medium',
             'due_date' => $payload['due_date'] ?? null,
-            'progress_pct' => $payload['progress_pct'] ?? 0,
+            'progress_pct'        => $payload['progress_pct'] ?? 0,
+            'budget'              => $payload['budget'] ?? null,
+            'actual_cost'         => $payload['actual_cost'] ?? null,
+            'unit_name'           => $payload['unit_name'] ?? null,
+            'lever'               => $payload['lever'] ?? null,
+            'hybrid_coverage_pct' => $payload['hybrid_coverage_pct'] ?? 0,
         ])->load('owner:id,name,email');
 
         return $this->successResponse([
@@ -541,16 +546,131 @@ class WorkforcePlanningController extends Controller
             ->whereNotIn('status', ['completed', 'cancelled'])
             ->count();
 
+        // Budget summary
+        $totalBudget   = (float) ((clone $actions)->sum('budget') ?? 0);
+        $totalActual   = (float) ((clone $actions)->sum('actual_cost') ?? 0);
+        $budgetVariance = $totalBudget > 0 ? round((($totalActual - $totalBudget) / $totalBudget) * 100, 2) : 0;
+
+        // Hybrid talent coverage (avg of hybrid_coverage_pct across all actions)
+        $hybridCoverage = round((float) ((clone $actions)->avg('hybrid_coverage_pct') ?? 0), 1);
+
+        // Risk semaphore: rojo/amarillo/verde
+        $riskSemaphore = $this->calculateRiskSemaphore($total, $overdue, $blocked, $avgProgress);
+
+        // Alerts list
+        $alerts = $this->buildExecutionAlerts($overdue, $blocked, $budgetVariance, $avgProgress, $hybridCoverage);
+
+        // Breakdown by lever
+        $byLever = (clone $actions)
+            ->selectRaw('lever, count(*) as total, avg(progress_pct) as avg_progress')
+            ->whereNotNull('lever')
+            ->groupBy('lever')
+            ->get()
+            ->keyBy('lever');
+
+        // Breakdown by unit
+        $byUnit = (clone $actions)
+            ->selectRaw('unit_name, count(*) as total, avg(progress_pct) as avg_progress, sum(budget) as budget')
+            ->whereNotNull('unit_name')
+            ->groupBy('unit_name')
+            ->get();
+
         return $this->successResponse([
             'scenario_id' => $scenario->id,
             'summary' => [
-                'total_actions' => $total,
-                'completed_actions' => $completed,
+                'total_actions'      => $total,
+                'completed_actions'  => $completed,
                 'in_progress_actions' => $inProgress,
-                'blocked_actions' => $blocked,
-                'overdue_actions' => $overdue,
-                'avg_progress_pct' => $avgProgress,
+                'blocked_actions'    => $blocked,
+                'overdue_actions'    => $overdue,
+                'avg_progress_pct'   => $avgProgress,
             ],
+            'budget' => [
+                'total_budget'    => $totalBudget,
+                'total_actual'    => $totalActual,
+                'variance_pct'    => $budgetVariance,
+                'over_budget'     => $budgetVariance > 0,
+            ],
+            'hybrid_coverage_pct' => $hybridCoverage,
+            'risk_semaphore'      => $riskSemaphore,
+            'alerts'              => $alerts,
+            'by_lever'            => $byLever,
+            'by_unit'             => $byUnit,
         ]);
+    }
+
+    /**
+     * Calcula el semáforo de riesgo (verde/amarillo/rojo) para el dashboard de ejecución.
+     */
+    private function calculateRiskSemaphore(int $total, int $overdue, int $blocked, float $avgProgress): string
+    {
+        if ($total === 0) {
+            return 'verde';
+        }
+
+        $overduePct  = ($overdue  / $total) * 100;
+        $blockedPct  = ($blocked  / $total) * 100;
+
+        if ($overduePct >= 30 || $blockedPct >= 25 || $avgProgress < 20) {
+            return 'rojo';
+        }
+
+        if ($overduePct >= 15 || $blockedPct >= 10 || $avgProgress < 50) {
+            return 'amarillo';
+        }
+
+        return 'verde';
+    }
+
+    /**
+     * Construye la lista de alertas de ejecución para el dashboard.
+     *
+     * @return array<int, array{type: string, severity: string, message: string}>
+     */
+    private function buildExecutionAlerts(int $overdue, int $blocked, float $budgetVariancePct, float $avgProgress, float $hybridCoverage): array
+    {
+        $alerts = [];
+
+        if ($overdue > 0) {
+            $alerts[] = [
+                'type'     => 'overdue',
+                'severity' => $overdue >= 3 ? 'high' : 'medium',
+                'message'  => "{$overdue} acción(es) vencida(s) sin completar. Revisar fechas límite.",
+            ];
+        }
+
+        if ($blocked > 0) {
+            $alerts[] = [
+                'type'     => 'blocked',
+                'severity' => 'high',
+                'message'  => "{$blocked} acción(es) bloqueada(s). Escalar para desbloquear.",
+            ];
+        }
+
+        if ($budgetVariancePct > 10) {
+            $alerts[] = [
+                'type'     => 'budget',
+                'severity' => $budgetVariancePct > 25 ? 'high' : 'medium',
+                'message'  => "Costo real supera el presupuesto en {$budgetVariancePct}%. Revisar asignación.",
+            ];
+        }
+
+        if ($avgProgress < 30) {
+            $alerts[] = [
+                'type'     => 'progress',
+                'severity' => 'medium',
+                'message'  => "Progreso promedio del plan es bajo ({$avgProgress}%). Verificar bloqueos.",
+            ];
+        }
+
+        if ($hybridCoverage >= 40) {
+            $alerts[] = [
+                'type'     => 'hybrid_talent',
+                'severity' => 'info',
+                'message'  => "{$hybridCoverage}% de la capacidad cubierta por talento híbrido (humano+IA). Monitorear calidad.",
+            ];
+        }
+
+        return $alerts;
     }
 }
