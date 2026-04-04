@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.13.0](https://github.com/oahumada/Stratos/compare/v0.12.6...v0.13.0) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **lms:** Course Designer — AI-assisted course creation with Arquitecto de Aprendizaje ([cf7faa0](https://github.com/oahumada/Stratos/commit/cf7faa06cb64b8f75324d2be7d58a28cec716d30))
+
 ### [0.12.6](https://github.com/oahumada/Stratos/compare/v0.12.5...v0.12.6) (2026-04-04)
 
 ### [0.12.5](https://github.com/oahumada/Stratos/compare/v0.12.4...v0.12.5) (2026-04-04)
