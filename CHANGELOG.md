@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.11.3](https://github.com/oahumada/Stratos/compare/v0.11.2...v0.11.3) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **admin:** Admin Panel Polish – AlertConfiguration + AuditLogs + sidebar entries ([1369210](https://github.com/oahumada/Stratos/commit/1369210628b961ca568aa8093ab52b1ec2113de7))
+
 ### [0.11.2](https://github.com/oahumada/Stratos/compare/v0.11.1...v0.11.2) (2026-04-04)
 
 
