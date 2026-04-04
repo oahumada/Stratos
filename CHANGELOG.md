@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.11.4](https://github.com/oahumada/Stratos/compare/v0.11.3...v0.11.4) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **k6:** add spike, rate-limit, cache-failover and smoke test scripts ([1496bb6](https://github.com/oahumada/Stratos/commit/1496bb6f55267be7b0a4ba3b86984a4e22825b03))
+
 ### [0.11.3](https://github.com/oahumada/Stratos/compare/v0.11.2...v0.11.3) (2026-04-04)
 
 
