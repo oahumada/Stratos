@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.19.1](https://github.com/oahumada/Stratos/compare/v0.18.1...v0.19.1) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **lms:** add Content Experience module (G5-Content) — video tracking, microlearning, interactive widgets ([c4b89aa](https://github.com/oahumada/Stratos/commit/c4b89aafa746d613c04d25450ab3fe699e82e23d))
+
 ### [0.18.1](https://github.com/oahumada/Stratos/compare/v0.17.1...v0.18.1) (2026-04-04)
 
 
