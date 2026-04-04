@@ -459,6 +459,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/lms/learning-paths/{id}/progress', [\App\Http\Controllers\Api\Lms\LearningPathController::class, 'progress'])->middleware('permission:lms.courses.view');
     Route::post('/lms/learning-paths/{id}/recalculate', [\App\Http\Controllers\Api\Lms\LearningPathController::class, 'recalculate'])->middleware('permission:lms.courses.view');
 
+    // SCORM Player
+    Route::post('/lms/scorm/upload', [\App\Http\Controllers\Api\Lms\ScormPlayerController::class, 'upload'])->middleware('permission:lms.courses.manage');
+    Route::get('/lms/scorm/packages', [\App\Http\Controllers\Api\Lms\ScormPlayerController::class, 'index'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/scorm/{id}/launch', [\App\Http\Controllers\Api\Lms\ScormPlayerController::class, 'launch'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/scorm/{id}/cmi', [\App\Http\Controllers\Api\Lms\ScormPlayerController::class, 'saveCmi'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/scorm/{id}/tracking', [\App\Http\Controllers\Api\Lms\ScormPlayerController::class, 'tracking'])->middleware('permission:lms.courses.view');
+    Route::delete('/lms/scorm/{id}', [\App\Http\Controllers\Api\Lms\ScormPlayerController::class, 'destroy'])->middleware('permission:lms.courses.manage');
+
     // Social Learning & Mentorship Knowledge Transfer
     Route::get('/social-learning/dashboard', [\App\Http\Controllers\Api\SocialLearningController::class, 'dashboard']);
     Route::get('/social-learning/matches/{skillId}', [\App\Http\Controllers\Api\SocialLearningController::class, 'matches']);

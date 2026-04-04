@@ -338,6 +338,98 @@ learningPaths.form = learningPathsForm
 
 /**
 * @see routes/web.php:175
+* @route '/lms/scorm/{packageId}'
+*/
+export const scormPlayer = (args: { packageId: string | number } | [packageId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: scormPlayer.url(args, options),
+    method: 'get',
+})
+
+scormPlayer.definition = {
+    methods: ["get","head"],
+    url: '/lms/scorm/{packageId}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:175
+* @route '/lms/scorm/{packageId}'
+*/
+scormPlayer.url = (args: { packageId: string | number } | [packageId: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { packageId: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            packageId: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        packageId: args.packageId,
+    }
+
+    return scormPlayer.definition.url
+            .replace('{packageId}', parsedArgs.packageId.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see routes/web.php:175
+* @route '/lms/scorm/{packageId}'
+*/
+scormPlayer.get = (args: { packageId: string | number } | [packageId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: scormPlayer.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:175
+* @route '/lms/scorm/{packageId}'
+*/
+scormPlayer.head = (args: { packageId: string | number } | [packageId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: scormPlayer.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:175
+* @route '/lms/scorm/{packageId}'
+*/
+const scormPlayerForm = (args: { packageId: string | number } | [packageId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: scormPlayer.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:175
+* @route '/lms/scorm/{packageId}'
+*/
+scormPlayerForm.get = (args: { packageId: string | number } | [packageId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: scormPlayer.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:175
+* @route '/lms/scorm/{packageId}'
+*/
+scormPlayerForm.head = (args: { packageId: string | number } | [packageId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: scormPlayer.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+scormPlayer.form = scormPlayerForm
+
+/**
+* @see routes/web.php:211
 * @route '/lms'
 */
 export const landing = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -351,7 +443,7 @@ landing.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:175
+* @see routes/web.php:211
 * @route '/lms'
 */
 landing.url = (options?: RouteQueryOptions) => {
@@ -359,7 +451,7 @@ landing.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:175
+* @see routes/web.php:211
 * @route '/lms'
 */
 landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -368,7 +460,7 @@ landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:175
+* @see routes/web.php:211
 * @route '/lms'
 */
 landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -377,7 +469,7 @@ landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:175
+* @see routes/web.php:211
 * @route '/lms'
 */
 const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -386,7 +478,7 @@ const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 })
 
 /**
-* @see routes/web.php:175
+* @see routes/web.php:211
 * @route '/lms'
 */
 landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -395,7 +487,7 @@ landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:175
+* @see routes/web.php:211
 * @route '/lms'
 */
 landingForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -415,6 +507,7 @@ const lms = {
     quizPlayer: Object.assign(quizPlayer, quizPlayer),
     quizBuilder: Object.assign(quizBuilder, quizBuilder),
     learningPaths: Object.assign(learningPaths, learningPaths),
+    scormPlayer: Object.assign(scormPlayer, scormPlayer),
     landing: Object.assign(landing, landing),
     courses: Object.assign(courses, courses),
 }

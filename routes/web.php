@@ -172,6 +172,42 @@ Route::get('/lms/learning-paths', fn () => Inertia::render('Lms/LearningPaths'))
     ->middleware(['auth', 'verified'])
     ->name('lms.learning-paths');
 
+Route::get('/lms/scorm/{packageId}', fn ($packageId) => Inertia::render('Lms/ScormPlayer', ['packageId' => (int) $packageId]))
+    ->middleware(['auth', 'verified'])
+    ->name('lms.scorm-player');
+
+Route::get('/storage/scorm/{orgId}/{packageId}/{path}', function ($orgId, $packageId, $path) {
+    $user = Auth::user();
+    if (! $user) {
+        abort(401);
+    }
+    $userOrgId = $user->current_organization_id ?? $user->organization_id;
+    if ((int) $orgId !== (int) $userOrgId) {
+        abort(403);
+    }
+    $filePath = "scorm/{$orgId}/{$packageId}/{$path}";
+    if (! \Illuminate\Support\Facades\Storage::exists($filePath)) {
+        abort(404);
+    }
+    $fullPath = \Illuminate\Support\Facades\Storage::path($filePath);
+    $mimeType = match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
+        'html', 'htm' => 'text/html',
+        'js' => 'application/javascript',
+        'css' => 'text/css',
+        'json' => 'application/json',
+        'xml' => 'application/xml',
+        'png' => 'image/png',
+        'jpg', 'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'svg' => 'image/svg+xml',
+        'mp3' => 'audio/mpeg',
+        'mp4' => 'video/mp4',
+        default => 'application/octet-stream',
+    };
+
+    return response()->file($fullPath, ['Content-Type' => $mimeType]);
+})->where('path', '.*')->middleware(['auth'])->name('scorm.content');
+
 Route::get('/lms', function () {
     /** @var \App\Models\User $user */
     $user = Auth::user();
