@@ -28,7 +28,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const store = useTalentPassStore();
-const showShare = ref(false);
+const isShareDialogOpen = ref(false);
 const publishing = ref(false);
 const archiving = ref(false);
 
@@ -37,14 +37,39 @@ const tp = computed(() => store.currentTalentPass);
 const statusBadge = computed(() => {
     const map: Record<
         string,
-        { label: string; variant: 'success' | 'warning' | 'default' }
+        { label: string; variant: 'success' | 'warning' | 'glass' }
     > = {
         draft: { label: 'Borrador', variant: 'warning' },
         published: { label: 'Publicado', variant: 'success' },
-        archived: { label: 'Archivado', variant: 'default' },
+        archived: { label: 'Archivado', variant: 'glass' },
     };
     return map[tp.value?.status ?? 'draft'] ?? map.draft;
 });
+
+function calculateCompleteness(talentPass: typeof tp.value): number {
+    if (!talentPass) return 0;
+    let completed = 0;
+    let total = 0;
+
+    if (talentPass.title) completed++;
+    total++;
+
+    if (talentPass.summary) completed++;
+    total++;
+
+    if (talentPass.skills && talentPass.skills.length > 0) completed++;
+    total++;
+
+    if (talentPass.experiences && talentPass.experiences.length > 0)
+        completed++;
+    total++;
+
+    if (talentPass.credentials && talentPass.credentials.length > 0)
+        completed++;
+    total++;
+
+    return Math.round((completed / total) * 100);
+}
 
 async function handlePublish() {
     if (!tp.value) return;
@@ -73,7 +98,9 @@ onMounted(() => {
 
 <template>
     <AppLayout>
-        <Head :title="tp?.title ?? 'Talent Pass'" />
+        <Head>
+            <title>{{ tp?.title ?? 'Talent Pass' }}</title>
+        </Head>
 
         <div class="min-h-screen bg-slate-950 p-6 md:p-10">
             <div class="mx-auto max-w-5xl space-y-8">
@@ -82,7 +109,7 @@ onMounted(() => {
                     class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
                 >
                     <Link
-                        :href="route('talent-pass.index')"
+                        href="/talent-pass"
                         class="inline-flex items-center gap-2 text-sm text-white/50 transition hover:text-white"
                     >
                         <PhArrowLeft :size="16" />
@@ -95,12 +122,12 @@ onMounted(() => {
                         <StButtonGlass
                             variant="ghost"
                             :icon="PhShare"
-                            @click="showShare = true"
+                            @click="isShareDialogOpen = true"
                         >
                             Compartir
                         </StButtonGlass>
 
-                        <Link :href="route('talent-pass.edit', { id: tp.id })">
+                        <Link :href="`/talent-pass/${tp.id}/edit`">
                             <StButtonGlass variant="secondary" :icon="PhPencil">
                                 Editar
                             </StButtonGlass>
@@ -163,9 +190,6 @@ onMounted(() => {
                                 <p v-if="tp.person" class="text-white/60">
                                     {{ tp.person.first_name }}
                                     {{ tp.person.last_name }}
-                                    <span v-if="tp.person.department">
-                                        · {{ tp.person.department }}</span
-                                    >
                                 </p>
 
                                 <p
@@ -191,7 +215,7 @@ onMounted(() => {
                             </div>
 
                             <CompletenessIndicator
-                                :value="tp.completeness ?? 0"
+                                :completeness="calculateCompleteness(tp)"
                             />
                         </div>
                     </StCardGlass>
@@ -229,6 +253,11 @@ onMounted(() => {
         </div>
 
         <!-- SHARE DIALOG -->
-        <ShareDialog v-if="tp" v-model="showShare" :talent-pass-id="tp.id" />
+        <ShareDialog
+            v-if="tp"
+            :is-open="isShareDialogOpen"
+            :talent-pass-ulid="String(tp.id)"
+            @close="isShareDialogOpen = false"
+        />
     </AppLayout>
 </template>

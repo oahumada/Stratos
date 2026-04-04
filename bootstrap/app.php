@@ -82,6 +82,12 @@ return Application::configure(basePath: dirname(__DIR__))
             ->name('lms:monitor-sync-health')
             ->withoutOverlapping()
             ->runInBackground();
+
+        $schedule->command('lms:check-compliance')
+            ->daily()
+            ->name('lms:check-compliance-daily')
+            ->withoutOverlapping()
+            ->runInBackground();
     })
     ->withExceptions(function (): void {
         //

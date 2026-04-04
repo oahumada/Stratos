@@ -211,7 +211,7 @@
 
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { api } from '@/utils/api';
+import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 import CreateConversationModal from './CreateConversationModal.vue';
 
@@ -254,7 +254,7 @@ onMounted(async () => {
 
 async function loadConversations() {
     try {
-        const response = await api.get('/messaging/conversations');
+        const response = await axios.get('/messaging/conversations');
         conversations.value = response.data.data;
     } catch (error) {
         console.error('Error loading conversations:', error);
@@ -266,7 +266,7 @@ async function sendMessage() {
 
     isSending.value = true;
     try {
-        await api.post(
+        await axios.post(
             `/messaging/conversations/${selectedConversation.value.id}/messages`,
             {
                 body: messageBody.value,

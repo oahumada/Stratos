@@ -7,6 +7,8 @@ import CourseDesignerController from './CourseDesignerController'
 import QuizController from './QuizController'
 import LearningPathController from './LearningPathController'
 import ScormPlayerController from './ScormPlayerController'
+import ComplianceController from './ComplianceController'
+import ReportController from './ReportController'
 
 const Lms = {
     CmsArticleController: Object.assign(CmsArticleController, CmsArticleController),
@@ -18,6 +20,8 @@ const Lms = {
     QuizController: Object.assign(QuizController, QuizController),
     LearningPathController: Object.assign(LearningPathController, LearningPathController),
     ScormPlayerController: Object.assign(ScormPlayerController, ScormPlayerController),
+    ComplianceController: Object.assign(ComplianceController, ComplianceController),
+    ReportController: Object.assign(ReportController, ReportController),
 }
 
 export default Lms

@@ -467,6 +467,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/lms/scorm/{id}/tracking', [\App\Http\Controllers\Api\Lms\ScormPlayerController::class, 'tracking'])->middleware('permission:lms.courses.view');
     Route::delete('/lms/scorm/{id}', [\App\Http\Controllers\Api\Lms\ScormPlayerController::class, 'destroy'])->middleware('permission:lms.courses.manage');
 
+    // LMS Compliance
+    Route::get('/lms/compliance/dashboard', [\App\Http\Controllers\Api\Lms\ComplianceController::class, 'dashboard'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/compliance/records', [\App\Http\Controllers\Api\Lms\ComplianceController::class, 'records'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/compliance/check', [\App\Http\Controllers\Api\Lms\ComplianceController::class, 'check'])->middleware('permission:lms.courses.manage');
+    Route::get('/lms/compliance/export', [\App\Http\Controllers\Api\Lms\ComplianceController::class, 'export'])->middleware('permission:lms.courses.manage');
+
+    // LMS Reports
+    Route::get('/lms/reports/completion', [\App\Http\Controllers\Api\Lms\ReportController::class, 'completion'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/reports/compliance', [\App\Http\Controllers\Api\Lms\ReportController::class, 'compliance'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/reports/time-to-complete', [\App\Http\Controllers\Api\Lms\ReportController::class, 'timeToComplete'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/reports/engagement', [\App\Http\Controllers\Api\Lms\ReportController::class, 'engagement'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/reports/export/{type}', [\App\Http\Controllers\Api\Lms\ReportController::class, 'export'])->middleware('permission:lms.courses.manage');
+
     // Social Learning & Mentorship Knowledge Transfer
     Route::get('/social-learning/dashboard', [\App\Http\Controllers\Api\SocialLearningController::class, 'dashboard']);
     Route::get('/social-learning/matches/{skillId}', [\App\Http\Controllers\Api\SocialLearningController::class, 'matches']);

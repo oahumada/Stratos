@@ -208,6 +208,12 @@ Route::get('/storage/scorm/{orgId}/{packageId}/{path}', function ($orgId, $packa
     return response()->file($fullPath, ['Content-Type' => $mimeType]);
 })->where('path', '.*')->middleware(['auth'])->name('scorm.content');
 
+Route::get('/lms/compliance', fn () => Inertia::render('Lms/ComplianceDashboard'))
+    ->middleware(['auth', 'verified'])->name('lms.compliance');
+
+Route::get('/lms/reports', fn () => Inertia::render('Lms/Reports'))
+    ->middleware(['auth', 'verified'])->name('lms.reports');
+
 Route::get('/lms', function () {
     /** @var \App\Models\User $user */
     $user = Auth::user();

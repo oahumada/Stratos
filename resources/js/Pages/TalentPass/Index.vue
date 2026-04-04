@@ -4,9 +4,14 @@ import StCardGlass from '@/components/StCardGlass.vue';
 import TalentPassCard from '@/components/TalentPass/TalentPassCard.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { useTalentPassStore } from '@/stores/talentPassStore';
+import type { TalentPassStatus } from '@/types/talentPass';
 import { Head, Link } from '@inertiajs/vue3';
 import { PhFunnelSimple, PhMagnifyingGlass, PhPlus } from '@phosphor-icons/vue';
 import { computed, onMounted, ref } from 'vue';
+
+const route = (name: string, params?: Record<string, any>) => {
+    return (globalThis as any).route(name, params);
+};
 
 defineOptions({ name: 'TalentPassIndex' });
 
@@ -30,12 +35,13 @@ const filteredPasses = computed(() => {
     return passes;
 });
 
-const statusOptions = [
-    { value: 'all', label: 'Todos' },
-    { value: 'draft', label: 'Borrador' },
-    { value: 'published', label: 'Publicado' },
-    { value: 'archived', label: 'Archivado' },
-];
+const statusOptions: Array<{ value: 'all' | TalentPassStatus; label: string }> =
+    [
+        { value: 'all', label: 'Todos' },
+        { value: 'draft', label: 'Borrador' },
+        { value: 'active', label: 'Publicado' },
+        { value: 'archived', label: 'Archivado' },
+    ];
 
 onMounted(() => {
     store.fetchTalentPasses();
@@ -44,7 +50,9 @@ onMounted(() => {
 
 <template>
     <AppLayout>
-        <Head title="Talent Pass" />
+        <Head>
+            <title>Talent Pass</title>
+        </Head>
 
         <div class="min-h-screen bg-slate-950 p-6 md:p-10">
             <div class="mx-auto max-w-7xl space-y-8">
@@ -63,7 +71,7 @@ onMounted(() => {
                             verificables
                         </p>
                     </div>
-                    <Link :href="route('talent-pass.create')">
+                    <Link href="/talent-pass/create">
                         <StButtonGlass variant="primary" :icon="PhPlus">
                             Nuevo Talent Pass
                         </StButtonGlass>
@@ -162,7 +170,9 @@ onMounted(() => {
                     <span>
                         {{
                             store.talentPasses.filter(
-                                (tp) => tp.status === 'published',
+                                (tp) =>
+                                    tp.status ===
+                                    ('published' as TalentPassStatus),
                             ).length
                         }}
                         publicados
@@ -170,7 +180,8 @@ onMounted(() => {
                     <span>
                         {{
                             store.talentPasses.filter(
-                                (tp) => tp.status === 'draft',
+                                (tp) =>
+                                    tp.status === ('draft' as TalentPassStatus),
                             ).length
                         }}
                         borradores

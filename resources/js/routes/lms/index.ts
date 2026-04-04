@@ -430,6 +430,154 @@ scormPlayer.form = scormPlayerForm
 
 /**
 * @see routes/web.php:211
+* @route '/lms/compliance'
+*/
+export const compliance = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: compliance.url(options),
+    method: 'get',
+})
+
+compliance.definition = {
+    methods: ["get","head"],
+    url: '/lms/compliance',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:211
+* @route '/lms/compliance'
+*/
+compliance.url = (options?: RouteQueryOptions) => {
+    return compliance.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:211
+* @route '/lms/compliance'
+*/
+compliance.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: compliance.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:211
+* @route '/lms/compliance'
+*/
+compliance.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: compliance.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:211
+* @route '/lms/compliance'
+*/
+const complianceForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: compliance.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:211
+* @route '/lms/compliance'
+*/
+complianceForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: compliance.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:211
+* @route '/lms/compliance'
+*/
+complianceForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: compliance.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+compliance.form = complianceForm
+
+/**
+* @see routes/web.php:214
+* @route '/lms/reports'
+*/
+export const reports = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: reports.url(options),
+    method: 'get',
+})
+
+reports.definition = {
+    methods: ["get","head"],
+    url: '/lms/reports',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:214
+* @route '/lms/reports'
+*/
+reports.url = (options?: RouteQueryOptions) => {
+    return reports.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:214
+* @route '/lms/reports'
+*/
+reports.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: reports.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:214
+* @route '/lms/reports'
+*/
+reports.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: reports.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:214
+* @route '/lms/reports'
+*/
+const reportsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: reports.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:214
+* @route '/lms/reports'
+*/
+reportsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: reports.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:214
+* @route '/lms/reports'
+*/
+reportsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: reports.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+reports.form = reportsForm
+
+/**
+* @see routes/web.php:217
 * @route '/lms'
 */
 export const landing = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -443,7 +591,7 @@ landing.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:211
+* @see routes/web.php:217
 * @route '/lms'
 */
 landing.url = (options?: RouteQueryOptions) => {
@@ -451,7 +599,7 @@ landing.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:211
+* @see routes/web.php:217
 * @route '/lms'
 */
 landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -460,7 +608,7 @@ landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:211
+* @see routes/web.php:217
 * @route '/lms'
 */
 landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -469,7 +617,7 @@ landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:211
+* @see routes/web.php:217
 * @route '/lms'
 */
 const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -478,7 +626,7 @@ const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 })
 
 /**
-* @see routes/web.php:211
+* @see routes/web.php:217
 * @route '/lms'
 */
 landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -487,7 +635,7 @@ landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:211
+* @see routes/web.php:217
 * @route '/lms'
 */
 landingForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -508,6 +656,8 @@ const lms = {
     quizBuilder: Object.assign(quizBuilder, quizBuilder),
     learningPaths: Object.assign(learningPaths, learningPaths),
     scormPlayer: Object.assign(scormPlayer, scormPlayer),
+    compliance: Object.assign(compliance, compliance),
+    reports: Object.assign(reports, reports),
     landing: Object.assign(landing, landing),
     courses: Object.assign(courses, courses),
 }

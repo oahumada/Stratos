@@ -2,6 +2,10 @@
 import StButtonGlass from '@/components/StButtonGlass.vue';
 import StCardGlass from '@/components/StCardGlass.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import {
+    index as talentPassIndex,
+    show as talentPassShow,
+} from '@/routes/talent-pass';
 import { useTalentPassStore } from '@/stores/talentPassStore';
 import type { CreateTalentPassRequest } from '@/types/talentPass';
 import { Head, router } from '@inertiajs/vue3';
@@ -35,8 +39,10 @@ async function handleSubmit() {
     if (!validate()) return;
     submitting.value = true;
     try {
-        const id = await store.createTalentPass(form.value);
-        router.visit(route('talent-pass.show', { id }));
+        await store.createTalentPass(form.value);
+        if (store.currentTalentPass?.id) {
+            router.visit(talentPassShow(store.currentTalentPass.id).url);
+        }
     } catch {
         // store.error already set
     } finally {
@@ -47,13 +53,15 @@ async function handleSubmit() {
 
 <template>
     <AppLayout>
-        <Head title="Nuevo Talent Pass" />
+        <Head>
+            <title>Nuevo Talent Pass</title>
+        </Head>
 
         <div class="min-h-screen bg-slate-950 p-6 md:p-10">
             <div class="mx-auto max-w-2xl space-y-8">
                 <!-- BACK -->
                 <a
-                    :href="route('talent-pass.index')"
+                    :href="talentPassIndex().url"
                     class="inline-flex items-center gap-2 text-sm text-white/50 transition hover:text-white"
                 >
                     <PhArrowLeft :size="16" />
@@ -76,10 +84,14 @@ async function handleSubmit() {
                     <form @submit.prevent="handleSubmit" class="space-y-6">
                         <!-- Título -->
                         <div class="space-y-1">
-                            <label class="text-sm font-medium text-white/80">
+                            <label
+                                for="title"
+                                class="text-sm font-medium text-white/80"
+                            >
                                 Título <span class="text-red-400">*</span>
                             </label>
                             <input
+                                id="title"
                                 v-model="form.title"
                                 type="text"
                                 placeholder="ej. Senior Full Stack Engineer"
@@ -97,10 +109,14 @@ async function handleSubmit() {
 
                         <!-- Resumen -->
                         <div class="space-y-1">
-                            <label class="text-sm font-medium text-white/80">
+                            <label
+                                for="summary"
+                                class="text-sm font-medium text-white/80"
+                            >
                                 Resumen profesional
                             </label>
                             <textarea
+                                id="summary"
                                 v-model="form.summary"
                                 rows="4"
                                 placeholder="Una breve descripción de tu perfil profesional..."
@@ -110,7 +126,10 @@ async function handleSubmit() {
 
                         <!-- Visibilidad -->
                         <div class="space-y-2">
-                            <label class="text-sm font-medium text-white/80">
+                            <label
+                                for="visibility"
+                                class="text-sm font-medium text-white/80"
+                            >
                                 Visibilidad
                             </label>
                             <div class="grid grid-cols-2 gap-3">
@@ -136,6 +155,7 @@ async function handleSubmit() {
                                     ]"
                                 >
                                     <input
+                                        :id="`visibility-${opt.value}`"
                                         type="radio"
                                         v-model="form.visibility"
                                         :value="opt.value"
@@ -161,7 +181,7 @@ async function handleSubmit() {
 
                         <!-- ACTIONS -->
                         <div class="flex justify-end gap-3 pt-2">
-                            <a :href="route('talent-pass.index')">
+                            <a :href="talentPassIndex().url">
                                 <StButtonGlass variant="ghost"
                                     >Cancelar</StButtonGlass
                                 >

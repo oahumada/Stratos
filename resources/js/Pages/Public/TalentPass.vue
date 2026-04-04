@@ -18,6 +18,16 @@ const store = useTalentPassStore();
 
 const tp = computed(() => store.currentTalentPass);
 
+const hasSkills = computed(
+    () => tp.value && tp.value.skills && tp.value.skills.length > 0,
+);
+const hasExperiences = computed(
+    () => tp.value && tp.value.experiences && tp.value.experiences.length > 0,
+);
+const hasCredentials = computed(
+    () => tp.value && tp.value.credentials && tp.value.credentials.length > 0,
+);
+
 const proficiencyLabel: Record<string, string> = {
     beginner: 'Iniciante',
     intermediate: 'Intermedio',
@@ -38,7 +48,9 @@ onMounted(() => {
 </script>
 
 <template>
-    <Head :title="tp ? `${tp.title} — Talent Pass` : 'Talent Pass'" />
+    <Head>
+        <title>{{ tp ? `${tp.title} — Talent Pass` : 'Talent Pass' }}</title>
+    </Head>
 
     <div class="min-h-screen bg-slate-950">
         <!-- NAV PUBLIC -->
@@ -79,9 +91,6 @@ onMounted(() => {
                             <p v-if="tp.person" class="text-white/60">
                                 {{ tp.person.first_name }}
                                 {{ tp.person.last_name }}
-                                <span v-if="tp.person.department">
-                                    · {{ tp.person.department }}</span
-                                >
                             </p>
                             <p
                                 v-if="tp.summary"
@@ -96,14 +105,14 @@ onMounted(() => {
                             </div>
                         </div>
 
-                        <CompletenessIndicator :value="tp.completeness ?? 0" />
+                        <CompletenessIndicator :completeness="0" />
                     </div>
                 </StCardGlass>
 
                 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     <div class="space-y-6 lg:col-span-2">
                         <!-- SKILLS -->
-                        <StCardGlass v-if="tp.skills.length > 0" class="p-6">
+                        <StCardGlass v-if="hasSkills" class="p-6">
                             <h2 class="mb-4 text-lg font-bold text-white">
                                 Skills
                             </h2>
@@ -120,12 +129,12 @@ onMounted(() => {
                                 >
                                     <PhStar
                                         v-if="
-                                            skill.proficiency_level === 'master'
+                                            skill.proficiency_level === 'expert'
                                         "
                                         :size="12"
                                         weight="fill"
                                     />
-                                    {{ skill.skill_name }}
+                                    {{ skill.name }}
                                     <span class="opacity-60"
                                         >·
                                         {{
@@ -139,10 +148,7 @@ onMounted(() => {
                         </StCardGlass>
 
                         <!-- EXPERIENCIAS -->
-                        <StCardGlass
-                            v-if="tp.experiences.length > 0"
-                            class="p-6"
-                        >
+                        <StCardGlass v-if="hasExperiences" class="p-6">
                             <h2 class="mb-4 text-lg font-bold text-white">
                                 Experiencia
                             </h2>
@@ -159,10 +165,10 @@ onMounted(() => {
                                             <h3
                                                 class="font-semibold text-white"
                                             >
-                                                {{ exp.job_title }}
+                                                {{ exp.title }}
                                             </h3>
                                             <p class="text-sm text-white/60">
-                                                {{ exp.company_name }}
+                                                {{ exp.company }}
                                             </p>
                                         </div>
                                         <StBadgeGlass
@@ -200,10 +206,10 @@ onMounted(() => {
                                         }}
                                     </p>
                                     <p
-                                        v-if="exp.job_description"
+                                        v-if="exp.description"
                                         class="mt-2 text-sm text-white/70"
                                     >
-                                        {{ exp.job_description }}
+                                        {{ exp.description }}
                                     </p>
                                 </div>
                             </div>
@@ -211,10 +217,7 @@ onMounted(() => {
                     </div>
 
                     <!-- CREDENCIALES -->
-                    <StCardGlass
-                        v-if="tp.credentials.length > 0"
-                        class="h-fit p-6"
-                    >
+                    <StCardGlass v-if="hasCredentials" class="h-fit p-6">
                         <h2 class="mb-4 text-lg font-bold text-white">
                             Credenciales
                         </h2>
@@ -228,20 +231,14 @@ onMounted(() => {
                                     class="flex items-start justify-between gap-2"
                                 >
                                     <p class="text-sm font-medium text-white">
-                                        {{ cred.credential_name }}
+                                        {{ cred.title }}
                                     </p>
-                                    <PhStar
-                                        v-if="cred.is_featured"
-                                        :size="14"
-                                        weight="fill"
-                                        class="shrink-0 text-amber-400"
-                                    />
                                 </div>
                                 <p
-                                    v-if="cred.issuer_name"
+                                    v-if="cred.issuer"
                                     class="mt-0.5 text-xs text-white/50"
                                 >
-                                    {{ cred.issuer_name }}
+                                    {{ cred.issuer }}
                                 </p>
                                 <a
                                     v-if="cred.credential_url"
