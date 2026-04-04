@@ -201,6 +201,10 @@ else
     npx standard-version --release-as "$RELEASE_TYPE"
 fi
 
+# Enriquecer CHANGELOG con el cuerpo completo de los commits
+echo -e "${CYAN}📝 Enriqueciendo CHANGELOG con descripciones detalladas...${NC}"
+node scripts/enrich-changelog.cjs
+
 # Obtener nueva versión
 NEW_VERSION=$(node -p "require('./package.json').version")
 TAG="v${NEW_VERSION}"

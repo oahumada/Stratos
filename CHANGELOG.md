@@ -8,8 +8,28 @@ All notable changes to this project will be documented in this file. See [standa
 ### ✨ Nuevas Funcionalidades
 
 * **org-chart:** Org Charting interactivo — árbol de personas y departamentos ([f802b68](https://github.com/oahumada/Stratos/commit/f802b68e5a47bdb1e5dca2c4a0dfcb648162672f))
+  **Backend:**
+  - OrgPeopleChartController: tree (people+departments), subtree, stats
+  - GET /api/org-chart/people — árbol jerárquico by supervised_by
+  - GET /api/org-chart/people?view=departments — árbol by parent_id
+  - GET /api/org-chart/people/{id}/subtree — subárbol a partir de persona
+  - GET /api/org-chart/people/stats — total, managers, span control, max_depth
+  - 10 tests passing (OrgChartTest)
+  **Frontend:**
+  - OrgChart/Index.vue: árbol expandible recursivo, switch people/departments, stats KPI cards, búsqueda/filtro en tiempo real, drawer lateral con detalle y acción 'ver subárbol', renderizado con defineComponent recursivo
+  - Inertia route: /org-chart
+  - AppSidebar: 'Organigrama' entry con PhTreeStructure icon (admin/hr_leader)
 * **performance-ai:** Performance AI module — cycles, reviews, calibration, insights ([2f376c9](https://github.com/oahumada/Stratos/commit/2f376c9fc12ffdc69a38d8cc544d1a7f384e2841))
 * **skill-intelligence:** Skill Intelligence v2 — heatmap, top gaps, upskilling, coverage ([0595c60](https://github.com/oahumada/Stratos/commit/0595c604703bd4d95d73e2b50e729a6110f3f675))
+  **Backend:**
+  - SkillIntelligenceService: departmentHeatmap(), topGaps(), upskillingRecommendations(), coverageSummary() — all org-scoped, computed from PeopleRoleSkills
+  - SkillIntelligenceController: 4 GET endpoints (heatmap, top-gaps, upskilling, coverage)
+  - Routes: GET /api/skill-intelligence/{heatmap,top-gaps,upskilling,coverage}
+  - 13 tests passing (SkillIntelligenceTest)
+  **Frontend:**
+  - SkillIntelligence/Index.vue: 4-tab page (Top Brechas, Heatmap, Upskilling, Cobertura) with KPI cards, color-coded heatmap matrix, upskilling recommendation cards, coverage progress bars
+  - Inertia route: /skill-intelligence
+  - AppSidebar: 'Skill Intelligence' entry (admin/hr_leader)
 
 ### [0.11.5](https://github.com/oahumada/Stratos/compare/v0.11.4...v0.11.5) (2026-04-04)
 
@@ -17,6 +37,11 @@ All notable changes to this project will be documented in this file. See [standa
 ### ✨ Nuevas Funcionalidades
 
 * **wfp:** Workforce Planning Fases 2-4 frontend pages ([19a35f3](https://github.com/oahumada/Stratos/commit/19a35f3c84f419bfc797dc7a31f7a017893e5e29))
+  - Recomendaciones.vue: Fase 2 motor de palancas — genera y visualiza recomendaciones HIRE/RESKILL/ROTATE/TRANSFER/CONTINGENT/AUTOMATE/HYBRID_TALENT con rationale, probabilidad de éxito, costo estimado y priority_score
+  - Gobernanza.vue: Fase 3 execution dashboard — semáforo de riesgo (verde/amarillo/rojo), stats, budget tracking, alerts por tipo, breakdown by_lever y by_unit con progress bars
+  - Comparador.vue: Fase 4 — Tab 1 comparador multi-escenario (2-4 scenarios, ranking + dimension matrix); Tab 2 sensitivity sweep (variable/min/max/steps, table con fila óptima resaltada, interpretación)
+  - Inertia web routes: /workforce-planning/{recomendaciones,gobernanza,comparador}
+  - AppSidebar: 3 nuevos nav items WFP (admin/hr_leader)
 
 ### [0.11.4](https://github.com/oahumada/Stratos/compare/v0.11.3...v0.11.4) (2026-04-04)
 
@@ -24,6 +49,10 @@ All notable changes to this project will be documented in this file. See [standa
 ### ✨ Nuevas Funcionalidades
 
 * **k6:** add spike, rate-limit, cache-failover and smoke test scripts ([1496bb6](https://github.com/oahumada/Stratos/commit/1496bb6f55267be7b0a4ba3b86984a4e22825b03))
+  - load-testing-spike.js: 10x surge test (10 → 100 VUs in 10s, 2xx p95<2s)
+  - load-testing-rate-limit.js: validates ApiRateLimiter thresholds (auth 300/min, guest 60/min) and X-RateLimit-* response headers
+  - load-testing-cache-failover.js: Redis failover scenario with graceful degradation assertions and handleSummary report
+  - load-testing-smoke.js: post-deploy health check (3 VUs, 1min, p95<500ms)
 
 ### [0.11.3](https://github.com/oahumada/Stratos/compare/v0.11.2...v0.11.3) (2026-04-04)
 
@@ -31,6 +60,12 @@ All notable changes to this project will be documented in this file. See [standa
 ### ✨ Nuevas Funcionalidades
 
 * **admin:** Admin Panel Polish – AlertConfiguration + AuditLogs + sidebar entries ([1369210](https://github.com/oahumada/Stratos/commit/1369210628b961ca568aa8093ab52b1ec2113de7))
+  - Create Admin/AlertConfiguration.vue: full CRUD UI for alert thresholds, critical alerts list with acknowledge action, stats cards
+  - Create Admin/AuditLogs.vue: paginated audit log viewer with filters (action, entity type, period), change diff dialog
+  - Wrap Admin/Operations.vue in AppLayout (was missing layout)
+  - Add Admin Operations and Audit Logs to AppSidebar (admin-only)
+  - Add PhGear + PhClipboardText phosphor icons to sidebar imports
+  - Add /admin/audit-logs Inertia web route
 
 ### [0.11.2](https://github.com/oahumada/Stratos/compare/v0.11.1...v0.11.2) (2026-04-04)
 
@@ -38,6 +73,10 @@ All notable changes to this project will be documented in this file. See [standa
 ### ✨ Nuevas Funcionalidades
 
 * **messaging:** deploy staging — Inertia routes + sidebar + AppLayout ([7249848](https://github.com/oahumada/Stratos/commit/72498485995793b7a254ba3f674937490bafa740))
+  - Registrar rutas Inertia web para Messaging (Index + Settings)
+  - Añadir 'Mensajes' al sidebar con PhChatCircle icon
+  - Wrappear Messaging/Index.vue y Messaging/Settings.vue en AppLayout
+  - 19 tests de Messaging pasando, 0 failures
 
 ### [0.11.1](https://github.com/oahumada/Stratos/compare/v0.11.0...v0.11.1) (2026-04-04)
 
