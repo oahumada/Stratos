@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.34](https://github.com/oahumada/Stratos/compare/v0.10.32...v0.10.34) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **workforce-planning:** Fase 3 — gobernanza + dashboard de ejecución ([4cd649e](https://github.com/oahumada/Stratos/commit/4cd649ef99b5e0c9e64f7ca2c31b96825a4a7880))
+
 ### [0.10.32](https://github.com/oahumada/Stratos/compare/v0.10.30...v0.10.32) (2026-04-04)
 
 ### [0.10.25](https://github.com/oahumada/Stratos/compare/v0.10.23...v0.10.25) (2026-04-04)
