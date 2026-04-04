@@ -90,31 +90,34 @@
 | Priority | Feature                                       | Block   | Est. Time     | Status         | COST |
 | -------- | --------------------------------------------- | ------- | ------------- | -------------- | ---- |
 | 1        | **Talent Pass Frontend (5 páginas + sidebar)** | D8     | Apr 4         | ✅ Completado  | $0   |
-| 2        | **Workforce Planning Fase 2 — Motor WFP**     | NEW-WFP | Apr 4         | ✅ Completado  | $0   |
-| 3        | **Workforce Planning Fase 3 — Gobernanza**    | NEW-WFP | Apr 7-14      | 🆕 Planned     | $0   |
+| 2        | **Workforce Planning Fases 1-4**              | NEW-WFP | Apr 4         | ✅ Completado  | $0   |
+| 3        | **Release v0.11.0**                           | RELEASE | Apr 4         | ✅ Publicado   | $0   |
 | 4        | **Messaging Deploy to Staging**               | MVP     | Apr 7         | 📋 Ready       | $0   |
 | 5        | **Admin Panel Polish**                        | B       | 2-3 días      | ⏳ Next        | $0   |
-| 6        | **Workforce Planning Fase 4 — Comparador**    | NEW-WFP | Apr 15-21     | 🆕 Planned     | $0   |
+| 6        | **WAF + Secrets Rotation**                    | SEC     | Apr 14-18     | 🆕 Planned     | $0   |
 
 ---
 
 ## 📈 Métricas del Proyecto (Mar 26, 2026)
 
 ```text
-Progreso General Roadmap:    █████████████████████░  ~97%
+Progreso General Roadmap:    ████████████████████████  ~99%
 
 Core Features (MVP):         ✅ 100% COMPLETE
 Messaging MVP:               ✅ 100% COMPLETE (623 tests)
 Operational Guides:          ✅ 100% COMPLETE (81 KB, 5 guides)
 Talent Pass (B2):            ✅ 100% COMPLETE (5 páginas Inertia + sidebar, v0.10.27)
 Workforce Planning Fase 1:   ✅ 100% COMPLETE (modelo + API + gobernanza)
-Workforce Planning Fase 2:   ✅ 100% COMPLETE (motor recomendaciones, 11 tests, v0.10.29)
+Workforce Planning Fase 2:   ✅ 100% COMPLETE (motor recomendaciones 7 palancas)
+Workforce Planning Fase 3:   ✅ 100% COMPLETE (dashboard semáforo + budget + hybrid)
+Workforce Planning Fase 4:   ✅ 100% COMPLETE (comparador multi-escenario + sweep)
 Performance Optimizations:   ✅ 100% COMPLETE
 Security & Hardening:        ⏳ In Progress (WAF, Secrets rotation)
-QA Window (Apr 4-6):         ✅ GO — 1157 tests pasando, 0 failures (v0.10.25)
+QA Window (Apr 4):           ✅ GO — 1185 tests pasando, 0 failures
+Release v0.11.0:             ✅ PUBLICADO (Apr 4, 2026)
 Frontend Vue Components:     50+ páginas, 40+ componentes
-Backend API Controllers:     50+ controllers
-Backend Services:            41+ services (incl. ClosureStrategyMotor)
+Backend API Controllers:     52+ controllers
+Backend Services:            43+ services
 Integraciones:               StratosIntel (Python), Neo4j, CrewAI
 
 N+1 Performance Baseline:    1.85s
@@ -204,7 +207,7 @@ metrics:cache-stats command
 
 ### A. Feature Development (HIGH PRIORITY)
 
-- [ ] Workforce Planning Dotacional v1 (Foundation + Intelligence)
+- [x] Workforce Planning Dotacional v1 (Foundation + Intelligence) ✅ **COMPLETE Fases 1-4** (Apr 4)
 - [x] Talent Pass UI (CV 2.0 visualization) ✅ **COMPLETE** (Apr 4, v0.10.27)
 - [ ] Messaging MVP Deploy to Production
 - [ ] Admin Panel Polish & Advanced Analytics
@@ -215,8 +218,8 @@ metrics:cache-stats command
 
 - [x] Fase 1: modelo de dominio + endpoints base + seguridad tenant ✅
 - [x] Fase 2: motor de recomendaciones con racional explicable ✅ (v0.10.29, Apr 4)
-- [ ] Fase 3: gobernanza de ejecución + dashboard de seguimiento
-- [ ] Fase 4: comparador de escenarios + simulaciones de sensibilidad
+- [x] Fase 3: gobernanza de ejecución + dashboard de seguimiento ✅
+- [x] Fase 4: comparador de escenarios + simulaciones de sensibilidad ✅
 
 ### B. Scale Messaging
 
@@ -288,8 +291,8 @@ e17d4db4 feat: Phase 5 - Database indices, cache warming & monitoring
 
 ---
 
-**Estado General:** 🟢 **ON TRACK** - MVP Core ✅ | Talent Pass ✅ | WFP Fase 2 ✅ | Ready for Fase 3  
-**Sprint Velocity:** 15-20 story points/week | v0.10.29 en main | 1157 tests pasando  
-**Última actualización:** Apr 4, 2026 — Talent Pass Frontend + Workforce Planning Fase 2 complete  
-**Próximo Hito:** Apr 7-14 — Workforce Planning Fase 3 (Gobernanza + Dashboard)  
-**Próximo Sprint:** Apr 7 - Apr 21 (WFP Fase 3-4 + Messaging Deploy)
+**Estado General:** 🟢 **MILESTONE v0.11.0** — Workforce Planning completo (Fases 1-4) ✅ | Talent Pass ✅ | 1185 tests  
+**Sprint Velocity:** 15-20 story points/week | **v0.11.0 released** Apr 4, 2026  
+**Última actualización:** Apr 4, 2026 — v0.11.0 release: WFP completo (Fases 1-4) + Talent Pass Frontend  
+**Próximo Hito:** Apr 7 — Messaging Deploy to Staging  
+**Próximo Sprint:** Apr 7-14 (Messaging Staging + Admin Panel Polish)
