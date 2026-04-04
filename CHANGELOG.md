@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.16.1](https://github.com/oahumada/Stratos/compare/v0.15.1...v0.16.1) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **lms:** add Compliance Training (G6) and Reports module ([5b37566](https://github.com/oahumada/Stratos/commit/5b375661f98ce4601ceb06d919c6538975125f7f))
+* **lms:** add SCORM 1.2 Player module (G1) ([deb1646](https://github.com/oahumada/Stratos/commit/deb1646a4b4f6cce5e75a7439c3b9844eebfb87a))
+
 ### [0.15.1](https://github.com/oahumada/Stratos/compare/v0.14.1...v0.15.1) (2026-04-04)
 
 
