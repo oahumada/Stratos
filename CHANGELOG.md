@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.11](https://github.com/oahumada/Stratos/compare/v0.10.10...v0.10.11) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* Phase 2 Technical Debt - E2E Tests & Load Testing Setup ([b437cce](https://github.com/oahumada/Stratos/commit/b437cce2cb389dfc51325708bccfbb3db7a3a636))
+
 ### [0.10.10](https://github.com/oahumada/Stratos/compare/v0.10.9...v0.10.10) (2026-04-03)
 
 
