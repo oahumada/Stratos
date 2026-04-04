@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.12.0](https://github.com/oahumada/Stratos/compare/v0.11.5...v0.12.0) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **org-chart:** Org Charting interactivo — árbol de personas y departamentos ([f802b68](https://github.com/oahumada/Stratos/commit/f802b68e5a47bdb1e5dca2c4a0dfcb648162672f))
+* **performance-ai:** Performance AI module — cycles, reviews, calibration, insights ([2f376c9](https://github.com/oahumada/Stratos/commit/2f376c9fc12ffdc69a38d8cc544d1a7f384e2841))
+* **skill-intelligence:** Skill Intelligence v2 — heatmap, top gaps, upskilling, coverage ([0595c60](https://github.com/oahumada/Stratos/commit/0595c604703bd4d95d73e2b50e729a6110f3f675))
+
 ### [0.11.5](https://github.com/oahumada/Stratos/compare/v0.11.4...v0.11.5) (2026-04-04)
 
 
