@@ -53,16 +53,18 @@ function formatBody(body) {
 function enrichChangelog() {
     let content = fs.readFileSync(CHANGELOG_PATH, 'utf8');
 
-    // Find the latest release block (between first and second "## [")
-    const firstH2 = content.indexOf('\n## [');
-    if (firstH2 === -1) {
+    // Find the latest release block — could be "## [" (minor/major) or "### [" (patch)
+    const releaseRe = /\n#{2,3} \[/g;
+    const firstMatch = releaseRe.exec(content);
+    if (!firstMatch) {
         console.log('enrich-changelog: no release sections found, skipping.');
         return;
     }
-    const secondH2 = content.indexOf('\n## [', firstH2 + 1);
-    const latestBlock = secondH2 === -1
-        ? content.slice(firstH2)
-        : content.slice(firstH2, secondH2);
+    const firstH = firstMatch.index;
+    const secondMatch = releaseRe.exec(content);
+    const latestBlock = secondMatch
+        ? content.slice(firstH, secondMatch.index)
+        : content.slice(firstH);
 
     // Extract all commit hashes from the latest block
     // Format: ([shortHash](https://...commit/fullHash))
@@ -111,9 +113,9 @@ function enrichChangelog() {
     }
 
     const enrichedBlock = resultLines.join('\n');
-    const newContent = secondH2 === -1
-        ? content.slice(0, firstH2) + enrichedBlock
-        : content.slice(0, firstH2) + enrichedBlock + content.slice(secondH2);
+    const newContent = secondMatch === null
+        ? content.slice(0, firstH) + enrichedBlock
+        : content.slice(0, firstH) + enrichedBlock + content.slice(secondMatch.index);
 
     fs.writeFileSync(CHANGELOG_PATH, newContent, 'utf8');
     console.log(`enrich-changelog: enriched ${enrichedCount} commit entries in CHANGELOG.md ✅`);
