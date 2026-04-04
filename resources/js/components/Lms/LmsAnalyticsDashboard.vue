@@ -683,9 +683,7 @@ const interventionHref = (): string | undefined => {
         </v-snackbar>
 
         <v-alert
-            v-else-if="
-                !isLoading && analytics && analytics.per_course.length === 0
-            "
+            v-if="!isLoading && analytics && analytics.per_course.length === 0"
             type="info"
             variant="tonal"
             density="compact"

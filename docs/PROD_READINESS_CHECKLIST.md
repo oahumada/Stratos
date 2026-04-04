@@ -312,11 +312,16 @@ php artisan up
 ### 4.1 Suite de tests
 
 ```bash
+# ⚠️ IMPORTANTE: limpiar config cache ANTES de correr tests
+# php artisan optimize genera config cache que sobreescribe DB de test
+php artisan optimize:clear
+
 # Correr suite completa en modo compacto
 php artisan test --compact
 # ✅ ESPERADO: 1219+ tests passed, 0 failed
 ```
 
+- [ ] `php artisan optimize:clear` ejecutado antes de tests (evita conflicto de config cache con DB de test)
 - [ ] `php artisan test --compact` — 1219+ tests PASS, 0 FAIL
 - [ ] No hay tests marcados como `risky` o `incomplete` en módulos críticos
 
