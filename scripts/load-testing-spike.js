@@ -19,12 +19,12 @@ const token = __ENV.AUTH_TOKEN || 'test-token';
 
 export const options = {
     stages: [
-        { duration: '30s', target: 10 },   // baseline — normal traffic
-        { duration: '10s', target: 100 },  // spike: 10x surge in 10 seconds
-        { duration: '1m', target: 100 },   // sustain spike for 1 minute
-        { duration: '10s', target: 10 },   // drop back to baseline
-        { duration: '30s', target: 10 },   // verify recovery at baseline
-        { duration: '10s', target: 0 },    // ramp-down
+        { duration: '30s', target: 10 }, // baseline — normal traffic
+        { duration: '10s', target: 100 }, // spike: 10x surge in 10 seconds
+        { duration: '1m', target: 100 }, // sustain spike for 1 minute
+        { duration: '10s', target: 10 }, // drop back to baseline
+        { duration: '30s', target: 10 }, // verify recovery at baseline
+        { duration: '10s', target: 0 }, // ramp-down
     ],
     thresholds: {
         // During spike, allow degradation but no total meltdown
@@ -50,14 +50,18 @@ function authHeaders() {
 export default function () {
     group('Spike — Dashboard read', function () {
         const res = http.get(`${API_URL}/dashboard/metrics`, authHeaders());
-        const ok = check(res, { 'status 2xx': (r) => r.status >= 200 && r.status < 300 });
+        const ok = check(res, {
+            'status 2xx': (r) => r.status >= 200 && r.status < 300,
+        });
         spikeErrors.add(!ok);
         spikeLatency.add(res.timings.duration);
     });
 
     group('Spike — Employees list', function () {
         const res = http.get(`${API_URL}/employees?per_page=10`, authHeaders());
-        check(res, { 'employees status 2xx': (r) => r.status >= 200 && r.status < 300 });
+        check(res, {
+            'employees status 2xx': (r) => r.status >= 200 && r.status < 300,
+        });
     });
 
     group('Spike — Auth ping', function () {

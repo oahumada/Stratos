@@ -53,7 +53,11 @@ export default function () {
         check(res, {
             'auth: 200': (r) => r.status === 200,
             'auth: has id': (r) => {
-                try { return JSON.parse(r.body).id !== undefined; } catch { return false; }
+                try {
+                    return JSON.parse(r.body).id !== undefined;
+                } catch {
+                    return false;
+                }
             },
         });
     });
@@ -69,7 +73,10 @@ export default function () {
 
     // 4. Notification channels (cache layer)
     group('Cache layer (notifications)', function () {
-        const res = http.get(`${API_URL}/notifications/channels`, authHeaders());
+        const res = http.get(
+            `${API_URL}/notifications/channels`,
+            authHeaders(),
+        );
         check(res, {
             'notifications: no 5xx': (r) => r.status < 500,
         });
@@ -77,7 +84,10 @@ export default function () {
 
     // 5. WFP plans (critical module)
     group('WFP module', function () {
-        const res = http.get(`${API_URL}/workforce-planning/plans`, authHeaders());
+        const res = http.get(
+            `${API_URL}/workforce-planning/plans`,
+            authHeaders(),
+        );
         check(res, {
             'wfp: no 5xx': (r) => r.status < 500,
             'wfp: <600ms': (r) => r.timings.duration < 600,

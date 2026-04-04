@@ -156,38 +156,38 @@ Load Testing ──────────────────────�
 
 ## 📊 ESTADO ACTUALIZADO (4 Abr 2026)
 
-| Tarea             | Estado      | Tests       | Notas                                                                     |
-| ----------------- | ----------- | ----------- | ------------------------------------------------------------------------- |
-| T1: Rate Limiting | ✅ COMPLETO | 9+ passing  | Middleware + 3-tier limits + `ApiRateLimitMiddleware` refactorizado       |
-| T2: N+1 Audit     | ✅ COMPLETO | 2 passing   | Full scan + audit                                                         |
-| T3: N+1 Fixes     | ✅ COMPLETO | -           | Eager loading + 5 DB indexes migrados                                     |
-| T4: Redis Caching | ✅ COMPLETO | -           | 9 usages, invalidation documentada                                        |
+| Tarea             | Estado      | Tests       | Notas                                                                    |
+| ----------------- | ----------- | ----------- | ------------------------------------------------------------------------ |
+| T1: Rate Limiting | ✅ COMPLETO | 9+ passing  | Middleware + 3-tier limits + `ApiRateLimitMiddleware` refactorizado      |
+| T2: N+1 Audit     | ✅ COMPLETO | 2 passing   | Full scan + audit                                                        |
+| T3: N+1 Fixes     | ✅ COMPLETO | -           | Eager loading + 5 DB indexes migrados                                    |
+| T4: Redis Caching | ✅ COMPLETO | -           | 9 usages, invalidation documentada                                       |
 | T5: E2E Tests     | ✅ COMPLETO | 22+ passing | NotificationPreferences E2E (7) + RateLimiting E2E (6) + Performance (9) |
-| T6: Load Testing  | ✅ COMPLETO | -           | Scripts Docker-ready; ejecución local + reporte completo generado         |
-| T7: Integration   | ✅ COMPLETO | 11 passing  | Rate+Cache+Notifications+MultiTenant                                      |
-| T8: Documentación | ✅ COMPLETO | -           | Rate limits + perf guide + load testing report + Phase 2-3 results        |
+| T6: Load Testing  | ✅ COMPLETO | -           | Scripts Docker-ready; ejecución local + reporte completo generado        |
+| T7: Integration   | ✅ COMPLETO | 11 passing  | Rate+Cache+Notifications+MultiTenant                                     |
+| T8: Documentación | ✅ COMPLETO | -           | Rate limits + perf guide + load testing report + Phase 2-3 results       |
 
 ### ✅ Avances adicionales (4 Abr 2026 — sesión continua)
 
 - **T5 E2E Tests completados:**
-  - `NotificationPreferencesE2ETest.php` — 7 tests (CRUD + scoping + multi-tenancy)
-  - `RateLimitingE2ETest.php` — 6 tests (headers + behavior + per-user isolation)
-  - `PerformanceE2ETest.php` — 9 tests (latencia, cache, concurrencia)
-  - Total: 22 nuevos E2E tests passing
+    - `NotificationPreferencesE2ETest.php` — 7 tests (CRUD + scoping + multi-tenancy)
+    - `RateLimitingE2ETest.php` — 6 tests (headers + behavior + per-user isolation)
+    - `PerformanceE2ETest.php` — 9 tests (latencia, cache, concurrencia)
+    - Total: 22 nuevos E2E tests passing
 - **T6 Load Testing completo:**
-  - `scripts/load-testing.js` — script completo 5 escenarios (25 VUs)
-  - `scripts/load-testing-simple.js` — script simplificado (15 VUs, 5 escenarios)
-  - `scripts/load-testing-stress.js` — stress test (50 VUs, spike incluido)
-  - `docs/TASK_6_LOAD_TESTING_REPORT.md` — reporte de ejecución completo
-  - Ejecución vía Docker (sin privilegios sudo): `docker run grafana/k6:latest`
+    - `scripts/load-testing.js` — script completo 5 escenarios (25 VUs)
+    - `scripts/load-testing-simple.js` — script simplificado (15 VUs, 5 escenarios)
+    - `scripts/load-testing-stress.js` — stress test (50 VUs, spike incluido)
+    - `docs/TASK_6_LOAD_TESTING_REPORT.md` — reporte de ejecución completo
+    - Ejecución vía Docker (sin privilegios sudo): `docker run grafana/k6:latest`
 - **T1 Rate Limiting refactorizado:**
-  - `app/Http/Middleware/ApiRateLimitMiddleware.php` — nuevo middleware mejorado
-  - Mejor claridad y mantenibilidad del código
+    - `app/Http/Middleware/ApiRateLimitMiddleware.php` — nuevo middleware mejorado
+    - Mejor claridad y mantenibilidad del código
 - **T8 Documentación adicional:**
-  - `docs/PHASE_2_3_RESULTS.md` — resultados y análisis Fase 2-3 completos
-  - `docs/TASK_6_LOAD_TESTING_REPORT.md` — reporte técnico load testing
+    - `docs/PHASE_2_3_RESULTS.md` — resultados y análisis Fase 2-3 completos
+    - `docs/TASK_6_LOAD_TESTING_REPORT.md` — reporte técnico load testing
 - **Frontend:**
-  - `resources/js/Pages/Settings/NotificationPreferences.vue` — refactorizado para mayor legibilidad y consistencia
+    - `resources/js/Pages/Settings/NotificationPreferences.vue` — refactorizado para mayor legibilidad y consistencia
 
 ### ✅ Completados en sesiones anteriores (4 Abr 2026)
 

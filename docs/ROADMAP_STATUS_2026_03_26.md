@@ -62,7 +62,7 @@
 ### 🟠 Bloque D: Movilidad y Ecosistema de Talento ✅
 
 | #   | Feature               |    Estado     | Detalle                                                     |
-| :-- | :-------------------- | :-----------: | :---------------------------------------------------------- | ---------------------------- |
+| :-- | :-------------------- | :-----------: | :---------------------------------------------------------- | ------- |
 | D1  | Gateway Híbrido       | ✅ Completado | SSO (Google/MS) + Magic Links implementados.                |
 | D2  | LMS & Mentor Hub      | ✅ Completado | `LmsService.php`, `MentorMatchingService.php` operativos.   |
 | D3  | Marketplace Activo    | ✅ Completado | `AiInternalMatchmakerService.php` operativo.                |
@@ -70,7 +70,7 @@
 | D5  | Misiones de Gremio    | ✅ Completado | Sistema de Quests soporta misiones colectivas/individuales. |
 | D6  | Timeline Evolutivo    | ✅ Completado | `DnaTimelineService.php` y endpoint API implementados.      |
 | D7  | Nudging Proactivo     | ✅ Completado | Orquestador de intervenciones basado en data insights.      |
-| D8  | Talent Pass (CV 2.0)  | ✅ Completado | 5 páginas Inertia + sidebar + store Pinia (v0.10.27, Apr 4)   | PROD ✅ |
+| D8  | Talent Pass (CV 2.0)  | ✅ Completado | 5 páginas Inertia + sidebar + store Pinia (v0.10.27, Apr 4) | PROD ✅ |
 | D9  | Sovereign Identity    | ✅ Completado | Infraestructura lista (VerifiableCredentials) con emulador. |
 
 ### 🔵 Bloque E: Performance & Observability ✅ NEW
@@ -87,14 +87,14 @@
 
 ## 🔴 Próximos Pasos - Prioridad
 
-| Priority | Feature                                       | Block   | Est. Time     | Status         | COST |
-| -------- | --------------------------------------------- | ------- | ------------- | -------------- | ---- |
-| 1        | **Talent Pass Frontend (5 páginas + sidebar)** | D8     | Apr 4         | ✅ Completado  | $0   |
-| 2        | **Workforce Planning Fases 1-4**              | NEW-WFP | Apr 4         | ✅ Completado  | $0   |
-| 3        | **Release v0.11.0**                           | RELEASE | Apr 4         | ✅ Publicado   | $0   |
-| 4        | **Messaging Deploy to Staging**               | MVP     | Apr 7         | 📋 Ready       | $0   |
-| 5        | **Admin Panel Polish**                        | B       | 2-3 días      | ⏳ Next        | $0   |
-| 6        | **WAF + Secrets Rotation**                    | SEC     | Apr 14-18     | 🆕 Planned     | $0   |
+| Priority | Feature                                        | Block   | Est. Time | Status        | COST |
+| -------- | ---------------------------------------------- | ------- | --------- | ------------- | ---- |
+| 1        | **Talent Pass Frontend (5 páginas + sidebar)** | D8      | Apr 4     | ✅ Completado | $0   |
+| 2        | **Workforce Planning Fases 1-4**               | NEW-WFP | Apr 4     | ✅ Completado | $0   |
+| 3        | **Release v0.11.0**                            | RELEASE | Apr 4     | ✅ Publicado  | $0   |
+| 4        | **Messaging Deploy to Staging**                | MVP     | Apr 7     | 📋 Ready      | $0   |
+| 5        | **Admin Panel Polish**                         | B       | 2-3 días  | ⏳ Next       | $0   |
+| 6        | **WAF + Secrets Rotation**                     | SEC     | Apr 14-18 | 🆕 Planned    | $0   |
 
 ---
 

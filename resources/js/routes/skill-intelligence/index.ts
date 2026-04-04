@@ -324,7 +324,7 @@ coverageForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 coverage.form = coverageForm
 
 /**
-* @see routes/web.php:337
+* @see routes/web.php:341
 * @route '/skill-intelligence'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -338,7 +338,7 @@ index.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:337
+* @see routes/web.php:341
 * @route '/skill-intelligence'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -346,7 +346,7 @@ index.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:337
+* @see routes/web.php:341
 * @route '/skill-intelligence'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -355,7 +355,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:337
+* @see routes/web.php:341
 * @route '/skill-intelligence'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -364,7 +364,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:337
+* @see routes/web.php:341
 * @route '/skill-intelligence'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -373,7 +373,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:337
+* @see routes/web.php:341
 * @route '/skill-intelligence'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -382,7 +382,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:337
+* @see routes/web.php:341
 * @route '/skill-intelligence'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

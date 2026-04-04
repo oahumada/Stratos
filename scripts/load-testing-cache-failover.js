@@ -28,10 +28,10 @@ const redisUp = __ENV.REDIS_UP !== 'false';
 
 export const options = {
     stages: [
-        { duration: '30s', target: 20 },   // warm up
-        { duration: '2m', target: 40 },    // sustained load during "failover window"
-        { duration: '30s', target: 40 },   // hold
-        { duration: '30s', target: 0 },    // ramp-down
+        { duration: '30s', target: 20 }, // warm up
+        { duration: '2m', target: 40 }, // sustained load during "failover window"
+        { duration: '30s', target: 40 }, // hold
+        { duration: '30s', target: 0 }, // ramp-down
     ],
     thresholds: {
         // Even without Redis, p95 must stay under 3s (DB fallback)
@@ -62,7 +62,10 @@ function authHeaders() {
 export default function () {
     // NotificationCacheService caches user prefs with 1h TTL in Redis
     group('Notification prefs (cache-dependent)', function () {
-        const res = http.get(`${API_URL}/notifications/channels`, authHeaders());
+        const res = http.get(
+            `${API_URL}/notifications/channels`,
+            authHeaders(),
+        );
 
         const ok = check(res, {
             'prefs: no 5xx': (r) => r.status < 500,
@@ -76,7 +79,10 @@ export default function () {
 
     // Org-level channel settings — also cached
     group('Org channel settings (cache-dependent)', function () {
-        const res = http.get(`${API_URL}/admin/notification-channel-settings`, authHeaders());
+        const res = http.get(
+            `${API_URL}/admin/notification-channel-settings`,
+            authHeaders(),
+        );
 
         const ok = check(res, {
             'org channels: no 5xx': (r) => r.status < 500,
@@ -93,7 +99,8 @@ export default function () {
 
         check(res, {
             'employees: no 5xx': (r) => r.status < 500,
-            'employees: fast even without cache': (r) => r.timings.duration < 2000,
+            'employees: fast even without cache': (r) =>
+                r.timings.duration < 2000,
         });
 
         fivexxRate.add(res.status >= 500);
@@ -106,7 +113,9 @@ export function handleSummary(data) {
     const p95 = data.metrics.http_req_duration?.values?.['p(95)'] ?? 0;
     const errorRate = data.metrics.cache_failover_5xx_rate?.values?.rate ?? 0;
 
-    const mode = redisUp ? '🟢 Redis UP (cache healthy)' : '🔴 Redis DOWN (failover mode)';
+    const mode = redisUp
+        ? '🟢 Redis UP (cache healthy)'
+        : '🔴 Redis DOWN (failover mode)';
 
     return {
         stdout: `

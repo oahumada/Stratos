@@ -10,6 +10,13 @@ All notable changes to this project will be documented in this file. See [standa
 ### 🐛 Correcciones de Bugs
 
 * production build fixes + env.production.example + prod readiness updates ([bc78033](https://github.com/oahumada/Stratos/commit/bc78033054aa7226f23c936d5b7f68e5c417acbd))
+  **Build fixes (npm run build now passes cleanly):**
+  - LmsAnalyticsDashboard.vue: change v-else-if to v-if on orphan alert (no adjacent v-if sibling — Vue compiler error)
+  - Performance/Index.vue: fix AppLayout import path (@/components/AppLayout.vue → @/layouts/AppLayout.vue)
+  **Production readiness:**
+  - .env.production.example: complete template with all 69 env vars, production-safe values, inline checklist, CAMBIAR markers
+  - docs/PROD_READINESS_CHECKLIST.md: add optimize:clear warning before test suite (config cache overwrites test DB connection)
+  **Verified: 1219 tests passing, 0 failures after fixes.**
 
 ### [0.12.4](https://github.com/oahumada/Stratos/compare/v0.12.3...v0.12.4) (2026-04-04)
 
