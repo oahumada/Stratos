@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.22](https://github.com/oahumada/Stratos/compare/v0.10.20...v0.10.22) (2026-04-04)
+
+
+### ♻️ Refactorización
+
+* NotificationPreferences.vue for improved readability and consistency; update load testing scripts for better performance metrics; add ApiRateLimitMiddleware for enhanced API rate limiting ([710d12f](https://github.com/oahumada/Stratos/commit/710d12f2ce872c9d90cb77e2dae73943327673c0))
+
 ### [0.10.20](https://github.com/oahumada/Stratos/compare/v0.10.18...v0.10.20) (2026-04-04)
 
 
