@@ -430,4 +430,12 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
 Route::inertia('/public/talent-pass/{ulid}', 'Public/TalentPass')
     ->name('talent-pass.public-view');
 
+// Messaging Routes (Authenticated)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::inertia('/messaging', 'Messaging/Index')
+        ->name('messaging.index');
+    Route::inertia('/messaging/settings', 'Messaging/Settings')
+        ->name('messaging.settings');
+});
+
 require __DIR__.'/settings.php';

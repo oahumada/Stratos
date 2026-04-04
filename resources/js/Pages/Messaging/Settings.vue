@@ -1,4 +1,5 @@
 <template>
+    <AppLayout title="Configuración de Mensajes">
     <div class="messaging-settings-page">
         <!-- Header -->
         <div class="mb-6">
@@ -253,9 +254,11 @@
             {{ successMessage }}
         </div>
     </div>
+    </AppLayout>
 </template>
 
 <script setup lang="ts">
+import AppLayout from '@/layouts/AppLayout.vue';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 

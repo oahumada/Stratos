@@ -41,6 +41,7 @@ import {
     PhUser,
     PhUsers,
     PhUsersFour,
+    PhChatCircle,
 } from '@phosphor-icons/vue';
 import { computed, defineComponent, h } from 'vue';
 
@@ -190,6 +191,12 @@ const allNavItems: NavItem[] = [
         href: '/talent-pass',
         icon: defineComponent(() => () => h(PhIdentificationCard, { size: 20 })),
         requiredModule: 'core',
+    },
+    // Mensajes
+    {
+        title: 'Mensajes',
+        href: '/messaging',
+        icon: defineComponent(() => () => h(PhChatCircle, { size: 20 })),
     },
     // Scenario Planning Analytics (Phase 1)
     {

@@ -1,4 +1,5 @@
 <template>
+    <AppLayout title="Mensajes">
     <div class="flex h-full flex-col bg-white dark:bg-gray-900">
         <!-- Header -->
         <div class="border-b border-gray-200 p-6 dark:border-gray-800">
@@ -195,9 +196,11 @@
             @created="onConversationCreated"
         />
     </div>
+    </AppLayout>
 </template>
 
 <script setup lang="ts">
+import AppLayout from '@/layouts/AppLayout.vue';
 import { api } from '@/utils/api';
 import { computed, onMounted, ref } from 'vue';
 import CreateConversationModal from './CreateConversationModal.vue';
