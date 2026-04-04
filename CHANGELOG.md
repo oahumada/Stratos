@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.12](https://github.com/oahumada/Stratos/compare/v0.10.11...v0.10.12) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* Phase 3 Integration Tests & Documentation ([0b5d6ad](https://github.com/oahumada/Stratos/commit/0b5d6add4f6dd0d77014432970e5b3dd6354f08b))
+
 ### [0.10.11](https://github.com/oahumada/Stratos/compare/v0.10.10...v0.10.11) (2026-04-04)
 
 
