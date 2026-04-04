@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.17](https://github.com/oahumada/Stratos/compare/v0.10.16...v0.10.17) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* Add 2 k6 post-production scripts (Phase 3 monitoring) ([e54410c](https://github.com/oahumada/Stratos/commit/e54410c6e8ff97684620af8af9bf3d3386df1e60))
+* Add 3 k6 production canary scripts (Phase 2 deployment) ([a4bf0a9](https://github.com/oahumada/Stratos/commit/a4bf0a9e38c5f18c67799b4a72986c339130dd92))
+* Add 3 k6 staging test scripts (Phase 2 execution) ([a649a75](https://github.com/oahumada/Stratos/commit/a649a75068d29895260527a96a45d8554bbbd4fc))
+* k6 load testing suite merged to main ([3d262ee](https://github.com/oahumada/Stratos/commit/3d262ee13115f34436d47b48256a3b50b4df4a50))
+* **lms:** close V2-01 policy UX and certificate template selector ([c3ed0b6](https://github.com/oahumada/Stratos/commit/c3ed0b6055e469b00b7824323b7011d8270095a9))
+* **lms:** close V2-02 extended notifications with Slack channel ([4e02241](https://github.com/oahumada/Stratos/commit/4e022411dc3c6529ed4f068ac5bdcb509c720edf))
+* **lms:** close V2-03 runbook lms:sync-progress operativo ([d685de9](https://github.com/oahumada/Stratos/commit/d685de9d5ebd62b6a58625e3914c7ce52a7f3e49))
+* **lms:** close V2-04 SSO integration with LinkedIn Learning PoC ([73b0805](https://github.com/oahumada/Stratos/commit/73b08057d8200dea0078d3f29ac913fedebdc5be))
+* **scenario:** close V2-06 People Experience integration E2E validation ([fdd1c8d](https://github.com/oahumada/Stratos/commit/fdd1c8d0b71cfc9fcdd305160c80e844181a7993))
+
+
+### 🐛 Correcciones de Bugs
+
+* Restore package version to 0.10.16 after merge ([038409b](https://github.com/oahumada/Stratos/commit/038409b02b75d5cc75b5c93b618cec3af9a7134d))
+
 ### [0.10.3](https://github.com/oahumada/Stratos/compare/v0.10.2...v0.10.3) (2026-04-03)
 
 
