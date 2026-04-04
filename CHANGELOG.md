@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.12.5](https://github.com/oahumada/Stratos/compare/v0.12.4...v0.12.5) (2026-04-04)
+
+
+### 🐛 Correcciones de Bugs
+
+* production build fixes + env.production.example + prod readiness updates ([bc78033](https://github.com/oahumada/Stratos/commit/bc78033054aa7226f23c936d5b7f68e5c417acbd))
+
 ### [0.12.4](https://github.com/oahumada/Stratos/compare/v0.12.3...v0.12.4) (2026-04-04)
 
 ### [0.12.3](https://github.com/oahumada/Stratos/compare/v0.12.2...v0.12.3) (2026-04-04)
