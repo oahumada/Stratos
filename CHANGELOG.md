@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.28](https://github.com/oahumada/Stratos/compare/v0.10.26...v0.10.28) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **talent-pass:** add Talent Pass frontend pages + sidebar navigation ([91e09ef](https://github.com/oahumada/Stratos/commit/91e09efe8a5f31209af48571d70675837591b0fb))
+
 ### [0.10.25](https://github.com/oahumada/Stratos/compare/v0.10.23...v0.10.25) (2026-04-04)
 
 
