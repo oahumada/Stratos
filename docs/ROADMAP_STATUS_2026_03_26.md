@@ -1,8 +1,8 @@
 # 📊 Status Report: Roadmap & Plataforma Stratos (Actualizado Mar 26)
 
-**Fecha:** 26 de Marzo, 2026  
-**Último Update:** Operational Guides + Talent Pass Planning COMPLETE (Daily)  
-**Contexto:** Informe de estado con guías operacionales y planning de deployment completadas.
+**Fecha:** 4 de Abril, 2026 _(actualizado desde Mar 26)_  
+**Último Update:** Talent Pass Frontend + Workforce Planning Fase 2 COMPLETE (Apr 4)  
+**Contexto:** Sprint de deuda técnica completo, QA Window ✅, v0.10.29 en main.
 
 ---
 
@@ -70,7 +70,7 @@
 | D5  | Misiones de Gremio    | ✅ Completado | Sistema de Quests soporta misiones colectivas/individuales. |
 | D6  | Timeline Evolutivo    | ✅ Completado | `DnaTimelineService.php` y endpoint API implementados.      |
 | D7  | Nudging Proactivo     | ✅ Completado | Orquestador de intervenciones basado en data insights.      |
-| D8  | Talent Pass (CV 2.0)  | 📋 Planejado  | 3-week impl plan ✅ (Mar 31-Apr 18)                         | Staging Apr 19 → Prod Apr 21 |
+| D8  | Talent Pass (CV 2.0)  | ✅ Completado | 5 páginas Inertia + sidebar + store Pinia (v0.10.27, Apr 4)   | PROD ✅ |
 | D9  | Sovereign Identity    | ✅ Completado | Infraestructura lista (VerifiableCredentials) con emulador. |
 
 ### 🔵 Bloque E: Performance & Observability ✅ NEW
@@ -87,31 +87,34 @@
 
 ## 🔴 Próximos Pasos - Prioridad
 
-| Priority | Feature                                       | Block   | Est. Time     | Status     | COST |
-| -------- | --------------------------------------------- | ------- | ------------- | ---------- | ---- |
-| 1        | **Execute Messaging Deploy to Staging**       | MVP     | Mar 27-28     | 📋 Ready   | $0   |
-| 2        | **Messaging Go/No-Go Decision**               | MVP     | Mar 28        | ⏳ Await   | $0   |
-| 3        | **Workforce Planning Dotacional (Phase 1-2)** | NEW-WFP | Apr 1-Apr 30  | 🆕 Planned | $0   |
-| 4        | **Talent Pass Implementation (3 weeks)**      | D8      | Mar 31-Apr 18 | 📋 Ready   | $0   |
-| 5        | **Talent Pass Staging Deploy**                | D8      | Apr 19        | 📋 Ready   | $0   |
-| 6        | **Admin Panel Polish**                        | B       | 2-3 días      | ⏳ Next    | $0   |
+| Priority | Feature                                       | Block   | Est. Time     | Status         | COST |
+| -------- | --------------------------------------------- | ------- | ------------- | -------------- | ---- |
+| 1        | **Talent Pass Frontend (5 páginas + sidebar)** | D8     | Apr 4         | ✅ Completado  | $0   |
+| 2        | **Workforce Planning Fase 2 — Motor WFP**     | NEW-WFP | Apr 4         | ✅ Completado  | $0   |
+| 3        | **Workforce Planning Fase 3 — Gobernanza**    | NEW-WFP | Apr 7-14      | 🆕 Planned     | $0   |
+| 4        | **Messaging Deploy to Staging**               | MVP     | Apr 7         | 📋 Ready       | $0   |
+| 5        | **Admin Panel Polish**                        | B       | 2-3 días      | ⏳ Next        | $0   |
+| 6        | **Workforce Planning Fase 4 — Comparador**    | NEW-WFP | Apr 15-21     | 🆕 Planned     | $0   |
 
 ---
 
 ## 📈 Métricas del Proyecto (Mar 26, 2026)
 
 ```text
-Progreso General Roadmap:    ████████████████████░░  ~95%
+Progreso General Roadmap:    █████████████████████░  ~97%
 
 Core Features (MVP):         ✅ 100% COMPLETE
-Messaging MVP:              ✅ 100% COMPLETE (623 tests)
-Operational Guides:         ✅ 100% COMPLETE (81 KB, 5 guides)
-Talent Pass Planning:       ✅ 100% COMPLETE (25 KB planning)
+Messaging MVP:               ✅ 100% COMPLETE (623 tests)
+Operational Guides:          ✅ 100% COMPLETE (81 KB, 5 guides)
+Talent Pass (B2):            ✅ 100% COMPLETE (5 páginas Inertia + sidebar, v0.10.27)
+Workforce Planning Fase 1:   ✅ 100% COMPLETE (modelo + API + gobernanza)
+Workforce Planning Fase 2:   ✅ 100% COMPLETE (motor recomendaciones, 11 tests, v0.10.29)
 Performance Optimizations:   ✅ 100% COMPLETE
 Security & Hardening:        ⏳ In Progress (WAF, Secrets rotation)
-Frontend Vue Components:     45+ páginas, 40+ componentes
+QA Window (Apr 4-6):         ✅ GO — 1157 tests pasando, 0 failures (v0.10.25)
+Frontend Vue Components:     50+ páginas, 40+ componentes
 Backend API Controllers:     50+ controllers
-Backend Services:            40+ services
+Backend Services:            41+ services (incl. ClosureStrategyMotor)
 Integraciones:               StratosIntel (Python), Neo4j, CrewAI
 
 N+1 Performance Baseline:    1.85s
@@ -202,7 +205,7 @@ metrics:cache-stats command
 ### A. Feature Development (HIGH PRIORITY)
 
 - [ ] Workforce Planning Dotacional v1 (Foundation + Intelligence)
-- [ ] Talent Pass UI (CV 2.0 visualization) - **NEXT SPRINT**
+- [x] Talent Pass UI (CV 2.0 visualization) ✅ **COMPLETE** (Apr 4, v0.10.27)
 - [ ] Messaging MVP Deploy to Production
 - [ ] Admin Panel Polish & Advanced Analytics
 - [ ] LMS Hardening & SSO Integrations
@@ -210,8 +213,8 @@ metrics:cache-stats command
 
 ### A.1 Workforce Planning Dotacional (NEW)
 
-- [ ] Fase 1: modelo de dominio + endpoints base + seguridad tenant
-- [ ] Fase 2: motor de recomendaciones con racional explicable
+- [x] Fase 1: modelo de dominio + endpoints base + seguridad tenant ✅
+- [x] Fase 2: motor de recomendaciones con racional explicable ✅ (v0.10.29, Apr 4)
 - [ ] Fase 3: gobernanza de ejecución + dashboard de seguimiento
 - [ ] Fase 4: comparador de escenarios + simulaciones de sensibilidad
 
@@ -285,8 +288,8 @@ e17d4db4 feat: Phase 5 - Database indices, cache warming & monitoring
 
 ---
 
-**Estado General:** 🟢 **ON TRACK** - MVP Core ✅ | Performance Optimized ✅ | Operational Guides Ready ✅ | Ready for Scale  
-**Sprint Velocity:** 15-20 story points/week (Messaging MVP 623 tests + N+1 Opt + 5 Operational Guides = 50+ points delivered)  
-**Última actualización:** Mar 26, 2026 (Daily completion - Operational guides + Talent Pass planning)  
-**Próximo Hito:** Mar 27 - 08:00 UTC (Messaging MVP Staging Deployment)  
-**Próximo Sprint:** Mar 31 - Apr 18 (Talent Pass Implementation - 3 weeks)
+**Estado General:** 🟢 **ON TRACK** - MVP Core ✅ | Talent Pass ✅ | WFP Fase 2 ✅ | Ready for Fase 3  
+**Sprint Velocity:** 15-20 story points/week | v0.10.29 en main | 1157 tests pasando  
+**Última actualización:** Apr 4, 2026 — Talent Pass Frontend + Workforce Planning Fase 2 complete  
+**Próximo Hito:** Apr 7-14 — Workforce Planning Fase 3 (Gobernanza + Dashboard)  
+**Próximo Sprint:** Apr 7 - Apr 21 (WFP Fase 3-4 + Messaging Deploy)
