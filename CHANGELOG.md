@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.12.2](https://github.com/oahumada/Stratos/compare/v0.12.1...v0.12.2) (2026-04-04)
+
+
+### 🐛 Correcciones de Bugs
+
+* **changelog:** support patch (###) release headers in enrich-changelog.cjs ([f2cb86f](https://github.com/oahumada/Stratos/commit/f2cb86fdaf54d54cd4bd70719c90e54023437efc))
+
 ### [0.12.1](https://github.com/oahumada/Stratos/compare/v0.12.0...v0.12.1) (2026-04-04)
 
 ## [0.12.0](https://github.com/oahumada/Stratos/compare/v0.11.5...v0.12.0) (2026-04-04)
