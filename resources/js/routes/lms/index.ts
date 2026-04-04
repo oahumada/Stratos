@@ -652,6 +652,228 @@ catalog.form = catalogForm
 
 /**
 * @see routes/web.php:223
+* @route '/lms/webhooks'
+*/
+export const webhooks = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: webhooks.url(options),
+    method: 'get',
+})
+
+webhooks.definition = {
+    methods: ["get","head"],
+    url: '/lms/webhooks',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:223
+* @route '/lms/webhooks'
+*/
+webhooks.url = (options?: RouteQueryOptions) => {
+    return webhooks.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:223
+* @route '/lms/webhooks'
+*/
+webhooks.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: webhooks.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:223
+* @route '/lms/webhooks'
+*/
+webhooks.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: webhooks.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:223
+* @route '/lms/webhooks'
+*/
+const webhooksForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: webhooks.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:223
+* @route '/lms/webhooks'
+*/
+webhooksForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: webhooks.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:223
+* @route '/lms/webhooks'
+*/
+webhooksForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: webhooks.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+webhooks.form = webhooksForm
+
+/**
+* @see routes/web.php:226
+* @route '/lms/calendar'
+*/
+export const calendar = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: calendar.url(options),
+    method: 'get',
+})
+
+calendar.definition = {
+    methods: ["get","head"],
+    url: '/lms/calendar',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:226
+* @route '/lms/calendar'
+*/
+calendar.url = (options?: RouteQueryOptions) => {
+    return calendar.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:226
+* @route '/lms/calendar'
+*/
+calendar.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: calendar.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:226
+* @route '/lms/calendar'
+*/
+calendar.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: calendar.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:226
+* @route '/lms/calendar'
+*/
+const calendarForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: calendar.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:226
+* @route '/lms/calendar'
+*/
+calendarForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: calendar.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:226
+* @route '/lms/calendar'
+*/
+calendarForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: calendar.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+calendar.form = calendarForm
+
+/**
+* @see routes/web.php:229
+* @route '/lms/marketplace'
+*/
+export const marketplace = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: marketplace.url(options),
+    method: 'get',
+})
+
+marketplace.definition = {
+    methods: ["get","head"],
+    url: '/lms/marketplace',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:229
+* @route '/lms/marketplace'
+*/
+marketplace.url = (options?: RouteQueryOptions) => {
+    return marketplace.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:229
+* @route '/lms/marketplace'
+*/
+marketplace.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: marketplace.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:229
+* @route '/lms/marketplace'
+*/
+marketplace.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: marketplace.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:229
+* @route '/lms/marketplace'
+*/
+const marketplaceForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: marketplace.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:229
+* @route '/lms/marketplace'
+*/
+marketplaceForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: marketplace.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:229
+* @route '/lms/marketplace'
+*/
+marketplaceForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: marketplace.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+marketplace.form = marketplaceForm
+
+/**
+* @see routes/web.php:232
 * @route '/lms'
 */
 export const landing = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -665,7 +887,7 @@ landing.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:223
+* @see routes/web.php:232
 * @route '/lms'
 */
 landing.url = (options?: RouteQueryOptions) => {
@@ -673,7 +895,7 @@ landing.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:223
+* @see routes/web.php:232
 * @route '/lms'
 */
 landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -682,7 +904,7 @@ landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:223
+* @see routes/web.php:232
 * @route '/lms'
 */
 landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -691,7 +913,7 @@ landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:223
+* @see routes/web.php:232
 * @route '/lms'
 */
 const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -700,7 +922,7 @@ const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 })
 
 /**
-* @see routes/web.php:223
+* @see routes/web.php:232
 * @route '/lms'
 */
 landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -709,7 +931,7 @@ landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:223
+* @see routes/web.php:232
 * @route '/lms'
 */
 landingForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -725,7 +947,7 @@ landingForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => 
 landing.form = landingForm
 
 /**
-* @see routes/web.php:535
+* @see routes/web.php:544
 * @route '/lms/player/{lesson}'
 */
 export const player = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -739,7 +961,7 @@ player.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:535
+* @see routes/web.php:544
 * @route '/lms/player/{lesson}'
 */
 player.url = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -765,7 +987,7 @@ player.url = (args: { lesson: string | number } | [lesson: string | number ] | s
 }
 
 /**
-* @see routes/web.php:535
+* @see routes/web.php:544
 * @route '/lms/player/{lesson}'
 */
 player.get = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -774,7 +996,7 @@ player.get = (args: { lesson: string | number } | [lesson: string | number ] | s
 })
 
 /**
-* @see routes/web.php:535
+* @see routes/web.php:544
 * @route '/lms/player/{lesson}'
 */
 player.head = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -783,7 +1005,7 @@ player.head = (args: { lesson: string | number } | [lesson: string | number ] | 
 })
 
 /**
-* @see routes/web.php:535
+* @see routes/web.php:544
 * @route '/lms/player/{lesson}'
 */
 const playerForm = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -792,7 +1014,7 @@ const playerForm = (args: { lesson: string | number } | [lesson: string | number
 })
 
 /**
-* @see routes/web.php:535
+* @see routes/web.php:544
 * @route '/lms/player/{lesson}'
 */
 playerForm.get = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -801,7 +1023,7 @@ playerForm.get = (args: { lesson: string | number } | [lesson: string | number ]
 })
 
 /**
-* @see routes/web.php:535
+* @see routes/web.php:544
 * @route '/lms/player/{lesson}'
 */
 playerForm.head = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -825,6 +1047,9 @@ const lms = {
     compliance: Object.assign(compliance, compliance),
     reports: Object.assign(reports, reports),
     catalog: Object.assign(catalog, catalog),
+    webhooks: Object.assign(webhooks, webhooks),
+    calendar: Object.assign(calendar, calendar),
+    marketplace: Object.assign(marketplace, marketplace),
     landing: Object.assign(landing, landing),
     courses: Object.assign(courses, courses),
     player: Object.assign(player, player),

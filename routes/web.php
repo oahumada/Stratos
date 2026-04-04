@@ -220,6 +220,15 @@ Route::get('/lms/catalog/{courseId}', fn ($courseId) => Inertia::render('Lms/Cat
 Route::get('/lms/catalog', fn () => Inertia::render('Lms/Catalog'))
     ->middleware(['auth', 'verified'])->name('lms.catalog');
 
+Route::get('/lms/webhooks', fn () => Inertia::render('Lms/Webhooks'))
+    ->middleware(['auth', 'verified'])->name('lms.webhooks');
+
+Route::get('/lms/calendar', fn () => Inertia::render('Lms/Calendar'))
+    ->middleware(['auth', 'verified'])->name('lms.calendar');
+
+Route::get('/lms/marketplace', fn () => Inertia::render('Lms/Marketplace'))
+    ->middleware(['auth', 'verified'])->name('lms.marketplace');
+
 Route::get('/lms', function () {
     /** @var \App\Models\User $user */
     $user = Auth::user();

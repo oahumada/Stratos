@@ -15,6 +15,10 @@ import XApiController from './XApiController'
 import VideoPlayerController from './VideoPlayerController'
 import MicrolearningController from './MicrolearningController'
 import InteractiveContentController from './InteractiveContentController'
+import WebhookController from './WebhookController'
+import LtiController from './LtiController'
+import CalendarController from './CalendarController'
+import MarketplaceController from './MarketplaceController'
 
 const Lms = {
     CmsArticleController: Object.assign(CmsArticleController, CmsArticleController),
@@ -34,6 +38,10 @@ const Lms = {
     VideoPlayerController: Object.assign(VideoPlayerController, VideoPlayerController),
     MicrolearningController: Object.assign(MicrolearningController, MicrolearningController),
     InteractiveContentController: Object.assign(InteractiveContentController, InteractiveContentController),
+    WebhookController: Object.assign(WebhookController, WebhookController),
+    LtiController: Object.assign(LtiController, LtiController),
+    CalendarController: Object.assign(CalendarController, CalendarController),
+    MarketplaceController: Object.assign(MarketplaceController, MarketplaceController),
 }
 
 export default Lms

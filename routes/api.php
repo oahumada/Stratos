@@ -519,6 +519,33 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/lms/interactive/{interactiveContent}', [\App\Http\Controllers\Api\Lms\InteractiveContentController::class, 'destroy'])->middleware('permission:lms.courses.manage');
     Route::get('/lms/interactive/widget-types', [\App\Http\Controllers\Api\Lms\InteractiveContentController::class, 'widgetTypes'])->middleware('permission:lms.courses.view');
 
+    // LMS Webhooks
+    Route::get('/lms/webhooks', [\App\Http\Controllers\Api\Lms\WebhookController::class, 'index']);
+    Route::post('/lms/webhooks', [\App\Http\Controllers\Api\Lms\WebhookController::class, 'store']);
+    Route::put('/lms/webhooks/{webhook}', [\App\Http\Controllers\Api\Lms\WebhookController::class, 'update']);
+    Route::delete('/lms/webhooks/{webhook}', [\App\Http\Controllers\Api\Lms\WebhookController::class, 'destroy']);
+    Route::post('/lms/webhooks/{webhook}/test', [\App\Http\Controllers\Api\Lms\WebhookController::class, 'test']);
+
+    // LMS LTI 1.3 Provider
+    Route::get('/lms/lti/platforms', [\App\Http\Controllers\Api\Lms\LtiController::class, 'platforms']);
+    Route::post('/lms/lti/platforms', [\App\Http\Controllers\Api\Lms\LtiController::class, 'registerPlatform']);
+    Route::post('/lms/lti/launch', [\App\Http\Controllers\Api\Lms\LtiController::class, 'launch']);
+
+    // LMS Calendar
+    Route::get('/lms/calendar', [\App\Http\Controllers\Api\Lms\CalendarController::class, 'index']);
+    Route::post('/lms/calendar', [\App\Http\Controllers\Api\Lms\CalendarController::class, 'store']);
+    Route::delete('/lms/calendar/{calendarEvent}', [\App\Http\Controllers\Api\Lms\CalendarController::class, 'destroy']);
+    Route::get('/lms/calendar/ical', [\App\Http\Controllers\Api\Lms\CalendarController::class, 'ical']);
+    Route::post('/lms/calendar/sync-compliance', [\App\Http\Controllers\Api\Lms\CalendarController::class, 'syncCompliance']);
+
+    // LMS Marketplace
+    Route::get('/lms/marketplace', [\App\Http\Controllers\Api\Lms\MarketplaceController::class, 'browse']);
+    Route::get('/lms/marketplace/my-listings', [\App\Http\Controllers\Api\Lms\MarketplaceController::class, 'myListings']);
+    Route::post('/lms/marketplace', [\App\Http\Controllers\Api\Lms\MarketplaceController::class, 'createListing']);
+    Route::post('/lms/marketplace/{listing}/publish', [\App\Http\Controllers\Api\Lms\MarketplaceController::class, 'publish']);
+    Route::post('/lms/marketplace/{listing}/purchase', [\App\Http\Controllers\Api\Lms\MarketplaceController::class, 'purchase']);
+    Route::get('/lms/marketplace/purchases', [\App\Http\Controllers\Api\Lms\MarketplaceController::class, 'purchases']);
+
     // Social Learning & Mentorship & Mentorship Knowledge Transfer
     Route::get('/social-learning/dashboard', [\App\Http\Controllers\Api\SocialLearningController::class, 'dashboard']);
     Route::get('/social-learning/matches/{skillId}', [\App\Http\Controllers\Api\SocialLearningController::class, 'matches']);
