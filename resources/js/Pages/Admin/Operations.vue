@@ -435,7 +435,7 @@ function handleOperationRolledBack(data: any) {
 
 function updateOperation(data: any) {
     const index = operations.value.findIndex((op) => op.id === data.id);
-    if (index !== -1) {
+    if (index >= 0) {
         operations.value[index] = { ...operations.value[index], ...data };
     } else {
         // New operation, add to beginning

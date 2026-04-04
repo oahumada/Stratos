@@ -10,6 +10,8 @@ import ScormPlayerController from './ScormPlayerController'
 import ComplianceController from './ComplianceController'
 import ReportController from './ReportController'
 import CatalogController from './CatalogController'
+import DiscussionController from './DiscussionController'
+import XApiController from './XApiController'
 
 const Lms = {
     CmsArticleController: Object.assign(CmsArticleController, CmsArticleController),
@@ -24,6 +26,8 @@ const Lms = {
     ComplianceController: Object.assign(ComplianceController, ComplianceController),
     ReportController: Object.assign(ReportController, ReportController),
     CatalogController: Object.assign(CatalogController, CatalogController),
+    DiscussionController: Object.assign(DiscussionController, DiscussionController),
+    XApiController: Object.assign(XApiController, XApiController),
 }
 
 export default Lms

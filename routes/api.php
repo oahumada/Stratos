@@ -489,7 +489,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/lms/catalog/{id}/rate', [\App\Http\Controllers\Api\Lms\CatalogController::class, 'rate'])->middleware('permission:lms.courses.view');
     Route::post('/lms/catalog/{id}/enroll', [\App\Http\Controllers\Api\Lms\CatalogController::class, 'enroll'])->middleware('permission:lms.courses.view');
 
-    // Social Learning & Mentorship Knowledge Transfer
+    // LMS Social Learning — Discussions
+    Route::get('/lms/discussions', [\App\Http\Controllers\Api\Lms\DiscussionController::class, 'index'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/discussions', [\App\Http\Controllers\Api\Lms\DiscussionController::class, 'store'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/discussions/{id}/reply', [\App\Http\Controllers\Api\Lms\DiscussionController::class, 'reply'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/discussions/{id}/like', [\App\Http\Controllers\Api\Lms\DiscussionController::class, 'like'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/discussions/{id}/pin', [\App\Http\Controllers\Api\Lms\DiscussionController::class, 'pin'])->middleware('permission:lms.courses.manage');
+    Route::delete('/lms/discussions/{id}', [\App\Http\Controllers\Api\Lms\DiscussionController::class, 'destroy'])->middleware('permission:lms.courses.view');
+
+    // xAPI (Experience API)
+    Route::post('/lms/xapi/statements', [\App\Http\Controllers\Api\Lms\XApiController::class, 'store'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/xapi/statements', [\App\Http\Controllers\Api\Lms\XApiController::class, 'index'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/xapi/activities/{objectId}/stats', [\App\Http\Controllers\Api\Lms\XApiController::class, 'activityStats'])->where('objectId', '.*')->middleware('permission:lms.courses.view');
+
+    // Social Learning & Mentorship & Mentorship Knowledge Transfer
     Route::get('/social-learning/dashboard', [\App\Http\Controllers\Api\SocialLearningController::class, 'dashboard']);
     Route::get('/social-learning/matches/{skillId}', [\App\Http\Controllers\Api\SocialLearningController::class, 'matches']);
     Route::post('/social-learning/generate-blueprint', [\App\Http\Controllers\Api\SocialLearningController::class, 'generateBlueprint']);
