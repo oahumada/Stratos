@@ -184,6 +184,13 @@ const allNavItems: NavItem[] = [
         href: '/strategic-planning',
         icon: ScenarioPlanningIcon,
     },
+    // Talent Pass (CV 2.0)
+    {
+        title: 'Talent Pass',
+        href: '/talent-pass',
+        icon: defineComponent(() => () => h(PhIdentificationCard, { size: 20 })),
+        requiredModule: 'core',
+    },
     // Scenario Planning Analytics (Phase 1)
     {
         title: 'Planning Analytics',
