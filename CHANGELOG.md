@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.17.1](https://github.com/oahumada/Stratos/compare/v0.16.1...v0.17.1) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **lms:** add Course Catalog & Discovery module (G7) ([0dbc329](https://github.com/oahumada/Stratos/commit/0dbc3293efdba9964a2d5cc45b1f6ce791a596ba))
+
 ### [0.16.1](https://github.com/oahumada/Stratos/compare/v0.15.1...v0.16.1) (2026-04-04)
 
 
