@@ -1,6 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
-* @see routes/web.php:127
+* @see routes/web.php:131
 * @route '/departments/org-chart'
 */
 export const orgChart = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +14,7 @@ orgChart.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:127
+* @see routes/web.php:131
 * @route '/departments/org-chart'
 */
 orgChart.url = (options?: RouteQueryOptions) => {
@@ -22,7 +22,7 @@ orgChart.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:127
+* @see routes/web.php:131
 * @route '/departments/org-chart'
 */
 orgChart.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -31,7 +31,7 @@ orgChart.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:127
+* @see routes/web.php:131
 * @route '/departments/org-chart'
 */
 orgChart.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -40,7 +40,7 @@ orgChart.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:127
+* @see routes/web.php:131
 * @route '/departments/org-chart'
 */
 const orgChartForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -49,7 +49,7 @@ const orgChartForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =
 })
 
 /**
-* @see routes/web.php:127
+* @see routes/web.php:131
 * @route '/departments/org-chart'
 */
 orgChartForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -58,7 +58,7 @@ orgChartForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => 
 })
 
 /**
-* @see routes/web.php:127
+* @see routes/web.php:131
 * @route '/departments/org-chart'
 */
 orgChartForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

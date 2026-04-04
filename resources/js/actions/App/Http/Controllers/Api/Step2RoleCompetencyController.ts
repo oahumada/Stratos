@@ -727,7 +727,7 @@ getSuccessionPlans.form = getSuccessionPlansForm
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getCubeData
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:802
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:803
 * @route '/api/scenarios/{id}/step2/cube'
 */
 export const getCubeData = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -742,7 +742,7 @@ getCubeData.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getCubeData
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:802
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:803
 * @route '/api/scenarios/{id}/step2/cube'
 */
 getCubeData.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -769,7 +769,7 @@ getCubeData.url = (args: { id: string | number } | [id: string | number ] | stri
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getCubeData
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:802
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:803
 * @route '/api/scenarios/{id}/step2/cube'
 */
 getCubeData.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -779,7 +779,7 @@ getCubeData.get = (args: { id: string | number } | [id: string | number ] | stri
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getCubeData
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:802
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:803
 * @route '/api/scenarios/{id}/step2/cube'
 */
 getCubeData.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -789,7 +789,7 @@ getCubeData.head = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getCubeData
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:802
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:803
 * @route '/api/scenarios/{id}/step2/cube'
 */
 const getCubeDataForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -799,7 +799,7 @@ const getCubeDataForm = (args: { id: string | number } | [id: string | number ] 
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getCubeData
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:802
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:803
 * @route '/api/scenarios/{id}/step2/cube'
 */
 getCubeDataForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -809,7 +809,7 @@ getCubeDataForm.get = (args: { id: string | number } | [id: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::getCubeData
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:802
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:803
 * @route '/api/scenarios/{id}/step2/cube'
 */
 getCubeDataForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -900,7 +900,7 @@ orchestrateCapabilities.form = orchestrateCapabilitiesForm
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::approveCube
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:919
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:920
 * @route '/api/scenarios/{id}/step2/approve-cube'
 */
 export const approveCube = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -915,7 +915,7 @@ approveCube.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::approveCube
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:919
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:920
 * @route '/api/scenarios/{id}/step2/approve-cube'
 */
 approveCube.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -942,7 +942,7 @@ approveCube.url = (args: { id: string | number } | [id: string | number ] | stri
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::approveCube
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:919
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:920
 * @route '/api/scenarios/{id}/step2/approve-cube'
 */
 approveCube.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -952,7 +952,7 @@ approveCube.post = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::approveCube
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:919
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:920
 * @route '/api/scenarios/{id}/step2/approve-cube'
 */
 const approveCubeForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -962,7 +962,7 @@ const approveCubeForm = (args: { id: string | number } | [id: string | number ] 
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::approveCube
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:919
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:920
 * @route '/api/scenarios/{id}/step2/approve-cube'
 */
 approveCubeForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -974,7 +974,7 @@ approveCube.form = approveCubeForm
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::generateBars
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:985
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:986
 * @route '/api/scenarios/{id}/step2/engine/generate-bars'
 */
 export const generateBars = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -989,7 +989,7 @@ generateBars.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::generateBars
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:985
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:986
 * @route '/api/scenarios/{id}/step2/engine/generate-bars'
 */
 generateBars.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -1016,7 +1016,7 @@ generateBars.url = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::generateBars
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:985
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:986
 * @route '/api/scenarios/{id}/step2/engine/generate-bars'
 */
 generateBars.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -1026,7 +1026,7 @@ generateBars.post = (args: { id: string | number } | [id: string | number ] | st
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::generateBars
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:985
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:986
 * @route '/api/scenarios/{id}/step2/engine/generate-bars'
 */
 const generateBarsForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -1036,7 +1036,7 @@ const generateBarsForm = (args: { id: string | number } | [id: string | number ]
 
 /**
 * @see \App\Http\Controllers\Api\Step2RoleCompetencyController::generateBars
-* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:985
+* @see app/Http/Controllers/Api/Step2RoleCompetencyController.php:986
 * @route '/api/scenarios/{id}/step2/engine/generate-bars'
 */
 generateBarsForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

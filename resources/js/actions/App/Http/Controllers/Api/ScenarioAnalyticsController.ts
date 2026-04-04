@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\ScenarioAnalyticsController::compareScenarios
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:21
+* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:25
 * @route '/api/scenarios/compare'
 */
 export const compareScenarios = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ compareScenarios.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioAnalyticsController::compareScenarios
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:21
+* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:25
 * @route '/api/scenarios/compare'
 */
 compareScenarios.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ compareScenarios.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioAnalyticsController::compareScenarios
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:21
+* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:25
 * @route '/api/scenarios/compare'
 */
 compareScenarios.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ compareScenarios.post = (options?: RouteQueryOptions): RouteDefinition<'post'> =
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioAnalyticsController::compareScenarios
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:21
+* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:25
 * @route '/api/scenarios/compare'
 */
 const compareScenariosForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const compareScenariosForm = (options?: RouteQueryOptions): RouteFormDefinition<
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioAnalyticsController::compareScenarios
-* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:21
+* @see app/Http/Controllers/Api/ScenarioAnalyticsController.php:25
 * @route '/api/scenarios/compare'
 */
 compareScenariosForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

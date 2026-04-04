@@ -2,6 +2,104 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/lms/courses/{id}/policy'
+*/
+const Controllerbc0be7e4deff421836f203fa0f5870dd = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerbc0be7e4deff421836f203fa0f5870dd.url(args, options),
+    method: 'get',
+})
+
+Controllerbc0be7e4deff421836f203fa0f5870dd.definition = {
+    methods: ["get","head"],
+    url: '/lms/courses/{id}/policy',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/lms/courses/{id}/policy'
+*/
+Controllerbc0be7e4deff421836f203fa0f5870dd.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { id: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            id: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        id: args.id,
+    }
+
+    return Controllerbc0be7e4deff421836f203fa0f5870dd.definition.url
+            .replace('{id}', parsedArgs.id.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/lms/courses/{id}/policy'
+*/
+Controllerbc0be7e4deff421836f203fa0f5870dd.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerbc0be7e4deff421836f203fa0f5870dd.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/lms/courses/{id}/policy'
+*/
+Controllerbc0be7e4deff421836f203fa0f5870dd.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controllerbc0be7e4deff421836f203fa0f5870dd.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/lms/courses/{id}/policy'
+*/
+const Controllerbc0be7e4deff421836f203fa0f5870ddForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerbc0be7e4deff421836f203fa0f5870dd.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/lms/courses/{id}/policy'
+*/
+Controllerbc0be7e4deff421836f203fa0f5870ddForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerbc0be7e4deff421836f203fa0f5870dd.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/lms/courses/{id}/policy'
+*/
+Controllerbc0be7e4deff421836f203fa0f5870ddForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerbc0be7e4deff421836f203fa0f5870dd.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+Controllerbc0be7e4deff421836f203fa0f5870dd.form = Controllerbc0be7e4deff421836f203fa0f5870ddForm
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
 * @route '/deployment/verification-metrics'
 */
 const Controller1536443aaca1d0055cf9728225f4c9b5 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -1093,8 +1191,169 @@ Controller98ea1aa8bf95e23aa708198b0e2ab85eForm.head = (args: { ulid: string | nu
 })
 
 Controller98ea1aa8bf95e23aa708198b0e2ab85e.form = Controller98ea1aa8bf95e23aa708198b0e2ab85eForm
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/messaging'
+*/
+const Controller6c8a3d26da0429490535634bb4527732 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller6c8a3d26da0429490535634bb4527732.url(options),
+    method: 'get',
+})
+
+Controller6c8a3d26da0429490535634bb4527732.definition = {
+    methods: ["get","head"],
+    url: '/messaging',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/messaging'
+*/
+Controller6c8a3d26da0429490535634bb4527732.url = (options?: RouteQueryOptions) => {
+    return Controller6c8a3d26da0429490535634bb4527732.definition.url + queryParams(options)
+}
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/messaging'
+*/
+Controller6c8a3d26da0429490535634bb4527732.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller6c8a3d26da0429490535634bb4527732.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/messaging'
+*/
+Controller6c8a3d26da0429490535634bb4527732.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controller6c8a3d26da0429490535634bb4527732.url(options),
+    method: 'head',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/messaging'
+*/
+const Controller6c8a3d26da0429490535634bb4527732Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller6c8a3d26da0429490535634bb4527732.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/messaging'
+*/
+Controller6c8a3d26da0429490535634bb4527732Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller6c8a3d26da0429490535634bb4527732.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/messaging'
+*/
+Controller6c8a3d26da0429490535634bb4527732Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller6c8a3d26da0429490535634bb4527732.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+Controller6c8a3d26da0429490535634bb4527732.form = Controller6c8a3d26da0429490535634bb4527732Form
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/messaging/settings'
+*/
+const Controllerb755d752252f37986e1a7e3a2f8308db = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerb755d752252f37986e1a7e3a2f8308db.url(options),
+    method: 'get',
+})
+
+Controllerb755d752252f37986e1a7e3a2f8308db.definition = {
+    methods: ["get","head"],
+    url: '/messaging/settings',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/messaging/settings'
+*/
+Controllerb755d752252f37986e1a7e3a2f8308db.url = (options?: RouteQueryOptions) => {
+    return Controllerb755d752252f37986e1a7e3a2f8308db.definition.url + queryParams(options)
+}
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/messaging/settings'
+*/
+Controllerb755d752252f37986e1a7e3a2f8308db.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerb755d752252f37986e1a7e3a2f8308db.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/messaging/settings'
+*/
+Controllerb755d752252f37986e1a7e3a2f8308db.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controllerb755d752252f37986e1a7e3a2f8308db.url(options),
+    method: 'head',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/messaging/settings'
+*/
+const Controllerb755d752252f37986e1a7e3a2f8308dbForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerb755d752252f37986e1a7e3a2f8308db.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/messaging/settings'
+*/
+Controllerb755d752252f37986e1a7e3a2f8308dbForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerb755d752252f37986e1a7e3a2f8308db.url(options),
+    method: 'get',
+})
+
+/**
+* @see \Inertia\Controller::__invoke
+* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @route '/messaging/settings'
+*/
+Controllerb755d752252f37986e1a7e3a2f8308dbForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerb755d752252f37986e1a7e3a2f8308db.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+Controllerb755d752252f37986e1a7e3a2f8308db.form = Controllerb755d752252f37986e1a7e3a2f8308dbForm
 
 const Controller = {
+    '/lms/courses/{id}/policy': Controllerbc0be7e4deff421836f203fa0f5870dd,
     '/deployment/verification-metrics': Controller1536443aaca1d0055cf9728225f4c9b5,
     '/deployment/verification-hub': Controllera7dbed35a12d9097e6c74f450b68d592,
     '/deployment/verification/dashboard/executive': Controllerb7d8e1bf21b023d4c395f04411f4f7b1,
@@ -1108,6 +1367,8 @@ const Controller = {
     '/talent-pass/{id}': Controller377010c88ff7b9517dc6b60819bbfdab,
     '/talent-pass/{id}/edit': Controller1d23530a54575f83aa46a4f4f7537e3e,
     '/public/talent-pass/{ulid}': Controller98ea1aa8bf95e23aa708198b0e2ab85e,
+    '/messaging': Controller6c8a3d26da0429490535634bb4527732,
+    '/messaging/settings': Controllerb755d752252f37986e1a7e3a2f8308db,
 }
 
 export default Controller

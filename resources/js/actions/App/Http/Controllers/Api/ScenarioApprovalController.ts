@@ -322,7 +322,7 @@ getApprovalMatrix.form = getApprovalMatrixForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::activate
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:215
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:216
 * @route '/api/scenarios/{id}/activate'
 */
 export const activate = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -337,7 +337,7 @@ activate.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::activate
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:215
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:216
 * @route '/api/scenarios/{id}/activate'
 */
 activate.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -364,7 +364,7 @@ activate.url = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::activate
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:215
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:216
 * @route '/api/scenarios/{id}/activate'
 */
 activate.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -374,7 +374,7 @@ activate.post = (args: { id: string | number } | [id: string | number ] | string
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::activate
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:215
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:216
 * @route '/api/scenarios/{id}/activate'
 */
 const activateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -384,7 +384,7 @@ const activateForm = (args: { id: string | number } | [id: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::activate
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:215
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:216
 * @route '/api/scenarios/{id}/activate'
 */
 activateForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -396,7 +396,7 @@ activate.form = activateForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::getExecutionPlan
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:258
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:259
 * @route '/api/scenarios/{id}/execution-plan'
 */
 export const getExecutionPlan = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -411,7 +411,7 @@ getExecutionPlan.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::getExecutionPlan
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:258
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:259
 * @route '/api/scenarios/{id}/execution-plan'
 */
 getExecutionPlan.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -438,7 +438,7 @@ getExecutionPlan.url = (args: { id: string | number } | [id: string | number ] |
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::getExecutionPlan
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:258
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:259
 * @route '/api/scenarios/{id}/execution-plan'
 */
 getExecutionPlan.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -448,7 +448,7 @@ getExecutionPlan.get = (args: { id: string | number } | [id: string | number ] |
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::getExecutionPlan
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:258
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:259
 * @route '/api/scenarios/{id}/execution-plan'
 */
 getExecutionPlan.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -458,7 +458,7 @@ getExecutionPlan.head = (args: { id: string | number } | [id: string | number ] 
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::getExecutionPlan
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:258
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:259
 * @route '/api/scenarios/{id}/execution-plan'
 */
 const getExecutionPlanForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -468,7 +468,7 @@ const getExecutionPlanForm = (args: { id: string | number } | [id: string | numb
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::getExecutionPlan
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:258
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:259
 * @route '/api/scenarios/{id}/execution-plan'
 */
 getExecutionPlanForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -478,7 +478,7 @@ getExecutionPlanForm.get = (args: { id: string | number } | [id: string | number
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::getExecutionPlan
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:258
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:259
 * @route '/api/scenarios/{id}/execution-plan'
 */
 getExecutionPlanForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -495,7 +495,7 @@ getExecutionPlan.form = getExecutionPlanForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::resendNotification
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:334
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:335
 * @route '/api/approval-requests/{id}/resend-notification'
 */
 export const resendNotification = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -510,7 +510,7 @@ resendNotification.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::resendNotification
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:334
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:335
 * @route '/api/approval-requests/{id}/resend-notification'
 */
 resendNotification.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -537,7 +537,7 @@ resendNotification.url = (args: { id: string | number } | [id: string | number ]
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::resendNotification
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:334
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:335
 * @route '/api/approval-requests/{id}/resend-notification'
 */
 resendNotification.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -547,7 +547,7 @@ resendNotification.post = (args: { id: string | number } | [id: string | number 
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::resendNotification
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:334
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:335
 * @route '/api/approval-requests/{id}/resend-notification'
 */
 const resendNotificationForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -557,7 +557,7 @@ const resendNotificationForm = (args: { id: string | number } | [id: string | nu
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::resendNotification
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:334
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:335
 * @route '/api/approval-requests/{id}/resend-notification'
 */
 resendNotificationForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -569,7 +569,7 @@ resendNotification.form = resendNotificationForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::emailPreview
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:384
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:385
 * @route '/api/approval-requests/{id}/email-preview'
 */
 export const emailPreview = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -584,7 +584,7 @@ emailPreview.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::emailPreview
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:384
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:385
 * @route '/api/approval-requests/{id}/email-preview'
 */
 emailPreview.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -611,7 +611,7 @@ emailPreview.url = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::emailPreview
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:384
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:385
 * @route '/api/approval-requests/{id}/email-preview'
 */
 emailPreview.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -621,7 +621,7 @@ emailPreview.post = (args: { id: string | number } | [id: string | number ] | st
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::emailPreview
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:384
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:385
 * @route '/api/approval-requests/{id}/email-preview'
 */
 const emailPreviewForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -631,7 +631,7 @@ const emailPreviewForm = (args: { id: string | number } | [id: string | number ]
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::emailPreview
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:384
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:385
 * @route '/api/approval-requests/{id}/email-preview'
 */
 emailPreviewForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -643,7 +643,7 @@ emailPreview.form = emailPreviewForm
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::approvalsSummary
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:496
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:497
 * @route '/api/approvals-summary'
 */
 export const approvalsSummary = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -658,7 +658,7 @@ approvalsSummary.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::approvalsSummary
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:496
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:497
 * @route '/api/approvals-summary'
 */
 approvalsSummary.url = (options?: RouteQueryOptions) => {
@@ -667,7 +667,7 @@ approvalsSummary.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::approvalsSummary
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:496
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:497
 * @route '/api/approvals-summary'
 */
 approvalsSummary.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -677,7 +677,7 @@ approvalsSummary.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => 
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::approvalsSummary
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:496
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:497
 * @route '/api/approvals-summary'
 */
 approvalsSummary.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -687,7 +687,7 @@ approvalsSummary.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::approvalsSummary
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:496
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:497
 * @route '/api/approvals-summary'
 */
 const approvalsSummaryForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -697,7 +697,7 @@ const approvalsSummaryForm = (options?: RouteQueryOptions): RouteFormDefinition<
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::approvalsSummary
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:496
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:497
 * @route '/api/approvals-summary'
 */
 approvalsSummaryForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -707,7 +707,7 @@ approvalsSummaryForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'g
 
 /**
 * @see \App\Http\Controllers\Api\ScenarioApprovalController::approvalsSummary
-* @see app/Http/Controllers/Api/ScenarioApprovalController.php:496
+* @see app/Http/Controllers/Api/ScenarioApprovalController.php:497
 * @route '/api/approvals-summary'
 */
 approvalsSummaryForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

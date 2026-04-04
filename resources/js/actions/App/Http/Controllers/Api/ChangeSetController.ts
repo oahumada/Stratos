@@ -75,7 +75,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::preview
-* @see app/Http/Controllers/Api/ChangeSetController.php:49
+* @see app/Http/Controllers/Api/ChangeSetController.php:53
 * @route '/api/strategic-planning/change-sets/{id}/preview'
 */
 export const preview = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -90,7 +90,7 @@ preview.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::preview
-* @see app/Http/Controllers/Api/ChangeSetController.php:49
+* @see app/Http/Controllers/Api/ChangeSetController.php:53
 * @route '/api/strategic-planning/change-sets/{id}/preview'
 */
 preview.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -117,7 +117,7 @@ preview.url = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::preview
-* @see app/Http/Controllers/Api/ChangeSetController.php:49
+* @see app/Http/Controllers/Api/ChangeSetController.php:53
 * @route '/api/strategic-planning/change-sets/{id}/preview'
 */
 preview.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -127,7 +127,7 @@ preview.get = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::preview
-* @see app/Http/Controllers/Api/ChangeSetController.php:49
+* @see app/Http/Controllers/Api/ChangeSetController.php:53
 * @route '/api/strategic-planning/change-sets/{id}/preview'
 */
 preview.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -137,7 +137,7 @@ preview.head = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::preview
-* @see app/Http/Controllers/Api/ChangeSetController.php:49
+* @see app/Http/Controllers/Api/ChangeSetController.php:53
 * @route '/api/strategic-planning/change-sets/{id}/preview'
 */
 const previewForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -147,7 +147,7 @@ const previewForm = (args: { id: string | number } | [id: string | number ] | st
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::preview
-* @see app/Http/Controllers/Api/ChangeSetController.php:49
+* @see app/Http/Controllers/Api/ChangeSetController.php:53
 * @route '/api/strategic-planning/change-sets/{id}/preview'
 */
 previewForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ previewForm.get = (args: { id: string | number } | [id: string | number ] | stri
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::preview
-* @see app/Http/Controllers/Api/ChangeSetController.php:49
+* @see app/Http/Controllers/Api/ChangeSetController.php:53
 * @route '/api/strategic-planning/change-sets/{id}/preview'
 */
 previewForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -174,7 +174,7 @@ preview.form = previewForm
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::apply
-* @see app/Http/Controllers/Api/ChangeSetController.php:60
+* @see app/Http/Controllers/Api/ChangeSetController.php:68
 * @route '/api/strategic-planning/change-sets/{id}/apply'
 */
 export const apply = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -189,7 +189,7 @@ apply.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::apply
-* @see app/Http/Controllers/Api/ChangeSetController.php:60
+* @see app/Http/Controllers/Api/ChangeSetController.php:68
 * @route '/api/strategic-planning/change-sets/{id}/apply'
 */
 apply.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -216,7 +216,7 @@ apply.url = (args: { id: string | number } | [id: string | number ] | string | n
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::apply
-* @see app/Http/Controllers/Api/ChangeSetController.php:60
+* @see app/Http/Controllers/Api/ChangeSetController.php:68
 * @route '/api/strategic-planning/change-sets/{id}/apply'
 */
 apply.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -226,7 +226,7 @@ apply.post = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::apply
-* @see app/Http/Controllers/Api/ChangeSetController.php:60
+* @see app/Http/Controllers/Api/ChangeSetController.php:68
 * @route '/api/strategic-planning/change-sets/{id}/apply'
 */
 const applyForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -236,7 +236,7 @@ const applyForm = (args: { id: string | number } | [id: string | number ] | stri
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::apply
-* @see app/Http/Controllers/Api/ChangeSetController.php:60
+* @see app/Http/Controllers/Api/ChangeSetController.php:68
 * @route '/api/strategic-planning/change-sets/{id}/apply'
 */
 applyForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -248,7 +248,7 @@ apply.form = applyForm
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::addOp
-* @see app/Http/Controllers/Api/ChangeSetController.php:74
+* @see app/Http/Controllers/Api/ChangeSetController.php:86
 * @route '/api/strategic-planning/change-sets/{id}/ops'
 */
 export const addOp = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -263,7 +263,7 @@ addOp.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::addOp
-* @see app/Http/Controllers/Api/ChangeSetController.php:74
+* @see app/Http/Controllers/Api/ChangeSetController.php:86
 * @route '/api/strategic-planning/change-sets/{id}/ops'
 */
 addOp.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -290,7 +290,7 @@ addOp.url = (args: { id: string | number } | [id: string | number ] | string | n
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::addOp
-* @see app/Http/Controllers/Api/ChangeSetController.php:74
+* @see app/Http/Controllers/Api/ChangeSetController.php:86
 * @route '/api/strategic-planning/change-sets/{id}/ops'
 */
 addOp.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -300,7 +300,7 @@ addOp.post = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::addOp
-* @see app/Http/Controllers/Api/ChangeSetController.php:74
+* @see app/Http/Controllers/Api/ChangeSetController.php:86
 * @route '/api/strategic-planning/change-sets/{id}/ops'
 */
 const addOpForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -310,7 +310,7 @@ const addOpForm = (args: { id: string | number } | [id: string | number ] | stri
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::addOp
-* @see app/Http/Controllers/Api/ChangeSetController.php:74
+* @see app/Http/Controllers/Api/ChangeSetController.php:86
 * @route '/api/strategic-planning/change-sets/{id}/ops'
 */
 addOpForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -322,7 +322,7 @@ addOp.form = addOpForm
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::canApply
-* @see app/Http/Controllers/Api/ChangeSetController.php:95
+* @see app/Http/Controllers/Api/ChangeSetController.php:111
 * @route '/api/strategic-planning/change-sets/{id}/can-apply'
 */
 export const canApply = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -337,7 +337,7 @@ canApply.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::canApply
-* @see app/Http/Controllers/Api/ChangeSetController.php:95
+* @see app/Http/Controllers/Api/ChangeSetController.php:111
 * @route '/api/strategic-planning/change-sets/{id}/can-apply'
 */
 canApply.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -364,7 +364,7 @@ canApply.url = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::canApply
-* @see app/Http/Controllers/Api/ChangeSetController.php:95
+* @see app/Http/Controllers/Api/ChangeSetController.php:111
 * @route '/api/strategic-planning/change-sets/{id}/can-apply'
 */
 canApply.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -374,7 +374,7 @@ canApply.get = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::canApply
-* @see app/Http/Controllers/Api/ChangeSetController.php:95
+* @see app/Http/Controllers/Api/ChangeSetController.php:111
 * @route '/api/strategic-planning/change-sets/{id}/can-apply'
 */
 canApply.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -384,7 +384,7 @@ canApply.head = (args: { id: string | number } | [id: string | number ] | string
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::canApply
-* @see app/Http/Controllers/Api/ChangeSetController.php:95
+* @see app/Http/Controllers/Api/ChangeSetController.php:111
 * @route '/api/strategic-planning/change-sets/{id}/can-apply'
 */
 const canApplyForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -394,7 +394,7 @@ const canApplyForm = (args: { id: string | number } | [id: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::canApply
-* @see app/Http/Controllers/Api/ChangeSetController.php:95
+* @see app/Http/Controllers/Api/ChangeSetController.php:111
 * @route '/api/strategic-planning/change-sets/{id}/can-apply'
 */
 canApplyForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -404,7 +404,7 @@ canApplyForm.get = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::canApply
-* @see app/Http/Controllers/Api/ChangeSetController.php:95
+* @see app/Http/Controllers/Api/ChangeSetController.php:111
 * @route '/api/strategic-planning/change-sets/{id}/can-apply'
 */
 canApplyForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -421,7 +421,7 @@ canApply.form = canApplyForm
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::approve
-* @see app/Http/Controllers/Api/ChangeSetController.php:107
+* @see app/Http/Controllers/Api/ChangeSetController.php:127
 * @route '/api/strategic-planning/change-sets/{id}/approve'
 */
 export const approve = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -436,7 +436,7 @@ approve.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::approve
-* @see app/Http/Controllers/Api/ChangeSetController.php:107
+* @see app/Http/Controllers/Api/ChangeSetController.php:127
 * @route '/api/strategic-planning/change-sets/{id}/approve'
 */
 approve.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -463,7 +463,7 @@ approve.url = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::approve
-* @see app/Http/Controllers/Api/ChangeSetController.php:107
+* @see app/Http/Controllers/Api/ChangeSetController.php:127
 * @route '/api/strategic-planning/change-sets/{id}/approve'
 */
 approve.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -473,7 +473,7 @@ approve.post = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::approve
-* @see app/Http/Controllers/Api/ChangeSetController.php:107
+* @see app/Http/Controllers/Api/ChangeSetController.php:127
 * @route '/api/strategic-planning/change-sets/{id}/approve'
 */
 const approveForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -483,7 +483,7 @@ const approveForm = (args: { id: string | number } | [id: string | number ] | st
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::approve
-* @see app/Http/Controllers/Api/ChangeSetController.php:107
+* @see app/Http/Controllers/Api/ChangeSetController.php:127
 * @route '/api/strategic-planning/change-sets/{id}/approve'
 */
 approveForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -495,7 +495,7 @@ approve.form = approveForm
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::reject
-* @see app/Http/Controllers/Api/ChangeSetController.php:159
+* @see app/Http/Controllers/Api/ChangeSetController.php:183
 * @route '/api/strategic-planning/change-sets/{id}/reject'
 */
 export const reject = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -510,7 +510,7 @@ reject.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::reject
-* @see app/Http/Controllers/Api/ChangeSetController.php:159
+* @see app/Http/Controllers/Api/ChangeSetController.php:183
 * @route '/api/strategic-planning/change-sets/{id}/reject'
 */
 reject.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -537,7 +537,7 @@ reject.url = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::reject
-* @see app/Http/Controllers/Api/ChangeSetController.php:159
+* @see app/Http/Controllers/Api/ChangeSetController.php:183
 * @route '/api/strategic-planning/change-sets/{id}/reject'
 */
 reject.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -547,7 +547,7 @@ reject.post = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::reject
-* @see app/Http/Controllers/Api/ChangeSetController.php:159
+* @see app/Http/Controllers/Api/ChangeSetController.php:183
 * @route '/api/strategic-planning/change-sets/{id}/reject'
 */
 const rejectForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -557,7 +557,7 @@ const rejectForm = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\Api\ChangeSetController::reject
-* @see app/Http/Controllers/Api/ChangeSetController.php:159
+* @see app/Http/Controllers/Api/ChangeSetController.php:183
 * @route '/api/strategic-planning/change-sets/{id}/reject'
 */
 rejectForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

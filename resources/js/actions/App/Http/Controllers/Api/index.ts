@@ -46,6 +46,7 @@ import ScenarioGenerationIntelController from './ScenarioGenerationIntelControll
 import GenerationChunkController from './GenerationChunkController'
 import ScenarioAnalyticsController from './ScenarioAnalyticsController'
 import ScenarioApprovalController from './ScenarioApprovalController'
+import ClosureStrategyController from './ClosureStrategyController'
 import SuccessionPlanningController from './SuccessionPlanningController'
 import TalentRiskController from './TalentRiskController'
 import TransformationRoadmapController from './TransformationRoadmapController'
@@ -63,6 +64,8 @@ import TelemetryController from './TelemetryController'
 import CapabilityCompetencyController from './CapabilityCompetencyController'
 import ScenarioTemplateController from './ScenarioTemplateController'
 import WhatIfAnalysisController from './WhatIfAnalysisController'
+import WorkforcePlanningController from './WorkforcePlanningController'
+import WorkforceDemandLineController from './WorkforceDemandLineController'
 import ExecutiveSummaryController from './ExecutiveSummaryController'
 import ExportController from './ExportController'
 import OrgChartController from './OrgChartController'
@@ -79,8 +82,13 @@ import AnalyticsController from './AnalyticsController'
 import AutomationController from './AutomationController'
 import MobileController from './MobileController'
 import Messaging from './Messaging'
+import NotificationPreferencesController from './NotificationPreferencesController'
+import OrgPeopleChartController from './OrgPeopleChartController'
+import SkillIntelligenceController from './SkillIntelligenceController'
+import PerformanceController from './PerformanceController'
 import AdminOperationsController from './AdminOperationsController'
 import AuditController from './AuditController'
+import NotificationChannelSettingsController from './NotificationChannelSettingsController'
 import Automation from './Automation'
 
 const Api = {
@@ -132,6 +140,7 @@ const Api = {
     GenerationChunkController: Object.assign(GenerationChunkController, GenerationChunkController),
     ScenarioAnalyticsController: Object.assign(ScenarioAnalyticsController, ScenarioAnalyticsController),
     ScenarioApprovalController: Object.assign(ScenarioApprovalController, ScenarioApprovalController),
+    ClosureStrategyController: Object.assign(ClosureStrategyController, ClosureStrategyController),
     SuccessionPlanningController: Object.assign(SuccessionPlanningController, SuccessionPlanningController),
     TalentRiskController: Object.assign(TalentRiskController, TalentRiskController),
     TransformationRoadmapController: Object.assign(TransformationRoadmapController, TransformationRoadmapController),
@@ -149,6 +158,8 @@ const Api = {
     CapabilityCompetencyController: Object.assign(CapabilityCompetencyController, CapabilityCompetencyController),
     ScenarioTemplateController: Object.assign(ScenarioTemplateController, ScenarioTemplateController),
     WhatIfAnalysisController: Object.assign(WhatIfAnalysisController, WhatIfAnalysisController),
+    WorkforcePlanningController: Object.assign(WorkforcePlanningController, WorkforcePlanningController),
+    WorkforceDemandLineController: Object.assign(WorkforceDemandLineController, WorkforceDemandLineController),
     ExecutiveSummaryController: Object.assign(ExecutiveSummaryController, ExecutiveSummaryController),
     ExportController: Object.assign(ExportController, ExportController),
     OrgChartController: Object.assign(OrgChartController, OrgChartController),
@@ -165,8 +176,13 @@ const Api = {
     AutomationController: Object.assign(AutomationController, AutomationController),
     MobileController: Object.assign(MobileController, MobileController),
     Messaging: Object.assign(Messaging, Messaging),
+    NotificationPreferencesController: Object.assign(NotificationPreferencesController, NotificationPreferencesController),
+    OrgPeopleChartController: Object.assign(OrgPeopleChartController, OrgPeopleChartController),
+    SkillIntelligenceController: Object.assign(SkillIntelligenceController, SkillIntelligenceController),
+    PerformanceController: Object.assign(PerformanceController, PerformanceController),
     AdminOperationsController: Object.assign(AdminOperationsController, AdminOperationsController),
     AuditController: Object.assign(AuditController, AuditController),
+    NotificationChannelSettingsController: Object.assign(NotificationChannelSettingsController, NotificationChannelSettingsController),
     Automation: Object.assign(Automation, Automation),
 }
 

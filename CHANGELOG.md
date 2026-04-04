@@ -10,6 +10,15 @@ All notable changes to this project will be documented in this file. See [standa
 ### 🐛 Correcciones de Bugs
 
 * close all open technical debt items (N+1, API docs, onboarding, debt closure) ([8d16cf2](https://github.com/oahumada/Stratos/commit/8d16cf23d9b0b85a8f40a57b105e6d26bea5b1dd))
+  **N+1 Fix:**
+  - Step2RoleCompetencyController::getSuccessionPlans — add with('skill') to ScenarioRoleSkill query; lazy-loading skill.name inside forEach loop 1219 tests passing, 0 failures
+  **API Documentation:**
+  - docs/API_NUEVOS_MODULOS.md: full reference for 17 new endpoints v0.12.0 Skill Intelligence x4, Performance AI x10, Org Chart x3
+  **Team Onboarding:**
+  - docs/GUIA_ONBOARDING_EQUIPO.md: complete guide for new team members
+  **Technical Debt Closure:**
+  - docs/DEUDA_TECNICA_CIERRE_2026_04_04.md: formal closure document Mobile viewport and dark mode deferred to Q3 Mobile Accessibility Sprint Staging K6 technically ready, blocked on DevOps env provisioning
+  **Zero open technical debt items after this commit.**
 
 ### [0.12.2](https://github.com/oahumada/Stratos/compare/v0.12.1...v0.12.2) (2026-04-04)
 

@@ -1,5 +1,5 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
-import auditLogs from './audit-logs'
+import notificationChannels from './notification-channels'
 /**
 * @see routes/web.php:48
 * @route '/admin/operations'
@@ -148,9 +148,84 @@ alertConfigurationForm.head = (options?: RouteQueryOptions): RouteFormDefinition
 
 alertConfiguration.form = alertConfigurationForm
 
+/**
+* @see routes/web.php:57
+* @route '/admin/audit-logs'
+*/
+export const auditLogs = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: auditLogs.url(options),
+    method: 'get',
+})
+
+auditLogs.definition = {
+    methods: ["get","head"],
+    url: '/admin/audit-logs',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:57
+* @route '/admin/audit-logs'
+*/
+auditLogs.url = (options?: RouteQueryOptions) => {
+    return auditLogs.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:57
+* @route '/admin/audit-logs'
+*/
+auditLogs.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: auditLogs.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:57
+* @route '/admin/audit-logs'
+*/
+auditLogs.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: auditLogs.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:57
+* @route '/admin/audit-logs'
+*/
+const auditLogsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: auditLogs.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:57
+* @route '/admin/audit-logs'
+*/
+auditLogsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: auditLogs.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:57
+* @route '/admin/audit-logs'
+*/
+auditLogsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: auditLogs.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+auditLogs.form = auditLogsForm
+
 const admin = {
     operations: Object.assign(operations, operations),
     auditLogs: Object.assign(auditLogs, auditLogs),
+    notificationChannels: Object.assign(notificationChannels, notificationChannels),
     alertConfiguration: Object.assign(alertConfiguration, alertConfiguration),
 }
 

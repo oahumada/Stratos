@@ -438,13 +438,3 @@ userActivityForm.head = (args: { userId: string | number } | [userId: string | n
 })
 
 userActivity.form = userActivityForm
-
-const auditLogs = {
-    index: Object.assign(index, index),
-    heatmap: Object.assign(heatmap, heatmap),
-    export: Object.assign(exportMethod, exportMethod),
-    timeline: Object.assign(timeline, timeline),
-    userActivity: Object.assign(userActivity, userActivity),
-}
-
-export default auditLogs

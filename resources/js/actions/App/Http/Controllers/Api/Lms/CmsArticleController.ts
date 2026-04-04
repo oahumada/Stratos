@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\Lms\CmsArticleController::store
-* @see app/Http/Controllers/Api/Lms/CmsArticleController.php:12
+* @see app/Http/Controllers/Api/Lms/CmsArticleController.php:14
 * @route '/api/lms/cms/articles'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Lms\CmsArticleController::store
-* @see app/Http/Controllers/Api/Lms/CmsArticleController.php:12
+* @see app/Http/Controllers/Api/Lms/CmsArticleController.php:14
 * @route '/api/lms/cms/articles'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Lms\CmsArticleController::store
-* @see app/Http/Controllers/Api/Lms/CmsArticleController.php:12
+* @see app/Http/Controllers/Api/Lms/CmsArticleController.php:14
 * @route '/api/lms/cms/articles'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Api\Lms\CmsArticleController::store
-* @see app/Http/Controllers/Api/Lms/CmsArticleController.php:12
+* @see app/Http/Controllers/Api/Lms/CmsArticleController.php:14
 * @route '/api/lms/cms/articles'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\Api\Lms\CmsArticleController::store
-* @see app/Http/Controllers/Api/Lms/CmsArticleController.php:12
+* @see app/Http/Controllers/Api/Lms/CmsArticleController.php:14
 * @route '/api/lms/cms/articles'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
