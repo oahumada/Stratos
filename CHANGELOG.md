@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.14](https://github.com/oahumada/Stratos/compare/v0.10.13...v0.10.14) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* Task 6 Complete - k6 Load Testing Installed and Executed ([b228b62](https://github.com/oahumada/Stratos/commit/b228b629ec90e579d4224e07fde771b2c7557d63))
+
 ### [0.10.13](https://github.com/oahumada/Stratos/compare/v0.10.12...v0.10.13) (2026-04-04)
 
 ### [0.10.12](https://github.com/oahumada/Stratos/compare/v0.10.11...v0.10.12) (2026-04-04)
