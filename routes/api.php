@@ -481,6 +481,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/scenarios/{id}/activate', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'activate']);
     Route::get('/scenarios/{id}/execution-plan', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'getExecutionPlan']);
 
+    // Workforce Planning Fase 2 — Motor de recomendaciones de palancas
+    Route::get('/scenarios/{id}/recommendations', [\App\Http\Controllers\Api\ClosureStrategyController::class, 'index']);
+    Route::post('/scenarios/{id}/recommendations/generate', [\App\Http\Controllers\Api\ClosureStrategyController::class, 'generate']);
+
     // Phase 2.5 - Workflow Enhancements (Notifications & Dashboard)
     Route::post('/approval-requests/{id}/resend-notification', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'resendNotification']);
     Route::post('/approval-requests/{id}/email-preview', [\App\Http\Controllers\Api\ScenarioApprovalController::class, 'emailPreview']);
