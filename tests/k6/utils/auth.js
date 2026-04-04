@@ -14,6 +14,7 @@ import { check, fail } from 'k6';
 export const BASE_URL = __ENV.K6_BASE_URL || 'http://localhost:8000';
 export const EMAIL = __ENV.K6_USER_EMAIL || 'admin@stratos.test';
 export const PASSWORD = __ENV.K6_USER_PASS || 'password';
+export const API_TOKEN = __ENV.K6_API_TOKEN || '';
 
 /**
  * Obtain a Sanctum session cookie via Fortify login.
@@ -22,6 +23,11 @@ export const PASSWORD = __ENV.K6_USER_PASS || 'password';
  * @returns {{ cookie: string }} serialized session cookie header value
  */
 export function login() {
+    // Fast path for local/staging automation using Sanctum Personal Access Token
+    if (API_TOKEN) {
+        return { token: API_TOKEN, mode: 'token' };
+    }
+
     // 1. Seed CSRF cookie
     const csrfRes = http.get(`${BASE_URL}/sanctum/csrf-cookie`, {
         headers: { Accept: 'application/json' },
@@ -69,6 +75,16 @@ export function login() {
  * @returns {import('k6/http').Params}
  */
 export function authParams(auth) {
+    if (auth?.mode === 'token' && auth?.token) {
+        return {
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${auth.token}`,
+            },
+        };
+    }
+
     return {
         headers: {
             Accept: 'application/json',

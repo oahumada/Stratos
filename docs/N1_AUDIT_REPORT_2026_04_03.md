@@ -56,5 +56,56 @@ Identificar endpoints con problemas N+1 para optimización.
 - [ ] Implement Redis caching for expensive queries
 - [ ] Monitor in staging
 
+## Performance Optimization Guide (Estado 4 Abr 2026)
+
+### 1) N+1 Mitigation Pattern (Laravel)
+
+- Aplicar eager loading con `with([...])` en listados y detalles.
+- Limitar columnas cuando aplique (`select`) para bajar payload.
+- Mantener paginación en endpoints de alto volumen.
+
+Patrón recomendado:
+
+```php
+$items = Model::query()
+    ->with(['relationA', 'relationB.nested'])
+    ->where('organization_id', $organizationId)
+    ->paginate(20);
+```
+
+### 2) Redis/Cache Strategy (actual implementado)
+
+Servicios con caching activo:
+
+- `app/Services/Cache/MetricsCacheService.php`
+- `app/Services/Caching/NotificationCacheService.php`
+- `app/Services/ScenarioPlanning/ExecutiveSummaryService.php`
+- `app/Services/GenerationRedisBuffer.php`
+
+Patrón recomendado:
+
+```php
+Cache::remember($key, now()->addMinutes(10), fn () => $expensiveQueryResult);
+```
+
+### 3) Invalidation Rules
+
+- Invalidar por dominio cuando cambia la entidad fuente (create/update/delete).
+- Usar llaves con prefijo por organización (`org:{id}:...`) para aislamiento multi-tenant.
+- Evitar TTL largos en datos críticos de operación (usar 5-15 min).
+
+### 4) Métricas objetivo para QA Window (4-6 Abr)
+
+- p95 API `< 200ms`
+- Error rate `< 1%`
+- Query avg por request `< 3` (endpoints críticos)
+- Cache hit rate `> 60%`
+
+### 5) Validación operativa inmediata
+
+- Ejecutar `NPlusOneAuditTest` y `NPlusOneFullScanTest`
+- Ejecutar k6 `rate-limit.js`, `cache-failover.js`, `n1-detection.js`
+- Comparar baseline vs post-optimización y registrar hallazgos en staging report
+
 ---
 Generated: 3 Abr 2026, 23:32 UTC

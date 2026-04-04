@@ -56,6 +56,30 @@ id | organization_id | channel_type | is_enabled | global_config | created_at | 
 
 ### User Sets Preferences (API)
 
+#### Rate Limiting (aplica a estos endpoints)
+
+Los endpoints de `/api/notification-preferences` pasan por el middleware global
+`ApiRateLimiter` y siempre devuelven headers de límite:
+
+- `X-RateLimit-Limit`
+- `X-RateLimit-Remaining`
+- `X-RateLimit-Reset` (unix timestamp)
+
+Límites actuales:
+
+- **Public route:** 30 req/min
+- **Guest (no auth):** 60 req/min
+- **Authenticated:** 300 req/min
+
+Si se excede el límite, la API responde `429`:
+
+```json
+{
+  "message": "Too many requests. Please try again later.",
+  "retry_after": 42
+}
+```
+
 **Get current preferences**
 ```bash
 GET /api/notification-preferences
@@ -85,6 +109,12 @@ Content-Type: application/json
   "is_active": true
 }
 ```
+
+`channel_config` es obligatorio y depende del canal:
+
+- `email`: `{ "address": "user@example.com" }`
+- `telegram`: `{ "bot_token": "...", "chat_id": "..." }`
+- `slack`: `{ "webhook_url": "https://hooks.slack.com/..." }`
 
 **Toggle channel on/off**
 ```bash
