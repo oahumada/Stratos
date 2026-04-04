@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.30](https://github.com/oahumada/Stratos/compare/v0.10.28...v0.10.30) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **workforce-planning:** Fase 2 — motor de recomendaciones con racional explicable ([6cd950a](https://github.com/oahumada/Stratos/commit/6cd950a05aaf20ecf8d2c5d7e1dc354867e8860e))
+
 ### [0.10.25](https://github.com/oahumada/Stratos/compare/v0.10.23...v0.10.25) (2026-04-04)
 
 
