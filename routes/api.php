@@ -1421,6 +1421,9 @@ Route::middleware('auth:sanctum')->prefix('strategic-planning')->group(function 
     Route::post('workforce-planning/scenarios/{id}/analyze', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'analyzeScenario']);
     Route::post('workforce-planning/scenarios/{id}/compare-baseline-impact', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'compareBaselineImpact']);
     Route::post('workforce-planning/scenarios/{id}/operational-sensitivity', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'operationalSensitivity']);
+    // Workforce Planning Fase 4 — Comparador multi-escenario + sensitivity sweep
+    Route::post('workforce-planning/scenarios/compare-multi', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'compareScenariosMulti']);
+    Route::post('workforce-planning/scenarios/{id}/sensitivity-sweep', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'sensitivitySweep']);
     Route::patch('workforce-planning/scenarios/{id}/status', [\App\Http\Controllers\Api\WorkforcePlanningController::class, 'updateScenarioStatus'])
         ->middleware('role:admin,hr_leader');
     Route::get('workforce-planning/scenarios/{id}/demand-lines', [\App\Http\Controllers\Api\WorkforceDemandLineController::class, 'index']);

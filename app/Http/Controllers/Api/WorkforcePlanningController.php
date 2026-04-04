@@ -4,16 +4,19 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\AnalyzeWorkforceOperationalSensitivityRequest;
 use App\Http\Requests\CompareWorkforceBaselineImpactRequest;
+use App\Http\Requests\CompareWorkforceScenariosRequest;
 use App\Http\Requests\StoreWorkforceActionPlanRequest;
 use App\Http\Requests\UpdateWorkforceActionPlanRequest;
 use App\Http\Requests\UpdateWorkforceScenarioStatusRequest;
 use App\Http\Requests\UpdateWorkforceThresholdsRequest;
+use App\Http\Requests\WorkforceSensitivitySweepRequest;
 use App\Models\AuditLog;
 use App\Models\IntelligenceMetricAggregate;
 use App\Models\Organization;
 use App\Models\Scenario;
 use App\Models\WorkforceActionPlan;
 use App\Models\WorkforceDemandLine;
+use App\Services\ScenarioComparatorService;
 use App\Services\WorkforcePlanningService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,7 +32,10 @@ class WorkforcePlanningController extends Controller
 
     private const SCENARIO_STATUS_TRANSITION_INVALID_MESSAGE = 'Transición de estado no permitida para Workforce Planning';
 
-    public function __construct(private WorkforcePlanningService $workforcePlanningService) {}
+    public function __construct(
+        private WorkforcePlanningService $workforcePlanningService,
+        private ScenarioComparatorService $comparatorService,
+    ) {}
 
     public function thresholds(): JsonResponse
     {
@@ -672,5 +678,66 @@ class WorkforcePlanningController extends Controller
         }
 
         return $alerts;
+    }
+
+    /**
+     * POST /api/strategic-planning/workforce-planning/scenarios/compare-multi
+     * Compara múltiples escenarios del mismo tenant side-by-side.
+     */
+    public function compareScenariosMulti(CompareWorkforceScenariosRequest $request): JsonResponse
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return $this->unauthorizedResponse();
+        }
+
+        $organizationId = (int) (($user->current_organization_id ?? $user->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return $this->errorResponse(self::WORKFORCE_ORG_RESOLUTION_ERROR, 422);
+        }
+
+        $ids = (array) $request->validated('scenario_ids');
+
+        $scenarios = Scenario::query()
+            ->where('organization_id', $organizationId)
+            ->whereIn('id', $ids)
+            ->get();
+
+        if ($scenarios->count() < 2) {
+            return $this->errorResponse('Se requieren al menos 2 escenarios válidos del mismo tenant.', 422);
+        }
+
+        $result = $this->comparatorService->compareMulti($scenarios);
+
+        return $this->successResponse($result);
+    }
+
+    /**
+     * POST /api/strategic-planning/workforce-planning/scenarios/{id}/sensitivity-sweep
+     * Ejecuta un sweep de sensibilidad para un escenario.
+     */
+    public function sensitivitySweep(WorkforceSensitivitySweepRequest $request, int $id): JsonResponse
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return $this->unauthorizedResponse();
+        }
+
+        $organizationId = (int) (($user->current_organization_id ?? $user->organization_id) ?? 0);
+        if ($organizationId <= 0) {
+            return $this->errorResponse(self::WORKFORCE_ORG_RESOLUTION_ERROR, 422);
+        }
+
+        $scenario = Scenario::query()
+            ->where('organization_id', $organizationId)
+            ->find($id);
+
+        if (! $scenario) {
+            return $this->notFoundResponse(self::SCENARIO_NOT_FOUND);
+        }
+
+        $result = $this->comparatorService->sensitivitySweep($scenario, $request->validated());
+
+        return $this->successResponse($result);
     }
 }
