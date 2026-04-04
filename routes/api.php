@@ -1705,6 +1705,20 @@ Route::middleware(['auth:sanctum'])->prefix('skill-intelligence')->group(functio
     Route::get('coverage', [\App\Http\Controllers\Api\SkillIntelligenceController::class, 'coverage'])->name('skill-intelligence.coverage');
 });
 
+// ── Performance AI ──
+Route::middleware(['auth:sanctum'])->prefix('performance')->group(function () {
+    Route::get('cycles', [\App\Http\Controllers\Api\PerformanceController::class, 'indexCycles'])->name('performance.cycles.index');
+    Route::post('cycles', [\App\Http\Controllers\Api\PerformanceController::class, 'storeCycle'])->name('performance.cycles.store');
+    Route::get('cycles/{id}', [\App\Http\Controllers\Api\PerformanceController::class, 'showCycle'])->name('performance.cycles.show');
+    Route::post('cycles/{id}/activate', [\App\Http\Controllers\Api\PerformanceController::class, 'activateCycle'])->name('performance.cycles.activate');
+    Route::post('cycles/{id}/close', [\App\Http\Controllers\Api\PerformanceController::class, 'closeCycle'])->name('performance.cycles.close');
+    Route::get('cycles/{cycleId}/reviews', [\App\Http\Controllers\Api\PerformanceController::class, 'indexReviews'])->name('performance.reviews.index');
+    Route::post('cycles/{cycleId}/reviews', [\App\Http\Controllers\Api\PerformanceController::class, 'storeReview'])->name('performance.reviews.store');
+    Route::patch('cycles/{cycleId}/reviews/{reviewId}', [\App\Http\Controllers\Api\PerformanceController::class, 'updateReview'])->name('performance.reviews.update');
+    Route::post('cycles/{id}/calibrate', [\App\Http\Controllers\Api\PerformanceController::class, 'calibrateCycle'])->name('performance.cycles.calibrate');
+    Route::get('cycles/{id}/insights', [\App\Http\Controllers\Api\PerformanceController::class, 'insights'])->name('performance.cycles.insights');
+});
+
 // ── Admin Operations: Critical Operational Tasks (Alpha-1) ──
 Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     // Operations audit trail & management

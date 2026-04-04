@@ -338,6 +338,10 @@ Route::get('/skill-intelligence', function () {
     return Inertia::render('SkillIntelligence/Index');
 })->middleware(['auth', 'verified'])->name('skill-intelligence.index');
 
+Route::get('/performance', function () {
+    return Inertia::render('Performance/Index');
+})->middleware(['auth', 'verified'])->name('performance.index');
+
 Route::get('/quality-hub', function () {
     return Inertia::render('Quality/QualityHub');
 })->middleware(['auth', 'verified'])->name('quality.hub');

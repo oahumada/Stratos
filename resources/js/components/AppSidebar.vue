@@ -231,6 +231,12 @@ const allNavItems: NavItem[] = [
         icon: defineComponent(() => () => h(PhBrain, { size: 20 })),
         requiredRole: ['admin', 'hr_leader'],
     },
+    {
+        title: 'Performance AI',
+        href: '/performance',
+        icon: defineComponent(() => () => h(PhChartLineUp, { size: 20 })),
+        requiredRole: ['admin', 'hr_leader'],
+    },
     // Talento 360 — requires assessments.view
     {
         title: 'Talento 360°',
