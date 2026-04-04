@@ -32,7 +32,10 @@ import {
     PhLockKey,
     PhMagnifyingGlass,
     PhMapTrifold,
+    PhPath,
+    PhPencilLine,
     PhPuzzlePiece,
+    PhQuestion,
     PhRobot,
     PhRocketLaunch,
     PhScroll,
@@ -157,13 +160,19 @@ const allNavItems: NavItem[] = [
         icon: defineComponent(() => () => h(PhUsersFour, { size: 20 })),
         requiredPermission: 'people.view',
     },
-    // Learning Paths — requires people.view
+    // Learning Paths — LMS learning paths with prerequisites
     {
-        title: 'Learning Paths',
-        href: '/learning-paths',
-        icon: PhStar,
-        requiredPermission: 'people.view',
-        requiredModule: 'st-grow',
+        title: 'Rutas de Aprendizaje',
+        href: '/lms/learning-paths',
+        icon: defineComponent(() => () => h(PhPath, { size: 20 })),
+        requiredPermission: 'lms.courses.view',
+    },
+    // Quiz Builder (instructors)
+    {
+        title: 'Quizzes',
+        href: '/lms/quiz-builder',
+        icon: defineComponent(() => () => h(PhQuestion, { size: 20 })),
+        requiredRole: ['admin', 'hr_leader'],
     },
     // Course Designer (AI-assisted)
     {

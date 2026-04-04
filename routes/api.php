@@ -436,6 +436,29 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/lms/course-designer/{id}/review', [\App\Http\Controllers\Api\Lms\CourseDesignerController::class, 'review']);
     Route::get('/lms/course-designer/{id}/preview', [\App\Http\Controllers\Api\Lms\CourseDesignerController::class, 'preview']);
 
+    // LMS Quiz module
+    Route::get('/lms/quizzes', [\App\Http\Controllers\Api\Lms\QuizController::class, 'index'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/quizzes', [\App\Http\Controllers\Api\Lms\QuizController::class, 'store'])->middleware('permission:lms.courses.manage');
+    Route::get('/lms/quizzes/{id}', [\App\Http\Controllers\Api\Lms\QuizController::class, 'show'])->middleware('permission:lms.courses.view');
+    Route::put('/lms/quizzes/{id}', [\App\Http\Controllers\Api\Lms\QuizController::class, 'update'])->middleware('permission:lms.courses.manage');
+    Route::delete('/lms/quizzes/{id}', [\App\Http\Controllers\Api\Lms\QuizController::class, 'destroy'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/quizzes/{id}/start', [\App\Http\Controllers\Api\Lms\QuizController::class, 'startAttempt'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/quizzes/{id}/submit', [\App\Http\Controllers\Api\Lms\QuizController::class, 'submitAttempt'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/quizzes/{id}/attempts', [\App\Http\Controllers\Api\Lms\QuizController::class, 'attempts'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/quizzes/{id}/stats', [\App\Http\Controllers\Api\Lms\QuizController::class, 'stats'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/quizzes/{id}/generate-questions', [\App\Http\Controllers\Api\Lms\QuizController::class, 'generateQuestions'])->middleware('permission:lms.courses.manage');
+
+    // Learning Paths
+    Route::post('/lms/learning-paths/generate', [\App\Http\Controllers\Api\Lms\LearningPathController::class, 'generate'])->middleware('permission:lms.courses.manage');
+    Route::get('/lms/learning-paths', [\App\Http\Controllers\Api\Lms\LearningPathController::class, 'index'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/learning-paths', [\App\Http\Controllers\Api\Lms\LearningPathController::class, 'store'])->middleware('permission:lms.courses.manage');
+    Route::get('/lms/learning-paths/{id}', [\App\Http\Controllers\Api\Lms\LearningPathController::class, 'show'])->middleware('permission:lms.courses.view');
+    Route::put('/lms/learning-paths/{id}', [\App\Http\Controllers\Api\Lms\LearningPathController::class, 'update'])->middleware('permission:lms.courses.manage');
+    Route::delete('/lms/learning-paths/{id}', [\App\Http\Controllers\Api\Lms\LearningPathController::class, 'destroy'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/learning-paths/{id}/enroll', [\App\Http\Controllers\Api\Lms\LearningPathController::class, 'enroll'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/learning-paths/{id}/progress', [\App\Http\Controllers\Api\Lms\LearningPathController::class, 'progress'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/learning-paths/{id}/recalculate', [\App\Http\Controllers\Api\Lms\LearningPathController::class, 'recalculate'])->middleware('permission:lms.courses.view');
+
     // Social Learning & Mentorship Knowledge Transfer
     Route::get('/social-learning/dashboard', [\App\Http\Controllers\Api\SocialLearningController::class, 'dashboard']);
     Route::get('/social-learning/matches/{skillId}', [\App\Http\Controllers\Api\SocialLearningController::class, 'matches']);

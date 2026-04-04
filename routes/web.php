@@ -160,6 +160,18 @@ Route::get('/lms/course-designer', fn () => Inertia::render('Lms/CourseDesigner'
     ->middleware(['auth', 'verified'])
     ->name('lms.course-designer');
 
+Route::get('/lms/quiz/{quizId}', fn ($quizId) => Inertia::render('Lms/QuizPlayer', ['quizId' => (int) $quizId]))
+    ->middleware(['auth', 'verified'])
+    ->name('lms.quiz-player');
+
+Route::get('/lms/quiz-builder/{quizId?}', fn ($quizId = null) => Inertia::render('Lms/QuizBuilder', ['quizId' => $quizId ? (int) $quizId : null]))
+    ->middleware(['auth', 'verified'])
+    ->name('lms.quiz-builder');
+
+Route::get('/lms/learning-paths', fn () => Inertia::render('Lms/LearningPaths'))
+    ->middleware(['auth', 'verified'])
+    ->name('lms.learning-paths');
+
 Route::get('/lms', function () {
     /** @var \App\Models\User $user */
     $user = Auth::user();

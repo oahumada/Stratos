@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults, validateParameters } from './../../wayfinder'
 import courses from './courses'
 /**
 * @see routes/web.php:159
@@ -76,6 +76,268 @@ courseDesigner.form = courseDesignerForm
 
 /**
 * @see routes/web.php:163
+* @route '/lms/quiz/{quizId}'
+*/
+export const quizPlayer = (args: { quizId: string | number } | [quizId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: quizPlayer.url(args, options),
+    method: 'get',
+})
+
+quizPlayer.definition = {
+    methods: ["get","head"],
+    url: '/lms/quiz/{quizId}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:163
+* @route '/lms/quiz/{quizId}'
+*/
+quizPlayer.url = (args: { quizId: string | number } | [quizId: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { quizId: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            quizId: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        quizId: args.quizId,
+    }
+
+    return quizPlayer.definition.url
+            .replace('{quizId}', parsedArgs.quizId.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see routes/web.php:163
+* @route '/lms/quiz/{quizId}'
+*/
+quizPlayer.get = (args: { quizId: string | number } | [quizId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: quizPlayer.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:163
+* @route '/lms/quiz/{quizId}'
+*/
+quizPlayer.head = (args: { quizId: string | number } | [quizId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: quizPlayer.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:163
+* @route '/lms/quiz/{quizId}'
+*/
+const quizPlayerForm = (args: { quizId: string | number } | [quizId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: quizPlayer.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:163
+* @route '/lms/quiz/{quizId}'
+*/
+quizPlayerForm.get = (args: { quizId: string | number } | [quizId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: quizPlayer.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:163
+* @route '/lms/quiz/{quizId}'
+*/
+quizPlayerForm.head = (args: { quizId: string | number } | [quizId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: quizPlayer.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+quizPlayer.form = quizPlayerForm
+
+/**
+* @see routes/web.php:167
+* @route '/lms/quiz-builder/{quizId?}'
+*/
+export const quizBuilder = (args?: { quizId?: string | number } | [quizId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: quizBuilder.url(args, options),
+    method: 'get',
+})
+
+quizBuilder.definition = {
+    methods: ["get","head"],
+    url: '/lms/quiz-builder/{quizId?}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:167
+* @route '/lms/quiz-builder/{quizId?}'
+*/
+quizBuilder.url = (args?: { quizId?: string | number } | [quizId: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { quizId: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            quizId: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    validateParameters(args, [
+        "quizId",
+    ])
+
+    const parsedArgs = {
+        quizId: args?.quizId,
+    }
+
+    return quizBuilder.definition.url
+            .replace('{quizId?}', parsedArgs.quizId?.toString() ?? '')
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see routes/web.php:167
+* @route '/lms/quiz-builder/{quizId?}'
+*/
+quizBuilder.get = (args?: { quizId?: string | number } | [quizId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: quizBuilder.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:167
+* @route '/lms/quiz-builder/{quizId?}'
+*/
+quizBuilder.head = (args?: { quizId?: string | number } | [quizId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: quizBuilder.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:167
+* @route '/lms/quiz-builder/{quizId?}'
+*/
+const quizBuilderForm = (args?: { quizId?: string | number } | [quizId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: quizBuilder.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:167
+* @route '/lms/quiz-builder/{quizId?}'
+*/
+quizBuilderForm.get = (args?: { quizId?: string | number } | [quizId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: quizBuilder.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:167
+* @route '/lms/quiz-builder/{quizId?}'
+*/
+quizBuilderForm.head = (args?: { quizId?: string | number } | [quizId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: quizBuilder.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+quizBuilder.form = quizBuilderForm
+
+/**
+* @see routes/web.php:171
+* @route '/lms/learning-paths'
+*/
+export const learningPaths = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: learningPaths.url(options),
+    method: 'get',
+})
+
+learningPaths.definition = {
+    methods: ["get","head"],
+    url: '/lms/learning-paths',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:171
+* @route '/lms/learning-paths'
+*/
+learningPaths.url = (options?: RouteQueryOptions) => {
+    return learningPaths.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:171
+* @route '/lms/learning-paths'
+*/
+learningPaths.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: learningPaths.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:171
+* @route '/lms/learning-paths'
+*/
+learningPaths.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: learningPaths.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:171
+* @route '/lms/learning-paths'
+*/
+const learningPathsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: learningPaths.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:171
+* @route '/lms/learning-paths'
+*/
+learningPathsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: learningPaths.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:171
+* @route '/lms/learning-paths'
+*/
+learningPathsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: learningPaths.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+learningPaths.form = learningPathsForm
+
+/**
+* @see routes/web.php:175
 * @route '/lms'
 */
 export const landing = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -89,7 +351,7 @@ landing.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:163
+* @see routes/web.php:175
 * @route '/lms'
 */
 landing.url = (options?: RouteQueryOptions) => {
@@ -97,7 +359,7 @@ landing.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:163
+* @see routes/web.php:175
 * @route '/lms'
 */
 landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -106,7 +368,7 @@ landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:163
+* @see routes/web.php:175
 * @route '/lms'
 */
 landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -115,7 +377,7 @@ landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:163
+* @see routes/web.php:175
 * @route '/lms'
 */
 const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -124,7 +386,7 @@ const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 })
 
 /**
-* @see routes/web.php:163
+* @see routes/web.php:175
 * @route '/lms'
 */
 landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -133,7 +395,7 @@ landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:163
+* @see routes/web.php:175
 * @route '/lms'
 */
 landingForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -150,6 +412,9 @@ landing.form = landingForm
 
 const lms = {
     courseDesigner: Object.assign(courseDesigner, courseDesigner),
+    quizPlayer: Object.assign(quizPlayer, quizPlayer),
+    quizBuilder: Object.assign(quizBuilder, quizBuilder),
+    learningPaths: Object.assign(learningPaths, learningPaths),
     landing: Object.assign(landing, landing),
     courses: Object.assign(courses, courses),
 }

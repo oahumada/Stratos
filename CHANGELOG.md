@@ -10,6 +10,22 @@ All notable changes to this project will be documented in this file. See [standa
 ### ✨ Nuevas Funcionalidades
 
 * **lms:** Course Designer — AI-assisted course creation with Arquitecto de Aprendizaje ([cf7faa0](https://github.com/oahumada/Stratos/commit/cf7faa06cb64b8f75324d2be7d58a28cec716d30))
+  **Backend:**
+  - CourseDesignerService: 4 methods orchestrating AI agents
+  - generateOutline: calls 'Arquitecto de Aprendizaje' agent to produce course_outline, learning_objectives, modules with lessons, assessment_plan
+  - generateLessonContent: calls ContentAgentService to generate HTML content per lesson (article, video_script, exercise)
+  - persistCourse: transaction-based creation of LmsCourse + LmsModules + LmsLessons from the designed structure
+  - reviewCourse: AI review with score (0-100), strengths, improvements
+  - CourseDesignerController: 5 endpoints under /api/lms/course-designer
+  - Routes: generate-outline, generate-content, persist, {id}/review, {id}/preview
+  **Frontend:**
+  - Lms/CourseDesigner.vue: 5-step Vuetify wizard Step 1 (Diseño IA): topic + audience + skill gaps + level → AI generates outline Step 2 (Estructura): edit modules/lessons, add/remove, reorder Step 3 (Contenido): per-lesson AI content generation + manual edit Step 4 (Configuración): metadata, XP, certificate policy, template selector Step 5 (Revisión): AI review score + save draft / publish
+  - AppSidebar: 'Diseñador de Cursos' entry (PhPencilLine, admin/hr_leader)
+  - Web route: /lms/course-designer
+  **Tests: 8 passing (35 assertions) — CourseDesignerTest**
+  - AI outline generation, content generation, persist with nested relations
+  - Organization scoping, preview with eager loading, AI review
+  - Auth required (401), cross-tenant prevention (404)
 
 ### [0.12.6](https://github.com/oahumada/Stratos/compare/v0.12.5...v0.12.6) (2026-04-04)
 
