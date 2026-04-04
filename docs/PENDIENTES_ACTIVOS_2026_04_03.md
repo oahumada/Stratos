@@ -272,3 +272,30 @@ Estos documentos **no se eliminan**, pero dejan de ser fuente operativa principa
 **Documento: PENDIENTES_ACTIVOS_2026_04_03.md**  
 **Última actualización: 3 Abr 2026, 23:22 UTC**  
 **Estado: VIGENTE Y OPERATIVO**
+
+---
+
+## 4) QA Window — Resultado (4 Abr 2026)
+
+### ✅ QA APROBADO — GO PARA RELEASE
+
+**Fecha:** 4 Abr 2026  
+**Versión:** v0.10.25  
+**Suite de tests:** 1146 passing, 0 failed, 6 skipped  
+
+#### Checklist QA completado:
+
+| Item | Estado |
+|---|---|
+| Suite completa tests | ✅ 1146/1146 (0 failures) |
+| Migraciones pendientes PROD | ✅ 0 pendientes |
+| Release tag | ✅ v0.10.25 generado + CHANGELOG |
+| Tests reparados (QA) | ✅ 6 tests corregidos (WorkforcePlanning + SSO) |
+| N+1 fixes aplicados | ✅ ScenarioApprovalController + ScenarioController |
+| DB indexes aplicados | ✅ approval_requests + development_actions |
+| Documentación | ✅ Rate limiting + Performance Guide + Load Testing Report |
+
+#### Decisión:
+> **✅ GO PARA RELEASE (7 Abr) y PROD (8 Abr)**  
+> v0.10.25 es estable. 0 regresiones. Deuda técnica del sprint saldada.
+
