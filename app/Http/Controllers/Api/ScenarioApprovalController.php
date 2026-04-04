@@ -176,9 +176,10 @@ class ScenarioApprovalController extends Controller
         // Authorization
         $this->authorize('view', $scenario);
 
-        // Get approval requests for this scenario
+        // Get approval requests for this scenario (with eager-loaded approver to avoid N+1)
         $approvalRequests = ApprovalRequest::where('approvable_id', $scenario->id)
             ->where('approvable_type', Scenario::class)
+            ->with('approver')
             ->get();
 
         // Build approver status list

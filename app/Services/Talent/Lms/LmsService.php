@@ -292,10 +292,11 @@ class LmsService
             return;
         }
 
+        $xpEarned = $enrollment->xp_earned ?? 0;
         $this->notificationDispatcher->dispatchToUser(
             $user,
             "Course Completed: {$course->name}",
-            "You have successfully completed the course **{$course->name}** and earned {$enrollment->xp_earned ?? 0} XP.",
+            "You have successfully completed the course **{$course->name}** and earned {$xpEarned} XP.",
             ['course_id' => $course->id, 'enrollment_id' => $enrollment->id]
         );
     }

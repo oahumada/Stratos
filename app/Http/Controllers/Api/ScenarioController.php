@@ -455,17 +455,18 @@ class ScenarioController extends Controller
         // Create strategies based on actual skill gaps (high priority)
         $gaps = \App\Models\ScenarioRoleSkill::where('scenario_id', $scenario->id)
             ->whereRaw('required_level > current_level')
+            ->with(['scenarioRole.role'])
             ->get();
 
         foreach ($gaps as $gap) {
             // Obtener el Blueprint de talento para el rol, si existe
             // $gap->role_id refers to likely ScenarioRole id in this context (Step 2 logic)
-            $scenarioRole = \App\Models\ScenarioRole::find($gap->role_id);
+            $scenarioRole = $gap->scenarioRole;
             if (! $scenarioRole) {
                 continue;
             }
 
-            $role = \App\Models\Roles::find($scenarioRole->role_id);
+            $role = $scenarioRole->role;
             if (! $role) {
                 continue;
             }
