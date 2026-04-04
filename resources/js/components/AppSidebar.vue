@@ -225,6 +225,12 @@ const allNavItems: NavItem[] = [
         icon: defineComponent(() => () => h(PhGraph, { size: 20 })),
         requiredRole: ['admin', 'hr_leader'],
     },
+    {
+        title: 'Skill Intelligence',
+        href: '/skill-intelligence',
+        icon: defineComponent(() => () => h(PhBrain, { size: 20 })),
+        requiredRole: ['admin', 'hr_leader'],
+    },
     // Talento 360 — requires assessments.view
     {
         title: 'Talento 360°',

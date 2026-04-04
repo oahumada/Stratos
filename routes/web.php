@@ -334,6 +334,10 @@ Route::get('/workforce-planning/comparador', function () {
     return Inertia::render('WorkforcePlanning/Comparador');
 })->middleware(['auth', 'verified'])->name('workforce-planning.comparador');
 
+Route::get('/skill-intelligence', function () {
+    return Inertia::render('SkillIntelligence/Index');
+})->middleware(['auth', 'verified'])->name('skill-intelligence.index');
+
 Route::get('/quality-hub', function () {
     return Inertia::render('Quality/QualityHub');
 })->middleware(['auth', 'verified'])->name('quality.hub');

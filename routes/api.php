@@ -1697,6 +1697,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('notification-preferences/{channelType}', [\App\Http\Controllers\Api\NotificationPreferencesController::class, 'destroy'])->name('notification-preferences.destroy');
 });
 
+// ── Skill Intelligence v2 ──
+Route::middleware(['auth:sanctum'])->prefix('skill-intelligence')->group(function () {
+    Route::get('heatmap', [\App\Http\Controllers\Api\SkillIntelligenceController::class, 'heatmap'])->name('skill-intelligence.heatmap');
+    Route::get('top-gaps', [\App\Http\Controllers\Api\SkillIntelligenceController::class, 'topGaps'])->name('skill-intelligence.top-gaps');
+    Route::get('upskilling', [\App\Http\Controllers\Api\SkillIntelligenceController::class, 'upskilling'])->name('skill-intelligence.upskilling');
+    Route::get('coverage', [\App\Http\Controllers\Api\SkillIntelligenceController::class, 'coverage'])->name('skill-intelligence.coverage');
+});
+
 // ── Admin Operations: Critical Operational Tasks (Alpha-1) ──
 Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     // Operations audit trail & management
