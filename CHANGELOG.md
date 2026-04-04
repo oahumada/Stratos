@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.23](https://github.com/oahumada/Stratos/compare/v0.10.22...v0.10.23) (2026-04-04)
+
+
+### 🐛 Correcciones de Bugs
+
+* **n1:** eager load N+1 fixes + query performance tests + LmsService syntax ([8d8edc8](https://github.com/oahumada/Stratos/commit/8d8edc82799f0dae676e5e07c5bcbadccaf07aea))
+
 ### [0.10.22](https://github.com/oahumada/Stratos/compare/v0.10.20...v0.10.22) (2026-04-04)
 
 
