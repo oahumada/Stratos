@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.11.5](https://github.com/oahumada/Stratos/compare/v0.11.4...v0.11.5) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **wfp:** Workforce Planning Fases 2-4 frontend pages ([19a35f3](https://github.com/oahumada/Stratos/commit/19a35f3c84f419bfc797dc7a31f7a017893e5e29))
+
 ### [0.11.4](https://github.com/oahumada/Stratos/compare/v0.11.3...v0.11.4) (2026-04-04)
 
 
