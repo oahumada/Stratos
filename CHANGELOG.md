@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.20.1](https://github.com/oahumada/Stratos/compare/v0.19.1...v0.20.1) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **lms:** add Integrations & Marketplace module (G8) — final gap sprint ([bc27a74](https://github.com/oahumada/Stratos/commit/bc27a7431244dc861eaf98ede1ebf7010e0aa921))
+
 ### [0.19.1](https://github.com/oahumada/Stratos/compare/v0.18.1...v0.19.1) (2026-04-04)
 
 
