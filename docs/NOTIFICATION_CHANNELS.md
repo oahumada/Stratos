@@ -9,10 +9,12 @@ Users can configure multiple notification channels (Slack, Telegram, Email) at t
 ### Core Components
 
 **NotificationChannelInterface** (`app/Services/Notifications/Contracts/`)
+
 - Contract all channels must implement
 - Methods: `send()`, `getChannelType()`, `validateConfig()`
 
 **NotificationDispatcher** (`app/Services/Notifications/NotificationDispatcher.php`)
+
 - Central service that routes notifications
 - `dispatchToUser($user, $title, $message, $context)`: Send to user's enabled channels
 - `dispatchToOrganization($orgId, $title, $message, $context)`: Broadcast to org-level enabled channels
@@ -21,33 +23,37 @@ Users can configure multiple notification channels (Slack, Telegram, Email) at t
 **Channel Implementations**
 
 1. **SlackNotificationChannel**
-   - Requires webhook URL
-   - Sends formatted message blocks
-   - Config: `{ webhook_url: "https://hooks.slack.com/..." }`
+    - Requires webhook URL
+    - Sends formatted message blocks
+    - Config: `{ webhook_url: "https://hooks.slack.com/..." }`
 
 2. **TelegramNotificationChannel**
-   - Requires bot token + chat_id
-   - Sends markdown-formatted messages
-   - Config: `{ bot_token: "...", chat_id: "..." }`
+    - Requires bot token + chat_id
+    - Sends markdown-formatted messages
+    - Config: `{ bot_token: "...", chat_id: "..." }`
 
 3. **EmailNotificationChannel**
-   - Uses Laravel Mail facade
-   - Config: `{ email: "user@example.com" }`
+    - Uses Laravel Mail facade
+    - Config: `{ email: "user@example.com" }`
 
 ### Database
 
 **user_notification_channels**
+
 ```sql
 id | user_id | organization_id | channel_type | channel_config | is_active | created_at | updated_at
 ```
+
 - Stores user's channel preferences
 - `channel_config`: JSON with channel-specific settings
 - Unique constraint: (user_id, channel_type)
 
 **notification_channel_settings**
+
 ```sql
 id | organization_id | channel_type | is_enabled | global_config | created_at | updated_at
 ```
+
 - Organization-level channel availability
 - `is_enabled`: whether this channel is available for users in this org
 - `global_config`: shared settings (e.g., org Slack webhook)
@@ -75,27 +81,31 @@ Si se excede el límite, la API responde `429`:
 
 ```json
 {
-  "message": "Too many requests. Please try again later.",
-  "retry_after": 42
+    "message": "Too many requests. Please try again later.",
+    "retry_after": 42
 }
 ```
 
 **Get current preferences**
+
 ```bash
 GET /api/notification-preferences
 ```
+
 Response:
+
 ```json
 {
-  "preferences": [
-    { "channel_type": "email", "is_active": true, "created_at": "..." },
-    { "channel_type": "telegram", "is_active": true, "created_at": "..." }
-  ],
-  "available_channels": ["slack", "telegram", "email"]
+    "preferences": [
+        { "channel_type": "email", "is_active": true, "created_at": "..." },
+        { "channel_type": "telegram", "is_active": true, "created_at": "..." }
+    ],
+    "available_channels": ["slack", "telegram", "email"]
 }
 ```
 
 **Add or update channel**
+
 ```bash
 POST /api/notification-preferences
 Content-Type: application/json
@@ -117,11 +127,13 @@ Content-Type: application/json
 - `slack`: `{ "webhook_url": "https://hooks.slack.com/..." }`
 
 **Toggle channel on/off**
+
 ```bash
 POST /api/notification-preferences/telegram/toggle
 ```
 
 **Remove channel**
+
 ```bash
 DELETE /api/notification-preferences/slack
 ```
@@ -133,7 +145,7 @@ use App\Services\Notifications\NotificationDispatcher;
 
 class YourService {
     public function __construct(protected NotificationDispatcher $dispatcher) {}
-    
+
     public function notifyUser($user) {
         $results = $this->dispatcher->dispatchToUser(
             user: $user,
@@ -141,7 +153,7 @@ class YourService {
             message: "Your training course has been completed!",
             context: ['course_id' => 123]
         );
-        
+
         // $results = ['email' => true, 'telegram' => true, 'slack' => false]
     }
 }
@@ -161,11 +173,13 @@ $this->dispatcher->dispatchToOrganization(
 ### Integration: LMS Course Completion
 
 When course is completed:
+
 ```php
 $lmsService->notifyCourseCompletion($enrollment);
 ```
 
 This sends to user via their configured channels:
+
 - Default: Email (if no preferences set)
 - Configured: Slack + Telegram + Email (as per user preferences)
 
@@ -184,6 +198,7 @@ TELEGRAM_BOT_TOKEN=123:ABC...
 Users configure channels via API `/api/notification-preferences`.
 
 Admin can seed initial settings via:
+
 ```php
 use App\Models\NotificationChannelSetting;
 
@@ -198,6 +213,7 @@ NotificationChannelSetting::create([
 ## Extending: Add New Channel
 
 1. **Create channel class**
+
 ```php
 namespace App\Services\Notifications\Channels;
 
@@ -207,11 +223,11 @@ class WhatsAppNotificationChannel implements NotificationChannelInterface {
     public function send(string $title, string $message, array $data = []): bool {
         // Implementation
     }
-    
+
     public function getChannelType(): string {
         return 'whatsapp';
     }
-    
+
     public function validateConfig(array $config): array {
         return []; // Return errors or empty if valid
     }
@@ -219,6 +235,7 @@ class WhatsAppNotificationChannel implements NotificationChannelInterface {
 ```
 
 2. **Register in dispatcher** (e.g., in AppServiceProvider)
+
 ```php
 app(NotificationDispatcher::class)->registerChannel(
     'whatsapp',
@@ -227,6 +244,7 @@ app(NotificationDispatcher::class)->registerChannel(
 ```
 
 3. **Update validation** in `NotificationPreferencesController`:
+
 ```php
 'channel_type' => 'required|string|in:slack,telegram,email,whatsapp',
 ```
@@ -238,11 +256,13 @@ app(NotificationDispatcher::class)->registerChannel(
 All channel implementations catch exceptions and return `false` on failure. Errors are logged with `Log::error()`.
 
 If a channel fails:
+
 - Other channels still execute
 - Failure doesn't block notification dispatch
 - Error logged for debugging
 
 Example:
+
 ```php
 $results = $dispatcher->dispatchToUser($user, 'Test', 'Test message');
 // ['email' => true, 'telegram' => false] // telegram API error, but email sent
@@ -262,6 +282,7 @@ php artisan test tests/Feature/NotificationMultiChannelTest.php
 ```
 
 Coverage:
+
 - User CRUD operations on channels
 - Dispatcher logic (multi-channel send)
 - Model relationships

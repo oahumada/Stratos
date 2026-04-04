@@ -9,13 +9,13 @@
 
 ### Status Overall: ✅ PHASE 2-3 COMPLETE
 
-| Componente | Tareas | Status | Tests |
-|---|---|---|---|
-| **Phase 1** | 4/4 (Rate limiting, N+1 audit, caching) | ✅ COMPLETE | 10 ✅ |
-| **Phase 2 - E2E Tests** | 22 tests (3 suites) | ✅ COMPLETE | 22 ✅ |
-| **Phase 2 - Load Testing** | k6 script (5 scenarios) | ✅ READY | Script |
-| **Phase 3 - Integration** | 12 tests (failover, multi-tenancy) | ✅ COMPLETE | 12 ✅ |
-| **Total Session** | 48 tests + docs + script | ✅ DELIVERED | 44+ |
+| Componente                 | Tareas                                  | Status       | Tests  |
+| -------------------------- | --------------------------------------- | ------------ | ------ |
+| **Phase 1**                | 4/4 (Rate limiting, N+1 audit, caching) | ✅ COMPLETE  | 10 ✅  |
+| **Phase 2 - E2E Tests**    | 22 tests (3 suites)                     | ✅ COMPLETE  | 22 ✅  |
+| **Phase 2 - Load Testing** | k6 script (5 scenarios)                 | ✅ READY     | Script |
+| **Phase 3 - Integration**  | 12 tests (failover, multi-tenancy)      | ✅ COMPLETE  | 12 ✅  |
+| **Total Session**          | 48 tests + docs + script                | ✅ DELIVERED | 44+    |
 
 ---
 
@@ -28,22 +28,22 @@
 ```
 test('user can retrieve notification preferences')
   - Validates GET /api/notification-preferences returns user's channels
-  
+
 test('user can add email notification channel')
   - Tests POST with email channel creation
-  
+
 test('user can toggle slack notification channel')
   - Tests POST toggle endpoint
-  
+
 test('user can add telegram notification channel')
   - Tests Telegram channel creation
-  
+
 test('user can delete notification channel')
   - Tests DELETE endpoint soft-delete
-  
+
 test('user cannot access other user notification preferences')
   - Validates access control
-  
+
 test('notification preferences are scoped by organization')
   - Validates multi-tenancy isolation
 ```
@@ -57,16 +57,16 @@ test('notification preferences are scoped by organization')
 ```
 test('authenticated user can make api request')
   - Basic request succeeds
-  
+
 test('authenticated user receives rate limit headers')
   - Validates X-RateLimit-* headers present
-  
+
 test('rate limit remaining decrements with requests')
   - Validates remaining count decreases
-  
+
 test('rate limit reset header contains valid timestamp')
   - Validates reset within 60s window
-  
+
 test('different users have independent rate limits')
   - Validates per-user rate limiting
 ```
@@ -106,7 +106,7 @@ test('multi-org notification channels isolated')
 - POST /api/login (credential validation)
 - GET /api/user (session verification)
 
-// Scenario 2: Catalog Browsing  
+// Scenario 2: Catalog Browsing
 - GET /api/catalogs (list with pagination)
 - GET /api/catalogs/search?q=test (search functionality)
 - GET /api/catalogs?page=1&limit=10 (pagination)
@@ -127,6 +127,7 @@ test('multi-org notification channels isolated')
 ```
 
 **Performance Targets:**
+
 - p95 latency: <500ms
 - p99 latency: <1000ms
 - Error rate: <10%
@@ -189,32 +190,32 @@ test('rate limit headers consistent across requests')
 
 ### Query Counts (N+1 Audit Results)
 
-| Endpoint | Before (Queries) | After (Cached) | Improvement |
-|---|---|---|---|
-| `/api/notification-preferences` | 5-7 | 1-2 (cache hit) | 71-80% ↓ |
-| `/api/catalogs` | 4-6 | 2-3 | 50-67% ↓ |
-| `/api/strategic-planning/scenarios` | 8-12 | 3-4 (eager load) | 62-75% ↓ |
-| API avg baseline | 5-8 | 2-3 | ~65% ↓ |
+| Endpoint                            | Before (Queries) | After (Cached)   | Improvement |
+| ----------------------------------- | ---------------- | ---------------- | ----------- |
+| `/api/notification-preferences`     | 5-7              | 1-2 (cache hit)  | 71-80% ↓    |
+| `/api/catalogs`                     | 4-6              | 2-3              | 50-67% ↓    |
+| `/api/strategic-planning/scenarios` | 8-12             | 3-4 (eager load) | 62-75% ↓    |
+| API avg baseline                    | 5-8              | 2-3              | ~65% ↓      |
 
 **Target:** <3 queries per request  
 **Achieved:** 2-3 average (on cached endpoints)
 
 ### Rate Limiting Performance
 
-| Metric | Value | Status |
-|---|---|---|
-| Rate limit enforcement | Per-user + route | ✅ Working |
-| Header latency | <1ms | ✅ Low overhead |
-| 429 response time | 10-15ms | ✅ Fast |
-| Remaining count accuracy | 100% | ✅ Accurate |
+| Metric                   | Value            | Status          |
+| ------------------------ | ---------------- | --------------- |
+| Rate limit enforcement   | Per-user + route | ✅ Working      |
+| Header latency           | <1ms             | ✅ Low overhead |
+| 429 response time        | 10-15ms          | ✅ Fast         |
+| Remaining count accuracy | 100%             | ✅ Accurate     |
 
 ### Cache Hit Rates (NotificationCacheService)
 
-| Cache Layer | TTL | Hit Rate (Test) | Performance |
-|---|---|---|---|
-| User preferences | 1 hour | 85%+ | 90% faster |
-| Org channels | 1 hour | 80%+ | 85% faster |
-| Dispatch results | 1 min | 70%+ | 80% faster |
+| Cache Layer      | TTL    | Hit Rate (Test) | Performance |
+| ---------------- | ------ | --------------- | ----------- |
+| User preferences | 1 hour | 85%+            | 90% faster  |
+| Org channels     | 1 hour | 80%+            | 85% faster  |
+| Dispatch results | 1 min  | 70%+            | 80% faster  |
 
 ---
 
@@ -234,7 +235,7 @@ Organization 1:
   - User A (rate limit: 300/min independent)
   - User B (rate limit: 300/min independent)
   - 5 notification channels
-  
+
 Organization 2:
   - User C (rate limit: 300/min independent)
   - 3 notification channels
@@ -246,41 +247,43 @@ Result: No cross-org data visibility or rate limit interference
 
 ## ⚠️ Resultados vs. Targets
 
-| Objetivo | Target | Actual | Status |
-|---|---|---|---|
-| E2E test coverage | 80% of critical flows | 22 tests (notification, rate limit, multi-channel) | ✅ 85%+ |
-| Query reduction | <3 avg/request | 2-3 (cached endpoints) | ✅ Achieved |
-| Cache hit rate | >60% | 70-85% | ✅ Exceeded |
-| Rate limit enforcement | 100% | 100% | ✅ Confirmed |
-| Load testing scenarios | 5 covered | 5 complete script | ✅ Ready |
-| Integration tests | Full coverage | 12 tests (rate + cache + multi-tenancy) | ✅ Complete |
-| API p95 latency | <500ms | ~150-300ms (measured in tests) | ✅ Under target |
+| Objetivo               | Target                | Actual                                             | Status          |
+| ---------------------- | --------------------- | -------------------------------------------------- | --------------- |
+| E2E test coverage      | 80% of critical flows | 22 tests (notification, rate limit, multi-channel) | ✅ 85%+         |
+| Query reduction        | <3 avg/request        | 2-3 (cached endpoints)                             | ✅ Achieved     |
+| Cache hit rate         | >60%                  | 70-85%                                             | ✅ Exceeded     |
+| Rate limit enforcement | 100%                  | 100%                                               | ✅ Confirmed    |
+| Load testing scenarios | 5 covered             | 5 complete script                                  | ✅ Ready        |
+| Integration tests      | Full coverage         | 12 tests (rate + cache + multi-tenancy)            | ✅ Complete     |
+| API p95 latency        | <500ms                | ~150-300ms (measured in tests)                     | ✅ Under target |
 
 ---
 
 ## 📝 Documentación Generada
 
 ### Nuevo Contenido:
+
 1. **Phase 2 E2E Tests** (22 tests, 800 LOC)
-   - 3 test suites (notification prefs, rate limiting, multi-channel)
-   - All critical flows covered (auth, messaging, admin)
+    - 3 test suites (notification prefs, rate limiting, multi-channel)
+    - All critical flows covered (auth, messaging, admin)
 
 2. **Phase 2 Load Testing Script** (230 LOC, k6)
-   - 5 complete scenarios
-   - Configurable via ENV variables
-   - Performance thresholds defined
+    - 5 complete scenarios
+    - Configurable via ENV variables
+    - Performance thresholds defined
 
 3. **Phase 3 Integration Tests** (12 tests, 400 LOC)
-   - Rate limit + cache interaction
-   - Multi-tenancy isolation
-   - Failover scenarios (structure)
+    - Rate limit + cache interaction
+    - Multi-tenancy isolation
+    - Failover scenarios (structure)
 
 4. **UserNotificationChannelFactory** (60 LOC)
-   - Auto-generates test data
-   - Supports all 3 channel types
-   - Realistic config generation
+    - Auto-generates test data
+    - Supports all 3 channel types
+    - Realistic config generation
 
 ### Actualizado:
+
 - DEUDA_TECNICA_SPRINT_2026_03_26.md (Session 2 progress + Phase 2-3 status)
 - Plan.md (Phase 2-3 completion checkboxes)
 
@@ -289,17 +292,20 @@ Result: No cross-org data visibility or rate limit interference
 ## 🚀 Próximos Pasos
 
 ### Inmediatos (Hoy):
+
 1. ✅ Commit Phase 2-3 tests + factory
 2. ✅ Push a main con version bump
 3. ⏳ Ejecutar full test suite (180+ tests)
 4. ⏳ k6 load testing (once installed or via Docker)
 
 ### Corto Plazo (Hoy-Mañana):
+
 1. QA validation de LMS V2.0 + Workforce + Notifications (4-6 Abr)
 2. Production rollout (8 Abr) - 10% → 50% → 100% gradual
 3. Monitor prod metrics: latency, cache hits, rate limit hits
 
 ### Mediano Plazo (Abr 9+):
+
 1. Complete N+1 Fixes (4 controllers eager loading)
 2. Query performance before/after tests
 3. Monitoring dashboard setup
@@ -309,14 +315,14 @@ Result: No cross-org data visibility or rate limit interference
 
 ## 📌 Resumen Commits
 
-| Commit | Contenido | Status |
-|---|---|---|
-| e5c0fc34 | Phase 1 (rate limiting, caching, N+1 audit) | ✅ |
-| 7e2fd56f | Phase 1 sprint docs update | ✅ |
-| 544f5286 | Version bump 0.10.9 → 0.10.10 | ✅ |
-| a53a4fb7 | Phase 2 E2E tests (22 tests) | ✅ |
-| ce6894b4 | Phase 2-3 progress update | ✅ |
-| [PENDING] | Phase 3 integration tests + factory | ⏳ Ready to push |
+| Commit    | Contenido                                   | Status           |
+| --------- | ------------------------------------------- | ---------------- |
+| e5c0fc34  | Phase 1 (rate limiting, caching, N+1 audit) | ✅               |
+| 7e2fd56f  | Phase 1 sprint docs update                  | ✅               |
+| 544f5286  | Version bump 0.10.9 → 0.10.10               | ✅               |
+| a53a4fb7  | Phase 2 E2E tests (22 tests)                | ✅               |
+| ce6894b4  | Phase 2-3 progress update                   | ✅               |
+| [PENDING] | Phase 3 integration tests + factory         | ⏳ Ready to push |
 
 ---
 
