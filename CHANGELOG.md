@@ -2,68 +2,6 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [0.10.16](https://github.com/oahumada/Stratos/compare/v0.10.15...v0.10.16) (2026-04-04)
-
-### [0.10.15](https://github.com/oahumada/Stratos/compare/v0.10.14...v0.10.15) (2026-04-04)
-
-### [0.10.14](https://github.com/oahumada/Stratos/compare/v0.10.13...v0.10.14) (2026-04-04)
-
-
-### ✨ Nuevas Funcionalidades
-
-* Task 6 Complete - k6 Load Testing Installed and Executed ([b228b62](https://github.com/oahumada/Stratos/commit/b228b629ec90e579d4224e07fde771b2c7557d63))
-
-### [0.10.13](https://github.com/oahumada/Stratos/compare/v0.10.12...v0.10.13) (2026-04-04)
-
-### [0.10.12](https://github.com/oahumada/Stratos/compare/v0.10.11...v0.10.12) (2026-04-04)
-
-
-### ✨ Nuevas Funcionalidades
-
-* Phase 3 Integration Tests & Documentation ([0b5d6ad](https://github.com/oahumada/Stratos/commit/0b5d6add4f6dd0d77014432970e5b3dd6354f08b))
-
-### [0.10.11](https://github.com/oahumada/Stratos/compare/v0.10.10...v0.10.11) (2026-04-04)
-
-
-### ✨ Nuevas Funcionalidades
-
-* Phase 2 Technical Debt - E2E Tests & Load Testing Setup ([b437cce](https://github.com/oahumada/Stratos/commit/b437cce2cb389dfc51325708bccfbb3db7a3a636))
-
-### [0.10.10](https://github.com/oahumada/Stratos/compare/v0.10.9...v0.10.10) (2026-04-03)
-
-
-### ✨ Nuevas Funcionalidades
-
-* Phase 1 Technical Debt - Security & Performance ([544f528](https://github.com/oahumada/Stratos/commit/544f5286d1b0da0f3cffd28583f9a28d08a356da))
-
-### [0.10.9](https://github.com/oahumada/Stratos/compare/v0.10.8...v0.10.9) (2026-04-03)
-
-### [0.10.8](https://github.com/oahumada/Stratos/compare/v0.10.7...v0.10.8) (2026-04-03)
-
-### [0.10.7](https://github.com/oahumada/Stratos/compare/v0.10.6...v0.10.7) (2026-04-03)
-
-
-### ✨ Nuevas Funcionalidades
-
-* notification system extensions & Workforce motor framework ([98f9fdd](https://github.com/oahumada/Stratos/commit/98f9fddc34405d5f8e535e1c4c7d9f6dcf0bfac8))
-
-### [0.10.6](https://github.com/oahumada/Stratos/compare/v0.10.5...v0.10.6) (2026-04-03)
-
-
-### ✨ Nuevas Funcionalidades
-
-* multi-channel notifications (Slack, Telegram, Email) ([deff536](https://github.com/oahumada/Stratos/commit/deff536f975b0f5b5097b1e7bcb3e877d40ede5e))
-
-### [0.10.5](https://github.com/oahumada/Stratos/compare/v0.10.4...v0.10.5) (2026-04-03)
-
-
-### ✨ Nuevas Funcionalidades
-
-* **lms:** close V2-01 policy UX and certificate template selector ([a7a1129](https://github.com/oahumada/Stratos/commit/a7a112982ace0753afbb2162f7bb60d08fcca5f9))
-* **lms:** close V2-03 runbook lms:sync-progress operativo ([3314d09](https://github.com/oahumada/Stratos/commit/3314d0903f75c55a6f1f5dbb3250d03dc7f6641e))
-
-### [0.10.4](https://github.com/oahumada/Stratos/compare/v0.10.3...v0.10.4) (2026-04-03)
-
 ### [0.10.3](https://github.com/oahumada/Stratos/compare/v0.10.2...v0.10.3) (2026-04-03)
 
 
