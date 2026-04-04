@@ -467,6 +467,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/lms/scorm/{id}/tracking', [\App\Http\Controllers\Api\Lms\ScormPlayerController::class, 'tracking'])->middleware('permission:lms.courses.view');
     Route::delete('/lms/scorm/{id}', [\App\Http\Controllers\Api\Lms\ScormPlayerController::class, 'destroy'])->middleware('permission:lms.courses.manage');
 
+    // cmi5 (xAPI-based content)
+    Route::post('/lms/cmi5/{package}/launch', [\App\Http\Controllers\Api\Lms\Cmi5Controller::class, 'launch'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/cmi5/sessions/{session}/fetch', [\App\Http\Controllers\Api\Lms\Cmi5Controller::class, 'fetchUrl'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/cmi5/sessions/{session}/statement', [\App\Http\Controllers\Api\Lms\Cmi5Controller::class, 'statement'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/cmi5/sessions/{session}/auth-token', [\App\Http\Controllers\Api\Lms\Cmi5Controller::class, 'authToken'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/cmi5/{package}/sessions', [\App\Http\Controllers\Api\Lms\Cmi5Controller::class, 'sessions'])->middleware('permission:lms.courses.view');
+
+    // Per-Lesson Audit Trail
+    Route::post('/lms/audit/log', [\App\Http\Controllers\Api\Lms\LessonAuditController::class, 'log'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/audit/enrollments/{enrollment}/lessons/{lesson}', [\App\Http\Controllers\Api\Lms\LessonAuditController::class, 'lessonHistory'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/audit/enrollments/{enrollment}/timeline', [\App\Http\Controllers\Api\Lms\LessonAuditController::class, 'userTimeline'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/audit/courses/{course}/summary', [\App\Http\Controllers\Api\Lms\LessonAuditController::class, 'courseSummary'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/audit/enrollments/{enrollment}/export', [\App\Http\Controllers\Api\Lms\LessonAuditController::class, 'export'])->middleware('permission:lms.courses.view');
+
     // LMS Compliance
     Route::get('/lms/compliance/dashboard', [\App\Http\Controllers\Api\Lms\ComplianceController::class, 'dashboard'])->middleware('permission:lms.courses.view');
     Route::get('/lms/compliance/records', [\App\Http\Controllers\Api\Lms\ComplianceController::class, 'records'])->middleware('permission:lms.courses.view');
@@ -545,6 +559,66 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/lms/marketplace/{listing}/publish', [\App\Http\Controllers\Api\Lms\MarketplaceController::class, 'publish']);
     Route::post('/lms/marketplace/{listing}/purchase', [\App\Http\Controllers\Api\Lms\MarketplaceController::class, 'purchase']);
     Route::get('/lms/marketplace/purchases', [\App\Http\Controllers\Api\Lms\MarketplaceController::class, 'purchases']);
+
+    // ILT (Instructor-Led Training) Sessions
+    Route::get('/lms/sessions', [\App\Http\Controllers\Api\Lms\IltController::class, 'index'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/sessions', [\App\Http\Controllers\Api\Lms\IltController::class, 'store'])->middleware('permission:lms.courses.manage');
+    Route::get('/lms/sessions/{session}', [\App\Http\Controllers\Api\Lms\IltController::class, 'show'])->middleware('permission:lms.courses.view');
+    Route::put('/lms/sessions/{session}', [\App\Http\Controllers\Api\Lms\IltController::class, 'update'])->middleware('permission:lms.courses.manage');
+    Route::delete('/lms/sessions/{session}', [\App\Http\Controllers\Api\Lms\IltController::class, 'destroy'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/sessions/{session}/register', [\App\Http\Controllers\Api\Lms\IltController::class, 'register'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/sessions/{session}/cancel-registration', [\App\Http\Controllers\Api\Lms\IltController::class, 'cancelRegistration'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/sessions/{session}/attendance', [\App\Http\Controllers\Api\Lms\IltController::class, 'markAttendance'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/sessions/{session}/feedback', [\App\Http\Controllers\Api\Lms\IltController::class, 'feedback'])->middleware('permission:lms.courses.view');
+
+    // PDF Report Export
+    Route::get('/lms/reports/pdf', [\App\Http\Controllers\Api\Lms\ReportController::class, 'exportPdf'])->middleware('permission:lms.courses.manage');
+
+    // Surveys / NPS
+    Route::get('/lms/courses/{course}/survey', [\App\Http\Controllers\Api\Lms\SurveyController::class, 'show'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/courses/{course}/survey', [\App\Http\Controllers\Api\Lms\SurveyController::class, 'store'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/surveys/{survey}/submit', [\App\Http\Controllers\Api\Lms\SurveyController::class, 'submit'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/surveys/{survey}/results', [\App\Http\Controllers\Api\Lms\SurveyController::class, 'results'])->middleware('permission:lms.courses.view');
+
+    // Scheduled Reports
+    Route::get('/lms/reports/scheduled', [\App\Http\Controllers\Api\Lms\ScheduledReportController::class, 'index'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/reports/scheduled', [\App\Http\Controllers\Api\Lms\ScheduledReportController::class, 'store'])->middleware('permission:lms.courses.manage');
+    Route::put('/lms/reports/scheduled/{scheduledReport}', [\App\Http\Controllers\Api\Lms\ScheduledReportController::class, 'update'])->middleware('permission:lms.courses.manage');
+    Route::delete('/lms/reports/scheduled/{scheduledReport}', [\App\Http\Controllers\Api\Lms\ScheduledReportController::class, 'destroy'])->middleware('permission:lms.courses.manage');
+
+    // LMS Peer Reviews
+    Route::get('/lms/peer-reviews', [\App\Http\Controllers\Api\Lms\PeerReviewController::class, 'index'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/peer-reviews', [\App\Http\Controllers\Api\Lms\PeerReviewController::class, 'store'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/peer-reviews/{peerReview}/submit-work', [\App\Http\Controllers\Api\Lms\PeerReviewController::class, 'submitWork'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/peer-reviews/{peerReview}/submit-review', [\App\Http\Controllers\Api\Lms\PeerReviewController::class, 'submitReview'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/lessons/{lesson}/peer-scores', [\App\Http\Controllers\Api\Lms\PeerReviewController::class, 'scores'])->middleware('permission:lms.courses.view');
+
+    // LMS User-Generated Content (UGC)
+    Route::get('/lms/ugc', [\App\Http\Controllers\Api\Lms\UgcController::class, 'index'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/ugc/pending', [\App\Http\Controllers\Api\Lms\UgcController::class, 'pendingReview'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/ugc', [\App\Http\Controllers\Api\Lms\UgcController::class, 'store'])->middleware('permission:lms.courses.view');
+    Route::put('/lms/ugc/{userContent}', [\App\Http\Controllers\Api\Lms\UgcController::class, 'update'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/ugc/{userContent}/submit', [\App\Http\Controllers\Api\Lms\UgcController::class, 'submitForReview'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/ugc/{userContent}/approve', [\App\Http\Controllers\Api\Lms\UgcController::class, 'approve'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/ugc/{userContent}/reject', [\App\Http\Controllers\Api\Lms\UgcController::class, 'reject'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/ugc/{userContent}/like', [\App\Http\Controllers\Api\Lms\UgcController::class, 'like'])->middleware('permission:lms.courses.view');
+
+    // LMS Cohorts / Learning Groups
+    Route::get('/lms/cohorts', [\App\Http\Controllers\Api\Lms\CohortController::class, 'index'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/cohorts', [\App\Http\Controllers\Api\Lms\CohortController::class, 'store'])->middleware('permission:lms.courses.manage');
+    Route::get('/lms/cohorts/{cohort}', [\App\Http\Controllers\Api\Lms\CohortController::class, 'show'])->middleware('permission:lms.courses.view');
+    Route::put('/lms/cohorts/{cohort}', [\App\Http\Controllers\Api\Lms\CohortController::class, 'update'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/cohorts/{cohort}/members', [\App\Http\Controllers\Api\Lms\CohortController::class, 'addMembers'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/cohorts/{cohort}/remove-member', [\App\Http\Controllers\Api\Lms\CohortController::class, 'removeMember'])->middleware('permission:lms.courses.manage');
+    Route::get('/lms/cohorts/{cohort}/progress', [\App\Http\Controllers\Api\Lms\CohortController::class, 'progress'])->middleware('permission:lms.courses.view');
+
+    // LMS Adaptive Learning
+    Route::get('/lms/adaptive/profile', [\App\Http\Controllers\Api\Lms\AdaptiveController::class, 'profile'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/adaptive/calibrate', [\App\Http\Controllers\Api\Lms\AdaptiveController::class, 'calibrate'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/adaptive/courses/{course}/recommendations', [\App\Http\Controllers\Api\Lms\AdaptiveController::class, 'recommendations'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/adaptive/courses/{course}/rules', [\App\Http\Controllers\Api\Lms\AdaptiveController::class, 'rules'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/adaptive/rules', [\App\Http\Controllers\Api\Lms\AdaptiveController::class, 'storeRule'])->middleware('permission:lms.courses.manage');
+    Route::put('/lms/adaptive/rules/{adaptiveRule}', [\App\Http\Controllers\Api\Lms\AdaptiveController::class, 'updateRule'])->middleware('permission:lms.courses.manage');
 
     // Social Learning & Mentorship & Mentorship Knowledge Transfer
     Route::get('/social-learning/dashboard', [\App\Http\Controllers\Api\SocialLearningController::class, 'dashboard']);

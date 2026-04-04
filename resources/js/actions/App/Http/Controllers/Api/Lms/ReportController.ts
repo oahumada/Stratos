@@ -422,6 +422,87 @@ exportMethodForm.head = (args: { type: string | number } | [type: string | numbe
 
 exportMethod.form = exportMethodForm
 
-const ReportController = { completion, compliance, timeToComplete, engagement, exportMethod, export: exportMethod }
+/**
+* @see \App\Http\Controllers\Api\Lms\ReportController::exportPdf
+* @see app/Http/Controllers/Api/Lms/ReportController.php:101
+* @route '/api/lms/reports/pdf'
+*/
+export const exportPdf = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportPdf.url(options),
+    method: 'get',
+})
+
+exportPdf.definition = {
+    methods: ["get","head"],
+    url: '/api/lms/reports/pdf',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Api\Lms\ReportController::exportPdf
+* @see app/Http/Controllers/Api/Lms/ReportController.php:101
+* @route '/api/lms/reports/pdf'
+*/
+exportPdf.url = (options?: RouteQueryOptions) => {
+    return exportPdf.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\Lms\ReportController::exportPdf
+* @see app/Http/Controllers/Api/Lms/ReportController.php:101
+* @route '/api/lms/reports/pdf'
+*/
+exportPdf.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportPdf.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\Lms\ReportController::exportPdf
+* @see app/Http/Controllers/Api/Lms/ReportController.php:101
+* @route '/api/lms/reports/pdf'
+*/
+exportPdf.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: exportPdf.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\Api\Lms\ReportController::exportPdf
+* @see app/Http/Controllers/Api/Lms/ReportController.php:101
+* @route '/api/lms/reports/pdf'
+*/
+const exportPdfForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportPdf.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\Lms\ReportController::exportPdf
+* @see app/Http/Controllers/Api/Lms/ReportController.php:101
+* @route '/api/lms/reports/pdf'
+*/
+exportPdfForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportPdf.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Api\Lms\ReportController::exportPdf
+* @see app/Http/Controllers/Api/Lms/ReportController.php:101
+* @route '/api/lms/reports/pdf'
+*/
+exportPdfForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: exportPdf.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+exportPdf.form = exportPdfForm
+
+const ReportController = { completion, compliance, timeToComplete, engagement, exportMethod, exportPdf, export: exportMethod }
 
 export default ReportController

@@ -229,6 +229,21 @@ Route::get('/lms/calendar', fn () => Inertia::render('Lms/Calendar'))
 Route::get('/lms/marketplace', fn () => Inertia::render('Lms/Marketplace'))
     ->middleware(['auth', 'verified'])->name('lms.marketplace');
 
+Route::get('/lms/sessions', fn () => Inertia::render('Lms/Sessions'))
+    ->middleware(['auth', 'verified'])->name('lms.sessions');
+
+Route::get('/lms/surveys', fn () => Inertia::render('Lms/Survey'))
+    ->middleware(['auth', 'verified'])->name('lms.surveys');
+
+Route::get('/lms/peer-reviews', fn () => Inertia::render('Lms/PeerReview'))
+    ->middleware(['auth', 'verified'])->name('lms.peer-reviews');
+
+Route::get('/lms/community', fn () => Inertia::render('Lms/Community'))
+    ->middleware(['auth', 'verified'])->name('lms.community');
+
+Route::get('/lms/cohorts', fn () => Inertia::render('Lms/Cohorts'))
+    ->middleware(['auth', 'verified'])->name('lms.cohorts');
+
 Route::get('/lms', function () {
     /** @var \App\Models\User $user */
     $user = Auth::user();

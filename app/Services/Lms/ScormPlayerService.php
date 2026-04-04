@@ -53,13 +53,27 @@ class ScormPlayerService
             $manifestPath = $extractPath.'/imsmanifest.xml';
             if (file_exists($manifestPath)) {
                 $manifestData = $this->parseManifest($manifestPath);
-                $package->update([
+
+                // Detect SCORM version from manifest
+                $version = $this->detectScormVersion($manifestPath);
+
+                $updateData = [
                     'title' => $manifestData['title'] ?: $package->title,
                     'identifier' => $manifestData['identifier'],
                     'entry_point' => $manifestData['entry_point'],
                     'manifest_data' => $manifestData,
+                    'version' => $version,
                     'status' => 'ready',
-                ]);
+                ];
+
+                if ($version === '2004') {
+                    $scorm2004Data = $this->parseScorm2004Manifest($manifestPath);
+                    if (! empty($scorm2004Data['sequencing_rules'])) {
+                        $updateData['sequencing_rules'] = $scorm2004Data['sequencing_rules'];
+                    }
+                }
+
+                $package->update($updateData);
             } else {
                 $package->update(['status' => 'error']);
             }
@@ -107,6 +121,7 @@ class ScormPlayerService
 
         $updates = ['cmi_data' => $cmiData];
 
+        // SCORM 1.2 CMI elements
         if (isset($cmiData['cmi.core.lesson_status'])) {
             $updates['lesson_status'] = $cmiData['cmi.core.lesson_status'];
         }
@@ -133,6 +148,33 @@ class ScormPlayerService
 
         if (isset($cmiData['cmi.core.session_time'])) {
             $tracking->addSessionTime($cmiData['cmi.core.session_time']);
+            $updates['total_time'] = $tracking->total_time;
+            $updates['session_count'] = $tracking->session_count + 1;
+        }
+
+        // SCORM 2004 CMI elements
+        if (isset($cmiData['cmi.completion_status'])) {
+            $updates['lesson_status'] = $cmiData['cmi.completion_status'];
+        }
+
+        if (isset($cmiData['cmi.success_status'])) {
+            $updates['success_status'] = $cmiData['cmi.success_status'];
+        }
+
+        if (isset($cmiData['cmi.score.scaled'])) {
+            $updates['scaled_score'] = (float) $cmiData['cmi.score.scaled'];
+        }
+
+        if (isset($cmiData['cmi.progress_measure'])) {
+            $updates['progress_measure'] = (float) $cmiData['cmi.progress_measure'];
+        }
+
+        if (isset($cmiData['cmi.completion_threshold'])) {
+            $updates['completion_threshold'] = (float) $cmiData['cmi.completion_threshold'];
+        }
+
+        if (isset($cmiData['cmi.session_time'])) {
+            $tracking->addIso8601SessionTime($cmiData['cmi.session_time']);
             $updates['total_time'] = $tracking->total_time;
             $updates['session_count'] = $tracking->session_count + 1;
         }
@@ -195,6 +237,10 @@ class ScormPlayerService
                 'lesson_location' => $tracking->lesson_location,
                 'cmi_data' => $tracking->cmi_data,
                 'completed_at' => $tracking->completed_at?->toIso8601String(),
+                'progress_measure' => $tracking->progress_measure,
+                'scaled_score' => $tracking->scaled_score,
+                'success_status' => $tracking->success_status,
+                'completion_threshold' => $tracking->completion_threshold,
             ],
             'launch_url' => $package->getLaunchUrl(),
         ];
@@ -291,5 +337,129 @@ class ScormPlayerService
         }
 
         return $result;
+    }
+
+    /**
+     * Detect SCORM version from manifest namespaces.
+     */
+    private function detectScormVersion(string $manifestPath): string
+    {
+        try {
+            $xml = simplexml_load_file($manifestPath);
+            if ($xml === false) {
+                return '1.2';
+            }
+
+            $namespaces = $xml->getNamespaces(true);
+            foreach ($namespaces as $prefix => $uri) {
+                if (str_contains($uri, 'adlcp_v1p3') || str_contains($uri, 'adlseq') || str_contains($uri, '2004')) {
+                    return '2004';
+                }
+            }
+
+            $content = file_get_contents($manifestPath);
+            if ($content && (str_contains($content, 'adlcp_v1p3') || str_contains($content, 'adlseq_v1p3'))) {
+                return '2004';
+            }
+        } catch (\Throwable) {
+        }
+
+        return '1.2';
+    }
+
+    /**
+     * Parse SCORM 2004 manifest for sequencing rules.
+     */
+    public function parseScorm2004Manifest(string $manifestPath): array
+    {
+        $result = ['sequencing_rules' => []];
+
+        try {
+            $xml = simplexml_load_file($manifestPath);
+            if ($xml === false) {
+                return $result;
+            }
+
+            $namespaces = $xml->getNamespaces(true);
+
+            if (isset($namespaces['imsss'])) {
+                $xml->registerXPathNamespace('imsss', $namespaces['imsss']);
+                $seqNodes = $xml->xpath('//imsss:sequencing');
+
+                foreach ($seqNodes as $seqNode) {
+                    $rule = [];
+                    $controlMode = $seqNode->children($namespaces['imsss'])->controlMode ?? null;
+                    if ($controlMode) {
+                        $attrs = $controlMode->attributes();
+                        $rule['controlMode'] = [
+                            'choice' => (string) ($attrs['choice'] ?? 'true') === 'true',
+                            'flow' => (string) ($attrs['flow'] ?? 'false') === 'true',
+                        ];
+                    }
+                    if (! empty($rule)) {
+                        $result['sequencing_rules'][] = $rule;
+                    }
+                }
+            }
+        } catch (\Throwable) {
+        }
+
+        return $result;
+    }
+
+    /**
+     * Handle SCORM 2004 SetValue for a cmi.* element.
+     */
+    public function handleScorm2004SetValue(int $trackingId, string $element, string $value, int $organizationId): LmsScormTracking
+    {
+        $tracking = LmsScormTracking::where('id', $trackingId)
+            ->where('organization_id', $organizationId)
+            ->firstOrFail();
+
+        $cmiData = $tracking->cmi_data ?? [];
+        $cmiData[$element] = $value;
+        $updates = ['cmi_data' => $cmiData];
+
+        match ($element) {
+            'cmi.completion_status' => $updates['lesson_status'] = $value,
+            'cmi.success_status' => $updates['success_status'] = $value,
+            'cmi.score.scaled' => $updates['scaled_score'] = (float) $value,
+            'cmi.progress_measure' => $updates['progress_measure'] = (float) $value,
+            'cmi.session_time' => (function () use (&$updates, $tracking, $value) {
+                $tracking->addIso8601SessionTime($value);
+                $updates['total_time'] = $tracking->total_time;
+                $updates['session_count'] = $tracking->session_count + 1;
+            })(),
+            'cmi.suspend_data' => $updates['suspend_data'] = $value,
+            'cmi.location' => $updates['lesson_location'] = $value,
+            default => null,
+        };
+
+        $tracking->update($updates);
+        $tracking->refresh();
+
+        return $tracking;
+    }
+
+    /**
+     * Handle SCORM 2004 GetValue for a cmi.* element.
+     */
+    public function handleScorm2004GetValue(int $trackingId, string $element, int $organizationId): string
+    {
+        $tracking = LmsScormTracking::where('id', $trackingId)
+            ->where('organization_id', $organizationId)
+            ->firstOrFail();
+
+        return match ($element) {
+            'cmi.completion_status' => $tracking->lesson_status ?? 'unknown',
+            'cmi.success_status' => $tracking->success_status ?? 'unknown',
+            'cmi.score.scaled' => (string) ($tracking->scaled_score ?? ''),
+            'cmi.progress_measure' => (string) ($tracking->progress_measure ?? ''),
+            'cmi.suspend_data' => $tracking->suspend_data ?? '',
+            'cmi.location' => $tracking->lesson_location ?? '',
+            'cmi.total_time' => $tracking->total_time ?? 'PT0H0M0S',
+            'cmi.completion_threshold' => (string) ($tracking->completion_threshold ?? ''),
+            default => $tracking->cmi_data[$element] ?? '',
+        };
     }
 }

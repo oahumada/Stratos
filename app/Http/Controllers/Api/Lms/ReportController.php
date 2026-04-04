@@ -98,6 +98,42 @@ class ReportController extends Controller
         ]);
     }
 
+    public function exportPdf(Request $request): StreamedResponse|JsonResponse
+    {
+        $organizationId = $this->resolveOrganizationId($request);
+
+        if ($organizationId <= 0) {
+            return response()->json(['message' => self::ORG_RESOLUTION_ERROR], 422);
+        }
+
+        $type = $request->input('type', 'completion');
+        $validTypes = ['completion', 'compliance', 'engagement', 'time_to_complete'];
+        if (! in_array($type, $validTypes)) {
+            return response()->json(['message' => 'Invalid report type.'], 422);
+        }
+
+        $filters = $request->only(['category']);
+
+        try {
+            $pdf = $this->reportService->exportPdf($organizationId, $type, $filters);
+
+            return response()->streamDownload(function () use ($pdf) {
+                echo $pdf;
+            }, "lms-report-{$type}-".date('Y-m-d').'.pdf', [
+                'Content-Type' => 'application/pdf',
+            ]);
+        } catch (\Throwable $e) {
+            // Fallback to HTML if dompdf is not available
+            $html = $this->reportService->generateReportHtml($organizationId, $type, $filters);
+
+            return response()->streamDownload(function () use ($html) {
+                echo $html;
+            }, "lms-report-{$type}-".date('Y-m-d').'.html', [
+                'Content-Type' => 'text/html',
+            ]);
+        }
+    }
+
     private function resolveOrganizationId(Request $request): int
     {
         return (int) (($request->user()?->current_organization_id ?? $request->user()?->organization_id) ?? 0);

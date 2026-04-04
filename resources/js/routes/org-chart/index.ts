@@ -261,7 +261,7 @@ subtreeForm.head = (args: { id: string | number } | [id: string | number ] | str
 subtree.form = subtreeForm
 
 /**
-* @see routes/web.php:418
+* @see routes/web.php:433
 * @route '/org-chart'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -275,7 +275,7 @@ index.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:418
+* @see routes/web.php:433
 * @route '/org-chart'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -283,7 +283,7 @@ index.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:418
+* @see routes/web.php:433
 * @route '/org-chart'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -292,7 +292,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:418
+* @see routes/web.php:433
 * @route '/org-chart'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -301,7 +301,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:418
+* @see routes/web.php:433
 * @route '/org-chart'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -310,7 +310,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:418
+* @see routes/web.php:433
 * @route '/org-chart'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -319,7 +319,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:418
+* @see routes/web.php:433
 * @route '/org-chart'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

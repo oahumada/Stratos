@@ -874,6 +874,376 @@ marketplace.form = marketplaceForm
 
 /**
 * @see routes/web.php:232
+* @route '/lms/sessions'
+*/
+export const sessions = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: sessions.url(options),
+    method: 'get',
+})
+
+sessions.definition = {
+    methods: ["get","head"],
+    url: '/lms/sessions',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:232
+* @route '/lms/sessions'
+*/
+sessions.url = (options?: RouteQueryOptions) => {
+    return sessions.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:232
+* @route '/lms/sessions'
+*/
+sessions.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: sessions.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:232
+* @route '/lms/sessions'
+*/
+sessions.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: sessions.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:232
+* @route '/lms/sessions'
+*/
+const sessionsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: sessions.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:232
+* @route '/lms/sessions'
+*/
+sessionsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: sessions.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:232
+* @route '/lms/sessions'
+*/
+sessionsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: sessions.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+sessions.form = sessionsForm
+
+/**
+* @see routes/web.php:235
+* @route '/lms/surveys'
+*/
+export const surveys = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: surveys.url(options),
+    method: 'get',
+})
+
+surveys.definition = {
+    methods: ["get","head"],
+    url: '/lms/surveys',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:235
+* @route '/lms/surveys'
+*/
+surveys.url = (options?: RouteQueryOptions) => {
+    return surveys.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:235
+* @route '/lms/surveys'
+*/
+surveys.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: surveys.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:235
+* @route '/lms/surveys'
+*/
+surveys.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: surveys.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:235
+* @route '/lms/surveys'
+*/
+const surveysForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: surveys.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:235
+* @route '/lms/surveys'
+*/
+surveysForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: surveys.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:235
+* @route '/lms/surveys'
+*/
+surveysForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: surveys.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+surveys.form = surveysForm
+
+/**
+* @see routes/web.php:238
+* @route '/lms/peer-reviews'
+*/
+export const peerReviews = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: peerReviews.url(options),
+    method: 'get',
+})
+
+peerReviews.definition = {
+    methods: ["get","head"],
+    url: '/lms/peer-reviews',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:238
+* @route '/lms/peer-reviews'
+*/
+peerReviews.url = (options?: RouteQueryOptions) => {
+    return peerReviews.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:238
+* @route '/lms/peer-reviews'
+*/
+peerReviews.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: peerReviews.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:238
+* @route '/lms/peer-reviews'
+*/
+peerReviews.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: peerReviews.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:238
+* @route '/lms/peer-reviews'
+*/
+const peerReviewsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: peerReviews.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:238
+* @route '/lms/peer-reviews'
+*/
+peerReviewsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: peerReviews.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:238
+* @route '/lms/peer-reviews'
+*/
+peerReviewsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: peerReviews.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+peerReviews.form = peerReviewsForm
+
+/**
+* @see routes/web.php:241
+* @route '/lms/community'
+*/
+export const community = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: community.url(options),
+    method: 'get',
+})
+
+community.definition = {
+    methods: ["get","head"],
+    url: '/lms/community',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:241
+* @route '/lms/community'
+*/
+community.url = (options?: RouteQueryOptions) => {
+    return community.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:241
+* @route '/lms/community'
+*/
+community.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: community.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:241
+* @route '/lms/community'
+*/
+community.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: community.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:241
+* @route '/lms/community'
+*/
+const communityForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: community.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:241
+* @route '/lms/community'
+*/
+communityForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: community.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:241
+* @route '/lms/community'
+*/
+communityForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: community.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+community.form = communityForm
+
+/**
+* @see routes/web.php:244
+* @route '/lms/cohorts'
+*/
+export const cohorts = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: cohorts.url(options),
+    method: 'get',
+})
+
+cohorts.definition = {
+    methods: ["get","head"],
+    url: '/lms/cohorts',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:244
+* @route '/lms/cohorts'
+*/
+cohorts.url = (options?: RouteQueryOptions) => {
+    return cohorts.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:244
+* @route '/lms/cohorts'
+*/
+cohorts.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: cohorts.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:244
+* @route '/lms/cohorts'
+*/
+cohorts.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: cohorts.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:244
+* @route '/lms/cohorts'
+*/
+const cohortsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: cohorts.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:244
+* @route '/lms/cohorts'
+*/
+cohortsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: cohorts.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:244
+* @route '/lms/cohorts'
+*/
+cohortsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: cohorts.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+cohorts.form = cohortsForm
+
+/**
+* @see routes/web.php:247
 * @route '/lms'
 */
 export const landing = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -887,7 +1257,7 @@ landing.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:232
+* @see routes/web.php:247
 * @route '/lms'
 */
 landing.url = (options?: RouteQueryOptions) => {
@@ -895,7 +1265,7 @@ landing.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:232
+* @see routes/web.php:247
 * @route '/lms'
 */
 landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -904,7 +1274,7 @@ landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:232
+* @see routes/web.php:247
 * @route '/lms'
 */
 landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -913,7 +1283,7 @@ landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:232
+* @see routes/web.php:247
 * @route '/lms'
 */
 const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -922,7 +1292,7 @@ const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 })
 
 /**
-* @see routes/web.php:232
+* @see routes/web.php:247
 * @route '/lms'
 */
 landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -931,7 +1301,7 @@ landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:232
+* @see routes/web.php:247
 * @route '/lms'
 */
 landingForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -947,7 +1317,7 @@ landingForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => 
 landing.form = landingForm
 
 /**
-* @see routes/web.php:544
+* @see routes/web.php:559
 * @route '/lms/player/{lesson}'
 */
 export const player = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -961,7 +1331,7 @@ player.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:544
+* @see routes/web.php:559
 * @route '/lms/player/{lesson}'
 */
 player.url = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -987,7 +1357,7 @@ player.url = (args: { lesson: string | number } | [lesson: string | number ] | s
 }
 
 /**
-* @see routes/web.php:544
+* @see routes/web.php:559
 * @route '/lms/player/{lesson}'
 */
 player.get = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -996,7 +1366,7 @@ player.get = (args: { lesson: string | number } | [lesson: string | number ] | s
 })
 
 /**
-* @see routes/web.php:544
+* @see routes/web.php:559
 * @route '/lms/player/{lesson}'
 */
 player.head = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -1005,7 +1375,7 @@ player.head = (args: { lesson: string | number } | [lesson: string | number ] | 
 })
 
 /**
-* @see routes/web.php:544
+* @see routes/web.php:559
 * @route '/lms/player/{lesson}'
 */
 const playerForm = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1014,7 +1384,7 @@ const playerForm = (args: { lesson: string | number } | [lesson: string | number
 })
 
 /**
-* @see routes/web.php:544
+* @see routes/web.php:559
 * @route '/lms/player/{lesson}'
 */
 playerForm.get = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1023,7 +1393,7 @@ playerForm.get = (args: { lesson: string | number } | [lesson: string | number ]
 })
 
 /**
-* @see routes/web.php:544
+* @see routes/web.php:559
 * @route '/lms/player/{lesson}'
 */
 playerForm.head = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -1050,6 +1420,11 @@ const lms = {
     webhooks: Object.assign(webhooks, webhooks),
     calendar: Object.assign(calendar, calendar),
     marketplace: Object.assign(marketplace, marketplace),
+    sessions: Object.assign(sessions, sessions),
+    surveys: Object.assign(surveys, surveys),
+    peerReviews: Object.assign(peerReviews, peerReviews),
+    community: Object.assign(community, community),
+    cohorts: Object.assign(cohorts, cohorts),
     landing: Object.assign(landing, landing),
     courses: Object.assign(courses, courses),
     player: Object.assign(player, player),

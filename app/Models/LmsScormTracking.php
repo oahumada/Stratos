@@ -22,6 +22,10 @@ class LmsScormTracking extends Model
         'session_count',
         'suspend_data',
         'lesson_location',
+        'progress_measure',
+        'scaled_score',
+        'success_status',
+        'completion_threshold',
         'completed_at',
     ];
 
@@ -32,6 +36,9 @@ class LmsScormTracking extends Model
             'score_raw' => 'float',
             'score_min' => 'float',
             'score_max' => 'float',
+            'progress_measure' => 'float',
+            'scaled_score' => 'float',
+            'completion_threshold' => 'float',
             'session_count' => 'integer',
             'completed_at' => 'datetime',
         ];
@@ -83,5 +90,34 @@ class LmsScormTracking extends Model
         }
 
         return (int) $parts[0] * 3600 + (int) $parts[1] * 60 + (int) $parts[2];
+    }
+
+    /**
+     * Parse ISO 8601 duration (PT1H30M15S) to seconds.
+     */
+    public static function iso8601ToSeconds(string $duration): int
+    {
+        if (preg_match('/^PT(?:(\d+)H)?(?:(\d+)M)?(?:([\d.]+)S)?$/', $duration, $m)) {
+            $hours = (int) ($m[1] ?? 0);
+            $minutes = (int) ($m[2] ?? 0);
+            $seconds = (int) ($m[3] ?? 0);
+
+            return $hours * 3600 + $minutes * 60 + $seconds;
+        }
+
+        return 0;
+    }
+
+    public function addIso8601SessionTime(string $isoDuration): void
+    {
+        $totalSeconds = $this->timeToSeconds($this->total_time);
+        $sessionSeconds = self::iso8601ToSeconds($isoDuration);
+        $newTotal = $totalSeconds + $sessionSeconds;
+
+        $hours = intdiv($newTotal, 3600);
+        $minutes = intdiv($newTotal % 3600, 60);
+        $seconds = $newTotal % 60;
+
+        $this->total_time = sprintf('%04d:%02d:%02d', $hours, $minutes, $seconds);
     }
 }

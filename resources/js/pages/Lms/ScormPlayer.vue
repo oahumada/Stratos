@@ -4,6 +4,7 @@ import axios from 'axios'
 
 const props = defineProps<{
   packageId: number
+  scormVersion?: string
 }>()
 
 interface LaunchData {
@@ -27,6 +28,10 @@ interface LaunchData {
     lesson_location: string | null
     cmi_data: Record<string, string> | null
     completed_at: string | null
+    progress_measure: number | null
+    scaled_score: number | null
+    success_status: string | null
+    completion_threshold: number | null
   }
   launch_url: string
 }
@@ -102,6 +107,78 @@ function buildScormApi() {
   }
 }
 
+function buildScorm2004Api() {
+  let lastError = 0
+  return {
+    Initialize(_param: string): string {
+      if (initialized) return 'true'
+      initialized = true
+      finished = false
+
+      if (launchData.value?.tracking) {
+        const t = launchData.value.tracking
+        cmiState.value = { ...(t.cmi_data || {}) }
+        cmiState.value['cmi.completion_status'] = t.lesson_status || 'unknown'
+        cmiState.value['cmi.success_status'] = t.success_status || 'unknown'
+        if (t.scaled_score !== null) cmiState.value['cmi.score.scaled'] = String(t.scaled_score)
+        if (t.progress_measure !== null) cmiState.value['cmi.progress_measure'] = String(t.progress_measure)
+        if (t.completion_threshold !== null) cmiState.value['cmi.completion_threshold'] = String(t.completion_threshold)
+        if (t.suspend_data) cmiState.value['cmi.suspend_data'] = t.suspend_data
+        if (t.lesson_location) cmiState.value['cmi.location'] = t.lesson_location
+        cmiState.value['cmi.mode'] = 'normal'
+        cmiState.value['cmi.credit'] = 'credit'
+        cmiState.value['cmi.entry'] = t.lesson_status === 'unknown' || t.lesson_status === 'not attempted' ? 'ab-initio' : 'resume'
+      }
+
+      lastError = 0
+      return 'true'
+    },
+
+    Terminate(_param: string): string {
+      if (finished) return 'true'
+      finished = true
+      commitToServer()
+      lastError = 0
+      return 'true'
+    },
+
+    GetValue(element: string): string {
+      lastError = 0
+      return cmiState.value[element] ?? ''
+    },
+
+    SetValue(element: string, value: string): string {
+      cmiState.value[element] = value
+      lastError = 0
+      return 'true'
+    },
+
+    Commit(_param: string): string {
+      commitToServer()
+      lastError = 0
+      return 'true'
+    },
+
+    GetLastError(): string {
+      return String(lastError)
+    },
+
+    GetErrorString(errorCode: string): string {
+      const errors: Record<string, string> = {
+        '0': 'No Error',
+        '101': 'General Exception',
+        '301': 'Not Initialized',
+        '401': 'Not Implemented',
+      }
+      return errors[errorCode] ?? 'Unknown Error'
+    },
+
+    GetDiagnostic(_errorCode: string): string {
+      return 'No diagnostic information available'
+    },
+  }
+}
+
 async function commitToServer() {
   if (!launchData.value) return
   try {
@@ -135,7 +212,12 @@ function getStatusColor(status: string): string {
 
 function handleClose() {
   if (initialized && !finished) {
-    ;(window as any).API?.LMSFinish('')
+    const version = launchData.value?.package?.version || '1.2'
+    if (version === '2004') {
+      ;(window as any).API_1484_11?.Terminate('')
+    } else {
+      ;(window as any).API?.LMSFinish('')
+    }
   }
   window.history.back()
 }
@@ -145,9 +227,17 @@ onMounted(async () => {
     const response = await axios.get(`/api/lms/scorm/${props.packageId}/launch`)
     launchData.value = response.data.data
 
-    // Install SCORM RTE API on window
-    const api = buildScormApi()
-    ;(window as any).API = api
+    const version = launchData.value?.package?.version || props.scormVersion || '1.2'
+
+    if (version === '2004') {
+      // SCORM 2004 uses API_1484_11
+      const api2004 = buildScorm2004Api()
+      ;(window as any).API_1484_11 = api2004
+    } else {
+      // SCORM 1.2 uses API
+      const api = buildScormApi()
+      ;(window as any).API = api
+    }
 
     loading.value = false
   } catch (e: any) {
@@ -158,9 +248,15 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   if (initialized && !finished) {
-    ;(window as any).API?.LMSFinish('')
+    const version = launchData.value?.package?.version || '1.2'
+    if (version === '2004') {
+      ;(window as any).API_1484_11?.Terminate('')
+    } else {
+      ;(window as any).API?.LMSFinish('')
+    }
   }
   delete (window as any).API
+  delete (window as any).API_1484_11
 })
 </script>
 

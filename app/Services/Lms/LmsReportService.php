@@ -229,4 +229,42 @@ class LmsReportService
 
         return $csv;
     }
+
+    /**
+     * Export a report as PDF, returning the raw PDF string.
+     */
+    public function exportPdf(int $organizationId, string $reportType, array $filters = []): string
+    {
+        $html = $this->generateReportHtml($organizationId, $reportType, $filters);
+
+        $dompdf = new \Dompdf\Dompdf(['isRemoteEnabled' => true]);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        return $dompdf->output();
+    }
+
+    /**
+     * Render a Blade view with report data and return the HTML string.
+     */
+    public function generateReportHtml(int $organizationId, string $reportType, array $filters = []): string
+    {
+        $data = match ($reportType) {
+            'completion' => $this->completionReport($organizationId, $filters),
+            'compliance' => $this->complianceStatusReport($organizationId),
+            'engagement' => $this->engagementTrendsReport($organizationId),
+            'time_to_complete', 'time-to-complete' => $this->timeToCompleteReport($organizationId),
+            default => [],
+        };
+
+        $viewName = match ($reportType) {
+            'completion' => 'reports.lms.completion',
+            'compliance' => 'reports.lms.compliance',
+            'engagement' => 'reports.lms.engagement',
+            default => 'reports.lms.completion',
+        };
+
+        return view($viewName, ['data' => $data, 'reportType' => $reportType, 'generatedAt' => now()])->render();
+    }
 }

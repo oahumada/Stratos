@@ -1,6 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
-* @see routes/web.php:394
+* @see routes/web.php:409
 * @route '/workforce-planning'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +14,7 @@ index.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:394
+* @see routes/web.php:409
 * @route '/workforce-planning'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -22,7 +22,7 @@ index.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:394
+* @see routes/web.php:409
 * @route '/workforce-planning'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -31,7 +31,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:394
+* @see routes/web.php:409
 * @route '/workforce-planning'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -40,7 +40,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:394
+* @see routes/web.php:409
 * @route '/workforce-planning'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -49,7 +49,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:394
+* @see routes/web.php:409
 * @route '/workforce-planning'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -58,7 +58,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:394
+* @see routes/web.php:409
 * @route '/workforce-planning'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -74,7 +74,7 @@ indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 index.form = indexForm
 
 /**
-* @see routes/web.php:398
+* @see routes/web.php:413
 * @route '/workforce-planning/recomendaciones'
 */
 export const recomendaciones = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -88,7 +88,7 @@ recomendaciones.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:398
+* @see routes/web.php:413
 * @route '/workforce-planning/recomendaciones'
 */
 recomendaciones.url = (options?: RouteQueryOptions) => {
@@ -96,7 +96,7 @@ recomendaciones.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:398
+* @see routes/web.php:413
 * @route '/workforce-planning/recomendaciones'
 */
 recomendaciones.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -105,7 +105,7 @@ recomendaciones.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:398
+* @see routes/web.php:413
 * @route '/workforce-planning/recomendaciones'
 */
 recomendaciones.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -114,7 +114,7 @@ recomendaciones.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =>
 })
 
 /**
-* @see routes/web.php:398
+* @see routes/web.php:413
 * @route '/workforce-planning/recomendaciones'
 */
 const recomendacionesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -123,7 +123,7 @@ const recomendacionesForm = (options?: RouteQueryOptions): RouteFormDefinition<'
 })
 
 /**
-* @see routes/web.php:398
+* @see routes/web.php:413
 * @route '/workforce-planning/recomendaciones'
 */
 recomendacionesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ recomendacionesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'ge
 })
 
 /**
-* @see routes/web.php:398
+* @see routes/web.php:413
 * @route '/workforce-planning/recomendaciones'
 */
 recomendacionesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -148,7 +148,7 @@ recomendacionesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'g
 recomendaciones.form = recomendacionesForm
 
 /**
-* @see routes/web.php:402
+* @see routes/web.php:417
 * @route '/workforce-planning/gobernanza'
 */
 export const gobernanza = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -162,7 +162,7 @@ gobernanza.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:402
+* @see routes/web.php:417
 * @route '/workforce-planning/gobernanza'
 */
 gobernanza.url = (options?: RouteQueryOptions) => {
@@ -170,7 +170,7 @@ gobernanza.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:402
+* @see routes/web.php:417
 * @route '/workforce-planning/gobernanza'
 */
 gobernanza.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -179,7 +179,7 @@ gobernanza.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:402
+* @see routes/web.php:417
 * @route '/workforce-planning/gobernanza'
 */
 gobernanza.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -188,7 +188,7 @@ gobernanza.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:402
+* @see routes/web.php:417
 * @route '/workforce-planning/gobernanza'
 */
 const gobernanzaForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -197,7 +197,7 @@ const gobernanzaForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'>
 })
 
 /**
-* @see routes/web.php:402
+* @see routes/web.php:417
 * @route '/workforce-planning/gobernanza'
 */
 gobernanzaForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -206,7 +206,7 @@ gobernanzaForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =
 })
 
 /**
-* @see routes/web.php:402
+* @see routes/web.php:417
 * @route '/workforce-planning/gobernanza'
 */
 gobernanzaForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -222,7 +222,7 @@ gobernanzaForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> 
 gobernanza.form = gobernanzaForm
 
 /**
-* @see routes/web.php:406
+* @see routes/web.php:421
 * @route '/workforce-planning/comparador'
 */
 export const comparador = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -236,7 +236,7 @@ comparador.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:406
+* @see routes/web.php:421
 * @route '/workforce-planning/comparador'
 */
 comparador.url = (options?: RouteQueryOptions) => {
@@ -244,7 +244,7 @@ comparador.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:406
+* @see routes/web.php:421
 * @route '/workforce-planning/comparador'
 */
 comparador.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -253,7 +253,7 @@ comparador.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:406
+* @see routes/web.php:421
 * @route '/workforce-planning/comparador'
 */
 comparador.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -262,7 +262,7 @@ comparador.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:406
+* @see routes/web.php:421
 * @route '/workforce-planning/comparador'
 */
 const comparadorForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -271,7 +271,7 @@ const comparadorForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'>
 })
 
 /**
-* @see routes/web.php:406
+* @see routes/web.php:421
 * @route '/workforce-planning/comparador'
 */
 comparadorForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -280,7 +280,7 @@ comparadorForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =
 })
 
 /**
-* @see routes/web.php:406
+* @see routes/web.php:421
 * @route '/workforce-planning/comparador'
 */
 comparadorForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

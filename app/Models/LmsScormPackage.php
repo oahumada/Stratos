@@ -14,6 +14,7 @@ class LmsScormPackage extends Model
         'filename',
         'version',
         'manifest_data',
+        'sequencing_rules',
         'entry_point',
         'identifier',
         'storage_path',
@@ -25,6 +26,7 @@ class LmsScormPackage extends Model
     {
         return [
             'manifest_data' => 'array',
+            'sequencing_rules' => 'array',
             'file_size_bytes' => 'integer',
         ];
     }
