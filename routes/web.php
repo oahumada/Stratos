@@ -322,6 +322,18 @@ Route::get('/workforce-planning', function () {
     return Inertia::render('WorkforcePlanning/Index');
 })->middleware(['auth', 'verified'])->name('workforce-planning.index');
 
+Route::get('/workforce-planning/recomendaciones', function () {
+    return Inertia::render('WorkforcePlanning/Recomendaciones');
+})->middleware(['auth', 'verified'])->name('workforce-planning.recomendaciones');
+
+Route::get('/workforce-planning/gobernanza', function () {
+    return Inertia::render('WorkforcePlanning/Gobernanza');
+})->middleware(['auth', 'verified'])->name('workforce-planning.gobernanza');
+
+Route::get('/workforce-planning/comparador', function () {
+    return Inertia::render('WorkforcePlanning/Comparador');
+})->middleware(['auth', 'verified'])->name('workforce-planning.comparador');
+
 Route::get('/quality-hub', function () {
     return Inertia::render('Quality/QualityHub');
 })->middleware(['auth', 'verified'])->name('quality.hub');

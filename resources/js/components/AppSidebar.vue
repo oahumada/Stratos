@@ -206,6 +206,25 @@ const allNavItems: NavItem[] = [
         href: '/scenario-planning/analytics',
         icon: PhChartBar,
     },
+    // Workforce Planning Fase 2-4
+    {
+        title: 'WFP Recomendaciones',
+        href: '/workforce-planning/recomendaciones',
+        icon: defineComponent(() => () => h(PhRocketLaunch, { size: 20 })),
+        requiredRole: ['admin', 'hr_leader'],
+    },
+    {
+        title: 'WFP Gobernanza',
+        href: '/workforce-planning/gobernanza',
+        icon: defineComponent(() => () => h(PhChartBar, { size: 20 })),
+        requiredRole: ['admin', 'hr_leader'],
+    },
+    {
+        title: 'WFP Comparador',
+        href: '/workforce-planning/comparador',
+        icon: defineComponent(() => () => h(PhGraph, { size: 20 })),
+        requiredRole: ['admin', 'hr_leader'],
+    },
     // Talento 360 — requires assessments.view
     {
         title: 'Talento 360°',
