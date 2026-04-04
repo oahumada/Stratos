@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.1](https://github.com/oahumada/Stratos/compare/v0.20.1...v0.21.1) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **lms:** complete all remaining gaps — ILT, PDF reports, surveys, peer review, UGC, cohorts, adaptive learning, SCORM 2004, cmi5, audit trail ([33accc7](https://github.com/oahumada/Stratos/commit/33accc735a9911c2b72d59016c6180c42d8c02f4))
+
 ### [0.20.1](https://github.com/oahumada/Stratos/compare/v0.19.1...v0.20.1) (2026-04-04)
 
 
