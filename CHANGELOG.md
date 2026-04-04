@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.14.1](https://github.com/oahumada/Stratos/compare/v0.13.1...v0.14.1) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **lms:** add Quiz module (G5) and Learning Paths (G3) ([a54bd01](https://github.com/oahumada/Stratos/commit/a54bd019b9791f2e562681ea4540b022064c3aaf))
+
 ### [0.13.1](https://github.com/oahumada/Stratos/compare/v0.13.0...v0.13.1) (2026-04-04)
 
 ## [0.13.0](https://github.com/oahumada/Stratos/compare/v0.12.6...v0.13.0) (2026-04-04)
