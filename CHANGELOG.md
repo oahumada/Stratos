@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.12.3](https://github.com/oahumada/Stratos/compare/v0.12.2...v0.12.3) (2026-04-04)
+
+
+### 🐛 Correcciones de Bugs
+
+* close all open technical debt items (N+1, API docs, onboarding, debt closure) ([8d16cf2](https://github.com/oahumada/Stratos/commit/8d16cf23d9b0b85a8f40a57b105e6d26bea5b1dd))
+
 ### [0.12.2](https://github.com/oahumada/Stratos/compare/v0.12.1...v0.12.2) (2026-04-04)
 
 
