@@ -9,6 +9,7 @@ import LearningPathController from './LearningPathController'
 import ScormPlayerController from './ScormPlayerController'
 import ComplianceController from './ComplianceController'
 import ReportController from './ReportController'
+import CatalogController from './CatalogController'
 
 const Lms = {
     CmsArticleController: Object.assign(CmsArticleController, CmsArticleController),
@@ -22,6 +23,7 @@ const Lms = {
     ScormPlayerController: Object.assign(ScormPlayerController, ScormPlayerController),
     ComplianceController: Object.assign(ComplianceController, ComplianceController),
     ReportController: Object.assign(ReportController, ReportController),
+    CatalogController: Object.assign(CatalogController, CatalogController),
 }
 
 export default Lms

@@ -480,6 +480,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/lms/reports/engagement', [\App\Http\Controllers\Api\Lms\ReportController::class, 'engagement'])->middleware('permission:lms.courses.view');
     Route::get('/lms/reports/export/{type}', [\App\Http\Controllers\Api\Lms\ReportController::class, 'export'])->middleware('permission:lms.courses.manage');
 
+    // Course Catalog
+    Route::get('/lms/catalog/recommendations', [\App\Http\Controllers\Api\Lms\CatalogController::class, 'recommendations'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/catalog/categories', [\App\Http\Controllers\Api\Lms\CatalogController::class, 'categories'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/catalog/tags', [\App\Http\Controllers\Api\Lms\CatalogController::class, 'tags'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/catalog', [\App\Http\Controllers\Api\Lms\CatalogController::class, 'index'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/catalog/{id}', [\App\Http\Controllers\Api\Lms\CatalogController::class, 'show'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/catalog/{id}/rate', [\App\Http\Controllers\Api\Lms\CatalogController::class, 'rate'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/catalog/{id}/enroll', [\App\Http\Controllers\Api\Lms\CatalogController::class, 'enroll'])->middleware('permission:lms.courses.view');
+
     // Social Learning & Mentorship Knowledge Transfer
     Route::get('/social-learning/dashboard', [\App\Http\Controllers\Api\SocialLearningController::class, 'dashboard']);
     Route::get('/social-learning/matches/{skillId}', [\App\Http\Controllers\Api\SocialLearningController::class, 'matches']);

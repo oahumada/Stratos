@@ -214,6 +214,12 @@ Route::get('/lms/compliance', fn () => Inertia::render('Lms/ComplianceDashboard'
 Route::get('/lms/reports', fn () => Inertia::render('Lms/Reports'))
     ->middleware(['auth', 'verified'])->name('lms.reports');
 
+Route::get('/lms/catalog/{courseId}', fn ($courseId) => Inertia::render('Lms/CatalogCourseDetail', ['courseId' => (int) $courseId]))
+    ->middleware(['auth', 'verified'])->name('lms.catalog.detail');
+
+Route::get('/lms/catalog', fn () => Inertia::render('Lms/Catalog'))
+    ->middleware(['auth', 'verified'])->name('lms.catalog');
+
 Route::get('/lms', function () {
     /** @var \App\Models\User $user */
     $user = Auth::user();

@@ -23,6 +23,9 @@ class LmsCourse extends Model
         'cert_template_id',
         'is_active',
         'organization_id',
+        'tags',
+        'featured',
+        'enrollment_type',
     ];
 
     protected function casts(): array
@@ -34,6 +37,8 @@ class LmsCourse extends Model
             'cert_min_assessment_score' => 'float',
             'cert_template_id' => 'integer',
             'is_active' => 'boolean',
+            'tags' => 'array',
+            'featured' => 'boolean',
         ];
     }
 
@@ -50,6 +55,11 @@ class LmsCourse extends Model
     public function enrollments()
     {
         return $this->hasMany(LmsEnrollment::class);
+    }
+
+    public function ratings()
+    {
+        return $this->hasMany(LmsCourseRating::class);
     }
 
     public function organization()

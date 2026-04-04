@@ -577,7 +577,81 @@ reportsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => 
 reports.form = reportsForm
 
 /**
-* @see routes/web.php:217
+* @see routes/web.php:220
+* @route '/lms/catalog'
+*/
+export const catalog = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: catalog.url(options),
+    method: 'get',
+})
+
+catalog.definition = {
+    methods: ["get","head"],
+    url: '/lms/catalog',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:220
+* @route '/lms/catalog'
+*/
+catalog.url = (options?: RouteQueryOptions) => {
+    return catalog.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:220
+* @route '/lms/catalog'
+*/
+catalog.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: catalog.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:220
+* @route '/lms/catalog'
+*/
+catalog.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: catalog.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:220
+* @route '/lms/catalog'
+*/
+const catalogForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: catalog.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:220
+* @route '/lms/catalog'
+*/
+catalogForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: catalog.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:220
+* @route '/lms/catalog'
+*/
+catalogForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: catalog.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+catalog.form = catalogForm
+
+/**
+* @see routes/web.php:223
 * @route '/lms'
 */
 export const landing = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -591,7 +665,7 @@ landing.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:217
+* @see routes/web.php:223
 * @route '/lms'
 */
 landing.url = (options?: RouteQueryOptions) => {
@@ -599,7 +673,7 @@ landing.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:217
+* @see routes/web.php:223
 * @route '/lms'
 */
 landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -608,7 +682,7 @@ landing.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:217
+* @see routes/web.php:223
 * @route '/lms'
 */
 landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -617,7 +691,7 @@ landing.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:217
+* @see routes/web.php:223
 * @route '/lms'
 */
 const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -626,7 +700,7 @@ const landingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 })
 
 /**
-* @see routes/web.php:217
+* @see routes/web.php:223
 * @route '/lms'
 */
 landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -635,7 +709,7 @@ landingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 })
 
 /**
-* @see routes/web.php:217
+* @see routes/web.php:223
 * @route '/lms'
 */
 landingForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -658,6 +732,7 @@ const lms = {
     scormPlayer: Object.assign(scormPlayer, scormPlayer),
     compliance: Object.assign(compliance, compliance),
     reports: Object.assign(reports, reports),
+    catalog: Object.assign(catalog, catalog),
     landing: Object.assign(landing, landing),
     courses: Object.assign(courses, courses),
 }

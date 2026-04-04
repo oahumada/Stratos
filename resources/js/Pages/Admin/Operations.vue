@@ -263,9 +263,9 @@
                 v-if="selectedOperation"
                 :operation="selectedOperation"
                 @close="selectedOperation = null"
-                @preview="previewOperation"
-                @execute="executeOperation"
-                @cancel="cancelOperation"
+                @preview="previewOperation(selectedOperation.id)"
+                @execute="executeOperation(selectedOperation.id)"
+                @cancel="cancelOperation(selectedOperation.id)"
             />
 
             <!-- New Operation Modal -->
@@ -284,8 +284,8 @@ import OperationDetailModal from '@/components/Admin/OperationDetailModal.vue';
 import StatsCard from '@/components/Admin/StatsCard.vue';
 import StatusBadge from '@/components/Admin/StatusBadge.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { axios } from '@/lib/axios';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import axios from 'axios';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 interface AdminOperation {
     id: number;
@@ -454,14 +454,8 @@ function isOperationRunning(operationId: number): boolean {
     );
 }
 
-function activeOperations(): AdminOperation[] {
+const activeOperations = computed(() => {
     return operations.value.filter((op) => op.status === 'running');
-}
-
-Object.defineProperty(this, 'activeOperations', {
-    get() {
-        return operations.value.filter((op) => op.status === 'running');
-    },
 });
 
 function selectOperation(op: AdminOperation) {

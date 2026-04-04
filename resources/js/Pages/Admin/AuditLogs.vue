@@ -20,7 +20,7 @@
                         :items="actionOptions"
                         clearable
                         density="compact"
-                        @update:model-value="loadLogs"
+                        @update:model-value="() => loadLogs()"
                     />
                     <v-select
                         v-model="filters.entity_type"
@@ -28,14 +28,14 @@
                         :items="entityOptions"
                         clearable
                         density="compact"
-                        @update:model-value="loadLogs"
+                        @update:model-value="() => loadLogs()"
                     />
                     <v-select
                         v-model="filters.days"
                         label="Período"
                         :items="dayOptions"
                         density="compact"
-                        @update:model-value="loadLogs"
+                        @update:model-value="() => loadLogs()"
                     />
                     <v-btn
                         color="primary"
@@ -227,7 +227,7 @@ function formatDate(d: string) {
 }
 
 function formatStatKey(k: string) {
-    return k.replace(/_/g, ' ');
+    return k.replaceAll('_', ' ');
 }
 
 async function loadLogs(page = 1) {
