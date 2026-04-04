@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.36](https://github.com/oahumada/Stratos/compare/v0.10.34...v0.10.36) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **workforce-planning:** Fase 4 — comparador multi-escenario + sensitivity sweep ([7156fcf](https://github.com/oahumada/Stratos/commit/7156fcfc214a6826896bacb18258f402d385b944))
+
 ### [0.10.34](https://github.com/oahumada/Stratos/compare/v0.10.32...v0.10.34) (2026-04-04)
 
 
