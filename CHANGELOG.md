@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.15.1](https://github.com/oahumada/Stratos/compare/v0.14.1...v0.15.1) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **lms:** add SCORM 1.2 Player module (G1) ([5a6219a](https://github.com/oahumada/Stratos/commit/5a6219ae8dee222dd03b417d6d8f4c2744432686))
+
 ### [0.14.1](https://github.com/oahumada/Stratos/compare/v0.13.1...v0.14.1) (2026-04-04)
 
 
