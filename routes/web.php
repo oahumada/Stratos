@@ -156,6 +156,10 @@ Route::get('/succession', function () {
     return Inertia::render('Succession/Index');
 })->middleware(['auth', 'verified'])->name('succession.index');
 
+Route::get('/lms/course-designer', fn () => Inertia::render('Lms/CourseDesigner'))
+    ->middleware(['auth', 'verified'])
+    ->name('lms.course-designer');
+
 Route::get('/lms', function () {
     /** @var \App\Models\User $user */
     $user = Auth::user();

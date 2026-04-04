@@ -23,7 +23,10 @@ import {
     PhChartBar,
     PhChartLineUp,
     PhChartPieSlice,
+    PhChatCircle,
+    PhClipboardText,
     PhEye,
+    PhGear,
     PhGraph,
     PhHouse,
     PhLockKey,
@@ -41,9 +44,6 @@ import {
     PhUser,
     PhUsers,
     PhUsersFour,
-    PhChatCircle,
-    PhGear,
-    PhClipboardText,
 } from '@phosphor-icons/vue';
 import { computed, defineComponent, h } from 'vue';
 
@@ -165,6 +165,13 @@ const allNavItems: NavItem[] = [
         requiredPermission: 'people.view',
         requiredModule: 'st-grow',
     },
+    // Course Designer (AI-assisted)
+    {
+        title: 'Diseñador de Cursos',
+        href: '/lms/course-designer',
+        icon: defineComponent(() => () => h(PhPencilLine, { size: 20 })),
+        requiredRole: ['admin', 'hr_leader'],
+    },
     // Mentoring Hub — requires people.view
     {
         title: 'Mentoring Hub',
@@ -191,7 +198,9 @@ const allNavItems: NavItem[] = [
     {
         title: 'Talent Pass',
         href: '/talent-pass',
-        icon: defineComponent(() => () => h(PhIdentificationCard, { size: 20 })),
+        icon: defineComponent(
+            () => () => h(PhIdentificationCard, { size: 20 }),
+        ),
         requiredModule: 'core',
     },
     // Mensajes

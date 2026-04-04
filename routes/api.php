@@ -429,6 +429,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/lms/certificates/{id}/verification', [\App\Http\Controllers\Api\Lms\CertificateController::class, 'verify']);
     Route::post('/lms/certificates/{id}/revoke', [\App\Http\Controllers\Api\Lms\CertificateController::class, 'revoke'])->middleware('permission:lms.certify');
 
+    // LMS Course Designer (AI-assisted course creation)
+    Route::post('/lms/course-designer/generate-outline', [\App\Http\Controllers\Api\Lms\CourseDesignerController::class, 'generateOutline']);
+    Route::post('/lms/course-designer/generate-content', [\App\Http\Controllers\Api\Lms\CourseDesignerController::class, 'generateContent']);
+    Route::post('/lms/course-designer/persist', [\App\Http\Controllers\Api\Lms\CourseDesignerController::class, 'persist']);
+    Route::post('/lms/course-designer/{id}/review', [\App\Http\Controllers\Api\Lms\CourseDesignerController::class, 'review']);
+    Route::get('/lms/course-designer/{id}/preview', [\App\Http\Controllers\Api\Lms\CourseDesignerController::class, 'preview']);
+
     // Social Learning & Mentorship Knowledge Transfer
     Route::get('/social-learning/dashboard', [\App\Http\Controllers\Api\SocialLearningController::class, 'dashboard']);
     Route::get('/social-learning/matches/{skillId}', [\App\Http\Controllers\Api\SocialLearningController::class, 'matches']);
