@@ -12,6 +12,9 @@ import ReportController from './ReportController'
 import CatalogController from './CatalogController'
 import DiscussionController from './DiscussionController'
 import XApiController from './XApiController'
+import VideoPlayerController from './VideoPlayerController'
+import MicrolearningController from './MicrolearningController'
+import InteractiveContentController from './InteractiveContentController'
 
 const Lms = {
     CmsArticleController: Object.assign(CmsArticleController, CmsArticleController),
@@ -28,6 +31,9 @@ const Lms = {
     CatalogController: Object.assign(CatalogController, CatalogController),
     DiscussionController: Object.assign(DiscussionController, DiscussionController),
     XApiController: Object.assign(XApiController, XApiController),
+    VideoPlayerController: Object.assign(VideoPlayerController, VideoPlayerController),
+    MicrolearningController: Object.assign(MicrolearningController, MicrolearningController),
+    InteractiveContentController: Object.assign(InteractiveContentController, InteractiveContentController),
 }
 
 export default Lms

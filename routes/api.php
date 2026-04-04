@@ -502,6 +502,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/lms/xapi/statements', [\App\Http\Controllers\Api\Lms\XApiController::class, 'index'])->middleware('permission:lms.courses.view');
     Route::get('/lms/xapi/activities/{objectId}/stats', [\App\Http\Controllers\Api\Lms\XApiController::class, 'activityStats'])->where('objectId', '.*')->middleware('permission:lms.courses.view');
 
+    // LMS Video Player & Tracking
+    Route::get('/lms/lessons/{lesson}/video/tracking', [\App\Http\Controllers\Api\Lms\VideoPlayerController::class, 'getTracking'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/lessons/{lesson}/video/progress', [\App\Http\Controllers\Api\Lms\VideoPlayerController::class, 'updateProgress'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/lessons/{lesson}/video/stats', [\App\Http\Controllers\Api\Lms\VideoPlayerController::class, 'stats'])->middleware('permission:lms.courses.view');
+
+    // LMS Microlearning Cards
+    Route::get('/lms/lessons/{lesson}/micro', [\App\Http\Controllers\Api\Lms\MicrolearningController::class, 'show'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/lessons/{lesson}/micro', [\App\Http\Controllers\Api\Lms\MicrolearningController::class, 'store'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/lessons/{lesson}/micro/generate', [\App\Http\Controllers\Api\Lms\MicrolearningController::class, 'generate'])->middleware('permission:lms.courses.manage');
+
+    // LMS Interactive Content (H5P-style)
+    Route::get('/lms/lessons/{lesson}/interactive', [\App\Http\Controllers\Api\Lms\InteractiveContentController::class, 'index'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/lessons/{lesson}/interactive', [\App\Http\Controllers\Api\Lms\InteractiveContentController::class, 'store'])->middleware('permission:lms.courses.manage');
+    Route::put('/lms/interactive/{interactiveContent}', [\App\Http\Controllers\Api\Lms\InteractiveContentController::class, 'update'])->middleware('permission:lms.courses.manage');
+    Route::delete('/lms/interactive/{interactiveContent}', [\App\Http\Controllers\Api\Lms\InteractiveContentController::class, 'destroy'])->middleware('permission:lms.courses.manage');
+    Route::get('/lms/interactive/widget-types', [\App\Http\Controllers\Api\Lms\InteractiveContentController::class, 'widgetTypes'])->middleware('permission:lms.courses.view');
+
     // Social Learning & Mentorship & Mentorship Knowledge Transfer
     Route::get('/social-learning/dashboard', [\App\Http\Controllers\Api\SocialLearningController::class, 'dashboard']);
     Route::get('/social-learning/matches/{skillId}', [\App\Http\Controllers\Api\SocialLearningController::class, 'matches']);

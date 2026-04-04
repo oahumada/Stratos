@@ -530,4 +530,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('messaging.settings');
 });
 
+// LMS Content Player
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/lms/player/{lesson}', fn () => Inertia::render('Lms/ContentPlayer'))->name('lms.player');
+});
+
 require __DIR__.'/settings.php';

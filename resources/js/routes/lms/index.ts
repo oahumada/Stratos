@@ -724,6 +724,98 @@ landingForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => 
 
 landing.form = landingForm
 
+/**
+* @see routes/web.php:535
+* @route '/lms/player/{lesson}'
+*/
+export const player = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: player.url(args, options),
+    method: 'get',
+})
+
+player.definition = {
+    methods: ["get","head"],
+    url: '/lms/player/{lesson}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:535
+* @route '/lms/player/{lesson}'
+*/
+player.url = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { lesson: args }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            lesson: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        lesson: args.lesson,
+    }
+
+    return player.definition.url
+            .replace('{lesson}', parsedArgs.lesson.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see routes/web.php:535
+* @route '/lms/player/{lesson}'
+*/
+player.get = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: player.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:535
+* @route '/lms/player/{lesson}'
+*/
+player.head = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: player.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:535
+* @route '/lms/player/{lesson}'
+*/
+const playerForm = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: player.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:535
+* @route '/lms/player/{lesson}'
+*/
+playerForm.get = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: player.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:535
+* @route '/lms/player/{lesson}'
+*/
+playerForm.head = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: player.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+player.form = playerForm
+
 const lms = {
     courseDesigner: Object.assign(courseDesigner, courseDesigner),
     quizPlayer: Object.assign(quizPlayer, quizPlayer),
@@ -735,6 +827,7 @@ const lms = {
     catalog: Object.assign(catalog, catalog),
     landing: Object.assign(landing, landing),
     courses: Object.assign(courses, courses),
+    player: Object.assign(player, player),
 }
 
 export default lms
