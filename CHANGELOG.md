@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.10.25](https://github.com/oahumada/Stratos/compare/v0.10.23...v0.10.25) (2026-04-04)
+
+
+### 🐛 Correcciones de Bugs
+
+* **tests:** repair 6 failing tests for QA window ([19607ee](https://github.com/oahumada/Stratos/commit/19607ee90c7a045b3ea565f7183c9e413b2dc44b))
+
 ### [0.10.23](https://github.com/oahumada/Stratos/compare/v0.10.22...v0.10.23) (2026-04-04)
 
 
