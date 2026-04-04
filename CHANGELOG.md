@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.18.1](https://github.com/oahumada/Stratos/compare/v0.17.1...v0.18.1) (2026-04-04)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **lms:** add Social Learning (G4) and xAPI (G2) modules ([9e91ba7](https://github.com/oahumada/Stratos/commit/9e91ba76a64438da61d5965a9c3829f57fd960f1))
+
 ### [0.17.1](https://github.com/oahumada/Stratos/compare/v0.16.1...v0.17.1) (2026-04-04)
 
 
