@@ -57,12 +57,22 @@
 
 #### ✅ Tarea 6: Load Testing (Días 9-10 - 16 horas)
 
-- [ ] Setup k6 testing
-- [ ] 5 escenarios de carga
-- [ ] Identificar bottlenecks
+- [x] Setup k6 testing (baseline script exists)
+- [x] Created comprehensive K6 load testing plan (3 phases)
+- [x] 10 load test scenarios defined:
+  - Staging: smoke, baseline, stress, spike, rate-limit, cache-failover
+  - Production: smoke, canary (10%/50%), full production
+  - Post-prod: soak, n+1 detection
+- [ ] Create stress.js script
+- [ ] Create spike.js script
+- [ ] Create rate-limit.js script
+- [ ] Create cache-failover.js script
+- [ ] Execute Staging tests (4-5 Abr)
+- [ ] Analyze bottlenecks & generate report
 - [ ] Documentar resultados
-- **Status:** NOT STARTED
+- **Status:** 🟡 PLANNING COMPLETE → EXECUTION STARTING
 - **Responsable:** DevOps/QA
+- **Plan Document:** K6_LOAD_TESTING_PLAN.md (main plan)
 
 ### FASE 3: INTEGRACIÓN & VALIDACIÓN (Días 11-14)
 
