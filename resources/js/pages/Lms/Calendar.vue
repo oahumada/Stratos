@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { onMounted, ref } from 'vue';
 
 interface CalendarEvent {
     id: number;
@@ -17,7 +17,12 @@ const loading = ref(true);
 const dialog = ref(false);
 const syncing = ref(false);
 
-const eventTypes = ['course_deadline', 'compliance_deadline', 'session', 'quiz_deadline'];
+const eventTypes = [
+    'course_deadline',
+    'compliance_deadline',
+    'session',
+    'quiz_deadline',
+];
 
 const form = ref({
     title: '',
@@ -40,7 +45,13 @@ async function fetchEvents() {
 async function createEvent() {
     await axios.post('/api/lms/calendar', form.value);
     dialog.value = false;
-    form.value = { title: '', description: '', event_type: 'session', starts_at: '', ends_at: '' };
+    form.value = {
+        title: '',
+        description: '',
+        event_type: 'session',
+        starts_at: '',
+        ends_at: '',
+    };
     await fetchEvents();
 }
 
@@ -81,7 +92,11 @@ onMounted(fetchEvents);
                             <v-icon start>mdi-download</v-icon>
                             iCal
                         </v-btn>
-                        <v-btn variant="outlined" :loading="syncing" @click="syncCompliance">
+                        <v-btn
+                            variant="outlined"
+                            :loading="syncing"
+                            @click="syncCompliance"
+                        >
                             <v-icon start>mdi-sync</v-icon>
                             Sync Compliance
                         </v-btn>
@@ -98,18 +113,29 @@ onMounted(fetchEvents);
                             <template #prepend>
                                 <v-icon>mdi-calendar</v-icon>
                             </template>
-                            <v-list-item-title>{{ ev.title }}</v-list-item-title>
+                            <v-list-item-title>{{
+                                ev.title
+                            }}</v-list-item-title>
                             <v-list-item-subtitle>
-                                {{ ev.event_type }} · {{ formatDate(ev.starts_at) }} – {{ formatDate(ev.ends_at) }}
+                                {{ ev.event_type }} ·
+                                {{ formatDate(ev.starts_at) }} –
+                                {{ formatDate(ev.ends_at) }}
                             </v-list-item-subtitle>
                             <template #append>
-                                <v-btn size="small" variant="text" color="error" @click="deleteEvent(ev.id)">
+                                <v-btn
+                                    size="small"
+                                    variant="text"
+                                    color="error"
+                                    @click="deleteEvent(ev.id)"
+                                >
                                     <v-icon>mdi-delete</v-icon>
                                 </v-btn>
                             </template>
                         </v-list-item>
                     </v-list>
-                    <v-card-text v-else-if="!loading">No hay eventos.</v-card-text>
+                    <v-card-text v-else-if="!loading"
+                        >No hay eventos.</v-card-text
+                    >
                 </v-card>
             </v-col>
         </v-row>
@@ -117,11 +143,31 @@ onMounted(fetchEvents);
         <v-dialog v-model="dialog" max-width="500">
             <v-card title="Crear Evento">
                 <v-card-text>
-                    <v-text-field v-model="form.title" label="Título" required />
-                    <v-textarea v-model="form.description" label="Descripción" rows="2" />
-                    <v-select v-model="form.event_type" :items="eventTypes" label="Tipo" />
-                    <v-text-field v-model="form.starts_at" label="Inicio" type="datetime-local" />
-                    <v-text-field v-model="form.ends_at" label="Fin" type="datetime-local" />
+                    <v-text-field
+                        v-model="form.title"
+                        label="Título"
+                        required
+                    />
+                    <v-textarea
+                        v-model="form.description"
+                        label="Descripción"
+                        rows="2"
+                    />
+                    <v-select
+                        v-model="form.event_type"
+                        :items="eventTypes"
+                        label="Tipo"
+                    />
+                    <v-text-field
+                        v-model="form.starts_at"
+                        label="Inicio"
+                        type="datetime-local"
+                    />
+                    <v-text-field
+                        v-model="form.ends_at"
+                        label="Fin"
+                        type="datetime-local"
+                    />
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer />

@@ -1761,6 +1761,14 @@ Route::middleware('auth:sanctum')->prefix('agent-interactions')->group(function 
 Route::middleware('auth:sanctum')->prefix('intelligence')->group(function () {
     Route::get('/aggregates', [\App\Http\Controllers\Api\IntelligenceAggregatesController::class, 'index'])->name('intelligence.aggregates');
     Route::get('/aggregates/summary', [\App\Http\Controllers\Api\IntelligenceAggregatesController::class, 'summary'])->name('intelligence.aggregates.summary');
+
+    // ── Feedback Loop (Sprint 4) ──
+    Route::prefix('feedback')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\Intelligence\FeedbackController::class, 'index'])->name('intelligence.feedback.index');
+        Route::post('/', [\App\Http\Controllers\Api\Intelligence\FeedbackController::class, 'store'])->name('intelligence.feedback.store');
+        Route::get('/summary', [\App\Http\Controllers\Api\Intelligence\FeedbackController::class, 'summary'])->name('intelligence.feedback.summary');
+        Route::get('/patterns', [\App\Http\Controllers\Api\Intelligence\FeedbackController::class, 'patterns'])->name('intelligence.feedback.patterns');
+    });
 });
 
 // Catálogos dinámicos para selectores

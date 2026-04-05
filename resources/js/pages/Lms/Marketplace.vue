@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { onMounted, ref } from 'vue';
 
 interface Listing {
     id: number;
@@ -79,23 +79,51 @@ onMounted(fetchListings);
                 </v-row>
 
                 <v-row v-else-if="listings.length">
-                    <v-col v-for="listing in listings" :key="listing.id" cols="12" md="4">
+                    <v-col
+                        v-for="listing in listings"
+                        :key="listing.id"
+                        cols="12"
+                        md="4"
+                    >
                         <v-card>
                             <v-card-title>{{ listing.title }}</v-card-title>
                             <v-card-subtitle>
                                 {{ formatPrice(listing) }}
-                                <v-chip v-if="listing.category" size="small" class="ml-2">{{ listing.category }}</v-chip>
+                                <v-chip
+                                    v-if="listing.category"
+                                    size="small"
+                                    class="ml-2"
+                                    >{{ listing.category }}</v-chip
+                                >
                             </v-card-subtitle>
                             <v-card-text>
-                                <p class="text-body-2">{{ listing.description }}</p>
+                                <p class="text-body-2">
+                                    {{ listing.description }}
+                                </p>
                                 <div v-if="listing.tags?.length" class="mt-2">
-                                    <v-chip v-for="tag in listing.tags" :key="tag" size="x-small" class="mr-1">{{ tag }}</v-chip>
+                                    <v-chip
+                                        v-for="tag in listing.tags"
+                                        :key="tag"
+                                        size="x-small"
+                                        class="mr-1"
+                                        >{{ tag }}</v-chip
+                                    >
                                 </div>
-                                <p class="text-caption mt-2">{{ listing.downloads_count }} descargas</p>
+                                <p class="text-caption mt-2">
+                                    {{ listing.downloads_count }} descargas
+                                </p>
                             </v-card-text>
                             <v-card-actions>
-                                <v-btn color="primary" block @click="purchaseListing(listing.id)">
-                                    {{ listing.listing_type === 'free' ? 'Obtener gratis' : 'Comprar' }}
+                                <v-btn
+                                    color="primary"
+                                    block
+                                    @click="purchaseListing(listing.id)"
+                                >
+                                    {{
+                                        listing.listing_type === 'free'
+                                            ? 'Obtener gratis'
+                                            : 'Comprar'
+                                    }}
                                 </v-btn>
                             </v-card-actions>
                         </v-card>
@@ -103,7 +131,10 @@ onMounted(fetchListings);
                 </v-row>
 
                 <v-card v-else>
-                    <v-card-text>No hay listados disponibles en el marketplace.</v-card-text>
+                    <v-card-text
+                        >No hay listados disponibles en el
+                        marketplace.</v-card-text
+                    >
                 </v-card>
             </v-col>
         </v-row>

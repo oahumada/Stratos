@@ -110,7 +110,10 @@ onMounted(() => {
                 <StCardGlass v-else class="p-8">
                     <form @submit.prevent="handleSubmit" class="space-y-6">
                         <div class="space-y-1">
-                            <label for="title" class="text-sm font-medium text-white/80">
+                            <label
+                                for="title"
+                                class="text-sm font-medium text-white/80"
+                            >
                                 Título <span class="text-red-400">*</span>
                             </label>
                             <input
@@ -144,9 +147,9 @@ onMounted(() => {
                         </div>
 
                         <fieldset class="space-y-2">
-                            <legend class="text-sm font-medium text-white/80"
-                                >Visibilidad</legend
-                            >
+                            <legend class="text-sm font-medium text-white/80">
+                                Visibilidad
+                            </legend>
                             <div class="grid grid-cols-2 gap-3">
                                 <label
                                     v-for="opt in [
