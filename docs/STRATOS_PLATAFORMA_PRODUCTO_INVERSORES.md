@@ -1414,7 +1414,233 @@ LAND ────────────── EXPAND ────────�
 
 ---
 
-# PARTE VI: VISIÓN Y ROADMAP
+# PARTE VI: WORKFORCE PLANNING Y TALENT PLANNING — FUNCIONES COMPLEMENTARIAS
+
+---
+
+> _"Workforce Planning pregunta **cuántas personas** necesitamos. Talent Planning pregunta **qué capacidades** necesitan esas personas. Separar ambas es esencial; integrarlas es estratégico."_
+
+## 1. Definiciones
+
+### Workforce Planning (Planificación de Fuerza Laboral)
+
+**Disciplina estratégica** que determina la cantidad, tipo y ubicación de la fuerza de trabajo requerida para ejecutar la estrategia del negocio en un horizonte temporal definido.
+
+| Dimensión          | Descripción                                                                                  |
+| ------------------ | -------------------------------------------------------------------------------------------- |
+| **Objeto**         | La **dotación**: posiciones, headcount, FTEs, distribución geográfica                        |
+| **Pregunta clave** | ¿Cuántas personas, de qué tipo, dónde y cuándo?                                             |
+| **Horizonte**      | Mediano-largo plazo (12-36 meses)                                                             |
+| **Métricas**       | Headcount gap, tasa de vacancia, ratio de cobertura, costo de dotación, time-to-fill         |
+| **Fundamento**     | Demografía laboral, proyecciones de negocio, análisis de oferta/demanda de talento externo   |
+| **Resultado**      | Plan dotacional: cuántas posiciones crear, eliminar, transformar o reubicar                  |
+
+**Base teórica**: La disciplina se fundamenta en los trabajos de **James Walker** (*Human Resource Planning*, 1980), el modelo de **Bechet & Walker** de oferta/demanda de talento, y más recientemente el marco **Strategic Workforce Planning** de la **Boston Consulting Group** que incorpora escenarios de automatización e IA.
+
+### Talent Planning (Planificación de Talento)
+
+**Disciplina estratégica** que identifica, desarrolla y optimiza las capacidades, competencias y potencial de las personas que ocupan (o ocuparán) las posiciones definidas por Workforce Planning.
+
+| Dimensión          | Descripción                                                                                  |
+| ------------------ | -------------------------------------------------------------------------------------------- |
+| **Objeto**         | Las **capacidades**: competencias, skills, proficiency levels, potencial de desarrollo        |
+| **Pregunta clave** | ¿Qué saben hacer, qué necesitan aprender, quién puede crecer hacia dónde?                   |
+| **Horizonte**      | Corto-mediano plazo (3-18 meses), con visión de sucesión a largo plazo                       |
+| **Métricas**       | Proficiency gap, skill coverage, readiness index, bench strength, learning velocity          |
+| **Fundamento**     | Psicología organizacional, ciencia del aprendizaje, frameworks de competencias               |
+| **Resultado**      | Plan de desarrollo: quién necesita qué, cuándo, cómo y con qué prioridad                    |
+
+**Base teórica**: Se sustenta en el modelo de **Boudreau & Ramstad** (*Beyond HR: The New Science of Human Capital*, 2007) — el framework **Talentship** que propone tratar el talento con el mismo rigor analítico que las finanzas tratan el capital. También en los modelos de **Lombardo & Eichinger** (70-20-10), el **9-Box Grid** de McKinsey, y los marcos de competencias de **Spencer & Spencer** (*Competence at Work*).
+
+---
+
+## 2. La confusión del mercado
+
+La mayoría de las soluciones HR Tech **mezclan ambos conceptos** bajo un solo paraguas, creando problemas críticos:
+
+| Error común                                            | Consecuencia                                                                                  |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| Llamar "gap de talento" a un déficit de headcount       | Se intenta cerrar con formación lo que requiere contratación                                  |
+| Llamar "gap de dotación" a un déficit de proficiency    | Se contrata externamente cuando la capacidad existe internamente (solo necesita desarrollo)   |
+| Usar la misma métrica para ambos                       | Se toman decisiones de inversión incorrectas: $50K en reclutamiento vs $5K en upskilling     |
+| Un solo dashboard sin separación                       | El CHRO no puede priorizar: ¿contratamos o formamos?                                         |
+
+### Cómo lo manejan los competidores
+
+| Plataforma            | WFP                | Talent Planning      | ¿Los separa?   | Problema                                                |
+| --------------------- | ------------------ | -------------------- | --------------- | ------------------------------------------------------- |
+| **Workday**           | Adaptive Planning  | Talent Optimization  | Parcialmente    | WFP vive en Adaptive (producto separado), no hay flujo integrado con talent |
+| **SAP SuccessFactors**| Workforce Planning | Succession & Dev     | No claramente   | Ambos bajo "Talent Management", métricas mezcladas      |
+| **Oracle HCM**        | Strategic WFP      | Talent Review        | Parcialmente    | Módulos separados pero sin modelo de datos unificado    |
+| **Visier**            | Analytics WFP      | People Analytics     | No              | Son dashboards, no planificación activa                 |
+| **Orgvue**            | ✅ Fuerte          | ❌ No tiene          | N/A             | Solo WFP, ignora el talento completamente               |
+| **Eightfold.ai**      | ❌ No tiene        | ✅ Fuerte (AI)       | N/A             | Solo talent matching, no planifica dotación              |
+| **Stratos**           | ✅ Horizon (WFP)   | ✅ Kairos (Talent)   | **✅ Sí, nativamente** | **Separados en arquitectura, integrados en flujo**      |
+
+---
+
+## 3. La solución Stratos: Separación arquitectónica, integración funcional
+
+### 3.1 Dos módulos, dos dominios, dos métricas
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│   STRATOS HORIZON (WFP)              STRATOS KAIROS (Talent)            │
+│   ═══════════════════                ═════════════════════               │
+│                                                                         │
+│   Objeto: Dotación                   Objeto: Capacidad                  │
+│   ────────────────                   ──────────────────                  │
+│   • Scenarios (escenarios)           • Proficiency assessments          │
+│   • ScenarioRoles (posiciones)       • Skill inventories                │
+│   • HeadcountDemand (FTEs)           • 9-Box positioning                │
+│   • VacancyForecasting               • Succession pipelines             │
+│   • OrgDesign (Vanguard)             • Readiness scoring                │
+│                                                                         │
+│   Métrica primaria:                  Métrica primaria:                  │
+│   ┌──────────────────┐               ┌──────────────────┐               │
+│   │ HEADCOUNT GAP    │               │ PROFICIENCY GAP  │               │
+│   │ getHeadcountGap()│               │ getProficiencyGap│               │
+│   │ = demand - supply│               │ = required_level │               │
+│   │ (# personas)     │               │   - current_level│               │
+│   └──────────────────┘               │ (nivel 1-5)      │               │
+│                                      └──────────────────┘               │
+│   Motor: 🛡️ Vanguard                Motor: 🧭 Navigator                │
+│                                                                         │
+│   Pregunta: ¿Nos faltan             Pregunta: ¿Les falta               │
+│   Cloud Architects?                  proficiency en Kubernetes?          │
+│   Respuesta: Sí, 3 posiciones       Respuesta: Sí, 8 personas          │
+│                                      están en nivel 2, necesitan 4      │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### 3.2 El puente: ScenarioSkillDemand
+
+El modelo `ScenarioSkillDemand` es el **punto de conexión arquitectónica** entre ambos mundos. Contiene **ambas métricas** en el mismo registro, pero con métodos separados:
+
+```
+ScenarioSkillDemand {
+    scenario_id        → Horizon (WFP)
+    skill_id           → Catálogo de skills compartido
+    demand_count       → Headcount (cuántas personas)
+    current_count      → Oferta actual (cuántas hay)
+    required_level     → Proficiency (qué nivel)
+    current_avg_level  → Nivel actual promedio
+
+    getHeadcountGap()    → demand_count - current_count     // Horizon
+    getProficiencyGap()  → required_level - current_avg_level // Kairos
+}
+```
+
+Esta separación permite que un mismo escenario revele **dos tipos de gap simultáneamente**:
+
+| Skill             | Headcount Gap (Horizon) | Proficiency Gap (Kairos) | Acción requerida                           |
+| ----------------- | ----------------------- | ------------------------ | ------------------------------------------ |
+| Cloud Architecture | -3 (faltan 3)          | -1.2 (nivel bajo)        | Contratar 3 **Y** formar a los existentes  |
+| Data Engineering   | 0 (cobertura OK)       | -2.1 (gap crítico)       | No contratar, **solo formar**              |
+| Project Management | -5 (faltan 5)          | 0 (nivel adecuado)       | **Solo contratar**, los actuales están OK   |
+| Cybersecurity      | -1 (falta 1)           | -0.8 (gap moderado)      | Contratar 1 **Y** upskilling moderado      |
+
+### 3.3 Flujo integrado en Stratos
+
+```
+PASO 1: HORIZON (WFP) — El CEO diseña el futuro
+──────────────────────────────────────────────
+CEO crea Scenario "Expansión LATAM 2027"
+  → Vanguard Engine genera Cubos de Rol
+  → Define 45 posiciones nuevas en 3 países
+  → Calcula headcount gaps por skill
+
+         ↓ ScenarioSkillDemand ↓
+
+PASO 2: KAIROS (Talent) — CHRO evalúa la capacidad
+──────────────────────────────────────────────
+CHRO revisa proficiency gaps del talento actual
+  → 12 personas pueden crecer hacia roles nuevos
+  → 8 necesitan upskilling en cloud + data
+  → 25 requieren contratación externa
+
+         ↓ gap_type: 'proficiency' ↓
+
+PASO 3: PRAXIS + ÁGORA (Formación) — Navigator actúa
+──────────────────────────────────────────────
+Navigator Engine genera Smart Learning Paths
+  → 8 rutas de upskilling personalizadas (Praxis)
+  → 1 comunidad de Cloud Architecture (Ágora)
+  → Mentores identificados por Cerbero Engine
+
+         ↓ gap_type: 'headcount' ↓
+
+PASO 4: EUREKA (Reclutamiento) — Se busca afuera
+──────────────────────────────────────────────
+Para los 25 headcount gaps sin cobertura interna
+  → Vanguard genera "Perfil de Resonancia"
+  → Eureka busca candidatos con match score
+  → Filtro de cultural fit (Ethos)
+
+         ↓ Impact Engine ↓
+
+PASO 5: LOGOS (Analytics) — Se mide el ROI
+──────────────────────────────────────────────
+Impact Engine calcula:
+  → Costo de contratar 25 vs. formar 8: $420K vs $32K
+  → ROI de upskilling: 312% en 12 meses
+  → Logos Dashboard muestra progreso en tiempo real
+```
+
+---
+
+## 4. Tipología del talento en Stratos
+
+Stratos no solo separa WFP de Talent Planning — también reconoce tres **tipos de talento** que coexisten en la organización moderna:
+
+| Tipo de talento      | Definición                                                              | Lo gestiona                  | Ejemplo                                              |
+| -------------------- | ----------------------------------------------------------------------- | ---------------------------- | ---------------------------------------------------- |
+| 🧑 **Humano**         | Personas físicas contratadas o candidatas                               | Horizon (WFP) + Kairos       | Desarrollador Senior, Gerente de Proyecto             |
+| 🤖 **Sintético**      | Agentes de IA, bots, automatizaciones que reemplazan funciones humanas  | Horizon (escenarios de IA)   | Agente de soporte L1, bot de clasificación de CVs     |
+| 🔄 **Híbrido**        | Roles donde humano + IA colaboran, cada uno aportando lo que mejor hace | Vanguard (diseño de roles)   | Analista financiero + copilot IA, Recruiter + screening bot |
+
+### ¿Por qué importa esta tipología?
+
+Porque el **Workforce Planning del futuro** no puede limitarse a contar personas. Cuando el CEO pregunta "¿Cuántos analistas necesitamos en 2027?", la respuesta correcta no es un número — es una **composición**:
+
+```
+Escenario: "Departamento de Análisis Financiero 2027"
+
+Sin IA (solo humano):     12 analistas FTE     = $1.2M/año
+Con IA híbrido:            7 analistas + 3 bots = $780K/año  (-35%)
+Full automation posible:   2 analistas + 8 bots = $340K/año  (-72%)
+
+→ Vanguard simula los 3 escenarios
+→ Impact Engine calcula el ROI de cada uno
+→ Horizon presenta la decisión al C-Suite
+→ Kairos diseña el plan de upskilling para los 7 analistas
+  que necesitan aprender a trabajar con copilots IA
+```
+
+---
+
+## 5. Fundamentación académica integrada
+
+La separación WFP / Talent Planning en Stratos no es arbitraria — implementa operativamente los marcos teóricos más rigurosos del campo:
+
+| Marco teórico                                              | Autor(es)                      | Qué aporta a Stratos                                              | Módulo        |
+| ---------------------------------------------------------- | ------------------------------ | ----------------------------------------------------------------- | ------------- |
+| **Strategic Workforce Planning**                           | BCG / Mercer                   | Metodología de escenarios y oferta/demanda de talento             | Horizon       |
+| **Talentship Decision Science**                            | Boudreau & Ramstad (2007)      | Tratar talento con rigor de decisión financiera (LAMP framework)  | Impact Engine |
+| **Competence at Work**                                     | Spencer & Spencer (1993)       | Modelo iceberg de competencias: visible (skills) + invisible (motivos, traits) | Kairos        |
+| **70-20-10 Learning Framework**                            | Lombardo & Eichinger (1996)    | Distribución óptima de aprendizaje: experiencia + social + formal | Navigator Engine |
+| **Human Capital Analytics**                                | Fitz-enz (2000, 2010)          | Métricas de capital humano, ROI de inversión en personas          | Logos         |
+| **Community of Inquiry**                                   | Garrison, Anderson & Archer    | Health Score de comunidades de aprendizaje                        | Ágora         |
+| **Resource-Based View (RBV)**                              | Barney (1991)                  | El talento como recurso VRIN (Valioso, Raro, Inimitable, No sustituible) | Nexus         |
+| **Organizational Network Analysis**                        | Cross & Parker (2004)          | Mapeo de redes sociales informales, detección de silos            | Cerbero Engine |
+
+> **Ningún competidor** en el mercado HR Tech implementa esta separación con fundamentación académica operacionalizada en código. Workday, SAP y Oracle tratan WFP y Talent como "módulos separados que no se hablan". Stratos los trata como **funciones complementarias con un modelo de datos compartido**.
+
+---
+
+# PARTE VII: VISIÓN Y ROADMAP
 
 ---
 
