@@ -17,7 +17,7 @@
 | ------------------------- | ------------------- | ------------------------------------------------------------ |
 | 🏗️ **Fundación**          | **Stratos Core**    | _"Los cimientos donde todo talento cobra forma"_             |
 | 🏆 **Performance & Dev**  | **Stratos Areté**   | _"La excelencia no se alcanza, se cultiva"_                  |
-| 💓 **People Experience**  | **Stratos Pulso**   | _"Sentir el latido de tu organización"_                      |
+| 💓 **People Experience**  | **Stratos Pathos**  | _"Sentir el latido de tu organización"_                      |
 | ⏳ **Talent Planning**     | **Stratos Kairos**  | _"El talento correcto, en el momento preciso"_               |
 | 🏺 **Recruitment**         | **Stratos Eureka**  | _"Encontrar al talento que transforma"_                      |
 | 🎭 **Culture**             | **Stratos Ethos**   | _"Cultura visible, valores que se viven"_                    |
@@ -574,19 +574,19 @@ Stratos Areté transforma evaluación en **desarrollo continuo**: 360° con cali
 
 ---
 
-## 💓 7. STRATOS PULSO — People Experience Intelligence
+## 💓 7. STRATOS PATHOS — People Experience Intelligence
 
 > _"Sentir el latido de tu organización"_
 
-### ¿Por qué "Pulso"?
+### ¿Por qué "Pathos"?
 
-Como un médico que toma el pulso para entender el estado del paciente, Stratos Pulso mide el **estado real** de la experiencia de las personas en la organización — no una vez al año con una encuesta larga que nadie quiere contestar, sino de forma **continua, contextual y accionable**.
+Del griego πάθος — emoción, experiencia vivida, aquello que se siente. En la retórica de Aristóteles, **Ethos** (carácter) y **Pathos** (emoción) son pilares inseparables de toda comunicación efectiva. Stratos los une: Ethos define la cultura deseada, Pathos mide cómo la viven las personas. Stratos Pathos mide el **estado real** de la experiencia de las personas en la organización — no una vez al año con una encuesta larga que nadie quiere contestar, sino de forma **continua, contextual y accionable**.
 
 ### El problema que resuelve
 
 > Las encuestas de clima tradicionales tienen un problema fundamental: **miden el pasado**. Cuando recibes los resultados de una encuesta anual, los problemas ya llevan meses gestándose. Los Pulse surveys modernos ayudan, pero sin contexto (¿quién está en riesgo? ¿por qué? ¿qué acción tomar?) son solo números bonitos en un dashboard.
 
-Stratos Pulso no solo mide — **conecta** el sentimiento con datos de performance, learning, y planificación para generar insights accionables.
+Stratos Pathos no solo mide — **conecta** el sentimiento con datos de performance, learning, y planificación para generar insights accionables.
 
 ### Características principales
 
@@ -628,7 +628,7 @@ Stratos Pulso no solo mide — **conecta** el sentimiento con datos de performan
 
 ### Comparativa con competidores
 
-| Capacidad                      | Qualtrics | Glint/Viva | Culture Amp | Peakon | **Stratos Pulso** |
+| Capacidad                      | Qualtrics | Glint/Viva | Culture Amp | Peakon | **Stratos Pathos** |
 | ------------------------------ | :-------: | :--------: | :---------: | :----: | :---------------: |
 | Pulse surveys                  |    ✅     |     ✅     |     ✅      |   ✅   |        ✅         |
 | eNPS tracking                  |    ✅     |     ✅     |     ✅      |   ✅   |        ✅         |
@@ -639,7 +639,7 @@ Stratos Pulso no solo mide — **conecta** el sentimiento con datos de performan
 | Conectado con LMS              |    ❌     |     ❌     |     ❌      |   ❌   |     ✅ Praxis     |
 | Alertas pre-rotación con IA    |    ⚠️     |     ⚠️     |     ❌      |   ⚠️   |        ✅         |
 
-> _"Qualtrics es el líder en encuestas. Pero Qualtrics mide engagement sin poder hacer nada con los datos. Stratos Pulso detecta que el equipo de Ingeniería tiene engagement bajo → cruza con Areté y descubre que no han tenido desarrollo en 6 meses → genera automáticamente learning paths vía Praxis. **De insight a acción, sin intervención humana.**"_
+> _"Qualtrics es el líder en encuestas. Pero Qualtrics mide engagement sin poder hacer nada con los datos. Stratos Pathos detecta que el equipo de Ingeniería tiene engagement bajo → cruza con Areté y descubre que no han tenido desarrollo en 6 meses → genera automáticamente learning paths vía Praxis. **De insight a acción, sin intervención humana.**"_
 
 ---
 
@@ -833,7 +833,7 @@ Stratos Ethos cierra ese gap: define el blueprint cultural, mide adherencia real
 | Cultural matching (hiring)      |     ❌      |     ❌     |     ❌     |        ❌           |        ✅         |
 | Conectado con Performance       |     ⚠️      |     ⚠️     |     ❌     |        ❌           |     ✅ Areté      |
 | Conectado con Recruitment       |     ❌      |     ❌     |     ❌     |        ❌           |     ✅ Eureka     |
-| Conectado con PX/Engagement     |     ✅      |     ✅     |     ✅     |        ⚠️           |     ✅ Pulso      |
+| Conectado con PX/Engagement     |     ✅      |     ✅     |     ✅     |        ⚠️           |     ✅ Pathos     |
 | Agentes IA de cultura           |     ❌      |     ❌     |     ❌     |        ❌           |    ✅ 2 agentes   |
 
 > _"Culture Amp dice medir cultura, pero solo mide engagement — que es un proxy imperfecto. Stratos Ethos define la cultura deseada (blueprint), mide la cultura vivida (analytics), y usa la diferencia para tomar decisiones reales: ¿este candidato reforzará nuestra cultura? ¿este equipo está derivando de nuestros valores? **Es la diferencia entre medir el termómetro y diagnosticar al paciente.**"_
@@ -900,7 +900,7 @@ Stratos Themis integra compliance en el **ADN de la plataforma** — no es un m�
 | **Succession planning**          | Desde Kairos: readiness scores, pipeline coverage, critical roles      |
 | **Skills & capabilities**        | Desde Core + Praxis: proficiency levels, certifications, learning completion |
 | **Workforce availability**       | Desde Horizon: headcount vs demand, coverage percentages              |
-| **Leadership trust**             | Desde Pulso: eNPS, engagement scores, cultural alignment              |
+| **Leadership trust**             | Desde Pathos: eNPS, engagement scores, cultural alignment             |
 
 #### 11.5 Quality Hub
 
@@ -1112,7 +1112,7 @@ CEO: "Necesitamos estar listos para IA Generativa en 6 meses"
 
 | Tier                    | Incluye                                                         | Target                      |
 | ----------------------- | --------------------------------------------------------------- | --------------------------- |
-| **Core Starter**        | Core + Areté + Pulso + Ethos (fundación)                        | Empresas 50-200 empleados   |
+| **Core Starter**        | Core + Areté + Pathos + Ethos (fundación)                       | Empresas 50-200 empleados   |
 | **Talent Suite**        | Starter + Praxis + Kairos + Eureka + Themis                     | Empresas 200-500            |
 | **Enterprise**          | Todo: 11 módulos + 15 agentes IA                                | Empresas 500-5,000          |
 | **Enterprise + Nexus**  | Todo + Inteligencia Colectiva + Benchmarks sectoriales          | Grandes empresas multi-sede |
@@ -1126,7 +1126,7 @@ LAND ────────────── EXPAND ────────�
   │  (gestión base +   │  (formación          │  (planifica-  │  (benchmarks +
   │  performance)      │  inteligente)        │  ción de      │  predicciones
   │                    │                      │  fuerza)      │  cross-tenant)
-  │  + Pulso           │  + Ágora             │               │
+  │  + Pathos          │  + Ágora             │               │
   │  (engagement)      │  (comunidades)       │  + Kairos     │  Switching cost:
   │                    │                      │  (succession  │  perder 11 módulos
   │  + Ethos           │  + Eureka            │  + talent     │  integrados +
@@ -1226,7 +1226,7 @@ LAND ────────────── EXPAND ────────�
 
 > **Stratos no es un LMS que añadió IA. No es un WFP que añadió cursos. No es una herramienta de analytics que añadió comunidades.**
 >
-> **Stratos fue diseñado desde el día uno como una plataforma integrada de inteligencia de talento** con 11 módulos nativos — Core, Areté, Pulso, Kairos, Eureka, Ethos, Themis, Praxis, Ágora, Horizon y Nexus — donde cada módulo potencia a los demás, y donde un motor de inteligencia colectiva crea una ventaja competitiva que **se fortalece con cada cliente**.
+> **Stratos fue diseñado desde el día uno como una plataforma integrada de inteligencia de talento** con 11 módulos nativos — Core, Areté, Pathos, Kairos, Eureka, Ethos, Themis, Praxis, Ágora, Horizon y Nexus — donde cada módulo potencia a los demás, y donde un motor de inteligencia colectiva crea una ventaja competitiva que **se fortalece con cada cliente**.
 >
 > En un mercado de $18.7B donde todos los competidores son **silos** — un LMS aquí, un ATS allá, performance por otro lado, compliance separado, analytics aparte — Stratos es la **primera plataforma que lo une todo bajo un cerebro que aprende**.
 
