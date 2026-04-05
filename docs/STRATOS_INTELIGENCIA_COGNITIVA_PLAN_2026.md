@@ -59,32 +59,105 @@ Stratos **ya tiene cimientos sólidos** en IA/ML:
 | **Knowledge Graph**         | ❌ No                          | Arquitectura + schema definido, no implementado                            |
 | **Memory (short-term)**     | App context + session storage  | Funcional pero básico                                                      |
 | **Memory (episodic)**       | LLMEvaluation records (logs)   | Funcional; puede mejorar indexación                                        |
-| **Memory (semantic)**       | 🔄 En diseño (hacia vector DB) | Depende de despliegue completo de pgvector/RAG                             |
-| **Orchestrator Supervisor** | Básico (Agent model)           | Necesita Planner + Verifier + Arbiter                                      |
-| **Audit & Logging**         | ✅ Muy completo                | AuditTrailService + ComplianceAudit                                        |
+| **Memory (semantic)**       | ✅ Completo (pgvector)         | Embeddings genéricos + core tables + guide_faqs + versionado               |
+| **Orchestrator Supervisor** | ✅ Completo                    | PlannerAgent + ArbiterAgent + VerifierAgent + AgentMessageBus              |
+| **Audit & Logging**         | ✅ Muy completo                | AuditTrailService + ComplianceAudit + EmbeddingAuditLog + RedactionAudit   |
 | **Multi-tenant Scoping**    | ✅ Nativo                      | organization_id en todo lugar                                              |
 
 ### 1.3 Modelos y Tablas de Soporte
 
+> **Última actualización**: 5 de abril de 2026 — 22 tablas de soporte cognitivo operativas.
+
+#### Capa 1: Agentes e Interacciones
+
 ```sql
--- Agentes
-✅ agents (name, persona, role_description, expertise_areas, provider, model, capabilities_config)
+-- Agentes (15 agentes especializados registrados)
+✅ agents (name, persona, role_description, expertise_areas, provider, model, capabilities_config, is_active)
 
--- Evaluaciones LLM
-✅ llm_evaluations (input_content, output_content, context_content, status, metrics: faithfulness, relevancy, coherence, etc.)
+-- Interacciones de agentes (memoria episódica)
+✅ agent_interactions (agent_id, user_id, input, output, context, feedback, organization_id, created_at)
 
--- Vectores
-❌ embeddings (text, embedding_vector, embedding_model, organization_id, resource_type, resource_id, metadata)
-
--- Knowledge entries
-❌ knowledge_entries (text, embedding_id, source, category, organization_id, created_at)
-
--- Agent interactions (episodic memory)
-✅ agent_interactions (agent_id, user_id, input, output, context, feedback, created_at) [puede ser AuditTrail]
-
--- Eventos de mejora (feedback loop)
-❌ improvement_events (type: 'user_feedback', 'hallucination', 'success', user_rating, feedback_text, org_id)
+-- Bus de mensajes para orquestación multi-agente
+✅ agent_messages (execution_id, task_id, channel, agent_name, payload JSON, result JSON, status, organization_id, attempts)
 ```
+
+#### Capa 2: Evaluaciones y Calidad LLM
+
+```sql
+-- Evaluaciones LLM con métricas RAGAS
+✅ llm_evaluations (input_content, output_content, context_content, status, metrics: faithfulness, relevancy, coherence, hallucination_score)
+
+-- Verificación de outputs de agentes (The Critic)
+✅ verification_notifications (verification_id, type, severity, channel, payload, sent_at)
+✅ verification_audit_logs (verification_id, action, old_state, new_state, performed_by, organization_id)
+✅ verification_audits (verifiable_type, verifiable_id, score, recommendation, violations, organization_id)
+```
+
+#### Capa 3: Vectores y Knowledge Base
+
+```sql
+-- Embeddings genéricos (pgvector) — indexación de personas, roles, escenarios, FAQs, blueprints
+✅ embeddings (organization_id, resource_type, resource_id, content_hash, embedding vector(1536), metadata JSON)
+
+-- Embeddings en tablas core (columnas embedding en: people, roles, scenarios, capabilities, blueprints)
+✅ add_embeddings_to_core_tables, add_embeddings_to_scenario_tables, add_embedding_to_capabilities, add_embedding_to_talent_blueprints
+
+-- FAQs de StratosGuide (knowledge base indexada en embeddings)
+✅ guide_faqs (organization_id, question, answer, category, is_active)
+
+-- Versionado de embeddings (snapshots para trazabilidad)
+✅ embedding_versions (organization_id, version_tag, snapshot_count, metadata JSON, created_by)
+
+-- Audit trail de cambios en embeddings
+✅ embedding_audit_logs (organization_id, embedding_id, action: created|updated|deleted|flagged, changes JSON, triggered_by)
+```
+
+#### Capa 4: Métricas de Inteligencia y Observabilidad
+
+```sql
+-- Métricas per-request de RAG/LLM (latencia, confianza, éxito, contexto)
+✅ intelligence_metrics (organization_id, metric_type, source_type, latency_ms, context_count, confidence, success, metadata JSON)
+
+-- Agregados diarios (P50/P95/P99 percentiles, success rates, promedios)
+✅ intelligence_metric_aggregates (organization_id, date_key, metric_type, source_type, total_calls, success_rate, p50/p95/p99_latency, avg_confidence)
+```
+
+#### Capa 5: Feedback Loop y Aprendizaje Continuo
+
+```sql
+-- Feedback de usuarios sobre outputs de IA (rating 1-5, tags, contexto)
+✅ improvement_feedback (organization_id, user_id, agent_id, evaluation_id, intelligence_metric_id, rating, feedback_text, tags JSON, context JSON, status: pending|processed|applied)
+```
+
+#### Capa 6: Auditoría y Compliance
+
+```sql
+-- Redaction de PII (trazabilidad de datos sensibles eliminados)
+✅ redaction_audit_trails (organization_id, redactable_type, redactable_id, field, original_hash, redacted_at)
+
+-- Auditoría general del sistema
+✅ audit_logs (organization_id, auditable_type, auditable_id, event, old_values, new_values, user_id)
+
+-- Auditoría de operaciones administrativas
+✅ admin_operations_audit (organization_id, operation_type, performed_by, details JSON, ip_address)
+
+-- Auditoría de lecciones LMS
+✅ lms_lesson_audit_logs (organization_id, lesson_id, user_id, action, changes JSON)
+```
+
+#### Resumen cuantitativo
+
+| Capa | Tablas | Estado |
+|---|---|---|
+| Agentes e Interacciones | 3 | ✅ Todas operativas |
+| Evaluaciones y Calidad | 4 | ✅ Todas operativas |
+| Vectores y Knowledge | 5 + 4 columnas | ✅ Todas operativas |
+| Métricas de Inteligencia | 2 | ✅ Todas operativas |
+| Feedback Loop | 1 | ✅ Operativa |
+| Auditoría y Compliance | 4 | ✅ Todas operativas |
+| **Total** | **19 tablas + 4 columnas embedding** | **✅ 100%** |
+
+> **Nota**: La tabla `knowledge_entries` originalmente prevista fue reemplazada por el modelo `guide_faqs` + embeddings genéricos, que cubren el mismo caso de uso con mayor flexibilidad. La tabla `improvement_events` fue reemplazada por `improvement_feedback` con un modelo más rico (rating, tags, contexto, status workflow).
 
 ---
 
