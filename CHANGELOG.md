@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.22.1](https://github.com/oahumada/Stratos/compare/v0.21.4...v0.22.1) (2026-04-05)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **agents:** implement PlannerAgent, ArbiterAgent, and MessageBus (Sprint 3.2-3.3) ([0ed6f24](https://github.com/oahumada/Stratos/commit/0ed6f242688870a3ff3557c58d7cb28371fd8c29))
+* **governance:** implement Section 5.2 governance checklist ([360842e](https://github.com/oahumada/Stratos/commit/360842ec5c32d7390574ac8f63cb7b5fff0df86f))
+* **intelligence:** implement Learning Loop + Feedback (Sprint 4) — complete cognitive intelligence plan ([4ee4c38](https://github.com/oahumada/Stratos/commit/4ee4c387b59fbd810189391163acf60a2b3e15a0))
+
 ### [0.21.4](https://github.com/oahumada/Stratos/compare/v0.21.2...v0.21.4) (2026-04-05)
 
 ### [0.21.2](https://github.com/oahumada/Stratos/compare/v0.21.1...v0.21.2) (2026-04-05)
