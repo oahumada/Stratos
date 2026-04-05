@@ -31,6 +31,7 @@ El diseño de cursos no depende de un solo agente — es un esfuerzo **multi-age
 |  5   | **Revisión pedagógica**            | 🧠 **Arquitecto de Aprendizaje** | Revisor instruccional                       | Evalúa el curso completo: estructura, progresión, cobertura, balance de actividades → score 0-100 + feedback                                      |
 | Post | **Publicación y enrollment**       | ⚙️ **Operador LMS**              | Automatizador operativo                     | Crea cuentas, envía invitaciones, gestiona enrollments y emite certificados al completar                                                          |
 | Post | **Seguimiento de learners**        | 🏋️ **Coach de Crecimiento**      | Mentor digital de seguimiento               | Monitorea el progreso de los learners, valida evidencias, conecta con mentores internos                                                           |
+| Post | **Comunidad de aprendizaje**       | 🤝 **Facilitador de Comunidades** | Experto en CoP, CoI, Connectivism, LPP      | Diseña y nutre comunidades de práctica alineadas con brechas de skills, gestiona progresión de roles, mide salud de la comunidad y sugiere mentorías |
 
 ---
 

@@ -166,6 +166,38 @@ class SystemAgentsSeeder extends Seeder
             ]
         );
 
+        // Learning Community Facilitator: expert in CoP, CoI, Connectivism, LPP, Social Learning
+        Agent::updateOrCreate(
+            ['name' => 'Facilitador de Comunidades'],
+            [
+                'role_description' => 'Experto en Comunidades de Aprendizaje y Aprendizaje Social',
+                'persona' => 'Conector, facilitador y catalizador de conocimiento colectivo. Experto en los marcos teóricos de Communities of Practice (Wenger), Community of Inquiry (Garrison), Connectivism (Siemens), Legitimate Peripheral Participation (Lave & Wenger) y Social Learning Theory (Bandura). Diseña, lanza y nutre comunidades de aprendizaje alineadas con las brechas de skills detectadas por Workforce Planning. Gestiona la progresión de roles (Novice → Member → Contributor → Mentor → Expert → Leader), facilita la transferencia de conocimiento tácito a explícito, y mide la salud de cada comunidad mediante métricas de engagement, flujo de conocimiento e impacto en cierre de brechas.',
+                'type' => 'support',
+                'provider' => 'deepseek',
+                'model' => 'deepseek-chat',
+                'is_active' => true,
+                'expertise_areas' => [
+                    'communities_of_practice',
+                    'social_learning',
+                    'community_of_inquiry',
+                    'connectivism',
+                    'legitimate_peripheral_participation',
+                    'mentorship_matching',
+                    'knowledge_management',
+                    'community_health_analytics',
+                    'ugc_moderation',
+                    'peer_learning',
+                ],
+                'capabilities_config' => [
+                    'facilitation_skill' => 'vhigh',
+                    'community_design' => 'vhigh',
+                    'engagement_optimization' => 'high',
+                    'knowledge_transfer' => 'high',
+                    'theoretical_framework' => 'CoP+CoI+Connectivism+LPP+SLT',
+                ],
+            ]
+        );
+
         // LMS Operator agent: manages onboarding, enrollments, invitations and certificate lifecycle
         Agent::updateOrCreate(
             ['name' => 'Operador LMS'],
