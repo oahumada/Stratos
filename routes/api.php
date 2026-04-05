@@ -620,6 +620,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/lms/communities/{community}/knowledge', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'knowledgeBase'])->middleware('permission:lms.courses.view');
     Route::post('/lms/communities/{community}/knowledge', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'storeKnowledge'])->middleware('permission:lms.courses.view');
 
+    // ── Stratos Logos (λόγος) — Analytics & BI ──────────────────
+    Route::get('/logos/executive-summary', [\App\Http\Controllers\Api\Logos\LogosDashboardController::class, 'executiveSummary']);
+    Route::get('/logos/module/{module}', [\App\Http\Controllers\Api\Logos\LogosDashboardController::class, 'moduleMetrics']);
+    Route::get('/logos/trends', [\App\Http\Controllers\Api\Logos\LogosDashboardController::class, 'trends']);
+
     // LMS Cohorts / Learning Groups
     Route::get('/lms/cohorts', [\App\Http\Controllers\Api\Lms\CohortController::class, 'index'])->middleware('permission:lms.courses.view');
     Route::post('/lms/cohorts', [\App\Http\Controllers\Api\Lms\CohortController::class, 'store'])->middleware('permission:lms.courses.manage');

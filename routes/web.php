@@ -120,6 +120,11 @@ Route::get('/dashboard/investor', function () {
     return Inertia::render('Dashboard/Investor');
 })->middleware(['auth', 'verified', 'role:admin,hr_leader,observer'])->name('dashboard.investor');
 
+Route::get('/logos', fn () => Inertia::render('Logos/Landing'))
+    ->middleware(['auth', 'verified'])->name('logos.index');
+Route::get('/logos/executive', fn () => Inertia::render('Logos/ExecutiveDashboard'))
+    ->middleware(['auth', 'verified'])->name('logos.executive');
+
 Route::get('/people', function () {
     return Inertia::render('People/Index');
 })->middleware(['auth', 'verified'])->name('people.index');

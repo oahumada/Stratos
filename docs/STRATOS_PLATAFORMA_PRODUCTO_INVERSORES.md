@@ -11,7 +11,7 @@
 
 ## 📋 RESUMEN EJECUTIVO
 
-**Stratos** es una plataforma de Talent Intelligence que integra **once módulos especializados** bajo un motor de inteligencia colectiva que aprende de cada interacción, cada decisión y cada resultado de talento en todas las organizaciones que la utilizan.
+**Stratos** es una plataforma de Talent Intelligence que integra **doce módulos especializados** bajo un motor de inteligencia colectiva que aprende de cada interacción, cada decisión y cada resultado de talento en todas las organizaciones que la utilizan.
 
 | Módulo                    | Nombre              | Lema                                                         |
 | ------------------------- | ------------------- | ------------------------------------------------------------ |
@@ -22,6 +22,7 @@
 | 🏺 **Recruitment**         | **Stratos Eureka**  | _"Encontrar al talento que transforma"_                      |
 | 🎭 **Culture**             | **Stratos Ethos**   | _"Cultura visible, valores que se viven"_                    |
 | ⚖️ **Compliance**          | **Stratos Themis**  | _"Confianza construida sobre estándares"_                    |
+| 📊 **Analytics**           | **Stratos Logos**   | _"Datos que hablan, decisiones que transforman"_             |
 | 🧠 **LMS**                | **Stratos Praxis**  | _"Aprender haciendo, crecer midiendo"_                       |
 | 🏛️ **Comunidades**        | **Stratos Ágora**   | _"Donde el conocimiento se multiplica al compartirse"_       |
 | 🔭 **Workforce Planning** | **Stratos Horizon** | _"Ver el futuro del talento antes de que llegue"_            |
@@ -35,7 +36,7 @@
 
 Stratos es la **primera plataforma de HR Tech** que:
 
-1. **Integra** 11 módulos especializados — desde la gestión core de personas hasta compliance ISO-ready, comunidades de aprendizaje, planificación de fuerza laboral, performance, cultura y reclutamiento — en una sola plataforma nativa
+1. **Integra** 12 módulos especializados — desde la gestión core de personas hasta analytics predictivo, compliance ISO-ready, comunidades de aprendizaje, planificación de fuerza laboral, performance, cultura y reclutamiento — en una sola plataforma nativa
 2. **Conecta** cada módulo con 15 agentes de IA especializados que automatizan el 80% de las decisiones operativas de talento
 3. **Aprende** de forma transversal entre organizaciones (anonimizado) para ofrecer predicciones que mejoran con cada cliente
 
@@ -966,6 +967,103 @@ Stratos Themis integra compliance en el **ADN de la plataforma** — no es un m�
 >
 > **Para inversores**: _"Cada cliente que entra ya está compliance-ready. Esto reduce churn (nadie quiere rehacer compliance en otra plataforma), aumenta enterprise-readiness, y nos posiciona para contratos gubernamentales y regulados."_
 
+> **Para inversores**: _"Cada cliente que entra ya está compliance-ready. Esto reduce churn (nadie quiere rehacer compliance en otra plataforma), aumenta enterprise-readiness, y nos posiciona para contratos gubernamentales y regulados."_
+
+---
+
+## 📊 12. STRATOS LOGOS — Analytics, Reporting & Business Intelligence
+
+> _"Datos que hablan, decisiones que transforman"_
+
+### ¿Por qué "Logos"?
+
+Del griego λόγος — razón, discurso, conocimiento ordenado. En la filosofía griega, Logos es la capacidad de **dar sentido al caos**: transformar datos dispersos en narrativa coherente. Con Ethos (carácter) y Pathos (emoción), Logos completa la **tríada aristotélica de la persuasión** — la misma que Stratos aplica a la gestión del talento. Stratos Logos no genera reportes: **construye la narrativa de talento** que permite al C-Suite tomar decisiones con evidencia.
+
+### El problema que resuelve
+
+> El 73% de los líderes de RRHH dice que "no tiene acceso a los datos que necesita para tomar decisiones" (Deloitte, 2025). Y cuando los tiene, el 68% pasa más de 8 horas semanales preparando reportes manuales en Excel. Peor aún: los datos vienen de 4-6 sistemas distintos que no se hablan entre sí — un HRIS, un LMS, un ATS, un sistema de performance — cada uno con su propio dashboard que cuenta una historia parcial.
+
+Stratos Logos es la **capa de inteligencia analítica** que consolida datos de los 11 módulos restantes en dashboards, reportes y predicciones unificados. No necesita ETL, no necesita integraciones: **los datos ya están aquí**.
+
+### Características principales
+
+#### 12.1 Dashboards Ejecutivos Multi-Rol
+
+| Dashboard                       | Audiencia        | Métricas clave                                                          |
+| ------------------------------- | ---------------- | ----------------------------------------------------------------------- |
+| **Dashboard Principal**         | CHRO / HR Lead   | Headcount, gaps, engagement, learning completion, turnover risk         |
+| **Dashboard Analytics**         | People Analytics | Deep-dive: tendencias, correlaciones, anomalías, predicciones          |
+| **Dashboard Investor**          | CFO / Board      | ROI de talento, costo por hire, learning ROI, workforce cost ratios    |
+| **Executive Summary**           | CEO / C-Suite    | Resumen narrativo generado por IA con insights y recomendaciones       |
+| **CHRO Command Center**         | CHRO             | Vista consolidada de todos los módulos con alertas priorizadas          |
+
+#### 12.2 Motor de Reportes
+
+| Capacidad                        | Detalle                                                               | Diferenciador                    |
+| -------------------------------- | --------------------------------------------------------------------- | -------------------------------- |
+| **Reportes cross-module**        | Un solo reporte que cruza LMS + Performance + Gaps + Engagement      | Sin silos de datos               |
+| **Reportes programados**         | Automáticos: diario, semanal, mensual, enviados por email            | Set-and-forget                   |
+| **Exportación multi-formato**    | PDF, CSV, Excel, PowerPoint — con branding organizacional            | Listo para el Board              |
+| **Report Builder visual**        | Drag-and-drop para crear reportes personalizados                      | Sin SQL, sin ayuda de IT         |
+| **Templates por estándar**       | ISO 30414, compliance, talent review, succession — pre-construidos   | Listo para auditorías            |
+
+#### 12.3 Predictive Analytics con IA
+
+| Capacidad                          | Detalle                                                               |
+| ---------------------------------- | --------------------------------------------------------------------- |
+| **Anomaly Detection**              | IA detecta patrones inusuales: picos de rotación, caídas de engagement, gaps crecientes |
+| **Predictive Insights**            | Proyecciones: ¿cuándo cerraremos este gap? ¿cuántas personas necesitaremos en 6 meses? |
+| **Automated Recommendations**      | Sugerencias accionables basadas en datos: "3 personas en riesgo de fuga necesitan atención" |
+| **What-If Scenarios**              | Simulaciones: ¿qué pasa si promovemos a X? ¿si eliminamos este departamento? |
+| **Forecast de compliance**         | Predicción de cumplimiento: ¿llegaremos a la meta de certificación a tiempo? |
+
+#### 12.4 Metrics Aggregation Engine
+
+| Métrica agregada                   | Fuente(s)                                                             |
+| ---------------------------------- | --------------------------------------------------------------------- |
+| **Talent ROI**                     | Horizon (inversión) + Praxis (learning outcome) + Areté (performance delta) |
+| **Engagement Score compuesto**     | Pathos (pulse) + Ágora (community health) + Praxis (learning engagement) |
+| **Workforce readiness index**      | Core (skills) + Kairos (gaps) + Horizon (demand vs supply)            |
+| **Cultural alignment score**       | Ethos (blueprint adherence) + Pathos (sentiment) + Areté (behaviors) |
+| **Compliance health score**        | Themis (audits) + Praxis (certifications) + Horizon (coverage)       |
+| **Talent pipeline velocity**       | Eureka (time-to-hire) + Kairos (succession readiness) + Core (onboarding) |
+
+#### 12.5 Stratos IQ — Organizational Intelligence Index
+
+El índice compuesto que resume la madurez de talento de la organización:
+
+```
+STRATOS IQ = f(
+  proficiency_gap_trend,     ← Kairos
+  learning_velocity,          ← Praxis
+  engagement_score,           ← Pathos
+  workforce_coverage,         ← Horizon
+  culture_alignment,          ← Ethos
+  compliance_health,          ← Themis
+  community_vitality          ← Ágora
+)
+
+Evolución mensual con snapshots + benchmarks sectoriales (Nexus)
+```
+
+### Comparativa con competidores
+
+| Capacidad                        | Visier | Crunchr | ChartHop | Workday Analytics | **Stratos Logos** |
+| -------------------------------- | :----: | :-----: | :------: | :---------------: | :---------------: |
+| People analytics dashboard      |   ✅   |   ✅    |    ✅    |        ✅         |        ✅         |
+| Cross-module data (nativo)       |   ❌   |   ❌    |    ❌    |        ⚠️         |   ✅ 11 módulos   |
+| Predictive analytics IA          |   ✅   |   ⚠️    |    ❌    |        ⚠️         |        ✅         |
+| Anomaly detection                |   ⚠️   |   ❌    |    ❌    |        ❌         |        ✅         |
+| Automated recommendations       |   ❌   |   ❌    |    ❌    |        ❌         |        ✅         |
+| Report builder visual            |   ✅   |   ✅    |    ⚠️    |        ✅         |        ✅         |
+| Export PDF/PPTX/CSV              |   ✅   |   ✅    |    ⚠️    |        ✅         |        ✅         |
+| Organizational IQ Score          |   ❌   |   ❌    |    ❌    |        ❌         |    ✅ Stratos IQ  |
+| Reportes ISO 30414 nativos       |   ⚠️   |   ❌    |    ❌    |        ❌         |    ✅ Themis      |
+| Sin ETL / integraciones          |   ❌   |   ❌    |    ❌    |        ⚠️         |    ✅ Todo nativo |
+| Costo separado                   | $$$$$  |  $$$$   |   $$$    |      $$$$$        |   ✅ Incluido    |
+
+> _"Visier cobra $100K+/año por people analytics — y necesita meses de implementación para conectar tus datos. Crunchr es más económico pero limitado. Stratos Logos viene **incluido en la plataforma**, con datos que ya están ahí. No hay ETL, no hay data warehouse separado, no hay meses de setup. Día 1: datos. Día 1: insights. **Eso es lo que significa analytics nativo.**"_
+
 ---
 
 # PARTE II: LA INTEGRACIÓN COMO VENTAJA
@@ -974,7 +1072,7 @@ Stratos Themis integra compliance en el **ADN de la plataforma** — no es un m�
 
 ## 🔗 El poder de la plataforma integrada
 
-La verdadera ventaja de Stratos no está en cada módulo individual — está en cómo **los once módulos se conectan entre sí**. Ningún competidor ofrece esta integración porque ninguno tiene los once módulos nativos:
+La verdadera ventaja de Stratos no está en cada módulo individual — está en cómo **los doce módulos se conectan entre sí**. Ningún competidor ofrece esta integración porque ninguno tiene los doce módulos nativos:
 
 ### Flujo integrado: Del dato a la decisión
 
@@ -1097,7 +1195,7 @@ CEO: "Necesitamos estar listos para IA Generativa en 6 meses"
 | Métrica                   | Detalle                                                        |
 | ------------------------- | -------------------------------------------------------------- |
 | **TAM**                   | $18.7B (LMS $9.2B + WFP $2.6B + Talent Intel $1.5B + PX $2.1B + ATS $3.3B) |
-| **Net Revenue Retention** | >120% (cross-sell entre 11 módulos + Nexus lock-in)            |
+| **Net Revenue Retention** | >120% (cross-sell entre 12 módulos + Nexus lock-in)            |
 | **CAC Payback**           | <12 meses (land con Core+Areté, expand con Praxis+Horizon)    |
 | **Gross Margin**          | >80% (SaaS puro, IA inference escalable)                       |
 | **Moat**                  | Efecto de red de datos (Nexus) — se fortalece con cada cliente |
@@ -1114,7 +1212,7 @@ CEO: "Necesitamos estar listos para IA Generativa en 6 meses"
 | ----------------------- | --------------------------------------------------------------- | --------------------------- |
 | **Core Starter**        | Core + Areté + Pathos + Ethos (fundación)                       | Empresas 50-200 empleados   |
 | **Talent Suite**        | Starter + Praxis + Kairos + Eureka + Themis                     | Empresas 200-500            |
-| **Enterprise**          | Todo: 11 módulos + 15 agentes IA                                | Empresas 500-5,000          |
+| **Enterprise**          | Todo: 12 módulos + 15 agentes IA                                | Empresas 500-5,000          |
 | **Enterprise + Nexus**  | Todo + Inteligencia Colectiva + Benchmarks sectoriales          | Grandes empresas multi-sede |
 
 ### Estrategia Go-to-Market
@@ -1128,7 +1226,7 @@ LAND ────────────── EXPAND ────────�
   │                    │                      │  fuerza)      │  cross-tenant)
   │  + Pathos          │  + Ágora             │               │
   │  (engagement)      │  (comunidades)       │  + Kairos     │  Switching cost:
-  │                    │                      │  (succession  │  perder 11 módulos
+  │                    │                      │  (succession  │  perder 12 módulos
   │  + Ethos           │  + Eureka            │  + talent     │  integrados +
   │  (cultura base)    │  (recruitment)       │  planning)    │  inteligencia
   │                    │                      │               │  colectiva
@@ -1168,11 +1266,11 @@ LAND ────────────── EXPAND ────────�
             └────────┴───────────────────────┘
 ```
 
-## Los 11 diferenciadores irrepetibles
+## Los 12 diferenciadores irrepetibles
 
 | #   | Diferenciador                                                                   | ¿Quién más lo tiene?             |
 | --- | ------------------------------------------------------------------------------- | -------------------------------- |
-| 1   | **11 módulos nativos integrados** — Core a Nexus en una sola plataforma         | Nadie                            |
+| 1   | **12 módulos nativos integrados** — Core a Nexus en una sola plataforma         | Nadie                            |
 | 2   | **15 agentes de IA especializados** coordinados por un Árbitro                  | Nadie                            |
 | 3   | **AI-driven community formation** desde gaps de WFP                             | Nadie                            |
 | 4   | **Health Score basado en Community of Inquiry**                                 | Nadie                            |
@@ -1182,7 +1280,8 @@ LAND ────────────── EXPAND ────────�
 | 8   | **Cultural fit scoring** que conecta employer brand con selection + onboarding  | Nadie                            |
 | 9   | **Separación arquitectónica WFP vs Talent Planning** con métricas distintas     | Nadie (todos mezclan headcount con proficiency) |
 | 10  | **Compliance ISO/SOC/GDPR nativo** — no add-on, capa transversal incluida      | Nadie en HR Tech (requieren herramientas separadas) |
-| 11  | **Stratos IQ Score** — índice compuesto de madurez de talento organizacional    | Nadie                            |
+| 11  | **Analytics cross-module sin ETL** (Logos) — datos nativos, insights día 1      | Nadie (todos requieren data warehouse externo) |
+| 12  | **Stratos IQ Score** — índice compuesto de madurez de talento organizacional    | Nadie                            |
 
 ---
 
@@ -1209,7 +1308,7 @@ LAND ────────────── EXPAND ────────�
 
 | Métrica                      | Valor   |
 | ---------------------------- | ------- |
-| Módulos integrados           | 11      |
+| Módulos integrados           | 12      |
 | Modelos de datos             | 100+    |
 | Servicios backend            | 50+     |
 | Agentes de IA                | 15      |
@@ -1226,7 +1325,7 @@ LAND ────────────── EXPAND ────────�
 
 > **Stratos no es un LMS que añadió IA. No es un WFP que añadió cursos. No es una herramienta de analytics que añadió comunidades.**
 >
-> **Stratos fue diseñado desde el día uno como una plataforma integrada de inteligencia de talento** con 11 módulos nativos — Core, Areté, Pathos, Kairos, Eureka, Ethos, Themis, Praxis, Ágora, Horizon y Nexus — donde cada módulo potencia a los demás, y donde un motor de inteligencia colectiva crea una ventaja competitiva que **se fortalece con cada cliente**.
+> **Stratos fue diseñado desde el día uno como una plataforma integrada de inteligencia de talento** con 12 módulos nativos — Core, Areté, Pathos, Kairos, Eureka, Ethos, Themis, Logos, Praxis, Ágora, Horizon y Nexus — donde cada módulo potencia a los demás, y donde un motor de inteligencia colectiva crea una ventaja competitiva que **se fortalece con cada cliente**.
 >
 > En un mercado de $18.7B donde todos los competidores son **silos** — un LMS aquí, un ATS allá, performance por otro lado, compliance separado, analytics aparte — Stratos es la **primera plataforma que lo une todo bajo un cerebro que aprende**.
 
@@ -1234,7 +1333,7 @@ LAND ────────────── EXPAND ────────�
 
 | Hoy                                                                                                          | En 3 años                                                                                               |
 | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| 11 módulos nativos, 100+ modelos, 15 agentes IA, comunidades con base teórica, WFP con escenarios, compliance ISO-ready | 1,000+ organizaciones en Nexus, modelos predictivos entrenados con datos reales, benchmarks sectoriales |
+| 12 módulos nativos, 100+ modelos, 15 agentes IA, analytics cross-module, compliance ISO-ready | 1,000+ organizaciones en Nexus, modelos predictivos entrenados con datos reales, benchmarks sectoriales |
 | 1,479+ tests, 100% tenant isolation, governance completa, RBAC granular                                      | SOC 2 Type II, ISO 27001, auditoría de IA independiente                                                 |
 | Time-to-value: semanas                                                                                       | NRR >120%, Gross Margin >80%                                                                            |
 

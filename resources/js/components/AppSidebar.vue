@@ -188,6 +188,13 @@ const allNavItems: NavItem[] = [
         icon: defineComponent(() => () => h(PhUsers, { size: 20 })),
         requiredPermission: 'lms.courses.view',
     },
+    // Stratos Logos — Analytics
+    {
+        title: 'Logos Analytics',
+        href: '/logos',
+        icon: defineComponent(() => () => h(PhChartBar, { size: 20 })),
+        requiredPermission: 'people.view',
+    },
     // Mentoring Hub — requires people.view
     {
         title: 'Mentoring Hub',
