@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.24.7](https://github.com/oahumada/Stratos/compare/v0.24.5...v0.24.7) (2026-04-05)
+
+
+### ♻️ Refactorización
+
+* clarify WFP vs Talent Planning domain separation in naming and PHPDoc ([75d81dd](https://github.com/oahumada/Stratos/commit/75d81dd7a8e4df1aa95a9c72a4ba3edd8d41dbbc))
+
 ### [0.24.5](https://github.com/oahumada/Stratos/compare/v0.24.3...v0.24.5) (2026-04-05)
 
 ### [0.24.3](https://github.com/oahumada/Stratos/compare/v0.24.1...v0.24.3) (2026-04-05)
