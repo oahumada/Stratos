@@ -1271,6 +1271,78 @@ CEO: "Necesitamos estar listos para IA Generativa en 6 meses"
 | **Enterprise**          | Todo: 12 módulos + 15 agentes IA                                | Empresas 500-5,000          |
 | **Enterprise + Nexus**  | Todo + Inteligencia Colectiva + Benchmarks sectoriales          | Grandes empresas multi-sede |
 
+### Benchmark de precios del mercado (PEPM = Por Empleado Por Mes)
+
+| Solución                  | Categoría              | Rango PEPM    | Notas                                                  |
+| ------------------------- | ---------------------- | ------------- | ------------------------------------------------------ |
+| **Workday HCM**           | HCM Suite              | $8–$30+       | Enterprise only, contratos anuales mínimo ~$100K       |
+| **SAP SuccessFactors**    | HCM Suite              | $6–$22        | Pricing por módulo, bundles enterprise                 |
+| **Oracle HCM Cloud**      | HCM Suite              | $8–$25        | Comparable a Workday, requiere implementador           |
+| **BambooHR**              | Core HR (SMB)          | $6–$9         | 2 tiers, no incluye LMS/WFP/Analytics                 |
+| **Cornerstone OnDemand**  | LMS + Talent           | $6–$36        | LMS solo ~$6, suite completa ~$36                      |
+| **Docebo**                | LMS                    | $5–$25        | Solo LMS, pricing por usuario activo                   |
+| **Lattice**               | Performance            | $6–$11        | Performance $6, +OKRs $8, +Engagement $11              |
+| **Culture Amp**           | Engagement             | $5–$12        | Engagement + Performance, sin LMS/WFP                  |
+| **15Five**                | Performance            | $4–$14        | 4 tiers, performance + engagement                      |
+| **Visier**                | People Analytics       | $3–$10        | Solo analytics, mínimo ~$30K/año                       |
+| **Greenhouse**            | ATS/Recruitment        | $6–$15        | Solo reclutamiento                                     |
+| **Eightfold.ai**          | Talent Intelligence    | $8–$20        | AI-heavy, talent matching                              |
+| **Orgvue/Nakisa**         | Org Design/WFP         | $8–$20        | Solo workforce planning / org design                   |
+| **Drata/Vanta**           | Compliance             | $1.5K–$4K/mes | Flat rate, no por empleado                             |
+
+### El argumento de costos: Stack fragmentado vs. Stratos
+
+Para una empresa de **500 empleados** que necesite las capacidades equivalentes a Stratos:
+
+| Necesidad                                  | Vendor típico              | Costo/mes estimado    |
+| ------------------------------------------ | -------------------------- | --------------------- |
+| HCM Core (nómina, org, personas)           | BambooHR / Workday Lite    | $3,000 – $15,000      |
+| LMS (formación, cursos, SCORM)             | Cornerstone / Docebo       | $2,500 – $12,500      |
+| Performance (evaluaciones, OKRs, 360°)     | Lattice / Culture Amp      | $3,000 – $5,500       |
+| People Analytics (dashboards, métricas)    | Visier                     | $2,500 – $5,000       |
+| ATS / Reclutamiento                        | Greenhouse / Lever         | $3,000 – $7,500       |
+| Compliance (ISO, SOC, GDPR)               | Vanta / Drata              | $1,000 – $4,000       |
+| WFP / Org Design                           | Orgvue / Nakisa            | $4,000 – $10,000      |
+| **TOTAL STACK FRAGMENTADO**                | **6-7 vendors**            | **$19,000 – $59,500** |
+| **Costo PEPM equivalente**                 |                            | **$38 – $119**        |
+
+| Stratos (todo integrado)                   | Tier                       | Costo/mes estimado    |
+| ------------------------------------------ | -------------------------- | --------------------- |
+| 12 módulos + 5 motores + 15 agentes IA     | **Enterprise**             | **$6,000 – $12,500**  |
+| **Costo PEPM**                             |                            | **$12 – $25**         |
+
+### 💰 Ahorro con Stratos
+
+```
+┌──────────────────────────────────────────────────────────────────────────┐
+│                                                                          │
+│   STACK FRAGMENTADO (6-7 vendors)         STRATOS ENTERPRISE             │
+│   ════════════════════════════            ══════════════════              │
+│   $38 – $119 PEPM                         $12 – $25 PEPM                 │
+│                                                                          │
+│   ┌─────────────────────────┐                                            │
+│   │  AHORRO: 50-79%         │                                            │
+│   │  ($156K - $564K/año     │                                            │
+│   │   para 500 empleados)   │                                            │
+│   └─────────────────────────┘                                            │
+│                                                                          │
+│   + Costos ocultos que Stratos ELIMINA:                                  │
+│   ─────────────────────────────────────                                   │
+│   • Integraciones entre sistemas:    $20K–$80K implementación            │
+│   • Mantenimiento de integraciones:  $3K–$8K/mes                         │
+│   • Datos duplicados/inconsistentes: Incalculable en errores             │
+│   • Licencias de middleware (iPaaS):  $1K–$5K/mes                        │
+│   • Overhead de vendor management:   1 FTE parcial (~$30K/año)           │
+│   ─────────────────────────────────                                       │
+│   Costo oculto total: $80K–$200K/año adicionales                         │
+│                                                                          │
+│   AHORRO TOTAL REAL: $236K – $764K/año                                   │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+> **Para el CFO**: Stratos no solo es más barato — elimina una categoría completa de gasto en integración, middleware y reconciliación de datos que el stack fragmentado hace inevitable.
+
 ### Estrategia Go-to-Market
 
 ```
@@ -1397,7 +1469,7 @@ LAND ────────────── EXPAND ────────�
 
 ---
 
-> ## _"Stratos: La inteligencia de talento que aprende de miles para servir a uno."_
+> ## "Stratos: La inteligencia de talento que aprende de miles para servir a uno."
 
 ---
 
