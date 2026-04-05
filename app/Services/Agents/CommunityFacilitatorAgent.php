@@ -2,19 +2,19 @@
 
 namespace App\Services\Agents;
 
-use App\Models\LmsCohort;
-use App\Models\LmsCohortMember;
-use App\Models\LmsDiscussion;
-use App\Models\LmsUserContent;
+use App\Models\LmsCommunity;
+use App\Models\LmsCommunityMember;
+use App\Models\LmsCommunityActivity;
 use App\Models\LmsLearnerProfile;
-use App\Models\LmsCourse;
 use App\Models\User;
-use App\Services\Lms\CohortService;
+use App\Services\Lms\CommunityService;
+use App\Services\Lms\CommunityProgressionService;
+use App\Services\Lms\CommunityHealthService;
+use App\Services\Lms\MentorMatchingService;
 use App\Services\Lms\DiscussionService;
 use App\Services\Lms\UgcService;
 use App\Services\Lms\PeerReviewService;
 use App\Services\Lms\AdaptiveLearningService;
-use App\Services\AiOrchestratorService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -55,20 +55,29 @@ class CommunityFacilitatorAgent
     const HEALTH_HEALTHY = 'healthy';
     const HEALTH_THRIVING = 'thriving';
 
-    protected CohortService $cohortService;
+    protected CommunityService $communityService;
+    protected CommunityProgressionService $progressionService;
+    protected CommunityHealthService $healthService;
+    protected MentorMatchingService $mentorService;
     protected DiscussionService $discussionService;
     protected UgcService $ugcService;
     protected PeerReviewService $peerReviewService;
     protected AdaptiveLearningService $adaptiveService;
 
     public function __construct(
-        CohortService $cohortService,
+        CommunityService $communityService,
+        CommunityProgressionService $progressionService,
+        CommunityHealthService $healthService,
+        MentorMatchingService $mentorService,
         DiscussionService $discussionService,
         UgcService $ugcService,
         PeerReviewService $peerReviewService,
         AdaptiveLearningService $adaptiveService,
     ) {
-        $this->cohortService = $cohortService;
+        $this->communityService = $communityService;
+        $this->progressionService = $progressionService;
+        $this->healthService = $healthService;
+        $this->mentorService = $mentorService;
         $this->discussionService = $discussionService;
         $this->ugcService = $ugcService;
         $this->peerReviewService = $peerReviewService;
@@ -85,52 +94,46 @@ class CommunityFacilitatorAgent
      *   course_id: ?int, facilitator_id: ?int,
      *   max_members: ?int
      * }
-     * @return LmsCohort The created community (uses Cohort as base entity)
+     * @return LmsCommunity The created community
      */
-    public function designCommunity(int $orgId, array $config): LmsCohort
+    public function designCommunity(int $orgId, array $config): LmsCommunity
     {
         Log::info("CommunityFacilitator: designing community '{$config['name']}' for org {$orgId}");
 
-        $cohort = $this->cohortService->create($orgId, [
+        $community = $this->communityService->create($orgId, [
             'name' => $config['name'],
             'description' => $this->buildCommunityDescription($config),
-            'course_id' => $config['course_id'] ?? null,
+            'type' => $config['type'] ?? 'practice',
+            'domain_skills' => $config['domain_skills'] ?? null,
+            'learning_goals' => $config['learning_goals'] ?? null,
             'facilitator_id' => $config['facilitator_id'] ?? null,
+            'course_id' => $config['course_id'] ?? null,
             'max_members' => $config['max_members'] ?? null,
-            'starts_at' => now(),
-            'is_active' => true,
         ]);
 
-        // Add facilitator as leader if specified
-        if (!empty($config['facilitator_id'])) {
-            $this->cohortService->addMember(
-                $cohort->id,
-                $config['facilitator_id'],
-                'facilitator'
-            );
-        }
+        Log::info("CommunityFacilitator: community {$community->id} created with CoP framework");
 
-        Log::info("CommunityFacilitator: community {$cohort->id} created with CoP framework");
-
-        return $cohort;
+        return $community;
     }
 
     /**
      * Onboard a new member following LPP (Legitimate Peripheral Participation).
      * New members start as "novice" with guided peripheral activities.
      */
-    public function onboardMember(int $cohortId, int $userId, int $orgId): array
+    public function onboardMember(int $communityId, int $userId, int $orgId): array
     {
+        $community = LmsCommunity::findOrFail($communityId);
+
         // Add as member with novice role
-        $this->cohortService->addMember($cohortId, $userId, 'member');
+        $member = $this->communityService->join($community, $userId, self::ROLE_NOVICE);
 
         // Create/update learner profile for adaptive tracking
         $profile = $this->adaptiveService->getOrCreateProfile($userId, $orgId);
 
         // Generate onboarding tasks (LPP: start with low-risk, productive tasks)
-        $onboardingPlan = $this->generateOnboardingPlan($cohortId, $userId, $profile);
+        $onboardingPlan = $this->generateOnboardingPlan($communityId, $userId, $profile);
 
-        Log::info("CommunityFacilitator: onboarded user {$userId} to community {$cohortId} as novice");
+        Log::info("CommunityFacilitator: onboarded user {$userId} to community {$communityId} as novice");
 
         return [
             'role' => self::ROLE_NOVICE,
@@ -143,84 +146,52 @@ class CommunityFacilitatorAgent
      * Evaluate a member's participation and determine if they should be promoted
      * in the LPP progression (Novice → Member → Contributor → Mentor → Expert → Leader).
      */
-    public function evaluateProgression(int $cohortId, int $userId, int $orgId): array
+    public function evaluateProgression(int $communityId, int $userId, int $orgId): array
     {
-        $metrics = $this->getMemberMetrics($cohortId, $userId, $orgId);
-        $currentRole = $this->getCurrentRole($metrics);
-        $nextRole = $this->calculateNextRole($currentRole, $metrics);
+        $member = LmsCommunityMember::where('community_id', $communityId)
+            ->where('user_id', $userId)
+            ->firstOrFail();
 
-        $promoted = $nextRole !== $currentRole;
+        // Sync member stats from activities before evaluating
+        $this->communityService->updateMemberStats($member);
 
-        if ($promoted) {
-            Log::info("CommunityFacilitator: promoting user {$userId} from {$currentRole} to {$nextRole} in community {$cohortId}");
+        $result = $this->progressionService->evaluateProgression($member);
+
+        if ($result['promoted']) {
+            Log::info("CommunityFacilitator: promoting user {$userId} from {$result['current_role']} to {$result['next_role']} in community {$communityId}");
         }
 
-        return [
-            'current_role' => $currentRole,
-            'next_role' => $nextRole,
-            'promoted' => $promoted,
-            'metrics' => $metrics,
-            'criteria' => $this->getProgressionCriteria($nextRole),
-        ];
+        return $result;
     }
 
     /**
      * Assess community health based on CoI framework (Cognitive, Social, Teaching presence)
      * and CoP vitality indicators (Domain relevance, Community engagement, Practice evolution).
      */
-    public function assessCommunityHealth(int $cohortId, int $orgId): array
+    public function assessCommunityHealth(int $communityId, int $orgId): array
     {
-        $cohort = LmsCohort::findOrFail($cohortId);
-        $memberCount = LmsCohortMember::where('cohort_id', $cohortId)->count();
+        $community = LmsCommunity::findOrFail($communityId);
 
-        // Social Presence (CoI): interaction frequency and quality
-        $discussionCount = LmsDiscussion::where('organization_id', $orgId)
-            ->where('course_id', $cohort->course_id)
-            ->where('created_at', '>=', now()->subDays(30))
-            ->count();
+        $health = $this->healthService->recalculateAndSave($community);
 
-        // Cognitive Presence (CoI): knowledge creation and sharing
-        $ugcCount = LmsUserContent::where('organization_id', $orgId)
-            ->where('status', 'published')
-            ->where('created_at', '>=', now()->subDays(30))
-            ->count();
-
-        // Teaching Presence (CoI): facilitation and mentoring activity
-        $mentorCount = LmsCohortMember::where('cohort_id', $cohortId)
-            ->where('role', 'mentor')
-            ->count();
-
-        // Calculate health scores (0-100)
-        $socialScore = min(100, ($discussionCount / max($memberCount, 1)) * 25);
-        $cognitiveScore = min(100, ($ugcCount / max($memberCount, 1)) * 50);
-        $teachingScore = $mentorCount > 0 ? min(100, ($mentorCount / max($memberCount, 1)) * 200) : 0;
-
-        $overallScore = ($socialScore * 0.4) + ($cognitiveScore * 0.35) + ($teachingScore * 0.25);
-
-        $healthStatus = match (true) {
-            $overallScore >= 75 => self::HEALTH_THRIVING,
-            $overallScore >= 50 => self::HEALTH_HEALTHY,
-            $overallScore >= 25 => self::HEALTH_AT_RISK,
-            default => self::HEALTH_CRITICAL,
-        };
-
-        $recommendations = $this->generateHealthRecommendations($healthStatus, $socialScore, $cognitiveScore, $teachingScore);
+        $recommendations = $this->generateHealthRecommendations(
+            $health['status'],
+            $health['social_presence'],
+            $health['cognitive_presence'],
+            $health['teaching_presence'],
+        );
 
         return [
-            'community_id' => $cohortId,
-            'member_count' => $memberCount,
-            'health_status' => $healthStatus,
-            'overall_score' => round($overallScore, 1),
+            'community_id' => $communityId,
+            'member_count' => $health['details']['member_count'],
+            'health_status' => $health['status'],
+            'overall_score' => $health['health_score'],
             'presence_scores' => [
-                'social' => round($socialScore, 1),
-                'cognitive' => round($cognitiveScore, 1),
-                'teaching' => round($teachingScore, 1),
+                'social' => $health['social_presence'],
+                'cognitive' => $health['cognitive_presence'],
+                'teaching' => $health['teaching_presence'],
             ],
-            'activity_30d' => [
-                'discussions' => $discussionCount,
-                'knowledge_articles' => $ugcCount,
-                'active_mentors' => $mentorCount,
-            ],
+            'activity_30d' => $health['details'],
             'recommendations' => $recommendations,
         ];
     }
@@ -229,33 +200,13 @@ class CommunityFacilitatorAgent
      * Suggest mentor-mentee pairings based on skill proficiency levels and learner profiles.
      * Implements Connectivism principle: connecting specialized nodes.
      */
-    public function suggestMentorships(int $cohortId, int $orgId): array
+    public function suggestMentorships(int $communityId, int $orgId): array
     {
-        $members = LmsCohortMember::where('cohort_id', $cohortId)
-            ->with('user')
-            ->get();
+        $community = LmsCommunity::findOrFail($communityId);
 
-        $profiles = [];
-        foreach ($members as $member) {
-            $profile = LmsLearnerProfile::where('user_id', $member->user_id)
-                ->where('organization_id', $orgId)
-                ->first();
+        $pairings = $this->mentorService->suggestMatches($community);
 
-            if ($profile) {
-                $profiles[] = [
-                    'user_id' => $member->user_id,
-                    'role' => $member->role,
-                    'proficiency' => $profile->proficiency_level,
-                    'strengths' => $profile->strengths ?? [],
-                    'weaknesses' => $profile->weaknesses ?? [],
-                    'average_score' => $profile->average_score,
-                ];
-            }
-        }
-
-        $pairings = $this->matchMentorMentee($profiles);
-
-        Log::info("CommunityFacilitator: suggested {$pairings['count']} mentorships for community {$cohortId}");
+        Log::info("CommunityFacilitator: suggested {$pairings['count']} mentorships for community {$communityId}");
 
         return $pairings;
     }
@@ -264,9 +215,9 @@ class CommunityFacilitatorAgent
      * Generate a community activity prompt using AI.
      * Leverages CoI framework to design activities that balance all three presences.
      */
-    public function generateActivityPrompt(int $cohortId, int $orgId, string $focusArea): array
+    public function generateActivityPrompt(int $communityId, int $orgId, string $focusArea): array
     {
-        $health = $this->assessCommunityHealth($cohortId, $orgId);
+        $health = $this->assessCommunityHealth($communityId, $orgId);
         $weakestPresence = $this->identifyWeakestPresence($health['presence_scores']);
 
         // Design activity that strengthens the weakest presence
@@ -308,9 +259,9 @@ class CommunityFacilitatorAgent
      * Measure the impact of a community on skill gap closure.
      * Connects community participation with Skill Intelligence data.
      */
-    public function measureSkillImpact(int $cohortId, int $orgId): array
+    public function measureSkillImpact(int $communityId, int $orgId): array
     {
-        $members = LmsCohortMember::where('cohort_id', $cohortId)->get();
+        $members = LmsCommunityMember::where('community_id', $communityId)->get();
         $memberIds = $members->pluck('user_id')->toArray();
 
         $profiles = LmsLearnerProfile::whereIn('user_id', $memberIds)
@@ -324,7 +275,7 @@ class CommunityFacilitatorAgent
             ->toArray();
 
         return [
-            'community_id' => $cohortId,
+            'community_id' => $communityId,
             'total_members' => count($memberIds),
             'profiles_with_data' => $profiles->count(),
             'average_score' => round($avgScore, 2),
@@ -353,7 +304,7 @@ class CommunityFacilitatorAgent
         return trim($desc);
     }
 
-    private function generateOnboardingPlan(int $cohortId, int $userId, $profile): array
+    private function generateOnboardingPlan(int $communityId, int $userId, $profile): array
     {
         return [
             ['step' => 1, 'action' => 'observe', 'task' => 'Lee las 5 discusiones más recientes de la comunidad', 'estimated_minutes' => 10],
@@ -361,114 +312,6 @@ class CommunityFacilitatorAgent
             ['step' => 3, 'action' => 'explore', 'task' => 'Revisa la Knowledge Base y marca 3 recursos como útiles', 'estimated_minutes' => 15],
             ['step' => 4, 'action' => 'participate', 'task' => 'Comenta en al menos 2 discusiones existentes', 'estimated_minutes' => 10],
             ['step' => 5, 'action' => 'connect', 'task' => 'Identifica un mentor potencial y envíale un mensaje', 'estimated_minutes' => 5],
-        ];
-    }
-
-    private function getMemberMetrics(int $cohortId, int $userId, int $orgId): array
-    {
-        $cohort = LmsCohort::findOrFail($cohortId);
-
-        $discussions = LmsDiscussion::where('organization_id', $orgId)
-            ->where('user_id', $userId)
-            ->where('course_id', $cohort->course_id)
-            ->count();
-
-        $ugcPublished = LmsUserContent::where('organization_id', $orgId)
-            ->where('author_id', $userId)
-            ->where('status', 'published')
-            ->count();
-
-        $profile = LmsLearnerProfile::where('user_id', $userId)
-            ->where('organization_id', $orgId)
-            ->first();
-
-        return [
-            'discussions_count' => $discussions,
-            'ugc_published' => $ugcPublished,
-            'proficiency_level' => $profile?->proficiency_level ?? 'beginner',
-            'average_score' => $profile?->average_score ?? 0,
-            'completed_assessments' => $profile?->completed_assessments ?? 0,
-        ];
-    }
-
-    private function getCurrentRole(array $metrics): string
-    {
-        if ($metrics['ugc_published'] >= 10 && $metrics['discussions_count'] >= 50) {
-            return self::ROLE_EXPERT;
-        }
-        if ($metrics['ugc_published'] >= 5 && $metrics['discussions_count'] >= 20) {
-            return self::ROLE_MENTOR;
-        }
-        if ($metrics['ugc_published'] >= 2 && $metrics['discussions_count'] >= 10) {
-            return self::ROLE_CONTRIBUTOR;
-        }
-        if ($metrics['discussions_count'] >= 3) {
-            return self::ROLE_MEMBER;
-        }
-        return self::ROLE_NOVICE;
-    }
-
-    private function calculateNextRole(string $currentRole, array $metrics): string
-    {
-        $currentIndex = array_search($currentRole, self::ROLE_PROGRESSION);
-        $nextIndex = min($currentIndex + 1, count(self::ROLE_PROGRESSION) - 1);
-        $candidateRole = self::ROLE_PROGRESSION[$nextIndex];
-
-        // Check if metrics meet criteria for next role
-        $criteria = $this->getProgressionCriteria($candidateRole);
-        $meetsCriteria = true;
-
-        foreach ($criteria as $key => $threshold) {
-            if (isset($metrics[$key]) && $metrics[$key] < $threshold) {
-                $meetsCriteria = false;
-                break;
-            }
-        }
-
-        return $meetsCriteria ? $candidateRole : $currentRole;
-    }
-
-    private function getProgressionCriteria(string $role): array
-    {
-        return match ($role) {
-            self::ROLE_MEMBER => ['discussions_count' => 3],
-            self::ROLE_CONTRIBUTOR => ['discussions_count' => 10, 'ugc_published' => 2],
-            self::ROLE_MENTOR => ['discussions_count' => 20, 'ugc_published' => 5],
-            self::ROLE_EXPERT => ['discussions_count' => 50, 'ugc_published' => 10],
-            self::ROLE_LEADER => ['discussions_count' => 100, 'ugc_published' => 20],
-            default => [],
-        };
-    }
-
-    private function matchMentorMentee(array $profiles): array
-    {
-        $mentors = collect($profiles)->filter(fn ($p) => in_array($p['proficiency'], ['advanced', 'expert']));
-        $mentees = collect($profiles)->filter(fn ($p) => in_array($p['proficiency'], ['beginner', 'intermediate']));
-
-        $pairings = [];
-        foreach ($mentees as $mentee) {
-            $bestMentor = $mentors->filter(function ($mentor) use ($mentee) {
-                // Mentor's strengths should cover mentee's weaknesses (Connectivism: connecting nodes)
-                $menteeWeaknesses = $mentee['weaknesses'] ?? [];
-                $mentorStrengths = $mentor['strengths'] ?? [];
-                return count(array_intersect($mentorStrengths, $menteeWeaknesses)) > 0;
-            })->first();
-
-            if ($bestMentor) {
-                $overlap = array_intersect($bestMentor['strengths'] ?? [], $mentee['weaknesses'] ?? []);
-                $pairings[] = [
-                    'mentor_id' => $bestMentor['user_id'],
-                    'mentee_id' => $mentee['user_id'],
-                    'matching_skills' => array_values($overlap),
-                    'confidence' => min(100, count($overlap) * 25),
-                ];
-            }
-        }
-
-        return [
-            'pairings' => $pairings,
-            'count' => count($pairings),
-            'unmatched_mentees' => $mentees->count() - count($pairings),
         ];
     }
 

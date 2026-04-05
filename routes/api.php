@@ -603,6 +603,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/lms/ugc/{userContent}/reject', [\App\Http\Controllers\Api\Lms\UgcController::class, 'reject'])->middleware('permission:lms.courses.manage');
     Route::post('/lms/ugc/{userContent}/like', [\App\Http\Controllers\Api\Lms\UgcController::class, 'like'])->middleware('permission:lms.courses.view');
 
+    // LMS Learning Communities
+    Route::get('/lms/communities', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'index'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/communities', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'store'])->middleware('permission:lms.courses.manage');
+    Route::get('/lms/communities/{community}', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'show'])->middleware('permission:lms.courses.view');
+    Route::put('/lms/communities/{community}', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'update'])->middleware('permission:lms.courses.manage');
+    Route::delete('/lms/communities/{community}', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'destroy'])->middleware('permission:lms.courses.manage');
+    Route::get('/lms/communities/{community}/members', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'members'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/communities/{community}/join', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'join'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/communities/{community}/leave', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'leave'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/communities/{community}/activities', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'activities'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/communities/{community}/health', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'health'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/communities/{community}/progression', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'progression'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/communities/{community}/mentors', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'mentors'])->middleware('permission:lms.courses.view');
+
     // LMS Cohorts / Learning Groups
     Route::get('/lms/cohorts', [\App\Http\Controllers\Api\Lms\CohortController::class, 'index'])->middleware('permission:lms.courses.view');
     Route::post('/lms/cohorts', [\App\Http\Controllers\Api\Lms\CohortController::class, 'store'])->middleware('permission:lms.courses.manage');
