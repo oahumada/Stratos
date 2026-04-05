@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.24.3](https://github.com/oahumada/Stratos/compare/v0.24.1...v0.24.3) (2026-04-05)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **lms:** add communities navigation, knowledge base, and WFP auto-formation ([a1a9cfd](https://github.com/oahumada/Stratos/commit/a1a9cfd23b65dbab1fe954831a035451a7085db7))
+
 ### [0.24.1](https://github.com/oahumada/Stratos/compare/v0.22.5...v0.24.1) (2026-04-05)
 
 
