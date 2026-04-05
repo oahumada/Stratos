@@ -84,6 +84,9 @@ class AppServiceProvider extends ServiceProvider
         // \Illuminate\Support\Facades\Gate::policy(\App\Models\StrategicPlanningScenarios::class, \App\Policies\WorkforceScenarioPolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\App\Models\ScenarioComparison::class, \App\Policies\ScenarioComparisonPolicy::class);
 
+        // Governance: RAG ask — user must belong to an organization
+        \Illuminate\Support\Facades\Gate::define('rag.ask', fn (\App\Models\User $user) => $user->organization_id !== null);
+
         // --- Stratos Security: Rate Limiting ---
 
         // 1. AI Generation (Heavy tokens)

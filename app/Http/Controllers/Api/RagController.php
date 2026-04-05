@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RagAskRequest;
 use App\Services\RagService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 
 class RagController extends Controller
 {
@@ -24,6 +25,8 @@ class RagController extends Controller
      */
     public function ask(RagAskRequest $request): JsonResponse
     {
+        Gate::authorize('rag.ask');
+
         $validated = $request->validated();
 
         $result = $this->ragService->ask(
