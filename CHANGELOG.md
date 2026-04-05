@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.24.15](https://github.com/oahumada/Stratos/compare/v0.24.13...v0.24.15) (2026-04-05)
+
+
+### ✨ Nuevas Funcionalidades
+
+* add Stratos Logos (λόγος) — Analytics & BI module ([#12](https://github.com/oahumada/Stratos/issues/12)) ([db47462](https://github.com/oahumada/Stratos/commit/db474624e0f45427a96754bf581fe1e184a5b2a6))
+
 ### [0.24.13](https://github.com/oahumada/Stratos/compare/v0.24.11...v0.24.13) (2026-04-05)
 
 ### [0.24.11](https://github.com/oahumada/Stratos/compare/v0.24.9...v0.24.11) (2026-04-05)
