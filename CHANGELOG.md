@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.24.1](https://github.com/oahumada/Stratos/compare/v0.22.5...v0.24.1) (2026-04-05)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **lms:** implement Learning Communities module (CoP + CoI + LPP) ([6015382](https://github.com/oahumada/Stratos/commit/601538261928f2289c960ba2d61e2ec375e4da67))
+
 ### [0.22.5](https://github.com/oahumada/Stratos/compare/v0.22.3...v0.22.5) (2026-04-05)
 
 ### [0.22.3](https://github.com/oahumada/Stratos/compare/v0.22.1...v0.22.3) (2026-04-05)
