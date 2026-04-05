@@ -2,7 +2,7 @@
 
 > _"La ventaja competitiva del siglo XXI no está en el capital, sino en el talento. Y la ventaja en talento no está en encontrarlo, sino en **entenderlo**."_
 
-> **Versión**: 1.0  
+> **Versión**: 2.0  
 > **Fecha**: 5 de abril de 2026  
 > **Clasificación**: Estratégico — Material para inversores, socios y clientes de nivel C-Suite  
 > **Contacto**: Stratos AI Platform Team
@@ -11,10 +11,16 @@
 
 ## 📋 RESUMEN EJECUTIVO
 
-**Stratos** es una plataforma de Talent Intelligence que integra cuatro módulos especializados bajo un motor de inteligencia colectiva que aprende de cada interacción, cada decisión y cada resultado de talento en todas las organizaciones que la utilizan.
+**Stratos** es una plataforma de Talent Intelligence que integra **diez módulos especializados** bajo un motor de inteligencia colectiva que aprende de cada interacción, cada decisión y cada resultado de talento en todas las organizaciones que la utilizan.
 
 | Módulo                    | Nombre              | Lema                                                         |
 | ------------------------- | ------------------- | ------------------------------------------------------------ |
+| 🏗️ **Fundación**          | **Stratos Core**    | _"Los cimientos donde todo talento cobra forma"_             |
+| 🏆 **Performance & Dev**  | **Stratos Areté**   | _"La excelencia no se alcanza, se cultiva"_                  |
+| 💓 **People Experience**  | **Stratos Pulso**   | _"Sentir el latido de tu organización"_                      |
+| ⏳ **Talent Planning**     | **Stratos Kairos**  | _"El talento correcto, en el momento preciso"_               |
+| 🧲 **Recruitment**         | **Stratos Magnet**  | _"Que el mejor talento te encuentre a ti"_                   |
+| 🎭 **Culture**             | **Stratos Ethos**   | _"Cultura visible, valores que se viven"_                    |
 | 🧠 **LMS**                | **Stratos Praxis**  | _"Aprender haciendo, crecer midiendo"_                       |
 | 🏛️ **Comunidades**        | **Stratos Ágora**   | _"Donde el conocimiento se multiplica al compartirse"_       |
 | 🔭 **Workforce Planning** | **Stratos Horizon** | _"Ver el futuro del talento antes de que llegue"_            |
@@ -28,15 +34,15 @@
 
 Stratos es la **primera plataforma de HR Tech** que:
 
-1. **Integra** formación, comunidades de aprendizaje y planificación de fuerza laboral en una sola plataforma
+1. **Integra** 10 módulos especializados — desde la gestión core de personas hasta comunidades de aprendizaje, planificación de fuerza laboral, performance, cultura y reclutamiento — en una sola plataforma nativa
 2. **Conecta** cada módulo con 15 agentes de IA especializados que automatizan el 80% de las decisiones operativas de talento
 3. **Aprende** de forma transversal entre organizaciones (anonimizado) para ofrecer predicciones que mejoran con cada cliente
 
-**El resultado**: Una plataforma donde el LMS sabe qué enseñar porque Workforce Planning le dice qué skills faltan, las comunidades aceleran el aprendizaje social porque la IA identifica mentores óptimos, y todo mejora porque Nexus aprende de miles de organizaciones.
+**El resultado**: Una plataforma donde el LMS sabe qué enseñar porque Workforce Planning le dice qué skills faltan, las comunidades aceleran el aprendizaje social porque la IA identifica mentores óptimos, Talent Planning anticipa quién estará listo para sucesión porque Areté mide su crecimiento real, Magnet atrae al candidato perfecto porque conoce el DNA cultural vía Ethos, y todo mejora porque Nexus aprende de miles de organizaciones.
 
 ---
 
-# PARTE I: LOS CUATRO PILARES
+# PARTE I-A: PILARES DE APRENDIZAJE Y PLANIFICACIÓN
 
 ---
 
@@ -427,37 +433,450 @@ Nexus es la capa transversal que conecta todo. No es un módulo que el usuario v
 
 ---
 
+# PARTE I-B: MÓDULOS ESTRATÉGICOS
+
+---
+
+## 🏗️ 5. STRATOS CORE — Fundación de Inteligencia de Personas
+
+> _"Los cimientos donde todo talento cobra forma"_
+
+### ¿Por qué "Core"?
+
+Toda plataforma necesita cimientos sólidos. Stratos Core es el **núcleo operativo** que centraliza personas, roles, competencias, departamentos y estructura organizacional en un solo lugar. Sin Core, los demás módulos no tienen sobre qué operar. Es el **registro de verdad** (system of record) desde el cual fluye toda la inteligencia.
+
+### El problema que resuelve
+
+> Las organizaciones operan con datos de personas fragmentados en 3-5 sistemas distintos: un HRIS aquí, una planilla allá, roles en un Excel, competencias en otro. Esta fragmentación hace que **cada decisión de talento requiera reconciliar datos manualmente** — un proceso lento, propenso a errores y que impide la automatización.
+
+Stratos Core unifica todo en una **única fuente de verdad multi-tenant**, con scoping automático por organización, RBAC granular y auditoría completa.
+
+### Características principales
+
+#### 5.1 Gestión de Personas 360°
+
+| Capacidad                       | Detalle                                                         | Diferenciador                     |
+| ------------------------------- | --------------------------------------------------------------- | --------------------------------- |
+| **Perfil unificado**            | Datos laborales, skills, competencias, historial en una vista   | Todo conectado, sin silos         |
+| **Importación masiva**          | Carga CSV/Excel con validación inteligente y mapeo automático   | Detección de duplicados con IA    |
+| **Skill Intelligence**          | Proficiency por skill con tracking temporal                     | Gaps calculados automáticamente   |
+| **Psychometric Profiles**       | Perfiles Big Five, DISC, y rasgos personalizados                | Integrado con matching de roles   |
+| **Talent Pass**                 | Credenciales verificables W3C con firma blockchain              | Portabilidad de talento real      |
+| **Historial de desarrollo**     | Learning paths, cursos, mentorías, evaluaciones en timeline     | Conectado con todos los módulos   |
+
+#### 5.2 Estructura Organizacional Inteligente
+
+| Capacidad                        | Detalle                                                          |
+| -------------------------------- | ---------------------------------------------------------------- |
+| **Org Chart dinámico**           | Visualización interactiva con drill-down por departamento        |
+| **Roles con competencies map**   | Cada rol tiene competencias requeridas con niveles target        |
+| **Role Designer con IA**         | El agente Diseñador de Roles propone composición desde mercado   |
+| **Competency Curator**           | Taxonomía dinámica de competencias curada por IA                 |
+| **Departamentos jerárquicos**    | Estructura multi-nivel con KPIs por unidad                      |
+
+#### 5.3 Seguridad y Gobernanza
+
+| Capacidad                     | Detalle                                                                 |
+| ----------------------------- | ----------------------------------------------------------------------- |
+| **RBAC granular**             | Roles + permisos por módulo, con herencia organizacional                |
+| **Multi-tenancy nativa**      | Aislamiento total por `organization_id` en cada query                   |
+| **Audit Trail completo**      | Cada acción registrada con quién, qué, cuándo y desde dónde            |
+| **SSO / Magic Links**         | Autenticación federada (SAML/OIDC) + acceso sin contraseña             |
+| **Compliance Dashboard**      | Monitoreo de cumplimiento regulatorio en tiempo real                    |
+
+### Comparativa con competidores
+
+| Capacidad                    | BambooHR | Workday | SAP SuccessFactors | **Stratos Core**    |
+| ---------------------------- | :------: | :-----: | :----------------: | :-----------------: |
+| Perfil de persona 360°       |    ✅    |   ✅    |        ✅          |        ✅           |
+| Skill intelligence nativo    |    ❌    |   ⚠️    |        ⚠️          |   ✅ Con gaps IA    |
+| Org chart interactivo        |    ✅    |   ✅    |        ✅          |        ✅           |
+| Role design con IA           |    ❌    |   ❌    |        ❌          |        ✅           |
+| Talent Pass (credenciales)   |    ❌    |   ❌    |        ❌          |  ✅ W3C + blockchain|
+| Integrado con LMS/WFP        |    ❌    |  ⚠️     |       ⚠️           |    ✅ Nativo        |
+| Multi-tenant nativo          |    ✅    |   ✅    |        ✅          |        ✅           |
+| 15 agentes IA sobre datos    |    ❌    |   ❌    |        ❌          |        ✅           |
+
+> _"BambooHR y similares son excelentes registros de personas. Stratos Core es un registro de personas que **piensa** — conectado con 15 agentes de IA y 9 módulos especializados que convierten datos estáticos en decisiones inteligentes."_
+
+---
+
+## 🏆 6. STRATOS ARETÉ — Performance, Desarrollo y Excelencia
+
+> _"La excelencia no se alcanza, se cultiva"_
+
+### ¿Por qué "Areté"?
+
+Del griego ἀρετή — el ideal de excelencia, la máxima expresión del potencial humano. Para los griegos, areté no era un destino sino un **camino continuo de mejora**. Stratos Areté operacionaliza este ideal: mide dónde está cada persona, visualiza dónde podría estar, y traza el camino exacto para llegar.
+
+### El problema que resuelve
+
+> Las evaluaciones de desempeño son el proceso más odiado de RRHH: el **95% de los managers** las considera inútiles (Deloitte, 2023). ¿Por qué? Porque son retrospectivas, subjetivas, y desconectadas del desarrollo real. Evalúan lo que pasó, no impulsan lo que viene.
+
+Stratos Areté transforma evaluación en **desarrollo continuo**: 360° con calibración IA, BARS conductuales, triangulación de datos, y planes de desarrollo que se alimentan automáticamente de los resultados.
+
+### Características principales
+
+#### 6.1 Evaluación 360° con Inteligencia
+
+| Capacidad                        | Detalle                                                               | Diferenciador                        |
+| -------------------------------- | --------------------------------------------------------------------- | ------------------------------------ |
+| **Ciclos de evaluación**         | Configurables por frecuencia, participantes, competencias target      | Flexibilidad total                   |
+| **Feedback externo (tokens)**    | Evaluadores externos sin cuenta, vía enlace seguro con token          | Sin fricción para el evaluador       |
+| **Calibración IA**               | El Orquestador 360 detecta sesgos de halo, leniency y recency        | Objetividad aumentada                |
+| **BARS conductuales**            | Behavioral Anchored Rating Scales por competencia y nivel             | Evaluación basada en evidencia       |
+| **Triangulación**                | Cruza 360°, BARS, psychometrics y performance en dashboard unificado  | Vista holística del talento          |
+| **Question Bank**                | Banco de preguntas validadas por competencia, reutilizables           | Consistencia entre ciclos            |
+
+#### 6.2 Performance Management Continuo
+
+| Capacidad                           | Detalle                                                         |
+| ----------------------------------- | --------------------------------------------------------------- |
+| **Dashboard de performance**        | Métricas en tiempo real, no solo en "temporada de evaluaciones" |
+| **Mobility War Room**               | Simulación de movimientos internos con impacto calculado        |
+| **Relationship Map**                | Redes de influencia y colaboración visualizadas                 |
+| **Stratos Map**                     | Mapa visual de talento con ejes configurables (potencial vs performance) |
+
+#### 6.3 Desarrollo Personalizado con IA
+
+| Capacidad                          | Detalle                                                              |
+| ---------------------------------- | -------------------------------------------------------------------- |
+| **Development Paths**              | Rutas de crecimiento multi-competencia con milestones                |
+| **Development Actions**            | Acciones específicas con tracking, vinculadas a gaps detectados      |
+| **Mentorship Sessions**            | Sesiones de mentoría con seguimiento, conectadas con Ágora           |
+| **Learning Blueprints IA**         | El Coach de Crecimiento genera planes personalizados automáticamente |
+| **Evidence-based tracking**        | Evidencias documentales de progreso por competencia                  |
+
+#### 6.4 Agentes IA dedicados
+
+| Agente                    | Función                                                                  |
+| ------------------------- | ------------------------------------------------------------------------ |
+| **Coach de Crecimiento**  | Genera Development Paths personalizados basados en gaps + probabilidad   |
+| **Orquestador 360**       | Diseña ciclos, calibra sesgos, consolida resultados con insights         |
+| **Estratega de Talento**  | Analiza brechas organizacionales y propone estrategias de cierre         |
+
+### Comparativa con competidores
+
+| Capacidad                       | Lattice | Culture Amp | 15Five | Workday | **Stratos Areté** |
+| ------------------------------- | :-----: | :---------: | :----: | :-----: | :---------------: |
+| 360° evaluaciones               |   ✅    |     ✅      |   ✅   |   ✅    |        ✅         |
+| Calibración IA de sesgos        |   ❌    |     ⚠️      |   ❌   |   ❌    |        ✅         |
+| BARS conductuales               |   ❌    |     ❌      |   ❌   |   ⚠️    |        ✅         |
+| Triangulación multi-fuente      |   ❌    |     ❌      |   ❌   |   ❌    |    ✅ 4 fuentes   |
+| Development paths automáticos   |   ⚠️    |     ❌      |   ❌   |   ⚠️    |        ✅         |
+| Conectado con LMS               |   ❌    |     ❌      |   ❌   |   ⚠️    |    ✅ Praxis      |
+| Conectado con WFP               |   ❌    |     ❌      |   ❌   |   ⚠️    |    ✅ Horizon     |
+| Mobility simulation             |   ❌    |     ❌      |   ❌   |   ❌    |        ✅         |
+| 3 agentes IA dedicados          |   ❌    |     ❌      |   ❌   |   ❌    |        ✅         |
+
+> _"Lattice es el líder en performance management. Pero Lattice no sabe qué cursos tomar para cerrar un gap, porque no tiene LMS. No puede simular el impacto de un movimiento interno, porque no tiene WFP. Stratos Areté sí — porque vive en una plataforma donde cada dato alimenta al siguiente."_
+
+---
+
+## 💓 7. STRATOS PULSO — People Experience Intelligence
+
+> _"Sentir el latido de tu organización"_
+
+### ¿Por qué "Pulso"?
+
+Como un médico que toma el pulso para entender el estado del paciente, Stratos Pulso mide el **estado real** de la experiencia de las personas en la organización — no una vez al año con una encuesta larga que nadie quiere contestar, sino de forma **continua, contextual y accionable**.
+
+### El problema que resuelve
+
+> Las encuestas de clima tradicionales tienen un problema fundamental: **miden el pasado**. Cuando recibes los resultados de una encuesta anual, los problemas ya llevan meses gestándose. Los Pulse surveys modernos ayudan, pero sin contexto (¿quién está en riesgo? ¿por qué? ¿qué acción tomar?) son solo números bonitos en un dashboard.
+
+Stratos Pulso no solo mide — **conecta** el sentimiento con datos de performance, learning, y planificación para generar insights accionables.
+
+### Características principales
+
+#### 7.1 Campañas PX Inteligentes
+
+| Capacidad                        | Detalle                                                               | Diferenciador                     |
+| -------------------------------- | --------------------------------------------------------------------- | --------------------------------- |
+| **Campañas configurables**       | Templates, audiencias segmentadas, frecuencia personalizable          | No one-size-fits-all              |
+| **Pulse surveys continuos**      | Micro-encuestas semanales de 2-3 preguntas                           | Sin survey fatigue                |
+| **eNPS automático**              | Net Promoter Score de empleados con tracking temporal                 | Tendencia, no solo número          |
+| **Sentiment analysis**           | Análisis de texto libre con NLP                                      | Captura lo que nadie dice directo |
+| **Segmentación inteligente**     | Por departamento, rol, antigüedad, performance level                 | Insights granulares               |
+
+#### 7.2 Dashboard de Experiencia
+
+| Capacidad                        | Detalle                                                                |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| **Comando PX**                   | Centro de control con métricas de engagement en tiempo real            |
+| **Heatmaps organizacionales**    | Dónde están los focos de desengagement visualizados geográficamente    |
+| **Alertas predictivas**          | IA detecta patrones que preceden rotación o burnout                    |
+| **Correlación cruzada**          | Conecta PX con performance, learning completion, y gaps de skills     |
+
+#### 7.3 Gamification Engine
+
+| Capacidad                      | Detalle                                                               |
+| ------------------------------ | --------------------------------------------------------------------- |
+| **Badges y achievements**      | Reconocimiento automático por logros en learning, comunidades, mentoring |
+| **Leaderboards**               | Rankings por equipo/departamento que impulsan competencia sana         |
+| **Points y rewards**           | Sistema de puntos canjeable, conectado con participación real          |
+| **Social recognition**         | Reconocimiento peer-to-peer visible para toda la organización         |
+
+#### 7.4 Mi Stratos — Portal Personal
+
+| Capacidad                      | Detalle                                                               |
+| ------------------------------ | --------------------------------------------------------------------- |
+| **Dashboard personal**         | Vista unificada: mis cursos, mis evaluaciones, mi desarrollo, mi engagement |
+| **Career pathing visible**     | Dónde estoy, dónde puedo ir, qué me falta                            |
+| **Learning recommendations**   | Sugerencias personalizadas basadas en gaps y aspiraciones             |
+
+### Comparativa con competidores
+
+| Capacidad                      | Qualtrics | Glint/Viva | Culture Amp | Peakon | **Stratos Pulso** |
+| ------------------------------ | :-------: | :--------: | :---------: | :----: | :---------------: |
+| Pulse surveys                  |    ✅     |     ✅     |     ✅      |   ✅   |        ✅         |
+| eNPS tracking                  |    ✅     |     ✅     |     ✅      |   ✅   |        ✅         |
+| Sentiment analysis             |    ✅     |     ✅     |     ⚠️      |   ✅   |        ✅         |
+| Gamification integrada         |    ❌     |     ❌     |     ❌      |   ❌   |        ✅         |
+| Portal personal unificado      |    ❌     |     ❌     |     ❌      |   ❌   |     ✅ MiStratos  |
+| Conectado con Performance      |    ❌     |     ⚠️     |     ⚠️      |   ❌   |     ✅ Areté      |
+| Conectado con LMS              |    ❌     |     ❌     |     ❌      |   ❌   |     ✅ Praxis     |
+| Alertas pre-rotación con IA    |    ⚠️     |     ⚠️     |     ❌      |   ⚠️   |        ✅         |
+
+> _"Qualtrics es el líder en encuestas. Pero Qualtrics mide engagement sin poder hacer nada con los datos. Stratos Pulso detecta que el equipo de Ingeniería tiene engagement bajo → cruza con Areté y descubre que no han tenido desarrollo en 6 meses → genera automáticamente learning paths vía Praxis. **De insight a acción, sin intervención humana.**"_
+
+---
+
+## ⏳ 8. STRATOS KAIROS — Talent Planning & Intelligence
+
+> _"El talento correcto, en el momento preciso"_
+
+### ¿Por qué "Kairos"?
+
+Del griego καιρός — el "momento oportuno," el instante perfecto para actuar. En la retórica griega, kairos era la habilidad de **decir lo correcto en el momento preciso**. En talent planning, Kairos es saber **quién estará listo, para qué rol, y cuándo** — antes de que la necesidad sea urgente.
+
+### El problema que resuelve
+
+> El 78% de las posiciones C-level se cubren con candidatos externos (McKinsey, 2024), aunque el 60% de las empresas dice tener "planes de sucesión." ¿Por qué? Porque los planes de sucesión tradicionales son **documentos estáticos** actualizados una vez al año, basados en opinión subjetiva del manager, y sin conexión con datos reales de competencias, performance o potencial.
+
+Stratos Kairos convierte talent planning de un ejercicio burocrático a un **sistema predictivo en tiempo real**.
+
+### Características principales
+
+#### 8.1 Gap Analysis Inteligente
+
+| Capacidad                           | Detalle                                                              | Diferenciador                       |
+| ----------------------------------- | -------------------------------------------------------------------- | ----------------------------------- |
+| **Proficiency gap detection**       | Diferencia entre nivel requerido y actual por persona×skill          | Automático, no manual               |
+| **Gap heatmap organizacional**      | Visualización de brechas por departamento, rol, skill                | Acción focalizada                   |
+| **Trend analysis**                  | Evolución de gaps en el tiempo con proyección                        | Anticipa, no solo mide              |
+| **Dominio claro WFP vs Talent**     | Separa gaps dotacionales (headcount) de gaps de proficiency          | Claridad de acción                  |
+
+#### 8.2 Succession Planning Predictivo
+
+| Capacidad                        | Detalle                                                                 |
+| -------------------------------- | ----------------------------------------------------------------------- |
+| **Succession candidates**        | Pool de candidatos por rol crítico con readiness score                  |
+| **Multi-escenario**              | Sucesión vinculada a escenarios de Horizon (What-If)                   |
+| **Development plans**            | Plan de desarrollo automático para cerrar gaps del sucesor              |
+| **Timeline de readiness**        | Predicción de cuándo cada candidato estará listo                        |
+| **Impact analysis**              | Qué pasa si esta persona se va — cascada de impacto calculada          |
+
+#### 8.3 Talent Intelligence
+
+| Capacidad                        | Detalle                                                               |
+| -------------------------------- | --------------------------------------------------------------------- |
+| **Talent Risk monitoring**       | Detección de riesgo de fuga por persona con factores ponderados       |
+| **Talent Search semántico**      | Búsqueda de talento interno por skills, competencias, potencial       |
+| **Stratos Map**                  | Mapa visual configurable (9-box, potencial vs performance, custom)    |
+| **Radar de talento**             | Vista 360° del estado del talento organizacional                      |
+| **Relationship mapping**         | Redes de influencia y dependencias críticas visualizadas              |
+
+#### 8.4 Stratos IQ — Inteligencia Organizacional
+
+| Métrica                           | Qué mide                                                               |
+| --------------------------------- | ----------------------------------------------------------------------- |
+| **Stratos IQ Score**              | Índice compuesto de madurez de talento de la organización              |
+| **Average proficiency gap**       | Brecha promedio de competencias (trend mensual)                        |
+| **Learning velocity**             | Velocidad de cierre de brechas (% mejora/mes)                          |
+| **Organizational snapshots**      | Fotografías mensuales del estado de talento con comparativa temporal   |
+
+### Comparativa con competidores
+
+| Capacidad                        | Visier | SAP SF  | Oracle HCM | Workday | **Stratos Kairos** |
+| -------------------------------- | :----: | :-----: | :---------: | :-----: | :----------------: |
+| Gap analysis automático          |   ⚠️   |   ⚠️    |      ⚠️     |   ⚠️    |        ✅          |
+| Succession predictivo            |   ❌   |   ⚠️    |      ⚠️     |   ⚠️    |        ✅          |
+| Talent risk monitoring           |   ✅   |   ⚠️    |      ⚠️     |   ⚠️    |        ✅          |
+| Talent search semántico          |   ⚠️   |   ❌    |      ❌     |   ❌    |        ✅          |
+| IQ Score organizacional          |   ❌   |   ❌    |      ❌     |   ❌    |        ✅          |
+| Learning velocity tracking       |   ❌   |   ❌    |      ❌     |   ❌    |        ✅          |
+| Conectado con LMS                |   ❌   |   ⚠️    |      ⚠️     |   ⚠️    |    ✅ Nativo       |
+| Conectado con WFP                |   ❌   |   ⚠️    |      ⚠️     |   ⚠️    |    ✅ Horizon      |
+| Separación WFP/Talent clara      |   ❌   |   ❌    |      ❌     |   ❌    |        ✅          |
+
+> _"Visier es líder en people analytics. Pero Visier necesita que tus datos estén limpios y centralizados en otro sistema — él solo visualiza. Stratos Kairos **es** el sistema: los datos nacen aquí (Core), crecen aquí (Areté, Praxis), y se analizan aquí (Kairos). No hay integración que romper, no hay ETL que mantener."_
+
+---
+
+## 🧲 9. STRATOS MAGNET — Atracción e Ingreso Inteligente de Talento
+
+> _"Que el mejor talento te encuentre a ti"_
+
+### ¿Por qué "Magnet"?
+
+Un imán no persigue lo que atrae — **crea un campo de fuerza que acerca naturalmente lo correcto**. Stratos Magnet transforma el reclutamiento de "publicar y esperar" a crear un campo magnético de employer brand, matching inteligente y experiencia de candidato que atrae al talento correcto sin esfuerzo.
+
+### El problema que resuelve
+
+> El costo promedio de una contratación errónea es **$240,000** (SHRM, 2024). El time-to-hire promedio es 42 días. Y el 46% de las nuevas contrataciones fracasa en los primeros 18 meses. ¿La raíz del problema? Los ATS tradicionales filtran CVs por keywords — no entienden competencias, no evalúan fit cultural, y no aprenden de sus errores.
+
+Stratos Magnet usa la inteligencia de talento de toda la plataforma para predecir **quién tendrá éxito**, no solo quién tiene las palabras correctas en su CV.
+
+### Características principales
+
+#### 9.1 Job Openings Inteligentes
+
+| Capacidad                       | Detalle                                                               | Diferenciador                     |
+| ------------------------------- | --------------------------------------------------------------------- | --------------------------------- |
+| **Apertura desde WFP**          | Job openings creados automáticamente cuando Horizon detecta déficit   | No más "necesitamos contratar"    |
+| **Role DNA automático**         | Requisitos extraídos del Role Designer + competency map               | Consistencia entre oferta y rol   |
+| **Scoring de candidatos**       | Match porcentual competencia×candidato con IA                         | Objetividad vs. gut feeling       |
+| **Portal de carrera público**   | Sitio personalizado por organización con employer branding             | Experiencia candidato premium     |
+
+#### 9.2 Selection Intelligence
+
+| Capacidad                        | Detalle                                                               |
+| -------------------------------- | --------------------------------------------------------------------- |
+| **Candidate Portal**             | Portal self-service para candidatos con tracking de proceso           |
+| **Application tracking**         | Pipeline visual estilo Kanban con stages configurables                |
+| **Cultural fit scoring**         | Matching con el Cultural Blueprint (Ethos) de la organización         |
+| **Predictive hiring score**      | Nexus predice probabilidad de éxito basado en patrones cross-tenant   |
+
+#### 9.3 Incubación de Talento
+
+| Capacidad                       | Detalle                                                                |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| **Talent pools**                 | Candidatos pre-calificados organizados por skill/rol para futuro       |
+| **Nurturing automático**         | Engagement continuo con candidatos pasivos                             |
+| **Pipeline forecast**            | Predicción de cuándo se necesitará activar cada pool                   |
+
+### Comparativa con competidores
+
+| Capacidad                       | Greenhouse | Lever | Workday Recruiting | SmartRecruiters | **Stratos Magnet** |
+| ------------------------------- | :--------: | :---: | :----------------: | :-------------: | :----------------: |
+| ATS / Pipeline tracking         |     ✅     |  ✅   |        ✅          |       ✅        |        ✅          |
+| Job openings desde WFP          |     ❌     |  ❌   |        ⚠️          |       ❌        |        ✅          |
+| Competency-based scoring        |     ❌     |  ❌   |        ⚠️          |       ⚠️        |        ✅          |
+| Cultural fit matching           |     ❌     |  ❌   |        ❌          |       ❌        |     ✅ Ethos       |
+| Predictive hiring (cross-org)   |     ❌     |  ❌   |        ❌          |       ❌        |     ✅ Nexus       |
+| Conectado con onboarding LMS    |     ❌     |  ❌   |        ⚠️          |       ❌        |     ✅ Praxis      |
+| Conectado con gap analysis      |     ❌     |  ❌   |        ⚠️          |       ❌        |     ✅ Kairos      |
+| Talent incubation pools         |     ⚠️     |  ⚠️   |        ⚠️          |       ⚠️        |        ✅          |
+
+> _"Greenhouse es el ATS favorito de Silicon Valley. Pero Greenhouse no sabe si el candidato resolverá la brecha de skills que Horizon detectó. No puede predecir éxito usando datos de 1,000 organizaciones como Nexus. Y cuando el candidato entra, no tiene LMS para su onboarding ni comunidad para integrarlo. Stratos Magnet es **contratación con inteligencia de extremo a extremo**."_
+
+---
+
+## 🎭 10. STRATOS ETHOS — Cultura Organizacional Inteligente
+
+> _"Cultura visible, valores que se viven"_
+
+### ¿Por qué "Ethos"?
+
+Del griego ἦθος — el carácter moral, el espíritu fundamental que define a una comunidad. Aristóteles lo consideraba la base de toda persuasión: **sin ethos, no hay confianza; sin confianza, no hay organización**. Stratos Ethos hace visible lo invisible — convierte la cultura de un concepto abstracto en **datos medibles y accionables**.
+
+### El problema que resuelve
+
+> El 88% de los empleados cree que la cultura es importante (Deloitte). Pero solo el 12% de las empresas cree que su cultura está donde debería estar. ¿El gap? **No tienen forma de medir la cultura actual** — solo declaran misión, visión y valores en un PDF que nadie lee. Entre los valores declarados y los valores vividos hay un abismo que nadie mide.
+
+Stratos Ethos cierra ese gap: define el blueprint cultural, mide adherencia real contra datos de comportamiento, y conecta cultura con decisiones de talento.
+
+### Características principales
+
+#### 10.1 Cultural Blueprint
+
+| Capacidad                       | Detalle                                                                | Diferenciador                    |
+| ------------------------------- | ---------------------------------------------------------------------- | -------------------------------- |
+| **Misión, Visión, Valores**     | Definidos y versionados con historial de cambios                       | No un PDF — un sistema vivo      |
+| **Principios operativos**       | Traducción de valores a comportamientos observables                    | De abstracto a concreto          |
+| **Cultural DNA fingerprint**    | Perfil cultural cuantificado de la organización                        | Comparable y matcheable          |
+| **Verificación de adherencia**  | Score de qué tan alineada está la práctica real con los valores        | Honestidad organizacional        |
+
+#### 10.2 Culture Analytics
+
+| Capacidad                       | Detalle                                                                |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| **Culture Dashboard**            | Métricas de cultura en tiempo real por departamento/equipo             |
+| **Culture-Performance link**     | Correlación entre adherencia cultural y resultados de negocio          |
+| **Values alignment tracking**   | Tracking de comportamientos alineados vs desalineados con valores      |
+| **Cross-module culture data**    | Integra datos de PX (engagement), Areté (performance), Ágora (social) |
+
+#### 10.3 Cultural Matching
+
+| Capacidad                        | Detalle                                                                |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| **Resonance Matching**           | El agente Matchmaker calcula fit cultural candidato↔organización       |
+| **Team DNA compatibility**       | Match cultural a nivel de equipo, no solo organizacional               |
+| **Cultural onboarding**          | Inmersión cultural personalizada para nuevos ingresos vía Praxis      |
+
+#### Agente dedicado
+
+| Agente                        | Función                                                                 |
+| ----------------------------- | ----------------------------------------------------------------------- |
+| **Navegador de Cultura**      | Analiza datos cruzados para mapear la cultura real (no la declarada)    |
+| **Matchmaker de Resonancia**  | Calcula compatibilidad cultural en contratación y movilidad interna    |
+
+### Comparativa con competidores
+
+| Capacidad                       | Culture Amp | Glint/Viva | Officevibe | Great Place to Work | **Stratos Ethos** |
+| ------------------------------- | :---------: | :--------: | :--------: | :-----------------: | :---------------: |
+| Cultural blueprint definible    |     ❌      |     ❌     |     ❌     |        ❌           |        ✅         |
+| Values adherence scoring        |     ❌      |     ❌     |     ❌     |        ⚠️           |        ✅         |
+| Culture analytics dashboard     |     ⚠️      |     ⚠️     |     ⚠️     |        ⚠️           |        ✅         |
+| Cultural matching (hiring)      |     ❌      |     ❌     |     ❌     |        ❌           |        ✅         |
+| Conectado con Performance       |     ⚠️      |     ⚠️     |     ❌     |        ❌           |     ✅ Areté      |
+| Conectado con Recruitment       |     ❌      |     ❌     |     ❌     |        ❌           |     ✅ Magnet     |
+| Conectado con PX/Engagement     |     ✅      |     ✅     |     ✅     |        ⚠️           |     ✅ Pulso      |
+| Agentes IA de cultura           |     ❌      |     ❌     |     ❌     |        ❌           |    ✅ 2 agentes   |
+
+> _"Culture Amp dice medir cultura, pero solo mide engagement — que es un proxy imperfecto. Stratos Ethos define la cultura deseada (blueprint), mide la cultura vivida (analytics), y usa la diferencia para tomar decisiones reales: ¿este candidato reforzará nuestra cultura? ¿este equipo está derivando de nuestros valores? **Es la diferencia entre medir el termómetro y diagnosticar al paciente.**"_
+
+---
+
 # PARTE II: LA INTEGRACIÓN COMO VENTAJA
 
 ---
 
 ## 🔗 El poder de la plataforma integrada
 
-La verdadera ventaja de Stratos no está en cada módulo individual — está en cómo **se conectan entre sí**. Ningún competidor ofrece esta integración porque ninguno tiene los tres módulos:
+La verdadera ventaja de Stratos no está en cada módulo individual — está en cómo **los diez módulos se conectan entre sí**. Ningún competidor ofrece esta integración porque ninguno tiene los diez módulos nativos:
 
-### Flujo integrado: De brecha a competencia cerrada
+### Flujo integrado: Del dato a la decisión
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                                                                     │
-│  1. HORIZON detecta                2. PRAXIS crea                   │
-│     brecha: "12 personas              rutas de formación            │
-│     con gap en Cloud                  personalizadas                │
-│     Architecture"                     para las 12 personas          │
-│         │                                    │                      │
-│         ▼                                    ▼                      │
-│  3. ÁGORA forma                    4. NEXUS aprende                 │
-│     comunidad de práctica              y enriquece:                 │
-│     con mentores                       "En el sector Tech,          │
-│     auto-asignados                      el 73% de empresas          │
-│         │                               cierran esta brecha         │
-│         ▼                               en 4 meses con              │
-│  5. HORIZON mide                        comunidades activas"        │
-│     cierre de brecha                                                │
-│     y ROI de la inversión                                           │
-│     en formación                                                    │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────┐
+│                                                                            │
+│  1. CORE registra persona        2. ARETÉ evalúa                           │
+│     con skills, rol,                performance, gaps,                     │
+│     competencias                    potencial                              │
+│         │                                │                                 │
+│         ▼                                ▼                                 │
+│  3. KAIROS detecta               4. HORIZON modela                         │
+│     gaps y riesgos                  escenarios de fuerza                   │
+│     de sucesión                     laboral + ROI                          │
+│         │                                │                                 │
+│         ▼                                ▼                                 │
+│  5. PRAXIS crea rutas            6. ÁGORA forma                            │
+│     de formación                    comunidades con                        │
+│     personalizadas                  mentores auto-asignados                │
+│         │                                │                                 │
+│         ▼                                ▼                                 │
+│  7. MAGNET atrae talento         8. ETHOS valida                           │
+│     externo con scoring              fit cultural del                      │
+│     predictivo                       candidato                             │
+│         │                                │                                 │
+│         ▼                                ▼                                 │
+│  9. PULSO mide impacto          10. NEXUS aprende                          │
+│     en engagement y                 cross-tenant y                         │
+│     experiencia                     mejora predicciones                    │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 15 Agentes de IA coordinados
@@ -542,9 +961,9 @@ CEO: "Necesitamos estar listos para IA Generativa en 6 meses"
 
 | Métrica                   | Detalle                                                        |
 | ------------------------- | -------------------------------------------------------------- |
-| **TAM**                   | $13.3B (LMS $9.2B + WFP $2.6B + Talent Intelligence $1.5B)     |
-| **Net Revenue Retention** | >120% (cross-sell entre módulos + Nexus lock-in)               |
-| **CAC Payback**           | <12 meses (land con Praxis, expand con Horizon + Ágora)        |
+| **TAM**                   | $18.7B (LMS $9.2B + WFP $2.6B + Talent Intel $1.5B + PX $2.1B + ATS $3.3B) |
+| **Net Revenue Retention** | >120% (cross-sell entre 10 módulos + Nexus lock-in)            |
+| **CAC Payback**           | <12 meses (land con Core+Areté, expand con Praxis+Horizon)    |
 | **Gross Margin**          | >80% (SaaS puro, IA inference escalable)                       |
 | **Moat**                  | Efecto de red de datos (Nexus) — se fortalece con cada cliente |
 
@@ -556,27 +975,29 @@ CEO: "Necesitamos estar listos para IA Generativa en 6 meses"
 
 ## Modelo de precios
 
-| Tier                   | Incluye                                    | Target                      |
-| ---------------------- | ------------------------------------------ | --------------------------- |
-| **Praxis Essential**   | LMS + Course Designer + Compliance         | Empresas 50-200 empleados   |
-| **Praxis + Ágora**     | LMS + Comunidades + Mentoring              | Empresas 200-1,000          |
-| **Enterprise**         | Praxis + Ágora + Horizon + 15 agentes      | Empresas 1,000+             |
-| **Enterprise + Nexus** | Todo + Inteligencia Colectiva + Benchmarks | Grandes empresas multi-sede |
+| Tier                    | Incluye                                                         | Target                      |
+| ----------------------- | --------------------------------------------------------------- | --------------------------- |
+| **Core Starter**        | Core + Areté + Pulso (fundación)                                | Empresas 50-200 empleados   |
+| **Talent Suite**        | Starter + Praxis + Kairos + Magnet                              | Empresas 200-500            |
+| **Enterprise**          | Todo: 10 módulos + 15 agentes IA                                | Empresas 500-5,000          |
+| **Enterprise + Nexus**  | Todo + Inteligencia Colectiva + Benchmarks sectoriales          | Grandes empresas multi-sede |
 
 ### Estrategia Go-to-Market
 
 ```
-LAND ────────────── EXPAND ────────────── LOCK-IN
-  │                    │                     │
-  │  Praxis LMS        │  + Ágora            │  + Nexus
-  │  (problema claro:  │  (engagement sube   │  (benchmarks +
-  │  compliance,       │  40%, mentoring     │  predicciones que
-  │  onboarding)       │  automático)        │  mejoran con
-  │                    │                     │  cada org)
-  │  TTR: semanas      │  + Horizon          │
-  │                    │  (CFO ve ROI        │  Switching cost:
-  │                    │  cuantificado)      │  perder inteligencia
-  │                    │                     │  colectiva
+LAND ────────────── EXPAND ────────────── ELEVATE ────── LOCK-IN
+  │                    │                      │               │
+  │  Core + Areté      │  + Praxis            │  + Horizon    │  + Nexus
+  │  (gestión base +   │  (formación          │  (planifica-  │  (benchmarks +
+  │  performance)      │  inteligente)        │  ción de      │  predicciones
+  │                    │                      │  fuerza)      │  cross-tenant)
+  │  + Pulso           │  + Ágora             │               │
+  │  (engagement)      │  (comunidades)       │  + Kairos     │  Switching cost:
+  │                    │                      │  (succession  │  perder 10 módulos
+  │  + Ethos           │  + Magnet            │  + talent     │  integrados +
+  │  (cultura base)    │  (recruitment)       │  planning)    │  inteligencia
+  │                    │                      │               │  colectiva
+  │  TTR: semanas      │  TTR: 1 mes          │  TTR: 2 meses │
 ```
 
 ---
@@ -608,17 +1029,20 @@ LAND ────────────── EXPAND ────────�
             └────────┴───────────────────────┘
 ```
 
-## Los 7 diferenciadores irrepetibles
+## Los 10 diferenciadores irrepetibles
 
-| #   | Diferenciador                                                  | ¿Quién más lo tiene?             |
-| --- | -------------------------------------------------------------- | -------------------------------- |
-| 1   | **LMS + WFP + Comunidades integrados** con datos compartidos   | Nadie                            |
-| 2   | **15 agentes de IA especializados** coordinados por un Árbitro | Nadie                            |
-| 3   | **AI-driven community formation** desde gaps de WFP            | Nadie                            |
-| 4   | **Health Score basado en Community of Inquiry**                | Nadie                            |
-| 5   | **Course Designer AI-native** con diseño instruccional         | Nadie (Docebo tiene algo básico) |
-| 6   | **Inteligencia Colectiva cross-tenant** (Nexus)                | Nadie en HR Tech                 |
-| 7   | **Fundamento teórico académico** operacionalizado en software  | Nadie                            |
+| #   | Diferenciador                                                                   | ¿Quién más lo tiene?             |
+| --- | ------------------------------------------------------------------------------- | -------------------------------- |
+| 1   | **10 módulos nativos integrados** — Core a Nexus en una sola plataforma         | Nadie                            |
+| 2   | **15 agentes de IA especializados** coordinados por un Árbitro                  | Nadie                            |
+| 3   | **AI-driven community formation** desde gaps de WFP                             | Nadie                            |
+| 4   | **Health Score basado en Community of Inquiry**                                 | Nadie                            |
+| 5   | **Course Designer AI-native** con diseño instruccional                          | Nadie (Docebo tiene algo básico) |
+| 6   | **Inteligencia Colectiva cross-tenant** (Nexus)                                 | Nadie en HR Tech                 |
+| 7   | **Fundamento teórico académico** operacionalizado en software                   | Nadie                            |
+| 8   | **Cultural fit scoring** que conecta employer brand con selection + onboarding  | Nadie                            |
+| 9   | **Separación arquitectónica WFP vs Talent Planning** con métricas distintas     | Nadie (todos mezclan headcount con proficiency) |
+| 10  | **Stratos IQ Score** — índice compuesto de madurez de talento organizacional    | Nadie                            |
 
 ---
 
@@ -643,17 +1067,18 @@ LAND ────────────── EXPAND ────────�
 
 ## Métricas de la plataforma (actuales)
 
-| Métrica                      | Valor  |
-| ---------------------------- | ------ |
-| Modelos de datos LMS         | 47     |
-| Servicios backend            | 30+    |
-| Agentes de IA                | 15     |
-| Rutas API                    | 920+   |
-| Tests automatizados          | 1,400+ |
-| Assertions                   | 4,700+ |
-| Coverage de tenant isolation | 100%   |
-| Migraciones de base de datos | 100+   |
-| Páginas Vue frontend         | 60+    |
+| Métrica                      | Valor   |
+| ---------------------------- | ------- |
+| Módulos integrados           | 10      |
+| Modelos de datos             | 100+    |
+| Servicios backend            | 50+     |
+| Agentes de IA                | 15      |
+| Rutas API                    | 920+    |
+| Tests automatizados          | 1,479+  |
+| Assertions                   | 4,718+  |
+| Coverage de tenant isolation | 100%    |
+| Migraciones de base de datos | 110+    |
+| Páginas Vue frontend         | 80+     |
 
 ---
 
@@ -661,17 +1086,17 @@ LAND ────────────── EXPAND ────────�
 
 > **Stratos no es un LMS que añadió IA. No es un WFP que añadió cursos. No es una herramienta de analytics que añadió comunidades.**
 >
-> **Stratos fue diseñado desde el día uno como una plataforma integrada de inteligencia de talento** donde cada módulo potencia a los demás, y donde un motor de inteligencia colectiva (Nexus) crea una ventaja competitiva que **se fortalece con cada cliente**.
+> **Stratos fue diseñado desde el día uno como una plataforma integrada de inteligencia de talento** con 10 módulos nativos — Core, Areté, Pulso, Kairos, Magnet, Ethos, Praxis, Ágora, Horizon y Nexus — donde cada módulo potencia a los demás, y donde un motor de inteligencia colectiva crea una ventaja competitiva que **se fortalece con cada cliente**.
 >
-> En un mercado de $13.3B donde todos los competidores son **silos** — un LMS aquí, un WFP allá, analytics por otro lado — Stratos es la **primera plataforma que lo une todo bajo un cerebro que aprende**.
+> En un mercado de $18.7B donde todos los competidores son **silos** — un LMS aquí, un ATS allá, performance por otro lado, analytics separado — Stratos es la **primera plataforma que lo une todo bajo un cerebro que aprende**.
 
 ### Los números que importan
 
-| Hoy                                                                                                      | En 3 años                                                                                               |
-| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Plataforma funcional con 47 modelos LMS, 15 agentes IA, comunidades con base teórica, WFP con escenarios | 1,000+ organizaciones en Nexus, modelos predictivos entrenados con datos reales, benchmarks sectoriales |
-| 1,400+ tests, 100% tenant isolation, governance completa                                                 | SOC 2 Type II, ISO 27001, auditoría de IA independiente                                                 |
-| Time-to-value: semanas                                                                                   | NRR >120%, Gross Margin >80%                                                                            |
+| Hoy                                                                                                          | En 3 años                                                                                               |
+| ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| 10 módulos nativos, 100+ modelos, 15 agentes IA, comunidades con base teórica, WFP con escenarios, cultural matching | 1,000+ organizaciones en Nexus, modelos predictivos entrenados con datos reales, benchmarks sectoriales |
+| 1,479+ tests, 100% tenant isolation, governance completa, RBAC granular                                      | SOC 2 Type II, ISO 27001, auditoría de IA independiente                                                 |
+| Time-to-value: semanas                                                                                       | NRR >120%, Gross Margin >80%                                                                            |
 
 ---
 
@@ -680,7 +1105,7 @@ LAND ────────────── EXPAND ────────�
 ---
 
 **Documento preparado por Stratos AI Platform Team**  
-**Versión 1.0 — 5 de abril de 2026**  
+**Versión 2.0 — 5 de abril de 2026**  
 **Clasificación: Estratégico — Material para inversores y socios**
 
 ---
