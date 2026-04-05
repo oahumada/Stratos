@@ -1132,6 +1132,62 @@ La verdadera ventaja de Stratos no está en cada módulo individual — está en
 | 14  | Árbitro de Agentes         | Nexus   | Orquestación multi-agente, calidad, compensación |
 | 15  | Operador LMS               | Praxis  | Automatización de operaciones LMS                |
 
+### 5 Motores Internos (Engines)
+
+Debajo de los 12 módulos y los 15 agentes, operan **5 motores especializados** que proveen la lógica de dominio profunda. Son la "maquinaria invisible" que hace posible la inteligencia de Stratos:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        MÓDULOS (12)                                         │
+│   Core · Areté · Pathos · Kairos · Eureka · Ethos · Themis                 │
+│   Logos · Praxis · Ágora · Horizon · Nexus                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                        AGENTES IA (15)                                      │
+│   Estratega · Coach · Orquestador 360 · Arquitecto · Facilitador · ...     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                        MOTORES (5)                                          │
+│   🐕 Cerbero · 🛡️ Vanguard · 🧭 Navigator · 💓 Pulse · 📈 Impact          │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+| Motor                     | Griego/Latín          | Función                                                                        | Alimenta a                       |
+| ------------------------- | --------------------- | ------------------------------------------------------------------------------ | -------------------------------- |
+| 🐕 **Cerbero Engine**     | Κέρβερος — guardián   | **Grafo social dinámico**: mapea relaciones jerárquicas, matriciales y de mentoring. Identifica evaluadores 360°, detecta silos, orquesta feedback | Areté, Kairos, Eureka            |
+| 🛡️ **Vanguard Engine**    | Vanguardia estratégica | **Arquitectura de roles y escenarios**: diseño paramétrico de "Cubos de Rol" (propósito × leverage × DNA de skills), simulación de fuerza laboral híbrida (humana + sintética + IA), sellado criptográfico de blueprints | Horizon, Core, Eureka            |
+| 🧭 **Navigator Engine**   | Navegación del talento | **Aceleración de desarrollo**: transforma gaps en rutas de aprendizaje 70-20-10, genera Smart Learning Paths con IA, matching de mentores vía Cerbero, nudging proactivo | Praxis, Ágora, Areté             |
+| 💓 **Pulse Engine**        | Pulso organizacional  | **Escucha activa y sentimiento**: encuestas event-driven, análisis de sentimiento con NLP, alertas de burnout, micro-intervenciones automáticas, validación post-escenario | Pathos, Ethos, Logos             |
+| 📈 **Impact Engine**       | Impacto de negocio    | **Ciencia de decisión (Talentship)**: framework LAMP (Logic, Analytics, Measures, Process), HCVA, ROI de formación, costeo de escenarios, benchmarks ISO 30414 | Logos, Horizon, Themis           |
+
+#### ¿Por qué motores separados de módulos?
+
+> Los **módulos** son lo que el usuario ve y toca — dashboards, formularios, reportes. Los **motores** son la lógica invisible que cruza datos entre módulos para generar inteligencia. Un módulo tiene UI; un motor tiene algoritmos. Esta separación permite que:
+>
+> 1. **Un motor alimente múltiples módulos**: Cerbero identifica evaluadores para Areté, mentores para Ágora, y sucesores para Kairos
+> 2. **Los módulos se combinen sin acoplamiento**: Puedes contratar Praxis sin Horizon, y Navigator igual funciona
+> 3. **La inteligencia escale independientemente**: Los motores pueden evolucionar sus algoritmos sin cambiar la UI
+
+#### Ejemplo: Cómo los motores trabajan juntos
+
+```
+Evento: Se detecta gap crítico en "Cloud Architecture" (12 personas afectadas)
+
+1. VANGUARD → Valida que el gap es real: contrasta el "Cubo de Rol"
+   (Cloud Architect) contra el inventario actual de skills
+
+2. CERBERO  → Identifica quién en la organización YA tiene esas
+   skills a nivel Expert (potenciales mentores)
+
+3. NAVIGATOR → Genera Smart Learning Path personalizado para cada
+   una de las 12 personas: 70% misiones on-the-job,
+   20% mentoría con expertos de Cerbero, 10% cursos de Praxis
+
+4. PULSE    → Activa micro-encuesta a las 12 personas: "¿Tu equipo
+   tiene los recursos para desarrollar Cloud Architecture?"
+
+5. IMPACT   → Calcula ROI: "Cerrar este gap cuesta $45K en formación
+   pero genera $280K en productividad incremental. Breakeven: 4 meses"
+```
+
 ### Interacción entre agentes (ejemplo real)
 
 ```
@@ -1266,22 +1322,23 @@ LAND ────────────── EXPAND ────────�
             └────────┴───────────────────────┘
 ```
 
-## Los 12 diferenciadores irrepetibles
+## Los 13 diferenciadores irrepetibles
 
 | #   | Diferenciador                                                                   | ¿Quién más lo tiene?             |
 | --- | ------------------------------------------------------------------------------- | -------------------------------- |
 | 1   | **12 módulos nativos integrados** — Core a Nexus en una sola plataforma         | Nadie                            |
 | 2   | **15 agentes de IA especializados** coordinados por un Árbitro                  | Nadie                            |
-| 3   | **AI-driven community formation** desde gaps de WFP                             | Nadie                            |
-| 4   | **Health Score basado en Community of Inquiry**                                 | Nadie                            |
-| 5   | **Course Designer AI-native** con diseño instruccional                          | Nadie (Docebo tiene algo básico) |
-| 6   | **Inteligencia Colectiva cross-tenant** (Nexus)                                 | Nadie en HR Tech                 |
-| 7   | **Fundamento teórico académico** operacionalizado en software                   | Nadie                            |
-| 8   | **Cultural fit scoring** que conecta employer brand con selection + onboarding  | Nadie                            |
-| 9   | **Separación arquitectónica WFP vs Talent Planning** con métricas distintas     | Nadie (todos mezclan headcount con proficiency) |
-| 10  | **Compliance ISO/SOC/GDPR nativo** — no add-on, capa transversal incluida      | Nadie en HR Tech (requieren herramientas separadas) |
-| 11  | **Analytics cross-module sin ETL** (Logos) — datos nativos, insights día 1      | Nadie (todos requieren data warehouse externo) |
-| 12  | **Stratos IQ Score** — índice compuesto de madurez de talento organizacional    | Nadie                            |
+| 3   | **5 motores de dominio** (Cerbero, Vanguard, Navigator, Pulse, Impact) — lógica invisible que cruza datos entre módulos | Nadie en HR Tech                 |
+| 4   | **AI-driven community formation** desde gaps de WFP                             | Nadie                            |
+| 5   | **Health Score basado en Community of Inquiry**                                 | Nadie                            |
+| 6   | **Course Designer AI-native** con diseño instruccional                          | Nadie (Docebo tiene algo básico) |
+| 7   | **Inteligencia Colectiva cross-tenant** (Nexus)                                 | Nadie en HR Tech                 |
+| 8   | **Fundamento teórico académico** operacionalizado en software                   | Nadie                            |
+| 9   | **Cultural fit scoring** que conecta employer brand con selection + onboarding  | Nadie                            |
+| 10  | **Separación arquitectónica WFP vs Talent Planning** con métricas distintas     | Nadie (todos mezclan headcount con proficiency) |
+| 11  | **Compliance ISO/SOC/GDPR nativo** — no add-on, capa transversal incluida      | Nadie en HR Tech (requieren herramientas separadas) |
+| 12  | **Analytics cross-module sin ETL** (Logos) — datos nativos, insights día 1      | Nadie (todos requieren data warehouse externo) |
+| 13  | **Stratos IQ Score** — índice compuesto de madurez de talento organizacional    | Nadie                            |
 
 ---
 
@@ -1309,6 +1366,7 @@ LAND ────────────── EXPAND ────────�
 | Métrica                      | Valor   |
 | ---------------------------- | ------- |
 | Módulos integrados           | 12      |
+| Motores de dominio           | 5       |
 | Modelos de datos             | 100+    |
 | Servicios backend            | 50+     |
 | Agentes de IA                | 15      |
@@ -1325,7 +1383,7 @@ LAND ────────────── EXPAND ────────�
 
 > **Stratos no es un LMS que añadió IA. No es un WFP que añadió cursos. No es una herramienta de analytics que añadió comunidades.**
 >
-> **Stratos fue diseñado desde el día uno como una plataforma integrada de inteligencia de talento** con 12 módulos nativos — Core, Areté, Pathos, Kairos, Eureka, Ethos, Themis, Logos, Praxis, Ágora, Horizon y Nexus — donde cada módulo potencia a los demás, y donde un motor de inteligencia colectiva crea una ventaja competitiva que **se fortalece con cada cliente**.
+> **Stratos fue diseñado desde el día uno como una plataforma integrada de inteligencia de talento** con 12 módulos nativos — Core, Areté, Pathos, Kairos, Eureka, Ethos, Themis, Logos, Praxis, Ágora, Horizon y Nexus — impulsados por 5 motores especializados (Cerbero, Vanguard, Navigator, Pulse, Impact) y coordinados por 15 agentes de IA. Cada pieza potencia a las demás, y un motor de inteligencia colectiva crea una ventaja competitiva que **se fortalece con cada cliente**.
 >
 > En un mercado de $18.7B donde todos los competidores son **silos** — un LMS aquí, un ATS allá, performance por otro lado, compliance separado, analytics aparte — Stratos es la **primera plataforma que lo une todo bajo un cerebro que aprende**.
 
@@ -1333,7 +1391,7 @@ LAND ────────────── EXPAND ────────�
 
 | Hoy                                                                                                          | En 3 años                                                                                               |
 | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| 12 módulos nativos, 100+ modelos, 15 agentes IA, analytics cross-module, compliance ISO-ready | 1,000+ organizaciones en Nexus, modelos predictivos entrenados con datos reales, benchmarks sectoriales |
+| 12 módulos nativos, 5 motores de dominio, 100+ modelos, 15 agentes IA, analytics cross-module, compliance ISO-ready | 1,000+ organizaciones en Nexus, modelos predictivos entrenados con datos reales, benchmarks sectoriales |
 | 1,479+ tests, 100% tenant isolation, governance completa, RBAC granular                                      | SOC 2 Type II, ISO 27001, auditoría de IA independiente                                                 |
 | Time-to-value: semanas                                                                                       | NRR >120%, Gross Margin >80%                                                                            |
 
