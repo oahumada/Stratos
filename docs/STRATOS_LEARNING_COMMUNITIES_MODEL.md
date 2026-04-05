@@ -204,6 +204,169 @@ Un modelo híbrido que fusiona **CoP + CoI + Connectivism + LPP**, adaptado al c
 
 ---
 
+## 🤝 Agente: Facilitador de Comunidades (`CommunityFacilitatorAgent`)
+
+> **Servicio**: `app/Services/Agents/CommunityFacilitatorAgent.php`  
+> **Seeder**: `database/seeders/SystemAgentsSeeder.php` → agente "Facilitador de Comunidades"  
+> **Tipo**: `support` · **Provider**: `deepseek` · **Modelo**: `deepseek-chat`
+
+### Perfil del agente
+
+**Persona**: Conector, facilitador y catalizador de conocimiento colectivo. Experto en los marcos teóricos de Communities of Practice (Wenger), Community of Inquiry (Garrison), Connectivism (Siemens), Legitimate Peripheral Participation (Lave & Wenger) y Social Learning Theory (Bandura). Diseña, lanza y nutre comunidades de aprendizaje alineadas con las brechas de skills detectadas por Workforce Planning.
+
+**Áreas de expertise**:
+- `communities_of_practice`, `social_learning`, `community_of_inquiry`
+- `connectivism`, `legitimate_peripheral_participation`
+- `mentorship_matching`, `knowledge_management`
+- `community_health_analytics`, `ugc_moderation`, `peer_learning`
+
+### Capacidades implementadas
+
+| Método | Marco Teórico | Qué hace |
+|--------|--------------|----------|
+| `designCommunity()` | CoP (Wenger) | Crea comunidades con dominio de skills + learning goals alineados a WFP. Usa los 3 pilares: Domain, Community, Practice |
+| `onboardMember()` | LPP (Lave & Wenger) | Onboarding con 5 tareas periféricas graduales: observar → presentarse → explorar KB → participar → conectar con mentor |
+| `evaluateProgression()` | LPP | Evalúa métricas del miembro y promueve automáticamente en la escala de roles según criterios cuantitativos |
+| `assessCommunityHealth()` | CoI (Garrison) | Score de 3 presencias (0-100 cada una) con peso ponderado: Social 40%, Cognitiva 35%, Docente 25% |
+| `suggestMentorships()` | Connectivism (Siemens) | Matching mentor-mentee por intersección strengths del mentor ↔ weaknesses del mentee |
+| `generateActivityPrompt()` | CoI + CoP | Detecta la presencia más débil y diseña actividad correctiva: ice-breaker (social), wiki colectiva (cognitiva), mentoría cruzada (docente) |
+| `measureSkillImpact()` | PLC (DuFour) | Mide ROI real: distribución de proficiency, score promedio, assessments completados → interpretación de impacto |
+
+### Sistema de progresión de roles (LPP)
+
+```
+NOVICE ──→ MEMBER ──→ CONTRIBUTOR ──→ MENTOR ──→ EXPERT ──→ LEADER
+  │           │            │              │           │          │
+  │    3 disc.│   10 disc. │    20 disc.  │  50 disc. │ 100 disc │
+  │           │   2 UGC    │    5 UGC     │  10 UGC   │  20 UGC  │
+  └───────────┴────────────┴──────────────┴───────────┴──────────┘
+              Criterios acumulativos de participación
+```
+
+| Rol | Discusiones | UGC publicadas | Descripción (LPP) |
+|-----|:-----------:|:--------------:|-------------------|
+| **Novice** | — | — | Observador periférico. Lee, explora, se presenta |
+| **Member** | ≥ 3 | — | Participante activo. Comenta en discusiones |
+| **Contributor** | ≥ 10 | ≥ 2 | Creador. Publica artículos, recursos, best practices |
+| **Mentor** | ≥ 20 | ≥ 5 | Guía. Mentorea novatos, facilita discusiones |
+| **Expert** | ≥ 50 | ≥ 10 | Referente. Reconocido como autoridad en el dominio |
+| **Leader** | ≥ 100 | ≥ 20 | Facilitador principal. Co-diseña la comunidad |
+
+### Community Health Score (basado en CoI)
+
+El agente evalúa la salud de cada comunidad calculando tres presencias del modelo Community of Inquiry:
+
+```
+┌────────────────────────────────────────────────────┐
+│              COMMUNITY HEALTH SCORE                │
+│                                                    │
+│  ┌──────────────┐                                  │
+│  │   SOCIAL     │  Peso: 40%                       │
+│  │  Presencia   │  Métrica: discusiones / miembros  │
+│  │              │  en últimos 30 días               │
+│  └──────────────┘                                  │
+│  ┌──────────────┐                                  │
+│  │  COGNITIVA   │  Peso: 35%                       │
+│  │  Presencia   │  Métrica: UGC publicado / miembros│
+│  │              │  en últimos 30 días               │
+│  └──────────────┘                                  │
+│  ┌──────────────┐                                  │
+│  │   DOCENTE    │  Peso: 25%                       │
+│  │  Presencia   │  Métrica: mentores activos        │
+│  │              │  / total miembros                 │
+│  └──────────────┘                                  │
+│                                                    │
+│  Score = (Social×0.4) + (Cognitiva×0.35)           │
+│        + (Docente×0.25)                            │
+│                                                    │
+│  ≥75 → 🟢 THRIVING    ≥50 → 🟡 HEALTHY            │
+│  ≥25 → 🟠 AT RISK      <25 → 🔴 CRITICAL           │
+└────────────────────────────────────────────────────┘
+```
+
+**Recomendaciones automáticas** según estado:
+
+| Estado | Presencia débil | Acción sugerida | Marco teórico |
+|--------|----------------|-----------------|---------------|
+| 🔴 Critical | Cualquiera | Reorganizar comunidad, renovar facilitador, o fusionar con otra | PLC (DuFour) |
+| 🟠 At Risk | Social < 40 | Lanzar ice-breaker o ronda de presentaciones | CoI — Presencia Social |
+| 🟠 At Risk | Cognitiva < 40 | Incentivar UGC: artículos, best practices, recursos | CoP — Práctica compartida |
+| 🟠 At Risk | Docente < 40 | Asignar mentores entre miembros avanzados | LPP — Participación periférica |
+| 🟢 Thriving | — | Expandir a cross-community connections | Connectivism — Landscape of Practice |
+
+### Mentor-Mentee Matching (Connectivism)
+
+El agente implementa el principio de Connectivism de "conectar nodos especializados" para sugerir parejas de mentoría:
+
+```
+  MENTOR (Advanced/Expert)          MENTEE (Beginner/Intermediate)
+  ┌─────────────────────┐          ┌─────────────────────┐
+  │ Strengths:          │          │ Weaknesses:         │
+  │ • liderazgo ágil    │──match──→│ • liderazgo ágil    │
+  │ • delegación        │──match──→│ • delegación        │
+  │ • feedback          │          │ • comunicación      │
+  └─────────────────────┘          └─────────────────────┘
+         Confidence: 50% (2 skills match de 4 posibles)
+```
+
+### Integración con el ecosistema de agentes
+
+El **Facilitador de Comunidades** trabaja en coordinación con los demás agentes de Stratos:
+
+| Etapa del ciclo | Agente principal | Agente de apoyo | Cómo interactúan |
+|:---|:---|:---|:---|
+| Detección de brechas | 📊 **Estratega de Talento** | 🤝 **Facilitador de Comunidades** | El Estratega detecta brechas → el Facilitador propone crear una comunidad para cerrarlas |
+| Diseño de curso | 🧠 **Arquitecto de Aprendizaje** | 🤝 **Facilitador de Comunidades** | El Arquitecto diseña el curso formal → el Facilitador diseña la comunidad de práctica complementaria |
+| Seguimiento | 🏋️ **Coach de Crecimiento** | 🤝 **Facilitador de Comunidades** | El Coach monitorea progreso individual → el Facilitador monitorea participación colectiva |
+| Evaluación 360 | 🔬 **Orquestador 360** | 🤝 **Facilitador de Comunidades** | Los peer reviews de la comunidad alimentan datos de evaluación → el Orquestador calibra |
+| Mentoring | 🤝 **Facilitador de Comunidades** | 🏋️ **Coach de Crecimiento** | El Facilitador empareja mentores → el Coach hace seguimiento de las sesiones |
+| Impacto en skills | 🤝 **Facilitador de Comunidades** | 📊 **Estratega de Talento** | El Facilitador mide impacto en skills → el Estratega actualiza el gap analysis |
+| Auditoría ética | 🛡️ **Stratos Sentinel** | 🤝 **Facilitador de Comunidades** | Sentinel audita que las decisiones de promoción de rol y mentoring no tengan sesgos |
+
+### Ejemplo de uso en código
+
+```php
+// Inyección de dependencias
+$facilitator = app(CommunityFacilitatorAgent::class);
+
+// 1. Diseñar comunidad alineada con WFP
+$community = $facilitator->designCommunity($orgId, [
+    'name' => 'Comunidad de Liderazgo Ágil',
+    'description' => 'Para mandos medios en transición a metodologías ágiles',
+    'domain_skills' => ['liderazgo_agil', 'delegacion', 'feedback_efectivo'],
+    'learning_goals' => ['Cerrar brecha de liderazgo detectada en WFP Q2'],
+    'course_id' => $courseId,
+    'facilitator_id' => $seniorLeaderId,
+    'max_members' => 25,
+]);
+
+// 2. Onboarding con LPP
+$onboarding = $facilitator->onboardMember($community->id, $newUserId, $orgId);
+// → Retorna plan de 5 pasos periféricos + rol "novice"
+
+// 3. Evaluar progresión
+$progression = $facilitator->evaluateProgression($community->id, $userId, $orgId);
+// → {current_role: 'member', next_role: 'contributor', promoted: true, ...}
+
+// 4. Salud de la comunidad (CoI)
+$health = $facilitator->assessCommunityHealth($community->id, $orgId);
+// → {health_status: 'healthy', overall_score: 62.5, presence_scores: {...}, recommendations: [...]}
+
+// 5. Sugerir mentorías (Connectivism)
+$mentorships = $facilitator->suggestMentorships($community->id, $orgId);
+// → {pairings: [{mentor_id, mentee_id, matching_skills, confidence}], count: 5}
+
+// 6. Actividad para fortalecer presencia débil
+$activity = $facilitator->generateActivityPrompt($community->id, $orgId, 'delegación');
+// → {activity: {type: 'knowledge_synthesis', ...}, rationale: '...'}
+
+// 7. Medir impacto en skills
+$impact = $facilitator->measureSkillImpact($community->id, $orgId);
+// → {average_score: 72.5, proficiency_distribution: {advanced: 8, intermediate: 12}, ...}
+```
+
+---
+
 ## ✅ ¿Vale la pena? **SÍ, rotundamente.**
 
 ### Razones estratégicas
