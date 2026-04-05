@@ -214,6 +214,7 @@ class CommunityController extends Controller
             'gaps' => 'required|array',
             'gaps.*.skill_name' => 'required|string',
             'gaps.*.gap_size' => 'required|numeric',
+            'gaps.*.gap_type' => 'nullable|string|in:proficiency,headcount',
             'gaps.*.affected_count' => 'required|integer',
             'threshold' => 'nullable|numeric|min:0.5',
             'min_affected' => 'nullable|integer|min:1',

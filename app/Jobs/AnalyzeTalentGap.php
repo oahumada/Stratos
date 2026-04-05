@@ -11,6 +11,16 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Analyzes a PROFICIENCY GAP (Talent Planning domain) for a specific role-competency linkage.
+ *
+ * This job operates in the Talent Intelligence domain, not Workforce Planning.
+ * It analyzes the difference between a competency's required_level and current_level
+ * for a specific role, then generates closure strategy recommendations via IA.
+ *
+ * For headcount/dotacional gaps, see WorkforceDemandLine and ScenarioSkillDemand.
+ * For the domain distinction, see: docs/STRATOS_DOMINIOS_WFP_VS_TALENT.md
+ */
 class AnalyzeTalentGap implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;

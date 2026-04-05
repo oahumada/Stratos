@@ -15,9 +15,16 @@ use Illuminate\Support\Facades\Log;
 /**
  * LearningBlueprintService — Cierra pendiente de Fase 5.
  *
- * Genera Learning Blueprints automáticos basados en:
+ * Operates in the TALENT PLANNING domain (proficiency gaps, not headcount).
+ * Detects PROFICIENCY GAPS (required_level - current_level in people_role_skills)
+ * and generates personalized learning plans to close them.
+ *
+ * For headcount/dotacional gaps, see WorkforceDemandLine and ScenarioSkillDemand.
+ * Domain reference: docs/STRATOS_DOMINIOS_WFP_VS_TALENT.md
+ *
+ * Generates Learning Blueprints automáticos basados en:
  * - Probabilidad de éxito predictiva
- * - Gaps actuales y predictivos
+ * - Proficiency gaps actuales y predictivos (nivel requerido vs actual)
  * - Comportamientos BARS detectados
  * - Catálogo de cursos disponible
  * - Mentores internos

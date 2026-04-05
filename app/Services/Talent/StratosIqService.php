@@ -11,8 +11,12 @@ use Illuminate\Support\Facades\DB;
 class StratosIqService
 {
     /**
-     * Captures a monthly snapshot of the organization's state.
-     * Including calculating average skill gaps across the entire company.
+     * Captures a monthly snapshot of the organization's talent intelligence state.
+     *
+     * `average_gap` = average PROFICIENCY gap across the organization
+     * (required_level - current_level in people_role_skills, Talent Planning domain).
+     * This is NOT a headcount/dotacional gap (Workforce Planning domain).
+     * Domain reference: docs/STRATOS_DOMINIOS_WFP_VS_TALENT.md
      */
     public function captureSnapshot(Organizations $org, array $metadata = []): OrganizationSnapshot
     {

@@ -18,7 +18,16 @@ class CommunityFormationService
     /**
      * Analyze skill gaps and suggest community formation.
      *
-     * @param  array  $gaps  Array of ['skill_name' => string, 'gap_size' => float, 'affected_count' => int]
+     * Accepts gaps from both Workforce Planning (headcount) and Talent Planning (proficiency).
+     * Communities are most effective for proficiency gaps (upskilling existing people),
+     * but can also support headcount gaps by accelerating onboarding of new hires.
+     *
+     * @param  array  $gaps  Array of [
+     *   'skill_name' => string,
+     *   'gap_size' => float,           // proficiency levels OR headcount persons
+     *   'gap_type' => 'proficiency'|'headcount',  // domain origin (optional, defaults to 'proficiency')
+     *   'affected_count' => int
+     * ]
      * @return array Suggestions with action (existing|suggest)
      */
     public function analyzeAndSuggest(int $orgId, array $gaps, float $threshold = 2.0, int $minAffected = 3): array
@@ -43,6 +52,7 @@ class CommunityFormationService
                     'action' => 'existing',
                     'skill' => $gap['skill_name'],
                     'gap_size' => $gap['gap_size'],
+                    'gap_type' => $gap['gap_type'] ?? 'proficiency',
                     'affected_count' => $gap['affected_count'],
                     'community_id' => $existing->id,
                     'community_name' => $existing->name,
@@ -51,14 +61,20 @@ class CommunityFormationService
                 continue;
             }
 
+            $gapType = $gap['gap_type'] ?? 'proficiency';
+            $gapLabel = $gapType === 'headcount'
+                ? "{$gap['affected_count']} personas con déficit dotacional de {$gap['gap_size']}"
+                : "{$gap['affected_count']} personas con gap de proficiency de {$gap['gap_size']}";
+
             $suggestions[] = [
                 'action' => 'suggest',
                 'skill' => $gap['skill_name'],
                 'gap_size' => $gap['gap_size'],
+                'gap_type' => $gapType,
                 'affected_count' => $gap['affected_count'],
                 'suggested_name' => "Comunidad de {$gap['skill_name']}",
                 'suggested_type' => 'practice',
-                'message' => "Brecha crítica: {$gap['affected_count']} personas con gap de {$gap['gap_size']} en {$gap['skill_name']}. Se recomienda crear una comunidad de práctica.",
+                'message' => "Brecha crítica: {$gapLabel} en {$gap['skill_name']}. Se recomienda crear una comunidad de práctica.",
             ];
         }
 

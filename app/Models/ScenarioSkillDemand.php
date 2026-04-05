@@ -51,17 +51,37 @@ class ScenarioSkillDemand extends Model
         return $this->belongsTo(Roles::class);
     }
 
-    // Métodos auxiliares
-    public function getGapHeadcount()
+    // ── Gap methods ─────────────────────────────────────────────
+    // This model bridges TWO gap domains:
+    //  • Headcount gap (dotacional): required_headcount - current_headcount
+    //  • Proficiency gap (competencias): required_level - current_avg_level
+    // See: docs/STRATOS_DOMINIOS_WFP_VS_TALENT.md
+
+    /** Headcount gap (dotacional): personas faltantes para cubrir la demanda. */
+    public function getHeadcountGap(): int
     {
         return max(0, $this->required_headcount - $this->current_headcount);
     }
 
-    public function getGapLevel()
+    /** @deprecated Use getHeadcountGap() — renamed for domain clarity. */
+    public function getGapHeadcount(): int
+    {
+        return $this->getHeadcountGap();
+    }
+
+    /** Proficiency gap (competencias): niveles faltantes para alcanzar el requerido. */
+    public function getProficiencyGap(): float
     {
         return max(0, $this->required_level - ($this->current_avg_level ?? 0));
     }
 
+    /** @deprecated Use getProficiencyGap() — renamed for domain clarity. */
+    public function getGapLevel(): float
+    {
+        return $this->getProficiencyGap();
+    }
+
+    /** Headcount coverage percentage (dotacional). */
     public function getCoveragePercentage()
     {
         if ($this->required_headcount === 0) {
