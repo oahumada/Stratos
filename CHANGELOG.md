@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.2](https://github.com/oahumada/Stratos/compare/v0.21.1...v0.21.2) (2026-04-05)
+
+
+### ✨ Nuevas Funcionalidades
+
+* **agents:** add Facilitador de Comunidades agent — expert in CoP, CoI, Connectivism, LPP ([1c2755a](https://github.com/oahumada/Stratos/commit/1c2755ab368a740ffb3b64dcd737c6ae925592ab))
+
 ### [0.21.1](https://github.com/oahumada/Stratos/compare/v0.20.1...v0.21.1) (2026-04-04)
 
 
