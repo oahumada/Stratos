@@ -9,6 +9,7 @@ use App\Models\LmsCommunity;
 use App\Services\Lms\CommunityHealthService;
 use App\Services\Lms\CommunityProgressionService;
 use App\Services\Lms\CommunityService;
+use App\Services\Lms\CommunityFormationService;
 use App\Services\Lms\MentorMatchingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -167,5 +168,66 @@ class CommunityController extends Controller
         if ((int) $community->organization_id !== $orgId) {
             abort(403, 'Community does not belong to your organization.');
         }
+    }
+
+    public function knowledgeBase(Request $request, LmsCommunity $community): JsonResponse
+    {
+        $this->authorizeOrganization($request, $community);
+
+        $articles = $community->knowledgeArticles()
+            ->with('author:id,name')
+            ->when($request->category, fn ($q, $cat) => $q->where('category', $cat))
+            ->orderByDesc('is_pinned')
+            ->orderByDesc('created_at')
+            ->paginate($request->integer('per_page', 20));
+
+        return response()->json($articles);
+    }
+
+    public function storeKnowledge(Request $request, LmsCommunity $community): JsonResponse
+    {
+        $this->authorizeOrganization($request, $community);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'category' => 'nullable|string|in:best_practice,tutorial,faq,resource,wiki',
+            'tags' => 'nullable|array',
+        ]);
+
+        $article = $community->knowledgeArticles()->create([
+            'author_id' => $request->user()->id,
+            ...$validated,
+        ]);
+
+        $this->communityService->recordActivity($community, $request->user(), 'knowledge_share', [
+            'title' => $article->title,
+            'knowledge_id' => $article->id,
+        ]);
+
+        return response()->json($article, 201);
+    }
+
+    public function suggestFromGaps(Request $request): JsonResponse
+    {
+        $request->validate([
+            'gaps' => 'required|array',
+            'gaps.*.skill_name' => 'required|string',
+            'gaps.*.gap_size' => 'required|numeric',
+            'gaps.*.affected_count' => 'required|integer',
+            'threshold' => 'nullable|numeric|min:0.5',
+            'min_affected' => 'nullable|integer|min:1',
+        ]);
+
+        $orgId = $this->resolveOrganizationId($request);
+        $service = app(CommunityFormationService::class);
+        $suggestions = $service->analyzeAndSuggest(
+            $orgId,
+            $request->gaps,
+            $request->float('threshold', 2.0),
+            $request->integer('min_affected', 3),
+        );
+
+        return response()->json(['suggestions' => $suggestions]);
     }
 }

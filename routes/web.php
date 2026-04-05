@@ -220,6 +220,15 @@ Route::get('/lms/catalog/{courseId}', fn ($courseId) => Inertia::render('Lms/Cat
 Route::get('/lms/catalog', fn () => Inertia::render('Lms/Catalog'))
     ->middleware(['auth', 'verified'])->name('lms.catalog');
 
+Route::get('/lms/communities', fn () => Inertia::render('Lms/Communities/Index'))
+    ->middleware(['auth', 'verified'])->name('lms.communities');
+
+Route::get('/lms/communities/{communityId}', fn ($communityId) => Inertia::render('Lms/Communities/Show', ['communityId' => (int) $communityId]))
+    ->middleware(['auth', 'verified'])->name('lms.communities.show');
+
+Route::get('/lms/communities/{communityId}/dashboard', fn ($communityId) => Inertia::render('Lms/Communities/Dashboard', ['communityId' => (int) $communityId]))
+    ->middleware(['auth', 'verified'])->name('lms.communities.dashboard');
+
 Route::get('/lms/webhooks', fn () => Inertia::render('Lms/Webhooks'))
     ->middleware(['auth', 'verified'])->name('lms.webhooks');
 

@@ -181,6 +181,13 @@ const allNavItems: NavItem[] = [
         icon: defineComponent(() => () => h(PhPencilLine, { size: 20 })),
         requiredRole: ['admin', 'hr_leader'],
     },
+    // Learning Communities
+    {
+        title: 'Comunidades',
+        href: '/lms/communities',
+        icon: defineComponent(() => () => h(PhUsers, { size: 20 })),
+        requiredPermission: 'lms.courses.view',
+    },
     // Mentoring Hub — requires people.view
     {
         title: 'Mentoring Hub',

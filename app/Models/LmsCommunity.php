@@ -71,6 +71,11 @@ class LmsCommunity extends Model
         return $this->hasMany(LmsCommunityActivity::class, 'community_id');
     }
 
+    public function knowledgeArticles(): HasMany
+    {
+        return $this->hasMany(LmsCommunityKnowledge::class, 'community_id');
+    }
+
     // --- Scopes ---
 
     public function scopeForOrganization($query, int $orgId)

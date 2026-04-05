@@ -606,6 +606,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // LMS Learning Communities
     Route::get('/lms/communities', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'index'])->middleware('permission:lms.courses.view');
     Route::post('/lms/communities', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'store'])->middleware('permission:lms.courses.manage');
+    Route::post('/lms/communities/suggest-from-gaps', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'suggestFromGaps'])->middleware('permission:lms.courses.manage');
     Route::get('/lms/communities/{community}', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'show'])->middleware('permission:lms.courses.view');
     Route::put('/lms/communities/{community}', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'update'])->middleware('permission:lms.courses.manage');
     Route::delete('/lms/communities/{community}', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'destroy'])->middleware('permission:lms.courses.manage');
@@ -616,6 +617,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/lms/communities/{community}/health', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'health'])->middleware('permission:lms.courses.view');
     Route::get('/lms/communities/{community}/progression', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'progression'])->middleware('permission:lms.courses.view');
     Route::get('/lms/communities/{community}/mentors', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'mentors'])->middleware('permission:lms.courses.view');
+    Route::get('/lms/communities/{community}/knowledge', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'knowledgeBase'])->middleware('permission:lms.courses.view');
+    Route::post('/lms/communities/{community}/knowledge', [\App\Http\Controllers\Api\Lms\CommunityController::class, 'storeKnowledge'])->middleware('permission:lms.courses.view');
 
     // LMS Cohorts / Learning Groups
     Route::get('/lms/cohorts', [\App\Http\Controllers\Api\Lms\CohortController::class, 'index'])->middleware('permission:lms.courses.view');
