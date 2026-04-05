@@ -11,7 +11,7 @@
 
 ## 📋 RESUMEN EJECUTIVO
 
-**Stratos** es una plataforma de Talent Intelligence que integra **diez módulos especializados** bajo un motor de inteligencia colectiva que aprende de cada interacción, cada decisión y cada resultado de talento en todas las organizaciones que la utilizan.
+**Stratos** es una plataforma de Talent Intelligence que integra **once módulos especializados** bajo un motor de inteligencia colectiva que aprende de cada interacción, cada decisión y cada resultado de talento en todas las organizaciones que la utilizan.
 
 | Módulo                    | Nombre              | Lema                                                         |
 | ------------------------- | ------------------- | ------------------------------------------------------------ |
@@ -19,8 +19,9 @@
 | 🏆 **Performance & Dev**  | **Stratos Areté**   | _"La excelencia no se alcanza, se cultiva"_                  |
 | 💓 **People Experience**  | **Stratos Pulso**   | _"Sentir el latido de tu organización"_                      |
 | ⏳ **Talent Planning**     | **Stratos Kairos**  | _"El talento correcto, en el momento preciso"_               |
-| 🧲 **Recruitment**         | **Stratos Magnet**  | _"Que el mejor talento te encuentre a ti"_                   |
+| 🏺 **Recruitment**         | **Stratos Eureka**  | _"Encontrar al talento que transforma"_                      |
 | 🎭 **Culture**             | **Stratos Ethos**   | _"Cultura visible, valores que se viven"_                    |
+| ⚖️ **Compliance**          | **Stratos Themis**  | _"Confianza construida sobre estándares"_                    |
 | 🧠 **LMS**                | **Stratos Praxis**  | _"Aprender haciendo, crecer midiendo"_                       |
 | 🏛️ **Comunidades**        | **Stratos Ágora**   | _"Donde el conocimiento se multiplica al compartirse"_       |
 | 🔭 **Workforce Planning** | **Stratos Horizon** | _"Ver el futuro del talento antes de que llegue"_            |
@@ -34,11 +35,11 @@
 
 Stratos es la **primera plataforma de HR Tech** que:
 
-1. **Integra** 10 módulos especializados — desde la gestión core de personas hasta comunidades de aprendizaje, planificación de fuerza laboral, performance, cultura y reclutamiento — en una sola plataforma nativa
+1. **Integra** 11 módulos especializados — desde la gestión core de personas hasta compliance ISO-ready, comunidades de aprendizaje, planificación de fuerza laboral, performance, cultura y reclutamiento — en una sola plataforma nativa
 2. **Conecta** cada módulo con 15 agentes de IA especializados que automatizan el 80% de las decisiones operativas de talento
 3. **Aprende** de forma transversal entre organizaciones (anonimizado) para ofrecer predicciones que mejoran con cada cliente
 
-**El resultado**: Una plataforma donde el LMS sabe qué enseñar porque Workforce Planning le dice qué skills faltan, las comunidades aceleran el aprendizaje social porque la IA identifica mentores óptimos, Talent Planning anticipa quién estará listo para sucesión porque Areté mide su crecimiento real, Magnet atrae al candidato perfecto porque conoce el DNA cultural vía Ethos, y todo mejora porque Nexus aprende de miles de organizaciones.
+**El resultado**: Una plataforma donde el LMS sabe qué enseñar porque Workforce Planning le dice qué skills faltan, las comunidades aceleran el aprendizaje social porque la IA identifica mentores óptimos, Talent Planning anticipa quién estará listo para sucesión porque Areté mide su crecimiento real, Eureka encuentra al candidato perfecto porque conoce el DNA cultural vía Ethos, Themis garantiza que todo cumple estándares internacionales, y todo mejora porque Nexus aprende de miles de organizaciones.
 
 ---
 
@@ -714,19 +715,19 @@ Stratos Kairos convierte talent planning de un ejercicio burocrático a un **sis
 
 ---
 
-## 🧲 9. STRATOS MAGNET — Atracción e Ingreso Inteligente de Talento
+## 🏺 9. STRATOS EUREKA — Descubrimiento Inteligente de Talento
 
-> _"Que el mejor talento te encuentre a ti"_
+> _"Encontrar al talento que transforma"_
 
-### ¿Por qué "Magnet"?
+### ¿Por qué "Eureka"?
 
-Un imán no persigue lo que atrae — **crea un campo de fuerza que acerca naturalmente lo correcto**. Stratos Magnet transforma el reclutamiento de "publicar y esperar" a crear un campo magnético de employer brand, matching inteligente y experiencia de candidato que atrae al talento correcto sin esfuerzo.
+Del griego εὕρηκα — la célebre exclamación de Arquímedes: _"¡Lo encontré!"_. En el reclutamiento tradicional, las empresas publican ofertas y esperan. Stratos Eureka invierte la ecuación: **descubre** al candidato correcto usando inteligencia de competencias, fit cultural y predicción de éxito. No es encontrar un CV con las keywords correctas — es el momento "eureka" de descubrir a la persona que realmente transformará el equipo.
 
 ### El problema que resuelve
 
 > El costo promedio de una contratación errónea es **$240,000** (SHRM, 2024). El time-to-hire promedio es 42 días. Y el 46% de las nuevas contrataciones fracasa en los primeros 18 meses. ¿La raíz del problema? Los ATS tradicionales filtran CVs por keywords — no entienden competencias, no evalúan fit cultural, y no aprenden de sus errores.
 
-Stratos Magnet usa la inteligencia de talento de toda la plataforma para predecir **quién tendrá éxito**, no solo quién tiene las palabras correctas en su CV.
+Stratos Eureka usa la inteligencia de talento de toda la plataforma para predecir **quién tendrá éxito**, no solo quién tiene las palabras correctas en su CV.
 
 ### Características principales
 
@@ -758,7 +759,7 @@ Stratos Magnet usa la inteligencia de talento de toda la plataforma para predeci
 
 ### Comparativa con competidores
 
-| Capacidad                       | Greenhouse | Lever | Workday Recruiting | SmartRecruiters | **Stratos Magnet** |
+| Capacidad                       | Greenhouse | Lever | Workday Recruiting | SmartRecruiters | **Stratos Eureka** |
 | ------------------------------- | :--------: | :---: | :----------------: | :-------------: | :----------------: |
 | ATS / Pipeline tracking         |     ✅     |  ✅   |        ✅          |       ✅        |        ✅          |
 | Job openings desde WFP          |     ❌     |  ❌   |        ⚠️          |       ❌        |        ✅          |
@@ -769,7 +770,7 @@ Stratos Magnet usa la inteligencia de talento de toda la plataforma para predeci
 | Conectado con gap analysis      |     ❌     |  ❌   |        ⚠️          |       ❌        |     ✅ Kairos      |
 | Talent incubation pools         |     ⚠️     |  ⚠️   |        ⚠️          |       ⚠️        |        ✅          |
 
-> _"Greenhouse es el ATS favorito de Silicon Valley. Pero Greenhouse no sabe si el candidato resolverá la brecha de skills que Horizon detectó. No puede predecir éxito usando datos de 1,000 organizaciones como Nexus. Y cuando el candidato entra, no tiene LMS para su onboarding ni comunidad para integrarlo. Stratos Magnet es **contratación con inteligencia de extremo a extremo**."_
+> _"Greenhouse es el ATS favorito de Silicon Valley. Pero Greenhouse no sabe si el candidato resolverá la brecha de skills que Horizon detectó. No puede predecir éxito usando datos de 1,000 organizaciones como Nexus. Y cuando el candidato entra, no tiene LMS para su onboarding ni comunidad para integrarlo. Stratos Eureka es **descubrimiento de talento con inteligencia de extremo a extremo**."_
 
 ---
 
@@ -831,11 +832,139 @@ Stratos Ethos cierra ese gap: define el blueprint cultural, mide adherencia real
 | Culture analytics dashboard     |     ⚠️      |     ⚠️     |     ⚠️     |        ⚠️           |        ✅         |
 | Cultural matching (hiring)      |     ❌      |     ❌     |     ❌     |        ❌           |        ✅         |
 | Conectado con Performance       |     ⚠️      |     ⚠️     |     ❌     |        ❌           |     ✅ Areté      |
-| Conectado con Recruitment       |     ❌      |     ❌     |     ❌     |        ❌           |     ✅ Magnet     |
+| Conectado con Recruitment       |     ❌      |     ❌     |     ❌     |        ❌           |     ✅ Eureka     |
 | Conectado con PX/Engagement     |     ✅      |     ✅     |     ✅     |        ⚠️           |     ✅ Pulso      |
 | Agentes IA de cultura           |     ❌      |     ❌     |     ❌     |        ❌           |    ✅ 2 agentes   |
 
 > _"Culture Amp dice medir cultura, pero solo mide engagement — que es un proxy imperfecto. Stratos Ethos define la cultura deseada (blueprint), mide la cultura vivida (analytics), y usa la diferencia para tomar decisiones reales: ¿este candidato reforzará nuestra cultura? ¿este equipo está derivando de nuestros valores? **Es la diferencia entre medir el termómetro y diagnosticar al paciente.**"_
+
+> _"Culture Amp dice medir cultura, pero solo mide engagement — que es un proxy imperfecto. Stratos Ethos define la cultura deseada (blueprint), mide la cultura vivida (analytics), y usa la diferencia para tomar decisiones reales: ¿este candidato reforzará nuestra cultura? ¿este equipo está derivando de nuestros valores? **Es la diferencia entre medir el termómetro y diagnosticar al paciente.**"_
+
+---
+
+## ⚖️ 11. STRATOS THEMIS — Compliance, Gobernanza y Confianza
+
+> _"Confianza construida sobre estándares"_
+
+### ¿Por qué "Themis"?
+
+Del griego Θέμις — la diosa titanide del orden divino, la ley natural y la justicia. Themis no solo representaba las reglas: encarnaba el **principio de que el orden genera confianza**. En el mundo empresarial moderno, compliance no es un costo — es un **activo estratégico** que diferencia a las organizaciones serias de las que improvisan. Stratos Themis convierte el cumplimiento regulatorio de una carga administrativa en una **ventaja competitiva demostrable**.
+
+### El problema que resuelve
+
+> Las empresas gastan **$10,000-$50,000 por certificación** (ISO 27001, SOC 2, GDPR). Y aún así, el 62% de las auditorías revelan incumplimientos parciales. ¿Por qué? Porque compliance es tratado como un **proyecto puntual** — se prepara para la auditoría, se pasa, y todo se degrada hasta la siguiente. No hay monitoreo continuo, no hay trazabilidad en tiempo real, y no hay conexión entre compliance de datos y compliance de talento.
+
+Stratos Themis integra compliance en el **ADN de la plataforma** — no es un módulo que se añade encima, sino una capa transversal que monitorea, audita y certifica en tiempo real.
+
+### Características principales
+
+#### 11.1 Framework Multi-Estándar
+
+| Estándar             | Cobertura en Themis                                                    | Estado     |
+| -------------------- | ---------------------------------------------------------------------- | ---------- |
+| **ISO 30414**        | Métricas de capital humano: workforce costs, productivity, succession  | ✅ Nativo  |
+| **ISO 27001**        | Seguridad de información: RBAC, audit trail, encryption, access logs   | ✅ Ready   |
+| **SOC 2 Type II**    | Trust principles: seguridad, disponibilidad, confidencialidad          | ✅ Ready   |
+| **GDPR (EU)**        | Consentimiento IA, derecho al olvido, purga automatizada, DPO tools    | ✅ Nativo  |
+| **CCPA (California)**| Consumer privacy rights, opt-out, data portability                     | ✅ Ready   |
+| **LGPD (Brasil)**    | Lei Geral de Proteção de Dados — tratamiento y consentimiento          | ✅ Ready   |
+| **ISO 9001**         | Gestión de calidad: procesos documentados, mejora continua             | ⚠️ Roadmap |
+| **W3C VC**           | Credenciales verificables: DID documents, digital seals                | ✅ Nativo  |
+
+#### 11.2 Auditoría y Trazabilidad
+
+| Capacidad                        | Detalle                                                               | Diferenciador                        |
+| -------------------------------- | --------------------------------------------------------------------- | ------------------------------------ |
+| **Audit Trail completo**         | Cada acción registrada: quién, qué, cuándo, desde dónde, por qué     | No solo logs — contexto semántico    |
+| **Compliance Dashboard**         | Semáforos de riesgo en tiempo real por estándar y por módulo           | Monitoreo continuo, no puntual       |
+| **Internal Audit Wizard**        | Asistente guiado para auditorías internas con checklists generados    | Reduce costo de auditoría 60%        |
+| **Evidence Collection**          | Recopilación automática de evidencias para auditorías externas        | De semanas a horas                   |
+| **DID Documents (W3C)**          | Identidad descentralizada verificable para credenciales de talento    | Blockchain-backed trust              |
+
+#### 11.3 Privacidad y Protección de Datos
+
+| Capacidad                        | Detalle                                                               |
+| -------------------------------- | --------------------------------------------------------------------- |
+| **AI Consent Management**        | Consentimiento granular para uso de IA por persona, auditable         |
+| **GDPR Purge Engine**            | Derecho al olvido: dry-run + ejecución con trazabilidad completa      |
+| **Data Minimization**            | Políticas automáticas de retención y eliminación por categoría        |
+| **Privacy Impact Assessment**    | Evaluaciones de impacto automatizadas para nuevos procesos            |
+| **Cross-border Compliance**      | Reglas por jurisdicción para organizaciones multi-país                |
+
+#### 11.4 Compliance de Talento (ISO 30414)
+
+| Métrica ISO 30414               | Cómo Stratos la calcula                                                |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| **Workforce costs**              | Desde Core: compensación, beneficios, costo por departamento           |
+| **Productivity**                 | Desde Areté: performance scores, output metrics, efficiency ratios    |
+| **Succession planning**          | Desde Kairos: readiness scores, pipeline coverage, critical roles      |
+| **Skills & capabilities**        | Desde Core + Praxis: proficiency levels, certifications, learning completion |
+| **Workforce availability**       | Desde Horizon: headcount vs demand, coverage percentages              |
+| **Leadership trust**             | Desde Pulso: eNPS, engagement scores, cultural alignment              |
+
+#### 11.5 Quality Hub
+
+| Capacidad                        | Detalle                                                               |
+| -------------------------------- | --------------------------------------------------------------------- |
+| **RAGAS Evaluation**             | Evaluación de calidad de respuestas IA (Retrieval Augmented)          |
+| **Agent Quality Monitoring**     | SLA tracking de los 15 agentes: latencia, precisión, satisfacción     |
+| **Stratos Sentinel**             | Agente IA dedicado a seguridad, compliance y monitoreo continuo       |
+| **Incident Response**            | Detección y respuesta automatizada a incidentes de seguridad/calidad  |
+
+### Por qué Compliance es un argumento de venta potente
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│  SIN STRATOS THEMIS                   CON STRATOS THEMIS                │
+│  ─────────────────                    ──────────────────                 │
+│                                                                         │
+│  • Certificación ISO: $30K-$50K       • ISO-ready desde el día 1       │
+│    + 6 meses de preparación           • Evidence collection: horas     │
+│                                                                         │
+│  • Auditoría GDPR: consultores        • Consent management nativo      │
+│    externos, $20K/año                 • Purge engine automatizado      │
+│                                                                         │
+│  • SOC 2: 6-12 meses de              • Trust principles integrados    │
+│    implementación                      en cada módulo                   │
+│                                                                         │
+│  • ISO 30414: manual, Excel           • Métricas calculadas en         │
+│    basado, desactualizado              tiempo real desde datos vivos   │
+│                                                                         │
+│  COSTO TOTAL: $100K-$200K/año         COSTO: INCLUIDO en la licencia  │
+│  TIEMPO: meses                        TIEMPO: activación inmediata    │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Comparativa con competidores
+
+| Capacidad                        | OneTrust | Drata | Vanta | SAP GRC | **Stratos Themis** |
+| -------------------------------- | :------: | :---: | :---: | :-----: | :----------------: |
+| GDPR compliance                  |    ✅    |  ✅   |  ✅   |   ✅    |        ✅          |
+| SOC 2 automation                 |    ⚠️    |  ✅   |  ✅   |   ⚠️    |     ✅ Ready       |
+| ISO 27001 readiness              |    ⚠️    |  ✅   |  ✅   |   ✅    |     ✅ Ready       |
+| ISO 30414 (HR metrics)           |    ❌    |  ❌   |  ❌   |   ⚠️    |     ✅ Nativo      |
+| Audit trail contextual           |    ✅    |  ⚠️   |  ⚠️   |   ✅    |        ✅          |
+| AI consent management            |    ⚠️    |  ❌   |  ❌   |   ❌    |        ✅          |
+| W3C Verifiable Credentials       |    ❌    |  ❌   |  ❌   |   ❌    |        ✅          |
+| Integrado con datos de talento   |    ❌    |  ❌   |  ❌   |   ⚠️    |   ✅ 10 módulos    |
+| Compliance de IA (quality/SLA)   |    ❌    |  ❌   |  ❌   |   ❌    |   ✅ Sentinel      |
+| Costo separado                   |  $$$$$   | $$$$  | $$$$  |  $$$$$  |    ✅ Incluido     |
+
+> _"OneTrust, Drata y Vanta son herramientas de compliance puras — excelentes en lo suyo, pero desconectadas de los datos que auditan. Stratos Themis no necesita integraciones para acceder a datos de personas, performance, formación o cultura porque **los datos ya viven en Stratos**. El resultado: compliance que se actualiza en tiempo real, no cada trimestre. Y para el CFO: un costo incluido en la licencia vs. $100K-$200K/año en herramientas separadas."_
+
+---
+
+### El argumento para el C-Suite
+
+> **Para el CHRO**: _"Somos la única plataforma de talento que puede generar un reporte ISO 30414 completo con un clic — con datos vivos, no de un Excel de hace 3 meses."_
+>
+> **Para el CTO/CISO**: _"GDPR purge automatizado, audit trail en cada acción, RBAC granular, W3C credentials. SOC 2 ready desde el día 1."_
+>
+> **Para el CEO**: _"Compliance no es un costo en Stratos — es una feature incluida que nos ahorra $100K-$200K/año y nos da una ventaja en licitaciones donde ISO 27001 o SOC 2 son requisito."_
+>
+> **Para inversores**: _"Cada cliente que entra ya está compliance-ready. Esto reduce churn (nadie quiere rehacer compliance en otra plataforma), aumenta enterprise-readiness, y nos posiciona para contratos gubernamentales y regulados."_
 
 ---
 
@@ -845,7 +974,7 @@ Stratos Ethos cierra ese gap: define el blueprint cultural, mide adherencia real
 
 ## 🔗 El poder de la plataforma integrada
 
-La verdadera ventaja de Stratos no está en cada módulo individual — está en cómo **los diez módulos se conectan entre sí**. Ningún competidor ofrece esta integración porque ninguno tiene los diez módulos nativos:
+La verdadera ventaja de Stratos no está en cada módulo individual — está en cómo **los once módulos se conectan entre sí**. Ningún competidor ofrece esta integración porque ninguno tiene los once módulos nativos:
 
 ### Flujo integrado: Del dato a la decisión
 
@@ -867,14 +996,20 @@ La verdadera ventaja de Stratos no está en cada módulo individual — está en
 │     personalizadas                  mentores auto-asignados                │
 │         │                                │                                 │
 │         ▼                                ▼                                 │
-│  7. MAGNET atrae talento         8. ETHOS valida                           │
+│  7. EUREKA descubre talento      8. ETHOS valida                           │
 │     externo con scoring              fit cultural del                      │
 │     predictivo                       candidato                             │
 │         │                                │                                 │
 │         ▼                                ▼                                 │
-│  9. PULSO mide impacto          10. NEXUS aprende                          │
-│     en engagement y                 cross-tenant y                         │
-│     experiencia                     mejora predicciones                    │
+│  9. PULSO mide impacto          10. THEMIS audita y                        │
+│     en engagement y                 certifica que todo                     │
+│     experiencia                     cumple ISO/SOC/GDPR                   │
+│         │                                │                                 │
+│         └────────────┐  ┌────────────────┘                                 │
+│                      ▼  ▼                                                  │
+│              11. NEXUS aprende                                             │
+│                  cross-tenant y                                            │
+│                  mejora predicciones                                       │
 │                                                                            │
 └────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -962,7 +1097,7 @@ CEO: "Necesitamos estar listos para IA Generativa en 6 meses"
 | Métrica                   | Detalle                                                        |
 | ------------------------- | -------------------------------------------------------------- |
 | **TAM**                   | $18.7B (LMS $9.2B + WFP $2.6B + Talent Intel $1.5B + PX $2.1B + ATS $3.3B) |
-| **Net Revenue Retention** | >120% (cross-sell entre 10 módulos + Nexus lock-in)            |
+| **Net Revenue Retention** | >120% (cross-sell entre 11 módulos + Nexus lock-in)            |
 | **CAC Payback**           | <12 meses (land con Core+Areté, expand con Praxis+Horizon)    |
 | **Gross Margin**          | >80% (SaaS puro, IA inference escalable)                       |
 | **Moat**                  | Efecto de red de datos (Nexus) — se fortalece con cada cliente |
@@ -977,9 +1112,9 @@ CEO: "Necesitamos estar listos para IA Generativa en 6 meses"
 
 | Tier                    | Incluye                                                         | Target                      |
 | ----------------------- | --------------------------------------------------------------- | --------------------------- |
-| **Core Starter**        | Core + Areté + Pulso (fundación)                                | Empresas 50-200 empleados   |
-| **Talent Suite**        | Starter + Praxis + Kairos + Magnet                              | Empresas 200-500            |
-| **Enterprise**          | Todo: 10 módulos + 15 agentes IA                                | Empresas 500-5,000          |
+| **Core Starter**        | Core + Areté + Pulso + Ethos (fundación)                        | Empresas 50-200 empleados   |
+| **Talent Suite**        | Starter + Praxis + Kairos + Eureka + Themis                     | Empresas 200-500            |
+| **Enterprise**          | Todo: 11 módulos + 15 agentes IA                                | Empresas 500-5,000          |
 | **Enterprise + Nexus**  | Todo + Inteligencia Colectiva + Benchmarks sectoriales          | Grandes empresas multi-sede |
 
 ### Estrategia Go-to-Market
@@ -993,10 +1128,14 @@ LAND ────────────── EXPAND ────────�
   │                    │                      │  fuerza)      │  cross-tenant)
   │  + Pulso           │  + Ágora             │               │
   │  (engagement)      │  (comunidades)       │  + Kairos     │  Switching cost:
-  │                    │                      │  (succession  │  perder 10 módulos
-  │  + Ethos           │  + Magnet            │  + talent     │  integrados +
+  │                    │                      │  (succession  │  perder 11 módulos
+  │  + Ethos           │  + Eureka            │  + talent     │  integrados +
   │  (cultura base)    │  (recruitment)       │  planning)    │  inteligencia
   │                    │                      │               │  colectiva
+  │  + Themis          │                      │               │
+  │  (compliance       │                      │               │  + compliance
+  │  ISO-ready)        │                      │               │  history
+  │                    │                      │               │
   │  TTR: semanas      │  TTR: 1 mes          │  TTR: 2 meses │
 ```
 
@@ -1029,11 +1168,11 @@ LAND ────────────── EXPAND ────────�
             └────────┴───────────────────────┘
 ```
 
-## Los 10 diferenciadores irrepetibles
+## Los 11 diferenciadores irrepetibles
 
 | #   | Diferenciador                                                                   | ¿Quién más lo tiene?             |
 | --- | ------------------------------------------------------------------------------- | -------------------------------- |
-| 1   | **10 módulos nativos integrados** — Core a Nexus en una sola plataforma         | Nadie                            |
+| 1   | **11 módulos nativos integrados** — Core a Nexus en una sola plataforma         | Nadie                            |
 | 2   | **15 agentes de IA especializados** coordinados por un Árbitro                  | Nadie                            |
 | 3   | **AI-driven community formation** desde gaps de WFP                             | Nadie                            |
 | 4   | **Health Score basado en Community of Inquiry**                                 | Nadie                            |
@@ -1042,7 +1181,8 @@ LAND ────────────── EXPAND ────────�
 | 7   | **Fundamento teórico académico** operacionalizado en software                   | Nadie                            |
 | 8   | **Cultural fit scoring** que conecta employer brand con selection + onboarding  | Nadie                            |
 | 9   | **Separación arquitectónica WFP vs Talent Planning** con métricas distintas     | Nadie (todos mezclan headcount con proficiency) |
-| 10  | **Stratos IQ Score** — índice compuesto de madurez de talento organizacional    | Nadie                            |
+| 10  | **Compliance ISO/SOC/GDPR nativo** — no add-on, capa transversal incluida      | Nadie en HR Tech (requieren herramientas separadas) |
+| 11  | **Stratos IQ Score** — índice compuesto de madurez de talento organizacional    | Nadie                            |
 
 ---
 
@@ -1069,7 +1209,7 @@ LAND ────────────── EXPAND ────────�
 
 | Métrica                      | Valor   |
 | ---------------------------- | ------- |
-| Módulos integrados           | 10      |
+| Módulos integrados           | 11      |
 | Modelos de datos             | 100+    |
 | Servicios backend            | 50+     |
 | Agentes de IA                | 15      |
@@ -1086,15 +1226,15 @@ LAND ────────────── EXPAND ────────�
 
 > **Stratos no es un LMS que añadió IA. No es un WFP que añadió cursos. No es una herramienta de analytics que añadió comunidades.**
 >
-> **Stratos fue diseñado desde el día uno como una plataforma integrada de inteligencia de talento** con 10 módulos nativos — Core, Areté, Pulso, Kairos, Magnet, Ethos, Praxis, Ágora, Horizon y Nexus — donde cada módulo potencia a los demás, y donde un motor de inteligencia colectiva crea una ventaja competitiva que **se fortalece con cada cliente**.
+> **Stratos fue diseñado desde el día uno como una plataforma integrada de inteligencia de talento** con 11 módulos nativos — Core, Areté, Pulso, Kairos, Eureka, Ethos, Themis, Praxis, Ágora, Horizon y Nexus — donde cada módulo potencia a los demás, y donde un motor de inteligencia colectiva crea una ventaja competitiva que **se fortalece con cada cliente**.
 >
-> En un mercado de $18.7B donde todos los competidores son **silos** — un LMS aquí, un ATS allá, performance por otro lado, analytics separado — Stratos es la **primera plataforma que lo une todo bajo un cerebro que aprende**.
+> En un mercado de $18.7B donde todos los competidores son **silos** — un LMS aquí, un ATS allá, performance por otro lado, compliance separado, analytics aparte — Stratos es la **primera plataforma que lo une todo bajo un cerebro que aprende**.
 
 ### Los números que importan
 
 | Hoy                                                                                                          | En 3 años                                                                                               |
 | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| 10 módulos nativos, 100+ modelos, 15 agentes IA, comunidades con base teórica, WFP con escenarios, cultural matching | 1,000+ organizaciones en Nexus, modelos predictivos entrenados con datos reales, benchmarks sectoriales |
+| 11 módulos nativos, 100+ modelos, 15 agentes IA, comunidades con base teórica, WFP con escenarios, compliance ISO-ready | 1,000+ organizaciones en Nexus, modelos predictivos entrenados con datos reales, benchmarks sectoriales |
 | 1,479+ tests, 100% tenant isolation, governance completa, RBAC granular                                      | SOC 2 Type II, ISO 27001, auditoría de IA independiente                                                 |
 | Time-to-value: semanas                                                                                       | NRR >120%, Gross Margin >80%                                                                            |
 
