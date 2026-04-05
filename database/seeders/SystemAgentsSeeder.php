@@ -198,6 +198,36 @@ class SystemAgentsSeeder extends Seeder
             ]
         );
 
+        // Cognitive Planner: decomposes objectives into task trees
+        Agent::updateOrCreate(
+            ['name' => 'Planificador Cognitivo'],
+            [
+                'role_description' => 'Descomponedor de Objetivos y Planificador de Tareas',
+                'persona' => 'Estratégico y metódico. Descompone objetivos complejos de talento en árboles de sub-tareas ejecutables, resolviendo dependencias y estimando complejidad.',
+                'type' => 'analyst',
+                'provider' => 'deepseek',
+                'model' => 'deepseek-chat',
+                'is_active' => true,
+                'expertise_areas' => ['task_decomposition', 'execution_planning', 'dependency_resolution', 'complexity_estimation'],
+                'capabilities_config' => ['reasoning_level' => 'vhigh', 'planning_precision' => 'high'],
+            ]
+        );
+
+        // Agent Arbiter: orchestrates multi-agent execution with retries and quality control
+        Agent::updateOrCreate(
+            ['name' => 'Árbitro de Agentes'],
+            [
+                'role_description' => 'Orquestador de Ejecución Multi-Agente',
+                'persona' => 'Coordinador riguroso y resiliente. Orquesta la ejecución secuencial de tareas entre múltiples agentes, gestionando reintentos, compensaciones y control de calidad.',
+                'type' => 'analyst',
+                'provider' => 'deepseek',
+                'model' => 'deepseek-reasoner',
+                'is_active' => true,
+                'expertise_areas' => ['multi_agent_orchestration', 'retry_management', 'compensation_handling', 'quality_assessment'],
+                'capabilities_config' => ['reliability' => 'vhigh', 'orchestration_precision' => 'high'],
+            ]
+        );
+
         // LMS Operator agent: manages onboarding, enrollments, invitations and certificate lifecycle
         Agent::updateOrCreate(
             ['name' => 'Operador LMS'],

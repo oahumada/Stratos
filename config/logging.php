@@ -150,6 +150,14 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'agents' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/agents.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 14,
+            'replace_placeholders' => true,
+        ],
+
     ],
 
 ];
