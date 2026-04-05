@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.4](https://github.com/oahumada/Stratos/compare/v0.21.2...v0.21.4) (2026-04-05)
+
 ### [0.21.2](https://github.com/oahumada/Stratos/compare/v0.21.1...v0.21.2) (2026-04-05)
 
 
